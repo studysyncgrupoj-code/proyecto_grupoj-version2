@@ -3,7 +3,7 @@ import PomodoroTimer from "../components/dashboard/PomodoroTimer";
 
 function Dashboard() {
   return (
-    <div className="min-h-screen bg-slate-950 text-white flex">
+    <div className="min-h-screen bg-black text-white flex">
 
       <Sidebar />
 
@@ -23,7 +23,7 @@ function Dashboard() {
               </p>
             </div>
 
-            <button className="bg-cyan-400 hover:bg-cyan-300 transition text-slate-950 px-6 py-3 rounded-xl font-semibold">
+            <button className="bg-yellow-400 hover:bg-yellow-300 transition text-slate-950 px-6 py-3 rounded-xl font-semibold">
               Crear Sala
             </button>
 
@@ -33,32 +33,32 @@ function Dashboard() {
 
         <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
 
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
+          <div className="bg-zinc-950 border border-yellow-700/40 rounded-2xl p-6">
             <h3 className="text-slate-400">
               Horas estudiadas
             </h3>
 
-            <h2 className="text-5xl font-bold text-cyan-400 mt-4">
+            <h2 className="text-5xl font-bold text-yellow-400 mt-4">
               42h
             </h2>
           </div>
 
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
+          <div className="bg-zinc-950 border border-yellow-700/40 rounded-2xl p-6">
             <h3 className="text-slate-400">
               Metas completadas
             </h3>
 
-            <h2 className="text-5xl font-bold text-cyan-400 mt-4">
+            <h2 className="text-5xl font-bold text-yellow-400 mt-4">
               18
             </h2>
           </div>
 
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
+          <div className="bg-zinc-950 border border-yellow-700/40 rounded-2xl p-6">
             <h3 className="text-slate-400">
               Puntos obtenidos
             </h3>
 
-            <h2 className="text-5xl font-bold text-cyan-400 mt-4">
+            <h2 className="text-5xl font-bold text-yellow-400 mt-4">
               +320
             </h2>
           </div>
@@ -69,7 +69,7 @@ function Dashboard() {
 
           <PomodoroTimer />
 
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-8">
+          <div className="bg-zinc-950 border border-yellow-700/40 rounded-2xl p-8">
 
             <h2 className="text-2xl font-bold">
               Salas activas
@@ -77,7 +77,7 @@ function Dashboard() {
 
             <div className="space-y-4 mt-8">
 
-              <div className="bg-slate-950 rounded-xl p-5 border border-slate-800 flex items-center justify-between">
+              <div className="bg-black rounded-xl p-5 border border-yellow-700/40 flex items-center justify-between">
 
                 <div>
                   <h3 className="font-semibold">
@@ -93,7 +93,7 @@ function Dashboard() {
 
               </div>
 
-              <div className="bg-slate-950 rounded-xl p-5 border border-slate-800 flex items-center justify-between">
+              <div className="bg-black rounded-xl p-5 border border-yellow-700/40 flex items-center justify-between">
 
                 <div>
                   <h3 className="font-semibold">
@@ -109,7 +109,7 @@ function Dashboard() {
 
               </div>
 
-              <div className="bg-slate-950 rounded-xl p-5 border border-slate-800 flex items-center justify-between">
+              <div className="bg-black rounded-xl p-5 border border-yellow-700/40 flex items-center justify-between">
 
                 <div>
                   <h3 className="font-semibold">

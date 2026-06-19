@@ -1,0 +1,788 @@
+.salas-page {
+  color-scheme: dark;
+  font-family: Inter, system-ui, sans-serif;
+  min-height: 100vh;
+  background: radial-gradient(circle at top left, rgba(212, 175, 55, 0.14), transparent 22%),
+    radial-gradient(circle at bottom right, rgba(212, 175, 55, 0.14), transparent 20%),
+    #000000;
+  color: #f5e3a0;
+}
+
+.salas-page *,
+.salas-page *::before,
+.salas-page *::after {
+  box-sizing: border-box;
+}
+
+.salas-page button,
+.salas-page input {
+  font: inherit;
+}
+
+.salas-page button {
+  border: none;
+  cursor: pointer;
+}
+
+.salas-app-shell {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  min-height: 100vh;
+  gap: 24px;
+  padding: 24px;
+}
+
+.salas-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  padding: 24px;
+  border-radius: 32px;
+  background: rgba(10, 10, 10, 0.92);
+  border: 1px solid rgba(212, 175, 55, 0.18);
+  box-shadow: 0 40px 100px rgba(0, 0, 0, 0.6);
+}
+
+.salas-brand {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.salas-brand-logo {
+  width: 52px;
+  height: 52px;
+  border-radius: 18px;
+  display: grid;
+  place-items: center;
+  background: #d4af37;
+  color: #000000;
+  font-weight: 900;
+  font-size: 1.25rem;
+}
+
+.salas-brand-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.salas-brand-subtitle {
+  margin: 4px 0 0;
+  color: #d9c578;
+  font-size: 0.92rem;
+}
+
+.salas-sidebar-nav {
+  display: grid;
+  gap: 12px;
+}
+
+.salas-sidebar-link {
+  display: block;
+  text-decoration: none;
+  color: #f5e3a0;
+  padding: 14px 18px;
+  border-radius: 18px;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.salas-sidebar-link:hover,
+.salas-sidebar-link.salas-active {
+  background: rgba(212, 175, 55, 0.18);
+  color: #ffffff;
+}
+
+.salas-main-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.salas-main-topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 18px 22px;
+  border-radius: 28px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(212, 175, 55, 0.18);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.32);
+  backdrop-filter: blur(16px);
+}
+
+.salas-topbar-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  color: #f5e3a0;
+  font-weight: 700;
+}
+
+.salas-status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: #d4af37;
+  box-shadow: 0 0 0 6px rgba(212, 175, 55, 0.18);
+}
+
+.salas-topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.salas-action-pill,
+.salas-action-button {
+  padding: 12px 18px;
+  border-radius: 999px;
+  font-weight: 700;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+  box-shadow: 0 22px 40px rgba(0, 0, 0, 0.15);
+}
+
+.salas-action-pill {
+  background: rgba(212, 175, 55, 0.18);
+  color: #f7e8a0;
+}
+
+.salas-action-button {
+  background: rgba(255,255,255,0.08);
+  color: #f5e3a0;
+}
+
+.salas-action-pill:hover,
+.salas-action-button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 28px 50px rgba(0, 0, 0, 0.22);
+}
+
+.salas-main-header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.salas-eyebrow {
+  margin: 0 0 10px;
+  color: #d4af37;
+  font-size: 0.95rem;
+}
+
+.salas-page h1 {
+  margin: 0;
+  font-size: clamp(2.1rem, 2.3vw, 3.3rem);
+  letter-spacing: -0.05em;
+}
+
+.salas-description {
+  margin: 12px 0 0;
+  max-width: 620px;
+  color: #d8c184;
+  line-height: 1.65;
+}
+
+.salas-stats-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.salas-stat-box {
+  padding: 22px;
+  border-radius: 24px;
+  background: rgba(212, 175, 55, 0.08);
+  border: 1px solid rgba(212, 175, 55, 0.2);
+}
+
+.salas-stat-box span {
+  display: block;
+  color: #d8c184;
+  margin-bottom: 10px;
+}
+
+.salas-stat-box strong {
+  display: block;
+  font-size: 1.8rem;
+}
+
+.salas-filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.salas-search-box {
+  flex: 1 1 280px;
+}
+
+.salas-search-box input {
+  width: 100%;
+  border-radius: 18px;
+  border: 1px solid rgba(255,255,255,0.1);
+  padding: 16px 18px;
+  background: rgba(255,255,255,0.04);
+  color: #f5e3a0;
+}
+
+.salas-search-box input::placeholder {
+  color: #8ba8cc;
+}
+
+.salas-filter-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.salas-chip {
+  padding: 12px 18px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.05);
+  color: #f5e3a0;
+}
+
+.salas-chip.salas-active {
+  background: #d4af37;
+  color: #000000;
+}
+
+.salas-rooms-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+}
+
+.salas-empty-state {
+  grid-column: 1 / -1;
+  padding: 40px 28px;
+  border-radius: 28px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(212, 175, 55, 0.14);
+  color: #f5e3a0;
+  text-align: center;
+  font-weight: 700;
+}
+
+.salas-room-card {
+  position: relative;
+  display: grid;
+  gap: 18px;
+  padding: 20px;
+  border-radius: 32px;
+  background: rgba(5, 5, 5, 0.94);
+  border: 1px solid rgba(212, 175, 55, 0.18);
+  overflow: hidden;
+  box-shadow: 0 30px 90px rgba(0, 0, 0, 0.32);
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+.salas-room-card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 40px 110px rgba(0, 0, 0, 0.5);
+  border-color: rgba(212, 175, 55, 0.4);
+}
+
+.salas-room-banner {
+  position: relative;
+  height: 140px;
+  border-radius: 24px;
+  background: linear-gradient(135deg, #1a1a1a, #070707);
+  box-shadow: inset 0 0 0 1px rgba(212, 175, 55, 0.18);
+}
+
+.salas-banner-label {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: #fff;
+}
+
+.salas-banner-label.salas-focus {
+  background: #d4af37;
+  color: #000000;
+}
+
+.salas-banner-label.salas-live {
+  background: rgba(255, 255, 255, 0.1);
+  color: #f5e3a0;
+}
+
+.salas-room-content {
+  display: grid;
+  gap: 16px;
+}
+
+.salas-room-content h2 {
+  margin: 0;
+  font-size: 1.35rem;
+}
+
+.salas-room-content p {
+  margin: 4px 0 0;
+  color: #d8c184;
+}
+
+.salas-room-meta {
+  display: grid;
+  gap: 12px;
+}
+
+.salas-room-progress {
+  width: 100%;
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+
+.salas-progress-fill {
+  width: 100%;
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #d4af37 40%, #b58f2f 100%);
+}
+
+.salas-room-info-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  color: #d8c184;
+  font-size: 0.95rem;
+}
+
+.salas-mode {
+  font-weight: 700;
+}
+
+.salas-mode.salas-active {
+  color: #d4af37;
+}
+
+.salas-mode.salas-inactive {
+  color: #ff8b82;
+}
+
+.salas-join-button {
+  width: 100%;
+  padding: 14px 18px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #d4af37, #b58f2f);
+  color: #000000;
+  font-weight: 700;
+  box-shadow: 0 20px 40px rgba(212, 175, 55, 0.28);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.salas-join-button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 25px 45px rgba(212, 175, 55, 0.35);
+}
+
+.salas-room-tags {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.salas-tag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 72px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #f5e3a0;
+}
+
+.salas-tag.salas-focus {
+  background: rgba(212, 175, 55, 0.18);
+  color: #000000;
+}
+
+.salas-tag.salas-live {
+  background: rgba(255,255,255,0.08);
+  color: #f5e3a0;
+}
+
+.salas-tag.salas-premium {
+  background: rgba(212, 175, 55, 0.18);
+  color: #000000;
+}
+
+.salas-room-detail-grid {
+  display: grid;
+  grid-template-columns: 1.5fr 0.85fr;
+  gap: 24px;
+}
+
+.salas-room-detail-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.salas-back-button {
+  padding: 12px 18px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.06);
+  color: #f5e3a0;
+  font-weight: 700;
+}
+
+.salas-room-objective-card,
+.salas-kpi-card,
+.salas-member-card,
+.salas-chat-panel,
+.salas-pomodoro-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(212, 175, 55, 0.14);
+  border-radius: 28px;
+}
+
+.salas-room-objective-card {
+  padding: 28px;
+  margin-bottom: 24px;
+}
+
+.salas-task-card {
+  padding: 28px;
+  margin-bottom: 24px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(212, 175, 55, 0.14);
+  border-radius: 28px;
+}
+
+.salas-task-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 20px;
+}
+
+.salas-task-summary {
+  margin: 0;
+  color: #d8c184;
+  font-size: 0.95rem;
+}
+
+.salas-task-list {
+  display: grid;
+  gap: 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.salas-task-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 16px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.salas-task-checkbox {
+  width: 32px;
+  height: 32px;
+  border-radius: 12px;
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  background: rgba(0, 0, 0, 0.4);
+  color: #d4af37;
+  font-weight: 700;
+  display: grid;
+  place-items: center;
+}
+
+.salas-task-checkbox.salas-done {
+  background: #d4af37;
+  color: #000;
+}
+
+.salas-task-done {
+  text-decoration: line-through;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.salas-task-empty {
+  color: #d8c184;
+  padding: 14px 16px;
+}
+
+.salas-task-input-row {
+  display: flex;
+  gap: 14px;
+  margin-top: 20px;
+}
+
+.salas-task-input-row input {
+  flex: 1;
+  padding: 16px 18px;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.04);
+  color: #f5e3a0;
+}
+
+.salas-task-input-row input::placeholder {
+  color: rgba(245, 227, 160, 0.7);
+}
+
+.salas-add-task-button {
+  padding: 16px 22px;
+  border-radius: 18px;
+  background: #d4af37;
+  color: #000000;
+  font-weight: 700;
+}
+
+.salas-room-objective-card .salas-section-label,
+.salas-kpi-card span,
+.salas-chat-header h2,
+.salas-pomodoro-title {
+  color: #d4af37;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: 0.78rem;
+}
+
+.salas-room-objective-card p {
+  margin: 16px 0 0;
+  color: #d8c184;
+  line-height: 1.8;
+}
+
+.salas-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+  margin-bottom: 24px;
+}
+
+.salas-kpi-card {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.salas-kpi-card strong {
+  font-size: 2rem;
+  color: #ffffff;
+}
+
+.salas-member-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+  margin-bottom: 24px;
+}
+
+.salas-member-card {
+  padding: 18px;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 16px;
+  align-items: center;
+}
+
+.salas-member-avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 18px;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, #d4af37, #b58f2f);
+  color: #000000;
+  font-weight: 800;
+  font-size: 1.2rem;
+}
+
+.salas-member-card h3 {
+  margin: 0;
+  color: #ffffff;
+}
+
+.salas-member-card p {
+  margin: 6px 0 0;
+  color: #d8c184;
+}
+
+.salas-chat-panel {
+  padding: 24px;
+}
+
+.salas-chat-header h2 {
+  margin: 0;
+  font-size: 1.45rem;
+}
+
+.salas-chat-messages {
+  min-height: 260px;
+  margin-top: 20px;
+  padding: 18px;
+  border-radius: 24px;
+  background: rgba(0, 0, 0, 0.45);
+  overflow-y: auto;
+  display: grid;
+  gap: 16px;
+}
+
+.salas-chat-message {
+  display: grid;
+  gap: 8px;
+}
+
+.salas-chat-message strong {
+  color: #d4af37;
+}
+
+.salas-chat-message span {
+  color: #d8c184;
+}
+
+.salas-chat-input-row {
+  display: flex;
+  gap: 14px;
+  margin-top: 20px;
+}
+
+.salas-chat-input-row input {
+  flex: 1;
+  padding: 16px 18px;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.04);
+  color: #f5e3a0;
+}
+
+.salas-chat-input-row input::placeholder {
+  color: rgba(245, 227, 160, 0.7);
+}
+
+.salas-send-button {
+  padding: 16px 22px;
+  border-radius: 18px;
+  background: #d4af37;
+  color: #000000;
+  font-weight: 700;
+}
+
+.salas-room-sidebar {
+  display: grid;
+  gap: 24px;
+}
+
+.salas-pomodoro-card {
+  padding: 24px;
+  display: grid;
+  gap: 24px;
+  align-items: center;
+  justify-items: center;
+}
+
+.salas-pomodoro-circle {
+  width: 220px;
+  height: 220px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: radial-gradient(circle, rgba(212, 175, 55, 0.12), transparent 60%),
+    linear-gradient(135deg, rgba(212, 175, 55, 0.16), rgba(0, 0, 0, 0.55));
+  border: 1px solid rgba(212, 175, 55, 0.24);
+  color: #ffffff;
+  font-size: 3rem;
+  font-weight: 800;
+}
+
+.salas-pomodoro-title {
+  margin: 0;
+}
+
+.salas-pomodoro-actions {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.salas-pomodoro-action,
+.salas-pomodoro-action.salas-secondary {
+  padding: 14px 18px;
+  border-radius: 18px;
+  font-weight: 700;
+}
+
+.salas-pomodoro-action {
+  background: #d4af37;
+  color: #000000;
+}
+
+.salas-pomodoro-action.salas-secondary {
+  background: rgba(255, 255, 255, 0.08);
+  color: #f5e3a0;
+}
+
+.salas-status-pill {
+  padding: 16px 20px;
+  display: inline-flex;
+  gap: 10px;
+  border-radius: 999px;
+  font-weight: 700;
+  justify-content: center;
+}
+
+.salas-focus-pill {
+  background: rgba(212, 175, 55, 0.18);
+  color: #000000;
+}
+
+.salas-live-pill {
+  background: rgba(255, 255, 255, 0.08);
+  color: #f5e3a0;
+}
+
+@media (max-width: 1100px) {
+  .salas-rooms-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 780px) {
+  .salas-app-shell {
+    grid-template-columns: 1fr;
+    padding: 18px;
+  }
+
+  .salas-sidebar {
+    order: 2;
+  }
+
+  .salas-main-header,
+  .salas-filter-bar {
+    flex-direction: column;
+  }
+
+  .salas-stats-row {
+    grid-template-columns: 1fr;
+  }
+
+  .salas-rooms-grid {
+    grid-template-columns: 1fr;
+  }
+}
