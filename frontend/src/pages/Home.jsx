@@ -27,7 +27,7 @@ function Home() {
           href="/study-rooms"
          className="border border-slate-700 hover:border-cyan-400 transition px-6 py-3 rounded-xl font-semibold"
         >
-        Ver Salas
+        Ver Salas 
         </a>
 
         </div>
@@ -82,7 +82,7 @@ function Home() {
             <div>
               <h2 className="text-5xl font-bold">24/7</h2>
               <p className="mt-3 text-slate-100">
-                Salas de estudio disponibles
+                Salas de estudio que se encuentran disponibles
               </p>
             </div>
 
