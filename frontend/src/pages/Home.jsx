@@ -82,7 +82,7 @@ function Home() {
             <div>
               <h2 className="text-5xl font-bold">24/7</h2>
               <p className="mt-3 text-slate-100">
-                Salas de estudio que se encuentran disponibles
+                Salas de estudio disponibles
               </p>
             </div>
 
