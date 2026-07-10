@@ -1,2 +1,14 @@
 backend/studysync-api/target/
 frontend_backup/
+
+# Variables de entorno
+.env
+
+# Logs
+*.log
+
+# VS Code
+.vscode/
+
+# Archivos temporales
+*.tmp
