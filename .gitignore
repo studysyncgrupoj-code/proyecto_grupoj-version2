@@ -12,3 +12,5 @@ frontend_backup/
 
 # Archivos temporales
 *.tmp
+backend/studysync-api/error.txt
+backend/studysync-api/backend.log
