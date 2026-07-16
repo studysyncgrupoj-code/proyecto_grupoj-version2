@@ -1,1 +1,7 @@
 backend/studysync-api/target/
+
+.env
+**/.env
+*.log
+backend/studysync-api/backend.log
+backend/studysync-api/spring.log
