@@ -1,79 +1,100 @@
-import { Link } from "react-router-dom";
+import { NavLink } from "react-router-dom";
+
+const menuItems = [
+  { label: "Dashboard", path: "/dashboard", icon: "⌂" },
+  { label: "Salas de estudio", path: "/salas", icon: "▣" },
+  { label: "Cursos", path: "/cursos", icon: "▤" },
+  { label: "Pomodoro", path: "/pomodoro", icon: "◷" },
+  { label: "Tareas", path: "/tareas", icon: "✓" },
+  { label: "Calendario", path: "/calendario", icon: "□" },
+  { label: "Estudiantes", path: "/estudiantes", icon: "♙" },
+  { label: "Reportes", path: "/reportes", icon: "↗" },
+];
 
 function Sidebar() {
+  const handleLogout = () => {
+    localStorage.removeItem("user");
+    window.location.href = "/login";
+  };
+
   return (
-    <aside className="w-72 bg-black border-r border-slate-800 min-h-screen p-6">
+    <aside className="app-sidebar">
+      <div className="sidebar-brand">
+        <div className="sidebar-logo">S</div>
 
-      <div className="flex items-center gap-3 mb-10">
-
-        <div className="w-12 h-12 rounded-2xl bg-yellow-400 flex items-center justify-center text-slate-950 font-bold text-2xl">
-          S
+        <div className="sidebar-brand-text">
+          <h2>StudySync</h2>
+          <span>Panel del profesor</span>
         </div>
-
-        <div>
-          <h1 className="text-xl font-bold text-yellow-400">
-            StudySync
-          </h1>
-
-          <p className="text-xs text-slate-500">
-            Dashboard
-          </p>
-        </div>
-
       </div>
 
-      <nav className="space-y-3">
-
-        <Link
-          to="/dashboard"
-          className="block bg-yellow-400 text-slate-950 px-5 py-3 rounded-xl font-semibold"
-        >
-          Dashboard
-        </Link>
-
-        <Link
-          to="/"
-          className="block hover:bg-yellow-900/30 px-5 py-3 rounded-xl transition"
-        >
-          Inicio
-        </Link>
-
-        <Link
-         to="/study-rooms"
-         className="block hover:bg-yellow-900/30 px-5 py-3 rounded-xl transition"
-        >
-          Salas de estudio
-        </Link>
-
-        <Link
-          to="/"
-          className="block hover:bg-yellow-900/30 px-5 py-3 rounded-xl transition"
-        >
-          Pomodoro
-        </Link>
-
-        <Link
-          to="/"
-          className="block hover:bg-yellow-900/30 px-5 py-3 rounded-xl transition"
-        >
-          Metas
-        </Link>
-
-        <Link
-          to="/"
-          className="block hover:bg-yellow-900/30 px-5 py-3 rounded-xl transition"
-        >
-          Coach IA
-        </Link>
-        <a
-         href="/study-rooms"
-        className="hover:text-yellow-400 transition"
-    >
-        Salas de estudio
-    </a>
-
+      <nav className="sidebar-menu">
+        {menuItems.map((item) => (
+          <NavLink
+            key={item.path}
+            to={item.path}
+            className={({ isActive }) =>
+              `sidebar-link ${isActive ? "sidebar-link-active" : ""}`
+            }
+          >
+            <span className="sidebar-icon">{item.icon}</span>
+            <span>{item.label}</span>
+          </NavLink>
+        ))}
       </nav>
 
+      <div className="sidebar-premium">
+        <div className="premium-icon">♛</div>
+
+        <h3>StudySync Premium</h3>
+
+        <p>
+          Accede a estadísticas avanzadas, salas exclusivas y herramientas
+          adicionales para docentes.
+        </p>
+
+        <button type="button">Ver beneficios</button>
+      </div>
+
+      <div className="sidebar-bottom">
+        <NavLink
+          to="/configuracion"
+          className={({ isActive }) =>
+            `sidebar-link ${isActive ? "sidebar-link-active" : ""}`
+          }
+        >
+          <span className="sidebar-icon">⚙</span>
+          <span>Configuración</span>
+        </NavLink>
+
+        <NavLink
+          to="/perfil"
+          className={({ isActive }) =>
+            `sidebar-link ${isActive ? "sidebar-link-active" : ""}`
+          }
+        >
+          <span className="sidebar-icon">◎</span>
+          <span>Mi perfil</span>
+        </NavLink>
+
+        <button
+          type="button"
+          className="sidebar-logout"
+          onClick={handleLogout}
+        >
+          <span className="sidebar-icon">↪</span>
+          <span>Cerrar sesión</span>
+        </button>
+
+        <div className="sidebar-user">
+          <div className="sidebar-user-avatar">RV</div>
+
+          <div className="sidebar-user-info">
+            <strong>Profesor Richard</strong>
+            <span>Administrador</span>
+          </div>
+        </div>
+      </div>
     </aside>
   );
 }

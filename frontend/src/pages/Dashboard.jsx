@@ -1,131 +1,205 @@
 import Sidebar from "../components/dashboard/Sidebar";
-import PomodoroTimer from "../components/dashboard/PomodoroTimer";
+
+const stats = [
+  {
+    title: "Estudiantes activos",
+    value: "320",
+    detail: "+18 esta semana",
+    icon: "ES",
+  },
+  {
+    title: "Salas activas",
+    value: "6",
+    detail: "3 en vivo",
+    icon: "SA",
+  },
+  {
+    title: "Clases programadas",
+    value: "12",
+    detail: "4 para hoy",
+    icon: "CL",
+  },
+  {
+    title: "Tareas por revisar",
+    value: "24",
+    detail: "8 prioritarias",
+    icon: "TA",
+  },
+];
+
+const classes = [
+  {
+    title: "Matemáticas avanzadas",
+    time: "09:00 - 10:30",
+    students: "28 estudiantes",
+    status: "En vivo",
+  },
+  {
+    title: "Programación en Java",
+    time: "11:00 - 12:30",
+    students: "34 estudiantes",
+    status: "Programada",
+  },
+  {
+    title: "Base de Datos",
+    time: "15:00 - 17:00",
+    students: "22 estudiantes",
+    status: "Pendiente",
+  },
+];
+
+const activity = [
+  {
+    title: "María entregó la actividad de Álgebra.",
+    time: "Hace poco",
+  },
+  {
+    title: "Carlos completó cuatro ciclos Pomodoro.",
+    time: "Hace 10 minutos",
+  },
+  {
+    title: "Nueva sala creada para Física.",
+    time: "Hace 20 minutos",
+  },
+];
 
 function Dashboard() {
   return (
-    <div className="min-h-screen bg-black text-white flex">
-
+    <div className="teacher-dashboard-layout">
       <Sidebar />
 
-      <main className="flex-1 p-8 overflow-y-auto">
+      <main className="teacher-dashboard-content">
 
-        <section className="py-10">
+        <section className="dashboard-header">
 
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+          <div>
 
-            <div>
-              <h1 className="text-4xl font-bold">
-                Dashboard
-              </h1>
+            <span className="dashboard-badge">
+              PANEL DEL PROFESOR
+            </span>
 
-              <p className="text-slate-400 mt-3">
-                Bienvenido nuevamente a StudySync.
-              </p>
-            </div>
+            <h1>Buenos días, profesor</h1>
 
-            <button className="bg-yellow-400 hover:bg-yellow-300 transition text-slate-950 px-6 py-3 rounded-xl font-semibold">
-              Crear Sala
+            <p>
+              Administra tus clases, estudiantes y actividades desde un solo
+              lugar.
+            </p>
+
+          </div>
+
+          <div className="dashboard-actions">
+
+            <button className="btn-secondary">
+              Ver calendario
+            </button>
+
+            <button className="btn-primary">
+              + Crear sala
             </button>
 
           </div>
 
         </section>
 
-        <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <section className="stats-grid">
 
-          <div className="bg-zinc-950 border border-yellow-700/40 rounded-2xl p-6">
-            <h3 className="text-slate-400">
-              Horas estudiadas
-            </h3>
+          {stats.map((stat) => (
 
-            <h2 className="text-5xl font-bold text-yellow-400 mt-4">
-              42h
-            </h2>
-          </div>
+            <div className="stat-card" key={stat.title}>
 
-          <div className="bg-zinc-950 border border-yellow-700/40 rounded-2xl p-6">
-            <h3 className="text-slate-400">
-              Metas completadas
-            </h3>
-
-            <h2 className="text-5xl font-bold text-yellow-400 mt-4">
-              18
-            </h2>
-          </div>
-
-          <div className="bg-zinc-950 border border-yellow-700/40 rounded-2xl p-6">
-            <h3 className="text-slate-400">
-              Puntos obtenidos
-            </h3>
-
-            <h2 className="text-5xl font-bold text-yellow-400 mt-4">
-              +320
-            </h2>
-          </div>
-
-        </section>
-
-        <section className="grid grid-cols-1 lg:grid-cols-2 gap-6 py-10">
-
-          <PomodoroTimer />
-
-          <div className="bg-zinc-950 border border-yellow-700/40 rounded-2xl p-8">
-
-            <h2 className="text-2xl font-bold">
-              Salas activas
-            </h2>
-
-            <div className="space-y-4 mt-8">
-
-              <div className="bg-black rounded-xl p-5 border border-yellow-700/40 flex items-center justify-between">
-
-                <div>
-                  <h3 className="font-semibold">
-                    Matemáticas
-                  </h3>
-
-                  <p className="text-slate-400 text-sm mt-1">
-                    12 estudiantes conectados
-                  </p>
-                </div>
-
-                <span className="w-3 h-3 rounded-full bg-green-500 animate-pulse"></span>
-
+              <div className="stat-icon">
+                {stat.icon}
               </div>
 
-              <div className="bg-black rounded-xl p-5 border border-yellow-700/40 flex items-center justify-between">
+              <div>
 
-                <div>
-                  <h3 className="font-semibold">
-                    Física
-                  </h3>
+                <p>{stat.title}</p>
 
-                  <p className="text-slate-400 text-sm mt-1">
-                    8 estudiantes conectados
-                  </p>
-                </div>
+                <h2>{stat.value}</h2>
 
-                <span className="w-3 h-3 rounded-full bg-green-500 animate-pulse"></span>
-
-              </div>
-
-              <div className="bg-black rounded-xl p-5 border border-yellow-700/40 flex items-center justify-between">
-
-                <div>
-                  <h3 className="font-semibold">
-                    Programación
-                  </h3>
-
-                  <p className="text-slate-400 text-sm mt-1">
-                    21 estudiantes conectados
-                  </p>
-                </div>
-
-                <span className="w-3 h-3 rounded-full bg-green-500 animate-pulse"></span>
+                <span>{stat.detail}</span>
 
               </div>
 
             </div>
+
+          ))}
+
+        </section>
+
+        <section className="dashboard-grid">
+
+          <div className="dashboard-panel">
+
+            <div className="panel-title">
+
+              <span>AGENDA</span>
+
+              <a href="/">Ver todas</a>
+
+            </div>
+
+            <h2>Próximas clases</h2>
+
+            {classes.map((item) => (
+
+              <div className="class-card" key={item.title}>
+
+                <div className="class-icon">
+                  CL
+                </div>
+
+                <div className="class-info">
+
+                  <strong>{item.title}</strong>
+
+                  <p>{item.time}</p>
+
+                </div>
+
+                <div className="class-status">
+
+                  <span>{item.students}</span>
+
+                  <strong>{item.status}</strong>
+
+                </div>
+
+              </div>
+
+            ))}
+
+          </div>
+
+          <div className="dashboard-panel">
+
+            <div className="panel-title">
+
+              <span>SEGUIMIENTO</span>
+
+              <a href="/">Ver todo</a>
+
+            </div>
+
+            <h2>Actividad reciente</h2>
+
+            {activity.map((item) => (
+
+              <div className="activity-item" key={item.title}>
+
+                <div className="activity-dot"></div>
+
+                <div>
+
+                  <p>{item.title}</p>
+
+                  <span>{item.time}</span>
+
+                </div>
+
+              </div>
+
+            ))}
 
           </div>
 
