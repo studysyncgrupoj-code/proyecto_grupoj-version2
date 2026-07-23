@@ -11,6 +11,7 @@ import {
   Timer,
   Users,
   Video,
+  MessageCircle,
 } from "lucide-react";
 
 const menuItems = [
@@ -38,6 +39,11 @@ const menuItems = [
     label: "Calendario",
     path: "/calendario",
     icon: CalendarDays,
+  },
+  {
+    label: "Mensajes",
+    path: "/mensajes",
+    icon: MessageCircle,
   },
   {
     label: "Estudiantes",

@@ -8,6 +8,12 @@ import StudyRooms from "../pages/StudyRooms";
 import RoomView from "../pages/RoomView";
 import Salas from "../pages/salas/Salas";
 import Cursos from "../pages/cursos/Cursos";
+import DashboardEstudiante from "../pages/DashboardEstudiante";
+import Calendario from "../pages/Calendario";
+import Mensajes from "../pages/Mensajes";
+import Perfil from "../pages/Perfil";
+import Configuracion from "../pages/Configuracion";
+
 
 function AppRoutes() {
   return (
@@ -21,6 +27,14 @@ function AppRoutes() {
         <Route path="/room" element={<RoomView />} />
         <Route path="/salas" element={<Salas />} />
         <Route path="/cursos" element={<Cursos />} />
+        <Route
+          path="/dashboard-estudiante"
+          element={<DashboardEstudiante />}
+        />
+        <Route path="/calendario" element={<Calendario />} />
+        <Route path="/mensajes" element={<Mensajes />} />
+        <Route path="/perfil" element={<Perfil />} />
+        <Route path="/configuracion" element={<Configuracion />} />
       </Routes>
     </BrowserRouter>
   );
