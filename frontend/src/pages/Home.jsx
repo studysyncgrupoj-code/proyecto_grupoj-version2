@@ -1,48 +1,143 @@
-import { useEffect, useMemo, useState } from 'react'
-import { Link, useLocation } from 'react-router-dom'
-import '../styles/landing.css'
+import { useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
+import {
+  ArrowRight,
+  Bot,
+  BrainCircuit,
+  CalendarDays,
+  CheckCircle2,
+  Clock3,
+  GraduationCap,
+  Menu,
+  MessageCircle,
+  Play,
+  ShieldCheck,
+  Sparkles,
+  Star,
+  Target,
+  Users,
+  Video,
+  X,
+  Zap,
+} from "lucide-react";
+
+import "../styles/landing.css";
 
 const sections = [
-  { id: 'home', label: 'Inicio' },
-  { id: 'salas', label: 'Salas' },
-  { id: 'beneficios', label: 'Beneficios' },
-  { id: 'testimonios', label: 'Testimonios' },
-  { id: 'contacto', label: 'Contacto' },
-]
+  { id: "home", label: "Inicio" },
+  { id: "salas", label: "Salas" },
+  { id: "beneficios", label: "Beneficios" },
+  { id: "testimonios", label: "Testimonios" },
+  { id: "contacto", label: "Contacto" },
+];
+
+const features = [
+  {
+    id: 1,
+    title: "Enfoque inteligente",
+    description:
+      "Organiza tus sesiones, reduce distracciones y construye hábitos de estudio consistentes.",
+    icon: Target,
+  },
+  {
+    id: 2,
+    title: "Aprendizaje colaborativo",
+    description:
+      "Estudia junto a compañeros, profesores y comunidades académicas en tiempo real.",
+    icon: Users,
+  },
+  {
+    id: 3,
+    title: "Progreso medible",
+    description:
+      "Consulta estadísticas, metas, actividad y evolución desde un mismo espacio.",
+    icon: BrainCircuit,
+  },
+];
+
+const studyRooms = [
+  {
+    id: 1,
+    title: "React y JavaScript",
+    subject: "Desarrollo frontend",
+    members: 18,
+    progress: 82,
+    status: "Activa",
+  },
+  {
+    id: 2,
+    title: "Cálculo diferencial",
+    subject: "Matemáticas",
+    members: 12,
+    progress: 64,
+    status: "Activa",
+  },
+  {
+    id: 3,
+    title: "Bases de datos",
+    subject: "SQL y modelado",
+    members: 9,
+    progress: 46,
+    status: "Próximamente",
+  },
+];
+
+const testimonials = [
+  {
+    id: 1,
+    name: "Lucía Martínez",
+    role: "Estudiante de desarrollo web",
+    initials: "LM",
+    quote:
+      "StudySync me ayudó a organizar mis sesiones y avanzar en proyectos que antes siempre dejaba incompletos.",
+  },
+  {
+    id: 2,
+    name: "Andrés Gómez",
+    role: "Estudiante universitario",
+    initials: "AG",
+    quote:
+      "Las salas colaborativas y el Pomodoro compartido hicieron que estudiar fuera mucho más constante.",
+  },
+  {
+    id: 3,
+    name: "Camila Rodríguez",
+    role: "Profesora de tecnología",
+    initials: "CR",
+    quote:
+      "Ahora puedo acompañar mejor a mis estudiantes, organizar cursos y revisar su progreso desde una sola plataforma.",
+  },
+];
 
 function Home() {
-  const location = useLocation()
-  const [activeSection, setActiveSection] = useState('home')
-  const isLanding = location.pathname === '/'
+  const [activeSection, setActiveSection] = useState("home");
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            setActiveSection(entry.target.id)
-          }
-        })
+        const visibleEntry = entries.find((entry) => entry.isIntersecting);
+
+        if (visibleEntry) {
+          setActiveSection(visibleEntry.target.id);
+        }
       },
-      { threshold: 0.4 }
-    )
+      {
+        threshold: 0.35,
+        rootMargin: "-80px 0px -45% 0px",
+      },
+    );
 
-    const elementsToObserve = []
+    const observedElements = sections
+      .map((section) => document.getElementById(section.id))
+      .filter(Boolean);
 
-    sections.forEach((section) => {
-      const element = document.getElementById(section.id)
-      if (element) {
-        observer.observe(element)
-        elementsToObserve.push(element)
-      }
-    })
+    observedElements.forEach((element) => observer.observe(element));
 
     return () => {
-      elementsToObserve.forEach((element) => {
-        observer.unobserve(element)
-      })
-    }
-  }, [])
+      observedElements.forEach((element) => observer.unobserve(element));
+    };
+  }, []);
 
   const menuItems = useMemo(
     () =>
@@ -50,201 +145,607 @@ function Home() {
         <a
           key={item.id}
           href={`#${item.id}`}
-          className={activeSection === item.id ? 'nav-link active' : 'nav-link'}
-          onClick={() => setActiveSection(item.id)}
+          className={
+            activeSection === item.id
+              ? "landing-nav-link active"
+              : "landing-nav-link"
+          }
+          onClick={() => {
+            setActiveSection(item.id);
+            setMobileMenuOpen(false);
+          }}
         >
           {item.label}
         </a>
       )),
-    [activeSection]
-  )
+    [activeSection],
+  );
 
   return (
-    <>
-      {isLanding && (
-        <header className="hero-nav">
-          <Link to="/" className="brand">
-            <img src="/Logo.png" alt="logo studybest" className="logo-img" />
+    <div className="landing-page">
+      <header className="landing-navbar">
+        <Link to="/" className="landing-brand" aria-label="StudySync inicio">
+          <span className="landing-brand-icon">
+            <GraduationCap size={25} strokeWidth={2.2} />
+          </span>
+
+          <span className="landing-brand-copy">
+            <strong>StudySync</strong>
+            <small>Aprende. Conecta. Avanza.</small>
+          </span>
+        </Link>
+
+        <nav
+          className={`landing-menu ${mobileMenuOpen ? "open" : ""}`}
+          aria-label="Navegación principal"
+        >
+          {menuItems}
+        </nav>
+
+        <div className="landing-navbar-actions">
+          <Link to="/login" className="landing-login-link">
+            Iniciar sesión
           </Link>
-          <nav className="menu">{menuItems}</nav>
-        </header>
-      )}
 
-      <div className={isLanding ? 'app-shell' : 'app-shell app-shell--full'}>
-        <main>
-          <section id="home" className="hero-section">
-            <div className="hero-copy">
-              <span className="eyebrow">Aprende hoy, crece mañana</span>
-              <h1>Domina nuevas habilidades con clases interactivas y prácticas</h1>
+          <Link to="/registro" className="landing-navbar-button">
+            Crear cuenta
+            <ArrowRight size={17} />
+          </Link>
+
+          <button
+            type="button"
+            className="landing-mobile-button"
+            aria-label="Abrir o cerrar menú"
+            onClick={() => setMobileMenuOpen((current) => !current)}
+          >
+            {mobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
+          </button>
+        </div>
+      </header>
+
+      <main>
+        <section id="home" className="landing-hero">
+          <div className="landing-hero-glow landing-hero-glow-one" />
+          <div className="landing-hero-glow landing-hero-glow-two" />
+
+          <div className="landing-hero-content">
+            <div className="landing-hero-copy">
+              <span className="landing-eyebrow">
+                <Sparkles size={15} />
+                Tu ecosistema inteligente de estudio
+              </span>
+
+              <h1>
+                Estudia mejor.
+                <span> Avanza con propósito.</span>
+              </h1>
+
               <p>
-                Clases diseñadas para ayudarte a avanzar rápido: desarrollo web, diseño UX, marketing digital y más.
-                Empieza hoy con una experiencia clara, moderna y enfocada en resultados.
+                Organiza tus cursos, participa en salas colaborativas, mejora tu
+                concentración y recibe acompañamiento personalizado desde una
+                sola plataforma.
               </p>
-              <div className="hero-actions">
-                <Link to="/login" className="btn btn-primary">Iniciar Sesión</Link>
-                <Link to="/cursos" className="btn btn-secondary">Ir a Cursos</Link>
+
+              <div className="landing-hero-actions">
+                <Link to="/registro" className="landing-primary-button">
+                  Comenzar gratis
+                  <ArrowRight size={18} />
+                </Link>
+
+                <Link to="/login" className="landing-secondary-button">
+                  <Play size={17} fill="currentColor" />
+                  Explorar plataforma
+                </Link>
+              </div>
+
+              <div className="landing-hero-benefits">
+                <span>
+                  <CheckCircle2 size={16} />
+                  Sin tarjeta de crédito
+                </span>
+
+                <span>
+                  <CheckCircle2 size={16} />
+                  Acceso inmediato
+                </span>
+
+                <span>
+                  <CheckCircle2 size={16} />
+                  Para estudiantes y profesores
+                </span>
               </div>
             </div>
-            <div className="hero-image">
-              <div className="card-highlight">
-                <span>Más de 5,000 estudiantes activos</span>
-                <strong>+95%</strong>
-                <p>Satisfacción garantizada con clases accesibles y prácticas.</p>
-                <p>24/7 Salas y cursos de estudio disponibles</p>
+
+            <div className="landing-dashboard-preview">
+              <div className="landing-preview-header">
+                <div className="landing-preview-controls">
+                  <span />
+                  <span />
+                  <span />
+                </div>
+
+                <span className="landing-preview-status">
+                  <span />
+                  Plataforma activa
+                </span>
+              </div>
+
+              <div className="landing-preview-body">
+                <aside className="landing-preview-sidebar">
+                  <div className="landing-preview-logo">
+                    <GraduationCap size={19} />
+                  </div>
+
+                  {[1, 2, 3, 4, 5].map((item) => (
+                    <span
+                      key={item}
+                      className={item === 1 ? "active" : ""}
+                    />
+                  ))}
+                </aside>
+
+                <div className="landing-preview-content">
+                  <div className="landing-preview-heading">
+                    <div>
+                      <small>Bienvenido de nuevo</small>
+                      <strong>Tu progreso académico</strong>
+                    </div>
+
+                    <span className="landing-preview-avatar">RV</span>
+                  </div>
+
+                  <div className="landing-preview-statistics">
+                    <article>
+                      <span className="landing-preview-stat-icon">
+                        <Clock3 size={18} />
+                      </span>
+
+                      <div>
+                        <small>Tiempo estudiado</small>
+                        <strong>24.5 h</strong>
+                      </div>
+                    </article>
+
+                    <article>
+                      <span className="landing-preview-stat-icon">
+                        <Target size={18} />
+                      </span>
+
+                      <div>
+                        <small>Meta semanal</small>
+                        <strong>82%</strong>
+                      </div>
+                    </article>
+
+                    <article>
+                      <span className="landing-preview-stat-icon">
+                        <Users size={18} />
+                      </span>
+
+                      <div>
+                        <small>Salas activas</small>
+                        <strong>12</strong>
+                      </div>
+                    </article>
+                  </div>
+
+                  <div className="landing-preview-lower">
+                    <article className="landing-preview-progress-card">
+                      <div>
+                        <span>Progreso semanal</span>
+                        <strong>18 horas de 22</strong>
+                      </div>
+
+                      <div className="landing-preview-chart">
+                        {[35, 62, 48, 78, 91, 69, 84].map((height, index) => (
+                          <span
+                            key={`${height}-${index}`}
+                            style={{ height: `${height}%` }}
+                          />
+                        ))}
+                      </div>
+                    </article>
+
+                    <article className="landing-preview-session">
+                      <span className="landing-preview-session-icon">
+                        <Video size={20} />
+                      </span>
+
+                      <div>
+                        <small>Próxima sesión</small>
+                        <strong>React avanzado</strong>
+                        <span>Hoy · 4:30 p. m.</span>
+                      </div>
+
+                      <button type="button" aria-label="Entrar a sesión">
+                        <ArrowRight size={17} />
+                      </button>
+                    </article>
+                  </div>
+                </div>
+              </div>
+
+              <div className="landing-floating-card landing-floating-card-left">
+                <span>
+                  <Zap size={17} />
+                </span>
+
+                <div>
+                  <small>Racha actual</small>
+                  <strong>12 días</strong>
+                </div>
+              </div>
+
+              <div className="landing-floating-card landing-floating-card-right">
+                <span>
+                  <Bot size={18} />
+                </span>
+
+                <div>
+                  <small>IA Coach</small>
+                  <strong>Plan actualizado</strong>
+                </div>
               </div>
             </div>
-          </section>
+          </div>
 
-          <section id="cursos" className="content-section section-alt">
-            <div className="section-heading">
-              <span>Cambia tú futuro</span>
-              <h2>Formación pensada para resultados reales</h2>
+          <div className="landing-trusted">
+            <span>Una plataforma diseñada para potenciar</span>
+
+            <div>
+              <strong>Concentración</strong>
+              <strong>Colaboración</strong>
+              <strong>Organización</strong>
+              <strong>Progreso</strong>
             </div>
-            <div className="course-grid">
-              <article className="course-card">
-                <span className="course-tag">Disciplina</span>
-                <h3>“Donde la disciplina se convierte en resultados.”</h3>
-                <p>Un espacio para enfocarte, ser constante y ver progreso real.</p>
-              </article>
-              <article className="course-card">
-                <span className="course-tag">Colaboración</span>
-                <h3>“Estudia acompañado, crece sin límites.”</h3>
-                <p>Conéctate, mantente motivado y avanza junto a otros.</p>
-              </article>
-              <article className="course-card">
-                <span className="course-tag">Innovación</span>
-                <h3>“Aprende hoy, construye tu futuro.”</h3>
-                <p>Convierte cada sesión en habilidades que sí importan y pueden hacer la diferencia.</p>
-              </article>
+          </div>
+        </section>
+
+        <section className="landing-features-section">
+          <div className="landing-section-heading centered">
+            <span>
+              <BrainCircuit size={15} />
+              Aprendizaje con propósito
+            </span>
+
+            <h2>Todo lo que necesitas para estudiar mejor</h2>
+
+            <p>
+              StudySync combina organización, colaboración y tecnología para
+              convertir cada sesión de estudio en progreso real.
+            </p>
+          </div>
+
+          <div className="landing-features-grid">
+            {features.map((feature) => {
+              const Icon = feature.icon;
+
+              return (
+                <article key={feature.id} className="landing-feature-card">
+                  <span className="landing-feature-number">
+                    0{feature.id}
+                  </span>
+
+                  <div className="landing-feature-icon">
+                    <Icon size={24} />
+                  </div>
+
+                  <h3>{feature.title}</h3>
+                  <p>{feature.description}</p>
+
+                  <span className="landing-feature-line" />
+                </article>
+              );
+            })}
+          </div>
+        </section>
+
+        <section id="salas" className="landing-rooms-section">
+          <div className="landing-section-heading">
+            <span>
+              <Video size={15} />
+              Salas de estudio
+            </span>
+
+            <h2>Aprender acompañado cambia los resultados</h2>
+
+            <p>
+              Únete a sesiones colaborativas, comparte recursos y mantén el
+              ritmo junto a personas con tus mismos objetivos.
+            </p>
+          </div>
+
+          <div className="landing-rooms-layout">
+            <div className="landing-rooms-list">
+              {studyRooms.map((room) => (
+                <article key={room.id} className="landing-room-card">
+                  <div className="landing-room-card-top">
+                    <div className="landing-room-icon">
+                      <Video size={21} />
+                    </div>
+
+                    <span
+                      className={`landing-room-status ${
+                        room.status !== "Activa" ? "upcoming" : ""
+                      }`}
+                    >
+                      <span />
+                      {room.status}
+                    </span>
+                  </div>
+
+                  <span className="landing-room-subject">{room.subject}</span>
+                  <h3>{room.title}</h3>
+
+                  <div className="landing-room-progress-copy">
+                    <span>Progreso de la sesión</span>
+                    <strong>{room.progress}%</strong>
+                  </div>
+
+                  <div className="landing-room-progress">
+                    <span style={{ width: `${room.progress}%` }} />
+                  </div>
+
+                  <footer>
+                    <span>
+                      <Users size={16} />
+                      {room.members} participantes
+                    </span>
+
+                    <button type="button" aria-label={`Abrir ${room.title}`}>
+                      <ArrowRight size={17} />
+                    </button>
+                  </footer>
+                </article>
+              ))}
             </div>
-          </section>
 
-          <section id="salas" className="content-section section-alt">
-            <div className="section-heading">
-              <span>Salas de estudio</span>
-              <h2>Únete a una sala colaborativa en tiempo real</h2>
-            </div>
-            <div className="stats-grid">
-              <article className="stat-card">
-                <h3>Salas de Estudio</h3>
-                <p>Crea salas colaborativas en vivo para estudiar con otros estudiantes en tiempo real.</p>
-              </article>
-              <article className="stat-card">
-                <h3>Pomodoro Compartido</h3>
-                <p>Organiza sesiones de 25 minutos de estudio y 5 minutos de descanso.</p>
-              </article>
-              <article className="stat-card">
-                <h3>Coach con IA</h3>
-                <p>Recibe sugerencias personalizadas para mejorar tus hábitos de estudio.</p>
-              </article>
-            </div>
+            <aside className="landing-rooms-highlight">
+              <span className="landing-highlight-badge">
+                <Sparkles size={15} />
+                Sesiones en tiempo real
+              </span>
 
-            <div className="room-cards">
-              <article className="room-card">
-                <div className="room-card-header">
-                  <h3>Matemáticas</h3>
-                  <p>Álgebra y cálculo</p>
-                </div>
-                <div className="room-progress">
-                  <span style={{ width: '74%' }} />
-                </div>
-                <div className="room-card-footer">
-                  <p className="room-meta">12 estudiantes conectados</p>
-                  <p className="room-status">Activo</p>
-                </div>
-              </article>
+              <h3>Convierte el estudio en una experiencia compartida</h3>
 
-              <article className="room-card">
-                <div className="room-card-header">
-                  <h3>Programación</h3>
-                  <p>JavaScript y React</p>
-                </div>
-                <div className="room-progress">
-                  <span style={{ width: '64%' }} />
-                </div>
-                <div className="room-card-footer">
-                  <p className="room-meta">21 estudiantes conectados</p>
-                  <p className="room-status off">Desactivado</p>
-                </div>
-              </article>
+              <p>
+                Crea salas públicas o privadas, activa sesiones de Pomodoro,
+                conversa con tu equipo y consulta materiales sin abandonar la
+                sesión.
+              </p>
 
-              <article className="room-card">
-                <div className="room-card-header">
-                  <h3>Física</h3>
-                  <p>Mecánica clásica</p>
-                </div>
-                <div className="room-progress">
-                  <span style={{ width: '38%' }} />
-                </div>
-                <div className="room-card-footer">
-                  <p className="room-meta">8 estudiantes conectados</p>
-                  <p className="room-status">Activo</p>
-                </div>
-              </article>
-            </div>
+              <div className="landing-highlight-list">
+                <span>
+                  <CheckCircle2 size={18} />
+                  Chat y colaboración en vivo
+                </span>
 
-            <Link to="/salas" className="salas-bottom">Ir a Salas</Link>
-          </section>
+                <span>
+                  <CheckCircle2 size={18} />
+                  Temporizador Pomodoro compartido
+                </span>
 
-          <section id="beneficios" className="content-section">
-            <div className="benefits-grid">
-              <div>
-                <h2>Por qué elegirnos</h2>
-                <p>Una experiencia clara, soporte directo y cursos actualizados que te permiten aprender con confianza.</p>
+                <span>
+                  <CheckCircle2 size={18} />
+                  Gestión de recursos y participantes
+                </span>
               </div>
-              <div className="benefit-item">
-                <h4>El Ecosistema del Aprendizaje</h4>
-                <p>Study Best ofrece herramientas como recordatorios, organización de tareas y contenido educativo.</p>
-              </div>
-              <div className="benefit-item">
-                <h4>Productividad sin Límites</h4>
-                <p>La plataforma permite a los estudiantes gestionar su tiempo y mejorar su rendimiento académico.</p>
-              </div>
-              <div className="benefit-item">
-                <h4>Tu Aliado hacia el Éxito</h4>
-                <p>Study Best transforma tu rutina diaria en un camino estructurado hacia la excelencia profesional.</p>
-              </div>
-            </div>
-          </section>
 
-          <section id="testimonios" className="content-section section-alt testimonials-section">
-            <div className="section-heading">
-              <span>Testimonios</span>
-              <h2>Alumnos que lograron avanzar</h2>
-            </div>
-            <div className="testimonial-grid">
-              <blockquote>
-                <p>Los cursos me ayudaron a conseguir mi primer empleo como desarrollador en solo 3 meses.</p>
-                <footer>— Lucía M.</footer>
-              </blockquote>
-              <blockquote>
-                <p>El contenido es práctico, claro y está actualizado. Ideal para crecer rápido.</p>
-                <footer>— Andrés G.</footer>
-              </blockquote>
-            </div>
-          </section>
+              <Link to="/salas" className="landing-highlight-button">
+                Explorar salas
+                <ArrowRight size={18} />
+              </Link>
+            </aside>
+          </div>
+        </section>
 
-          <section id="contacto" className="content-section contact-section">
-            <div className="contact-card">
-              <h2>¿Listo para empezar?</h2>
-              <p>Déjanos tus datos y te ayudamos a elegir el curso ideal para ti.</p>
-              <form className="contact-form" onSubmit={(event) => event.preventDefault()}>
-                <input type="text" placeholder="Tu nombre" aria-label="Nombre" />
-                <input type="email" placeholder="Tu correo" aria-label="Correo electrónico" />
-                <button type="submit" className="salas-bottom">Enviar mensaje</button>
-              </form>
-            </div>
-          </section>
-        </main>
-      </div>
+        <section id="beneficios" className="landing-benefits-section">
+          <div className="landing-benefits-content">
+            <div className="landing-section-heading">
+              <span>
+                <Zap size={15} />
+                Una experiencia completa
+              </span>
 
-      {isLanding && (
-        <footer className="footer">
-          <p>&copy; 2026 StudyBest. Todos los derechos reservados.</p>
-        </footer>
-      )}
-    </>
-  )
+              <h2>Menos herramientas. Más concentración.</h2>
+
+              <p>
+                StudySync reúne las funciones esenciales para que puedas
+                organizar, estudiar, colaborar y medir tu evolución.
+              </p>
+            </div>
+
+            <div className="landing-benefits-list">
+              <article>
+                <span>
+                  <CalendarDays size={20} />
+                </span>
+
+                <div>
+                  <h3>Organización académica</h3>
+                  <p>
+                    Planifica cursos, sesiones, tareas y eventos desde un
+                    calendario centralizado.
+                  </p>
+                </div>
+              </article>
+
+              <article>
+                <span>
+                  <Clock3 size={20} />
+                </span>
+
+                <div>
+                  <h3>Pomodoro integrado</h3>
+                  <p>
+                    Gestiona periodos de concentración y descanso con métricas
+                    claras.
+                  </p>
+                </div>
+              </article>
+
+              <article>
+                <span>
+                  <Bot size={20} />
+                </span>
+
+                <div>
+                  <h3>Coach académico con IA</h3>
+                  <p>
+                    Recibe recomendaciones basadas en tus metas, actividad y
+                    progreso.
+                  </p>
+                </div>
+              </article>
+
+              <article>
+                <span>
+                  <MessageCircle size={20} />
+                </span>
+
+                <div>
+                  <h3>Comunicación directa</h3>
+                  <p>
+                    Mantén conversaciones con profesores, compañeros y grupos
+                    de estudio.
+                  </p>
+                </div>
+              </article>
+            </div>
+          </div>
+
+          <div className="landing-security-card">
+            <span className="landing-security-icon">
+              <ShieldCheck size={30} />
+            </span>
+
+            <span className="landing-security-label">
+              Plataforma confiable
+            </span>
+
+            <h3>Tu información y tu progreso siempre protegidos</h3>
+
+            <p>
+              StudySync integra controles de privacidad, seguridad de cuenta y
+              configuraciones personalizadas para cada usuario.
+            </p>
+
+            <div className="landing-security-statistics">
+              <article>
+                <strong>24/7</strong>
+                <span>Disponibilidad</span>
+              </article>
+
+              <article>
+                <strong>100%</strong>
+                <span>Control de privacidad</span>
+              </article>
+            </div>
+          </div>
+        </section>
+
+        <section id="testimonios" className="landing-testimonials-section">
+          <div className="landing-section-heading centered">
+            <span>
+              <Star size={15} />
+              Historias de progreso
+            </span>
+
+            <h2>Personas que ya estudian de otra manera</h2>
+
+            <p>
+              Experiencias de estudiantes y profesores que encontraron una
+              forma más organizada de avanzar.
+            </p>
+          </div>
+
+          <div className="landing-testimonials-grid">
+            {testimonials.map((testimonial) => (
+              <article key={testimonial.id}>
+                <div className="landing-testimonial-stars">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <Star key={star} size={15} fill="currentColor" />
+                  ))}
+                </div>
+
+                <blockquote>“{testimonial.quote}”</blockquote>
+
+                <footer>
+                  <span>{testimonial.initials}</span>
+
+                  <div>
+                    <strong>{testimonial.name}</strong>
+                    <small>{testimonial.role}</small>
+                  </div>
+                </footer>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section id="contacto" className="landing-cta-section">
+          <div className="landing-cta-glow" />
+
+          <div>
+            <span>
+              <Sparkles size={15} />
+              Tu siguiente sesión comienza aquí
+            </span>
+
+            <h2>Construye hoy una mejor forma de aprender</h2>
+
+            <p>
+              Crea tu cuenta y empieza a organizar tus cursos, salas, sesiones
+              de concentración y objetivos académicos.
+            </p>
+
+            <div className="landing-cta-actions">
+              <Link to="/registro" className="landing-primary-button">
+                Crear cuenta gratis
+                <ArrowRight size={18} />
+              </Link>
+
+              <Link to="/login" className="landing-secondary-button">
+                Ya tengo una cuenta
+              </Link>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <footer className="landing-footer">
+        <div className="landing-footer-top">
+          <Link to="/" className="landing-brand">
+            <span className="landing-brand-icon">
+              <GraduationCap size={25} strokeWidth={2.2} />
+            </span>
+
+            <span className="landing-brand-copy">
+              <strong>StudySync</strong>
+              <small>Aprende. Conecta. Avanza.</small>
+            </span>
+          </Link>
+
+          <p>
+            Una plataforma para organizar tu aprendizaje, colaborar y avanzar
+            con propósito.
+          </p>
+
+          <nav>
+            <a href="#home">Inicio</a>
+            <a href="#salas">Salas</a>
+            <a href="#beneficios">Beneficios</a>
+            <Link to="/login">Acceder</Link>
+          </nav>
+        </div>
+
+        <div className="landing-footer-bottom">
+          <span>© 2026 StudySync. Todos los derechos reservados.</span>
+          <span>Diseñado para aprender mejor.</span>
+        </div>
+      </footer>
+    </div>
+  );
 }
 
-export default Home
+export default Home;
