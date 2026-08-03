@@ -1,138 +1,267 @@
+import {
+  Bell,
+  BookOpen,
+  CalendarDays,
+  ChevronRight,
+  Clock3,
+  Search,
+  Sparkles,
+  TrendingUp,
+  Users,
+  Video,
+} from "lucide-react";
+
 import Sidebar from "../components/dashboard/Sidebar";
-import PomodoroTimer from "../components/dashboard/PomodoroTimer";
+import { Badge, Button, Card } from "../components/ui";
+import "./Dashboard.css";
+
+const stats = [
+  {
+    title: "Estudiantes activos",
+    value: "320",
+    detail: "+18 esta semana",
+    icon: Users,
+  },
+  {
+    title: "Salas activas",
+    value: "6",
+    detail: "3 en vivo ahora",
+    icon: Video,
+  },
+  {
+    title: "Cursos publicados",
+    value: "12",
+    detail: "+2 este mes",
+    icon: BookOpen,
+  },
+  {
+    title: "Progreso promedio",
+    value: "84%",
+    detail: "+6% este mes",
+    icon: TrendingUp,
+  },
+];
+
+const classes = [
+  {
+    title: "Matemáticas avanzadas",
+    time: "09:00 - 10:30",
+    students: "28 estudiantes",
+    status: "En vivo",
+    statusVariant: "success",
+  },
+  {
+    title: "Programación en Java",
+    time: "11:00 - 12:30",
+    students: "34 estudiantes",
+    status: "Programada",
+    statusVariant: "blue",
+  },
+  {
+    title: "Bases de datos",
+    time: "15:00 - 17:00",
+    students: "22 estudiantes",
+    status: "Pendiente",
+    statusVariant: "warning",
+  },
+];
+
+const activity = [
+  {
+    title: "María entregó la actividad de Álgebra",
+    time: "Hace 5 minutos",
+  },
+  {
+    title: "Carlos completó cuatro ciclos Pomodoro",
+    time: "Hace 12 minutos",
+  },
+  {
+    title: "Se creó una nueva sala para Física",
+    time: "Hace 25 minutos",
+  },
+  {
+    title: "Ana alcanzó el 90% del curso de Java",
+    time: "Hace 40 minutos",
+  },
+];
 
 function Dashboard() {
   return (
-    <div className="min-h-screen bg-slate-950 text-white flex">
-
+    <div className="teacher-dashboard-layout">
       <Sidebar />
 
-      <main className="flex-1 p-8 overflow-y-auto">
+      <main className="teacher-dashboard-content">
+        <header className="dashboard-topbar">
+          <div className="dashboard-search">
+            <Search size={18} />
 
-        <section className="py-10">
+            <input
+              type="search"
+              placeholder="Buscar cursos, estudiantes o salas..."
+            />
+          </div>
 
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
-
-            <div>
-              <h1 className="text-4xl font-bold">
-                Dashboard
-              </h1>
-
-              <p className="text-slate-400 mt-3">
-                Bienvenido nuevamente a StudySync.
-              </p>
-            </div>
-
-            <button className="bg-cyan-400 hover:bg-cyan-300 transition text-slate-950 px-6 py-3 rounded-xl font-semibold">
-              Crear Sala
+          <div className="dashboard-topbar-actions">
+            <button
+              type="button"
+              className="dashboard-icon-button"
+              aria-label="Notificaciones"
+            >
+              <Bell size={20} />
+              <span className="notification-dot" />
             </button>
 
+            <div className="dashboard-profile">
+              <div className="dashboard-profile-avatar">RV</div>
+
+              <div>
+                <strong>Richard Villaparedes</strong>
+                <span>Profesor</span>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        <section className="dashboard-hero">
+          <div className="dashboard-hero-copy">
+            <Badge variant="blue">
+              <Sparkles size={14} />
+              Panel del profesor
+            </Badge>
+
+            <h1>Buenos días, Richard</h1>
+
+            <p>
+              Administra tus clases, estudiantes y actividades desde un solo
+              lugar.
+            </p>
           </div>
 
+          <div className="dashboard-hero-actions">
+            <Button variant="secondary">
+              <CalendarDays size={18} />
+              Ver calendario
+            </Button>
+
+            <Button>
+              <Video size={18} />
+              Crear sala
+            </Button>
+          </div>
         </section>
 
-        <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <section className="dashboard-stats-grid">
+          {stats.map((stat) => {
+            const Icon = stat.icon;
 
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
-            <h3 className="text-slate-400">
-              Horas estudiadas
-            </h3>
+            return (
+              <Card
+                key={stat.title}
+                hover
+                className="dashboard-stat-card"
+              >
+                <div className="dashboard-stat-icon">
+                  <Icon size={22} />
+                </div>
 
-            <h2 className="text-5xl font-bold text-cyan-400 mt-4">
-              42h
-            </h2>
-          </div>
-
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
-            <h3 className="text-slate-400">
-              Metas completadas
-            </h3>
-
-            <h2 className="text-5xl font-bold text-cyan-400 mt-4">
-              18
-            </h2>
-          </div>
-
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
-            <h3 className="text-slate-400">
-              Puntos obtenidos
-            </h3>
-
-            <h2 className="text-5xl font-bold text-cyan-400 mt-4">
-              +320
-            </h2>
-          </div>
-
+                <div className="dashboard-stat-content">
+                  <span>{stat.title}</span>
+                  <strong>{stat.value}</strong>
+                  <small>{stat.detail}</small>
+                </div>
+              </Card>
+            );
+          })}
         </section>
 
-        <section className="grid grid-cols-1 lg:grid-cols-2 gap-6 py-10">
+        <section className="dashboard-main-grid">
+          <Card className="dashboard-agenda-panel">
+            <div className="dashboard-panel-header">
+              <div>
+                <span className="dashboard-panel-eyebrow">
+                  Agenda
+                </span>
 
-          <PomodoroTimer />
-
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-8">
-
-            <h2 className="text-2xl font-bold">
-              Salas activas
-            </h2>
-
-            <div className="space-y-4 mt-8">
-
-              <div className="bg-slate-950 rounded-xl p-5 border border-slate-800 flex items-center justify-between">
-
-                <div>
-                  <h3 className="font-semibold">
-                    Matemáticas
-                  </h3>
-
-                  <p className="text-slate-400 text-sm mt-1">
-                    12 estudiantes conectados
-                  </p>
-                </div>
-
-                <span className="w-3 h-3 rounded-full bg-green-500 animate-pulse"></span>
-
+                <h2>Próximas clases</h2>
               </div>
 
-              <div className="bg-slate-950 rounded-xl p-5 border border-slate-800 flex items-center justify-between">
-
-                <div>
-                  <h3 className="font-semibold">
-                    Física
-                  </h3>
-
-                  <p className="text-slate-400 text-sm mt-1">
-                    8 estudiantes conectados
-                  </p>
-                </div>
-
-                <span className="w-3 h-3 rounded-full bg-green-500 animate-pulse"></span>
-
-              </div>
-
-              <div className="bg-slate-950 rounded-xl p-5 border border-slate-800 flex items-center justify-between">
-
-                <div>
-                  <h3 className="font-semibold">
-                    Programación
-                  </h3>
-
-                  <p className="text-slate-400 text-sm mt-1">
-                    21 estudiantes conectados
-                  </p>
-                </div>
-
-                <span className="w-3 h-3 rounded-full bg-green-500 animate-pulse"></span>
-
-              </div>
-
+              <button
+                type="button"
+                className="dashboard-panel-link"
+              >
+                Ver todas
+                <ChevronRight size={17} />
+              </button>
             </div>
 
-          </div>
+            <div className="dashboard-class-list">
+              {classes.map((item) => (
+                <article
+                  className="dashboard-class-item"
+                  key={item.title}
+                >
+                  <div className="dashboard-class-icon">
+                    <BookOpen size={20} />
+                  </div>
 
+                  <div className="dashboard-class-info">
+                    <strong>{item.title}</strong>
+
+                    <span>
+                      <Clock3 size={15} />
+                      {item.time}
+                    </span>
+                  </div>
+
+                  <div className="dashboard-class-meta">
+                    <small>{item.students}</small>
+
+                    <Badge variant={item.statusVariant}>
+                      {item.status}
+                    </Badge>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </Card>
+
+          <Card className="dashboard-activity-panel">
+            <div className="dashboard-panel-header">
+              <div>
+                <span className="dashboard-panel-eyebrow">
+                  Seguimiento
+                </span>
+
+                <h2>Actividad reciente</h2>
+              </div>
+
+              <button
+                type="button"
+                className="dashboard-panel-link"
+              >
+                Ver todo
+                <ChevronRight size={17} />
+              </button>
+            </div>
+
+            <div className="dashboard-activity-list">
+              {activity.map((item) => (
+                <article
+                  className="dashboard-activity-item"
+                  key={item.title}
+                >
+                  <div className="dashboard-activity-dot" />
+
+                  <div>
+                    <p>{item.title}</p>
+                    <span>{item.time}</span>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </Card>
         </section>
-
       </main>
-
     </div>
   );
 }
