@@ -1,7 +1,11 @@
 backend/studysync-api/target/
+<<<<<<< HEAD
 
 .env
 **/.env
 *.log
 backend/studysync-api/backend.log
 backend/studysync-api/spring.log
+=======
+>>>>>>> origin/main
+node_modules/
