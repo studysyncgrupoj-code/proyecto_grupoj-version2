@@ -11,10 +11,10 @@ import {
   Video,
 } from "lucide-react";
 
-import Sidebar from "../components/dashboard/Sidebar";
-import { Badge, Button, Card } from "../components/ui";
-import "./Dashboard.css";
+import Sidebar from "../../components/dashboard/Sidebar";
+import { Badge, Button, Card } from "../../components/ui";
 
+import "../../styles/teacher/DashboardProfesor.css";
 const stats = [
   {
     title: "Estudiantes activos",
@@ -85,7 +85,7 @@ const activity = [
   },
 ];
 
-function Dashboard() {
+function DashboardProfesor() {
   return (
     <div className="teacher-dashboard-layout">
       <Sidebar />
@@ -266,4 +266,4 @@ function Dashboard() {
   );
 }
 
-export default Dashboard;
+export default DashboardProfesor;

@@ -10,11 +10,10 @@ import {
   Video,
 } from "lucide-react";
 
-import Sidebar from "../components/dashboard/Sidebar";
-import RoomPomodoro from "../components/dashboard/RoomPomodoro";
+import Sidebar from "../../components/dashboard/Sidebar";
+import RoomPomodoro from "../../components/dashboard/RoomPomodoro";
 
-import "./RoomView.css";
-
+import "../../styles/shared/RoomView.css";
 const participants = [
   { name: "Ana", initials: "AN", status: "Estudiando" },
   { name: "Luis", initials: "LU", status: "Resolviendo ejercicios" },

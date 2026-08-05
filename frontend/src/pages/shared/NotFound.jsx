@@ -1,8 +1,7 @@
 import { ArrowLeft, GraduationCap, Home, Search } from "lucide-react";
 import { Link } from "react-router-dom";
 
-import "./NotFound.css";
-
+import "../../styles/shared/NotFound.css";
 function NotFound() {
   return (
     <main className="notfound-page">

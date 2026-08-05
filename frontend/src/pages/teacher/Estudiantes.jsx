@@ -1,6 +1,7 @@
-﻿import { Link, useNavigate } from 'react-router-dom'
+import "../../styles/teacher/Estudiantes.css";
+
+import { Link, useNavigate } from 'react-router-dom'
 import { useMemo, useState } from 'react'
-import './Estudiantes.css'
 
 const students = [
   {

@@ -13,8 +13,10 @@ import {
   Video,
 } from "lucide-react";
 
-import Sidebar from "../components/dashboard/Sidebar";
-import "./DashboardAdmin.css";
+
+import Sidebar from "../../components/dashboard/Sidebar";
+import "../../styles/admin/DashboardAdmin.css";
+
 
 const summaryCards = [
   { label: "Usuarios registrados", value: "1.248", detail: "+82 este mes", icon: Users },

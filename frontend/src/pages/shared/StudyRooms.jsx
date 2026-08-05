@@ -14,9 +14,9 @@ import {
   Video,
 } from "lucide-react";
 
-import Sidebar from "../components/dashboard/Sidebar";
-import "./StudyRooms.css";
+import Sidebar from "../../components/dashboard/Sidebar";
 
+import "../../styles/shared/StudyRooms.css";
 const rooms = [
   {
     name: "Matemáticas",

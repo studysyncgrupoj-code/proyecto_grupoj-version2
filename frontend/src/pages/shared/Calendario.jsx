@@ -9,9 +9,9 @@ import {
   Video,
 } from "lucide-react";
 
-import Sidebar from "../components/dashboard/Sidebar";
-import "./Calendario.css";
+import Sidebar from "../../components/dashboard/Sidebar";
 
+import "../../styles/shared/Calendario.css";
 const days = [
   { day: 29, muted: true },
   { day: 30, muted: true },

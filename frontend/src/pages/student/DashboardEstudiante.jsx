@@ -13,9 +13,9 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 
-import Sidebar from "../components/dashboard/Sidebar";
-import "./DashboardEstudiante.css";
+import Sidebar from "../../components/dashboard/Sidebar";
 
+import "../../styles/student/DashboardEstudiante.css";
 const courses = [
   {
     id: 1,

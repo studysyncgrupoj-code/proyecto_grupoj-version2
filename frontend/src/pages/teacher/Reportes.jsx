@@ -18,9 +18,9 @@ import {
   Users,
 } from "lucide-react";
 
-import Sidebar from "../components/dashboard/Sidebar";
-import "./Reportes.css";
+import Sidebar from "../../components/dashboard/Sidebar";
 
+import "../../styles/teacher/Reportes.css";
 const periods = ["7 días", "30 días", "3 meses", "Este año"];
 
 const weeklyActivity = [

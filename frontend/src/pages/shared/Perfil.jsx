@@ -16,9 +16,9 @@ import {
   X,
 } from "lucide-react";
 
-import Sidebar from "../components/dashboard/Sidebar";
-import "./Perfil.css";
+import Sidebar from "../../components/dashboard/Sidebar";
 
+import "../../styles/shared/Perfil.css";
 const professorAchievements = [
   {
     id: 1,

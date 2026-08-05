@@ -13,7 +13,7 @@ import {
   Users,
 } from "lucide-react";
 
-import "./Register.css";
+import "../../styles/auth/Register.css";
 
 const INITIAL_FORM_DATA = {
   nombre: "",

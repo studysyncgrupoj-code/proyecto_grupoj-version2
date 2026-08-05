@@ -1,4 +1,4 @@
-﻿import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   ArrowLeft,
   BookOpen,
@@ -17,8 +17,8 @@ import {
 } from "lucide-react";
 
 import Sidebar from "../../components/dashboard/Sidebar";
-import "./Cursos.css";
 
+import "../../styles/shared/Cursos.css";
 const courses = [
   {
     id: 1,

@@ -21,7 +21,7 @@ import {
   Zap,
 } from "lucide-react";
 
-import "../styles/landing.css";
+import "../../styles/landing.css";
 
 const sections = [
   { id: "home", label: "Inicio" },

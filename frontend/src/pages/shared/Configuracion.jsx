@@ -19,9 +19,9 @@ import {
   UserRound,
 } from "lucide-react";
 
-import Sidebar from "../components/dashboard/Sidebar";
-import "./Configuracion.css";
+import Sidebar from "../../components/dashboard/Sidebar";
 
+import "../../styles/shared/Configuracion.css";
 function Configuracion() {
   const [showPassword, setShowPassword] = useState(false);
   const [savedMessage, setSavedMessage] = useState("");

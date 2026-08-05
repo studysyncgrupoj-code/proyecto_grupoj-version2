@@ -12,9 +12,9 @@ import {
   Video,
 } from "lucide-react";
 
-import Sidebar from "../components/dashboard/Sidebar";
-import "./Mensajes.css";
+import Sidebar from "../../components/dashboard/Sidebar";
 
+import "../../styles/shared/Mensajes.css";
 const conversations = [
   {
     id: 1,

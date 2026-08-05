@@ -8,36 +8,65 @@ import {
 import RoleRoute from "../components/auth/RoleRoute";
 import PageLoader from "../components/ui/PageLoader";
 
-const Home = lazy(() => import("../pages/Home"));
-const Login = lazy(() => import("../pages/login/login"));
-const Register = lazy(() => import("../pages/Register"));
-const Dashboard = lazy(() => import("../pages/Dashboard"));
-const StudyRooms = lazy(() => import("../pages/StudyRooms"));
-const RoomView = lazy(() => import("../pages/RoomView"));
-const Cursos = lazy(() => import("../pages/cursos/Cursos"));
+const Home = lazy(() => import("../pages/auth/Home"));
+const Login = lazy(() => import("../pages/auth/Login"));
+const Register = lazy(() => import("../pages/auth/Register"));
 
-const DashboardEstudiante = lazy(() =>
-  import("../pages/DashboardEstudiante")
+const DashboardAdmin = lazy(() =>
+  import("../pages/admin/DashboardAdmin"),
 );
 
-const NotFound = lazy(() => import("../pages/NotFound"));
-const Calendario = lazy(() => import("../pages/Calendario"));
-const Mensajes = lazy(() => import("../pages/Mensajes"));
-const Perfil = lazy(() => import("../pages/Perfil"));
-const Configuracion = lazy(() =>
-  import("../pages/Configuracion")
+const Dashboard = lazy(() =>
+  import("../pages/teacher/DashboardProfesor"),
 );
 
 const Estudiantes = lazy(() =>
-  import("../pages/salas/Estudiantes")
+  import("../pages/teacher/Estudiantes"),
+);
+
+const Reportes = lazy(() =>
+  import("../pages/teacher/Reportes"),
+);
+
+const DashboardEstudiante = lazy(() =>
+  import("../pages/student/DashboardEstudiante"),
+);
+
+const StudyRooms = lazy(() =>
+  import("../pages/shared/StudyRooms"),
+);
+
+const RoomView = lazy(() =>
+  import("../pages/shared/RoomView"),
+);
+
+const Cursos = lazy(() =>
+  import("../pages/shared/Cursos"),
+);
+
+const Calendario = lazy(() =>
+  import("../pages/shared/Calendario"),
+);
+
+const Mensajes = lazy(() =>
+  import("../pages/shared/Mensajes"),
+);
+
+const Perfil = lazy(() =>
+  import("../pages/shared/Perfil"),
+);
+
+const Configuracion = lazy(() =>
+  import("../pages/shared/Configuracion"),
+);
+
+const NotFound = lazy(() =>
+  import("../pages/shared/NotFound"),
 );
 
 const PomodoroTimer = lazy(() =>
-  import("../components/dashboard/PomodoroTimer")
+  import("../components/dashboard/PomodoroTimer"),
 );
-
-const Reportes = lazy(() => import("../pages/Reportes"));
-const DashboardAdmin = lazy(() => import("../pages/DashboardAdmin"));
 
 const allRoles = [
   "administrador",
@@ -62,6 +91,11 @@ const studentRoles = [
   "student",
 ];
 
+const adminRoles = [
+  "administrador",
+  "admin",
+];
+
 function AppRoutes() {
   return (
     <BrowserRouter>
@@ -72,7 +106,17 @@ function AppRoutes() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
 
-          {/* Dashboard profesor y administrador */}
+          {/* Dashboard administrador */}
+          <Route
+            path="/dashboard-admin"
+            element={
+              <RoleRoute allowedRoles={adminRoles}>
+                <DashboardAdmin />
+              </RoleRoute>
+            }
+          />
+
+          {/* Dashboard profesor */}
           <Route
             path="/dashboard"
             element={
@@ -174,7 +218,7 @@ function AppRoutes() {
             }
           />
 
-          {/* Exclusivas de profesor y administrador */}
+          {/* Rutas exclusivas de profesor y administrador */}
           <Route
             path="/estudiantes"
             element={
@@ -193,16 +237,8 @@ function AppRoutes() {
             }
           />
 
+          {/* Debe ir siempre al final */}
           <Route path="*" element={<NotFound />} />
-          <Route
-              path="/dashboard-admin"
-              element={
-                <RoleRoute allowedRoles={["administrador", "admin"]}>
-                  <DashboardAdmin />
-                </RoleRoute>
-              }
-            />
-
         </Routes>
       </Suspense>
     </BrowserRouter>

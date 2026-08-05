@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
@@ -13,16 +12,16 @@ import {
   Users,
 } from "lucide-react";
 
-import "./Login.css";
-
-
+import "../../styles/auth/Login.css";
 function Login() {
   const navigate = useNavigate();
 
   const [showPassword, setShowPassword] = useState(false);
+
   const [formData, setFormData] = useState({
     email: "",
     password: "",
+    role: "estudiante",
   });
 
   const handleChange = (event) => {
@@ -37,16 +36,40 @@ function Login() {
   const handleSubmit = (event) => {
     event.preventDefault();
 
-    localStorage.setItem(
-      "user",
-      JSON.stringify({
-        name: "Richard Villaparedes",
-        role: "Profesor",
-        email: formData.email,
-      })
-    );
+    const role = formData.role.toLowerCase();
 
-    navigate("/dashboard");
+    const userNames = {
+      administrador: "Administrador StudySync",
+      profesor: "Profesor Richard",
+      estudiante: "Estudiante StudySync",
+    };
+
+    const normalizedRole =
+      role === "administrador"
+        ? "Administrador"
+        : role === "profesor"
+          ? "Profesor"
+          : "Estudiante";
+
+    const user = {
+      name: userNames[role] || "Usuario StudySync",
+      role: normalizedRole,
+      email: formData.email,
+    };
+
+    localStorage.setItem("user", JSON.stringify(user));
+
+    if (role === "administrador") {
+      navigate("/dashboard-admin");
+      return;
+    }
+
+    if (role === "profesor") {
+      navigate("/dashboard");
+      return;
+    }
+
+    navigate("/dashboard-estudiante");
   };
 
   return (
@@ -124,7 +147,9 @@ function Login() {
           </div>
 
           <header className="login-form-header">
-            <span className="login-form-label">Bienvenido de nuevo</span>
+            <span className="login-form-label">
+              Bienvenido de nuevo
+            </span>
 
             <h2>Inicia sesión</h2>
 
@@ -133,7 +158,10 @@ function Login() {
             </p>
           </header>
 
-          <form className="login-form" onSubmit={handleSubmit}>
+          <form
+            className="login-form"
+            onSubmit={handleSubmit}
+          >
             <label className="login-field">
               <span>Correo electrónico</span>
 
@@ -149,6 +177,33 @@ function Login() {
                   autoComplete="email"
                   required
                 />
+              </div>
+            </label>
+
+            <label className="login-field">
+              <span>Tipo de usuario</span>
+
+              <div className="login-input-wrapper">
+                <Users size={18} />
+
+                <select
+                  name="role"
+                  value={formData.role}
+                  onChange={handleChange}
+                  required
+                >
+                  <option value="estudiante">
+                    Estudiante
+                  </option>
+
+                  <option value="profesor">
+                    Profesor
+                  </option>
+
+                  <option value="administrador">
+                    Administrador
+                  </option>
+                </select>
               </div>
             </label>
 
@@ -171,9 +226,13 @@ function Login() {
                 <button
                   type="button"
                   className="login-password-toggle"
-                  onClick={() => setShowPassword((current) => !current)}
+                  onClick={() =>
+                    setShowPassword((current) => !current)
+                  }
                   aria-label={
-                    showPassword ? "Ocultar contraseña" : "Mostrar contraseña"
+                    showPassword
+                      ? "Ocultar contraseña"
+                      : "Mostrar contraseña"
                   }
                 >
                   {showPassword ? (
@@ -196,7 +255,10 @@ function Login() {
               </Link>
             </div>
 
-            <button type="submit" className="login-submit-button">
+            <button
+              type="submit"
+              className="login-submit-button"
+            >
               <span>Iniciar sesión</span>
               <ArrowRight size={19} />
             </button>
@@ -205,15 +267,23 @@ function Login() {
               <span>o continúa con</span>
             </div>
 
-            <button type="button" className="login-google-button">
-              <span className="login-google-icon">G</span>
+            <button
+              type="button"
+              className="login-google-button"
+            >
+              <span className="login-google-icon">
+                G
+              </span>
+
               Continuar con Google
             </button>
           </form>
 
           <p className="login-register-text">
             ¿Todavía no tienes una cuenta?
-            <Link to="/register">Crear cuenta</Link>
+            <Link to="/register">
+              Crear cuenta
+            </Link>
           </p>
         </div>
       </section>
