@@ -19,7 +19,7 @@ import {
 import Sidebar from "../components/dashboard/Sidebar";
 import "./Perfil.css";
 
-const achievements = [
+const professorAchievements = [
   {
     id: 1,
     title: "Profesor destacado",
@@ -40,7 +40,7 @@ const achievements = [
   },
 ];
 
-const recentActivity = [
+const professorActivity = [
   {
     id: 1,
     title: "Publicaste una nueva actividad",
@@ -67,20 +67,112 @@ const recentActivity = [
   },
 ];
 
+
+const studentAchievements = [
+  {
+    id: 1,
+    title: "Racha de estudio",
+    description: "Completaste siete días consecutivos de aprendizaje.",
+    icon: Star,
+  },
+  {
+    id: 2,
+    title: "Estudiante colaborativo",
+    description: "Participaste activamente en salas y grupos de estudio.",
+    icon: Users,
+  },
+  {
+    id: 3,
+    title: "Meta cumplida",
+    description: "Superaste tus objetivos académicos de este mes.",
+    icon: Award,
+  },
+];
+
+const studentActivity = [
+  {
+    id: 1,
+    title: "Completaste una sesión Focus",
+    description: "25 minutos de concentración",
+    time: "Hace 18 minutos",
+  },
+  {
+    id: 2,
+    title: "Ingresaste a una sala de estudio",
+    description: "Sala de Matemáticas",
+    time: "Hace 1 hora",
+  },
+  {
+    id: 3,
+    title: "Avanzaste en un curso",
+    description: "JavaScript moderno",
+    time: "Ayer",
+  },
+  {
+    id: 4,
+    title: "Completaste una actividad",
+    description: "Ejercicios de bases de datos",
+    time: "Hace 2 días",
+  },
+];
+
+function getStoredUser() {
+  try {
+    const storedUser = localStorage.getItem("user");
+    return storedUser ? JSON.parse(storedUser) : null;
+  } catch {
+    return null;
+  }
+}
+
+function getInitials(name) {
+  return name
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((word) => word.charAt(0).toUpperCase())
+    .join("");
+}
+
 function Perfil() {
+  const storedUser = getStoredUser();
+  const normalizedRole = storedUser?.role?.toLowerCase() ?? "";
+  const isStudent =
+    normalizedRole === "estudiante" || normalizedRole === "student";
+
+  const defaultProfile = isStudent
+    ? {
+        name: storedUser?.name || "Estudiante StudySync",
+        role: "Estudiante",
+        email: storedUser?.email || "estudiante@studysync.com",
+        location: "Bogotá, Colombia",
+        specialty: "Desarrollo web y aprendizaje colaborativo",
+        biography:
+          "Estudiante enfocado en mejorar sus habilidades, participar en salas de estudio y alcanzar sus objetivos académicos dentro de StudySync.",
+      }
+    : {
+        name: storedUser?.name || "Profesor Richard",
+        role: "Profesor y administrador",
+        email: storedUser?.email || "richard@studysync.com",
+        location: "Bogotá, Colombia",
+        specialty: "Desarrollo web y arquitectura de software",
+        biography:
+          "Profesor enfocado en desarrollo web, buenas prácticas, arquitectura frontend y construcción de proyectos tecnológicos colaborativos.",
+      };
+
   const [isEditing, setIsEditing] = useState(false);
+  const [profile, setProfile] = useState(defaultProfile);
+  const [formData, setFormData] = useState(defaultProfile);
 
-  const [profile, setProfile] = useState({
-    name: "Richard Villaparedes",
-    role: "Profesor y administrador",
-    email: "richard@studysync.com",
-    location: "Bogotá, Colombia",
-    specialty: "Desarrollo web y arquitectura de software",
-    biography:
-      "Profesor enfocado en desarrollo web, buenas prácticas, arquitectura frontend y construcción de proyectos tecnológicos colaborativos.",
-  });
+  const achievements = isStudent
+    ? studentAchievements
+    : professorAchievements;
 
-  const [formData, setFormData] = useState(profile);
+  const recentActivity = isStudent
+    ? studentActivity
+    : professorActivity;
+
+  const initials = getInitials(profile.name) || "SS";
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -104,6 +196,17 @@ function Perfil() {
   const handleSave = (event) => {
     event.preventDefault();
     setProfile(formData);
+
+    localStorage.setItem(
+      "user",
+      JSON.stringify({
+        ...(storedUser ?? {}),
+        name: formData.name,
+        role: isStudent ? "Estudiante" : "Profesor",
+        email: formData.email,
+      }),
+    );
+
     setIsEditing(false);
   };
 
@@ -122,8 +225,9 @@ function Perfil() {
             <h1>Mi perfil</h1>
 
             <p>
-              Administra tu información personal, experiencia y actividad dentro
-              de StudySync.
+              {isStudent
+                ? "Administra tu información personal, progreso y actividad académica dentro de StudySync."
+                : "Administra tu información personal, experiencia y actividad dentro de StudySync."}
             </p>
           </div>
 
@@ -147,7 +251,7 @@ function Perfil() {
 
             <div className="profile-avatar-wrapper">
               <div className="profile-avatar">
-                <span>RV</span>
+                <span>{initials}</span>
 
                 <button type="button" aria-label="Cambiar foto de perfil">
                   <Camera size={17} />
@@ -192,7 +296,7 @@ function Perfil() {
                 <article>
                   <BookOpen size={18} />
                   <div>
-                    <span>Especialidad</span>
+                    <span>{isStudent ? "Área de estudio" : "Especialidad"}</span>
                     <strong>{profile.specialty}</strong>
                   </div>
                 </article>
@@ -209,8 +313,8 @@ function Perfil() {
             <section className="profile-card profile-level-card">
               <div className="profile-card-heading">
                 <div>
-                  <span>Nivel profesional</span>
-                  <h3>Profesor experto</h3>
+                  <span>{isStudent ? "Nivel académico" : "Nivel profesional"}</span>
+                  <h3>{isStudent ? "Estudiante avanzado" : "Profesor experto"}</h3>
                 </div>
 
                 <div className="profile-level-icon">
@@ -221,17 +325,17 @@ function Perfil() {
               <div className="profile-level-progress">
                 <div>
                   <span>Progreso al siguiente nivel</span>
-                  <strong>78%</strong>
+                  <strong>{isStudent ? "64%" : "78%"}</strong>
                 </div>
 
                 <div className="profile-progress-track">
-                  <span />
+                  <span style={{ width: isStudent ? "64%" : "78%" }} />
                 </div>
               </div>
 
               <div className="profile-level-footer">
-                <span>3.940 XP obtenidos</span>
-                <span>1.060 XP restantes</span>
+                <span>{isStudent ? "2.560 XP obtenidos" : "3.940 XP obtenidos"}</span>
+                <span>{isStudent ? "1.440 XP restantes" : "1.060 XP restantes"}</span>
               </div>
             </section>
 
@@ -242,25 +346,45 @@ function Perfil() {
               </div>
 
               <div className="profile-statistics-grid">
-                <article>
-                  <strong>128</strong>
-                  <span>Estudiantes</span>
-                </article>
-
-                <article>
-                  <strong>12</strong>
-                  <span>Cursos</span>
-                </article>
-
-                <article>
-                  <strong>46</strong>
-                  <span>Salas creadas</span>
-                </article>
-
-                <article>
-                  <strong>4.9</strong>
-                  <span>Calificación</span>
-                </article>
+                {isStudent ? (
+                  <>
+                    <article>
+                      <strong>18h</strong>
+                      <span>Tiempo estudiado</span>
+                    </article>
+                    <article>
+                      <strong>3</strong>
+                      <span>Cursos activos</span>
+                    </article>
+                    <article>
+                      <strong>24</strong>
+                      <span>Sesiones Focus</span>
+                    </article>
+                    <article>
+                      <strong>8</strong>
+                      <span>Logros</span>
+                    </article>
+                  </>
+                ) : (
+                  <>
+                    <article>
+                      <strong>128</strong>
+                      <span>Estudiantes</span>
+                    </article>
+                    <article>
+                      <strong>12</strong>
+                      <span>Cursos</span>
+                    </article>
+                    <article>
+                      <strong>46</strong>
+                      <span>Salas creadas</span>
+                    </article>
+                    <article>
+                      <strong>4.9</strong>
+                      <span>Calificación</span>
+                    </article>
+                  </>
+                )}
               </div>
             </section>
           </aside>

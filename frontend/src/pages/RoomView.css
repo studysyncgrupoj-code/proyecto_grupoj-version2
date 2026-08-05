@@ -1,16 +1,34 @@
+/* =========================================================
+   STUDYSYNC — ROOM VIEW
+   Layout corregido para evitar superposiciones del Pomodoro
+   ========================================================= */
+
 .room-view-layout {
   min-height: 100vh;
   display: grid;
   grid-template-columns: 270px minmax(0, 1fr);
   color: #f8fafc;
-  background: #000000;
+  background:
+    radial-gradient(circle at 88% 0%, rgba(37, 99, 235, 0.12), transparent 28%),
+    #02050b;
+}
+
+.room-view-layout,
+.room-view-layout *,
+.room-view-layout *::before,
+.room-view-layout *::after {
+  box-sizing: border-box;
 }
 
 .room-view-content {
   min-width: 0;
-  padding: 34px;
-  background: #000000;
+  padding: 32px;
+  overflow-x: hidden;
 }
+
+/* =========================================================
+   HERO
+   ========================================================= */
 
 .room-view-hero {
   display: flex;
@@ -38,7 +56,7 @@
 
 .room-view-hero h1 {
   margin: 15px 0 0;
-  color: #ffffff;
+  color: #fff;
   font-size: clamp(2.4rem, 5vw, 4.2rem);
   letter-spacing: -0.06em;
   line-height: 1;
@@ -88,10 +106,15 @@
   box-shadow: 0 0 12px rgba(56, 189, 248, 0.8);
 }
 
+/* =========================================================
+   GRID PRINCIPAL
+   ========================================================= */
+
 .room-view-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(330px, 420px);
+  grid-template-columns: minmax(0, 1fr) minmax(340px, 380px);
   gap: 22px;
+  align-items: start;
 }
 
 .room-view-main-column {
@@ -101,50 +124,30 @@
 }
 
 .room-view-side-column {
+  min-width: 0;
   display: grid;
   align-content: start;
   gap: 20px;
 }
+
+/* =========================================================
+   TARJETAS
+   ========================================================= */
 
 .room-session-card,
 .room-participants-card,
 .room-chat-card,
 .room-live-card,
 .room-pomodoro-wrapper {
-  border: 1px solid rgba(148, 163, 184, 0.15);
+  min-width: 0;
+  border: 1px solid rgba(148, 163, 184, 0.14);
   border-radius: 21px;
   background:
-    linear-gradient(
-      180deg,
-      rgba(7, 7, 7, 0.99),
-      rgba(2, 2, 2, 0.99)
-    );
+    radial-gradient(circle at 100% 0%, rgba(37, 99, 235, 0.06), transparent 35%),
+    linear-gradient(180deg, rgba(8, 12, 20, 0.98), rgba(3, 6, 12, 0.99));
   box-shadow:
-    0 22px 50px rgba(0, 0, 0, 0.58),
+    0 22px 50px rgba(0, 0, 0, 0.5),
     inset 0 1px 0 rgba(255, 255, 255, 0.025);
-  transition:
-    border-color 200ms ease,
-    background 200ms ease,
-    box-shadow 200ms ease,
-    transform 200ms ease;
-}
-
-.room-session-card:hover,
-.room-participants-card:hover,
-.room-chat-card:hover,
-.room-live-card:hover,
-.room-pomodoro-wrapper:hover {
-  border-color: rgba(14, 165, 233, 0.58);
-  background:
-    linear-gradient(
-      135deg,
-      rgba(3, 27, 46, 0.98),
-      rgba(3, 7, 15, 0.98)
-    );
-  box-shadow:
-    0 28px 62px rgba(0, 0, 0, 0.72),
-    0 0 34px rgba(14, 165, 233, 0.14);
-  transform: translateY(-3px);
 }
 
 .room-session-card,
@@ -194,6 +197,10 @@
   background: rgba(14, 165, 233, 0.09);
 }
 
+/* =========================================================
+   SESIÓN
+   ========================================================= */
+
 .room-session-description {
   margin: 18px 0 0;
   color: #a2aec0;
@@ -209,27 +216,11 @@
 }
 
 .room-session-stats article {
+  min-width: 0;
   padding: 16px;
   border: 1px solid rgba(148, 163, 184, 0.11);
   border-radius: 15px;
-  background: rgba(4, 4, 4, 0.72);
-  transition:
-    border-color 180ms ease,
-    background 180ms ease,
-    box-shadow 180ms ease,
-    transform 180ms ease;
-}
-
-.room-session-stats article:hover {
-  border-color: rgba(14, 165, 233, 0.52);
-  background:
-    linear-gradient(
-      135deg,
-      rgba(3, 29, 49, 0.95),
-      rgba(3, 8, 18, 0.96)
-    );
-  box-shadow: 0 0 26px rgba(14, 165, 233, 0.11);
-  transform: translateY(-2px);
+  background: rgba(5, 10, 19, 0.72);
 }
 
 .room-session-stats article > div {
@@ -255,9 +246,13 @@
 
 .room-session-stats strong {
   margin-top: 7px;
-  color: #ffffff;
+  color: #fff;
   font-size: 1.45rem;
 }
+
+/* =========================================================
+   PARTICIPANTES
+   ========================================================= */
 
 .room-connected-count {
   display: inline-flex;
@@ -276,28 +271,12 @@
 }
 
 .room-participant-item {
+  min-width: 0;
   padding: 17px 12px;
   border: 1px solid rgba(148, 163, 184, 0.11);
   border-radius: 15px;
-  background: rgba(4, 4, 4, 0.72);
+  background: rgba(5, 10, 19, 0.72);
   text-align: center;
-  transition:
-    border-color 180ms ease,
-    background 180ms ease,
-    box-shadow 180ms ease,
-    transform 180ms ease;
-}
-
-.room-participant-item:hover {
-  border-color: rgba(14, 165, 233, 0.56);
-  background:
-    linear-gradient(
-      135deg,
-      rgba(3, 30, 51, 0.96),
-      rgba(3, 8, 18, 0.98)
-    );
-  box-shadow: 0 0 26px rgba(14, 165, 233, 0.13);
-  transform: translateY(-3px);
 }
 
 .room-participant-avatar {
@@ -309,7 +288,7 @@
   margin: 0 auto 12px;
   border: 1px solid rgba(56, 189, 248, 0.36);
   border-radius: 17px;
-  color: #ffffff;
+  color: #fff;
   background: linear-gradient(135deg, #0ea5e9, #1d4ed8);
   box-shadow:
     0 14px 30px rgba(37, 99, 235, 0.26),
@@ -326,7 +305,6 @@
   border: 2px solid #050505;
   border-radius: 50%;
   background: #22c55e;
-  box-shadow: 0 0 12px rgba(34, 197, 94, 0.55);
 }
 
 .room-participant-item strong,
@@ -345,6 +323,10 @@
   font-size: 0.67rem;
 }
 
+/* =========================================================
+   CHAT
+   ========================================================= */
+
 .room-chat-messages {
   max-height: 370px;
   display: grid;
@@ -355,13 +337,14 @@
 }
 
 .room-chat-message {
+  min-width: 0;
   display: grid;
   grid-template-columns: 42px minmax(0, 1fr);
   gap: 12px;
   padding: 14px;
   border: 1px solid rgba(148, 163, 184, 0.1);
   border-radius: 14px;
-  background: rgba(4, 4, 4, 0.72);
+  background: rgba(5, 10, 19, 0.72);
 }
 
 .room-chat-avatar {
@@ -370,7 +353,7 @@
   display: grid;
   place-items: center;
   border-radius: 13px;
-  color: #ffffff;
+  color: #fff;
   background: linear-gradient(135deg, #0284c7, #1d4ed8);
   font-size: 0.75rem;
   font-weight: 800;
@@ -408,28 +391,14 @@
 }
 
 .room-chat-form input {
+  min-width: 0;
   min-height: 48px;
   padding: 0 14px;
   border: 1px solid rgba(148, 163, 184, 0.16);
   border-radius: 13px;
   outline: 0;
   color: #f8fafc;
-  background: #050505;
-  transition:
-    border-color 180ms ease,
-    background 180ms ease,
-    box-shadow 180ms ease;
-}
-
-.room-chat-form input:focus {
-  border-color: rgba(14, 165, 233, 0.68);
-  background:
-    linear-gradient(
-      135deg,
-      rgba(3, 27, 46, 0.98),
-      rgba(3, 7, 15, 0.98)
-    );
-  box-shadow: 0 0 26px rgba(14, 165, 233, 0.13);
+  background: #050914;
 }
 
 .room-chat-form button {
@@ -441,24 +410,15 @@
   padding: 0 17px;
   border: 1px solid rgba(56, 189, 248, 0.45);
   border-radius: 13px;
-  color: #ffffff;
+  color: #fff;
   background: linear-gradient(135deg, #0284c7, #1d4ed8);
-  box-shadow: 0 14px 30px rgba(37, 99, 235, 0.23);
   cursor: pointer;
   font-weight: 750;
-  transition:
-    background 180ms ease,
-    box-shadow 180ms ease,
-    transform 180ms ease;
 }
 
-.room-chat-form button:hover {
-  background: linear-gradient(135deg, #0ea5e9, #2563eb);
-  box-shadow:
-    0 18px 36px rgba(37, 99, 235, 0.34),
-    0 0 24px rgba(14, 165, 233, 0.18);
-  transform: translateY(-2px);
-}
+/* =========================================================
+   PANEL EN VIVO
+   ========================================================= */
 
 .room-live-card-header svg {
   color: #38bdf8;
@@ -491,15 +451,98 @@
   line-height: 1.6;
 }
 
+/* =========================================================
+   POMODORO EMBEBIDO
+   ========================================================= */
+
 .room-pomodoro-wrapper {
+  width: 100%;
+  min-width: 0;
   overflow: hidden;
 }
 
-.room-pomodoro-wrapper > * {
+.room-pomodoro-wrapper .pomodoro-card {
+  width: 100%;
+  min-width: 0;
+  padding: 20px;
+  overflow: hidden;
   border: 0;
-  border-radius: 0;
+  border-radius: 21px;
+  background: transparent;
   box-shadow: none;
 }
+
+.room-pomodoro-wrapper .pomodoro-header {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 12px;
+}
+
+.room-pomodoro-wrapper .pomodoro-header > div:first-child {
+  min-width: 0;
+}
+
+.room-pomodoro-wrapper .pomodoro-header h2 {
+  font-size: 1.2rem;
+}
+
+.room-pomodoro-wrapper .pomodoro-header p {
+  max-width: 100%;
+  font-size: 0.7rem;
+}
+
+.room-pomodoro-wrapper .pomodoro-status {
+  flex: 0 0 auto;
+  padding: 5px 8px;
+  font-size: 0.6rem;
+}
+
+.room-pomodoro-wrapper .pomodoro-timer-area {
+  width: 100%;
+  padding: 24px 0 20px;
+  overflow: hidden;
+}
+
+.room-pomodoro-wrapper .pomodoro-progress-ring {
+  width: min(220px, 100%);
+  max-width: 100%;
+  margin-inline: auto;
+}
+
+.room-pomodoro-wrapper .pomodoro-progress-inner {
+  width: calc(100% - 15px);
+}
+
+.room-pomodoro-wrapper .pomodoro-progress-inner strong {
+  margin-top: 8px;
+  font-size: clamp(2.2rem, 4vw, 3rem);
+}
+
+.room-pomodoro-wrapper .pomodoro-progress-inner span {
+  font-size: 0.68rem;
+}
+
+.room-pomodoro-wrapper .pomodoro-progress-info {
+  width: 100%;
+  min-width: 0;
+}
+
+.room-pomodoro-wrapper .pomodoro-actions {
+  width: 100%;
+  grid-template-columns: 1fr;
+}
+
+.room-pomodoro-wrapper .pomodoro-primary-button,
+.room-pomodoro-wrapper .pomodoro-secondary-button {
+  width: 100%;
+  min-width: 0;
+}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
 
 @media (max-width: 1180px) {
   .room-view-grid {
@@ -507,7 +550,7 @@
   }
 
   .room-view-side-column {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: minmax(0, 1fr) minmax(300px, 360px);
   }
 }
 
@@ -525,7 +568,7 @@
   }
 }
 
-@media (max-width: 720px) {
+@media (max-width: 760px) {
   .room-view-hero {
     align-items: flex-start;
     flex-direction: column;
@@ -559,5 +602,13 @@
 
   .room-connected-count {
     display: none;
+  }
+
+  .room-pomodoro-wrapper .pomodoro-header {
+    grid-template-columns: 1fr;
+  }
+
+  .room-pomodoro-wrapper .pomodoro-progress-ring {
+    width: min(210px, 76vw);
   }
 }

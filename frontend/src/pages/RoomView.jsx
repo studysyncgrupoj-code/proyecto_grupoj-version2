@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 
 import Sidebar from "../components/dashboard/Sidebar";
-import PomodoroTimer from "../components/dashboard/PomodoroTimer";
+import RoomPomodoro from "../components/dashboard/RoomPomodoro";
 
 import "./RoomView.css";
 
@@ -247,9 +247,7 @@ function RoomView() {
               </p>
             </article>
 
-            <div className="room-pomodoro-wrapper">
-              <PomodoroTimer />
-            </div>
+            <RoomPomodoro />
           </aside>
         </section>
       </main>

@@ -7,14 +7,17 @@ import {
   GraduationCap,
   LayoutDashboard,
   LogOut,
+  MessageCircle,
   Settings,
   Timer,
+  UserRound,
   Users,
   Video,
-  MessageCircle,
 } from "lucide-react";
 
-const menuItems = [
+import "./Sidebar.css";
+
+const professorMenu = [
   {
     label: "Dashboard",
     path: "/dashboard",
@@ -55,9 +58,86 @@ const menuItems = [
     path: "/reportes",
     icon: BarChart3,
   },
+  {
+    label: "Perfil",
+    path: "/perfil",
+    icon: UserRound,
+  },
 ];
 
+const studentMenu = [
+  {
+    label: "Dashboard",
+    path: "/dashboard-estudiante",
+    icon: LayoutDashboard,
+  },
+  {
+    label: "Salas de estudio",
+    path: "/salas",
+    icon: Video,
+  },
+  {
+    label: "Cursos",
+    path: "/cursos",
+    icon: BookOpen,
+  },
+  {
+    label: "Pomodoro",
+    path: "/pomodoro",
+    icon: Timer,
+  },
+  {
+    label: "Calendario",
+    path: "/calendario",
+    icon: CalendarDays,
+  },
+  {
+    label: "Mensajes",
+    path: "/mensajes",
+    icon: MessageCircle,
+  },
+  {
+    label: "Perfil",
+    path: "/perfil",
+    icon: UserRound,
+  },
+];
+
+function getStoredUser() {
+  try {
+    const storedUser = localStorage.getItem("user");
+
+    if (!storedUser) {
+      return null;
+    }
+
+    return JSON.parse(storedUser);
+  } catch {
+    return null;
+  }
+}
+
 function Sidebar() {
+  const user = getStoredUser();
+
+  const normalizedRole = user?.role?.toLowerCase() ?? "";
+  const isStudent =
+    normalizedRole === "estudiante" || normalizedRole === "student";
+
+  const menuItems = isStudent ? studentMenu : professorMenu;
+
+  const displayName =
+    user?.name || (isStudent ? "Estudiante StudySync" : "Profesor Richard");
+
+  const displayRole = isStudent ? "Estudiante" : "Administrador";
+
+  const initials = displayName
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((word) => word.charAt(0).toUpperCase())
+    .join("");
+
   const handleLogout = () => {
     localStorage.removeItem("user");
     window.location.href = "/login";
@@ -72,7 +152,9 @@ function Sidebar() {
 
         <div className="sidebar-brand-text">
           <h2>StudySync</h2>
-          <span>Panel del profesor</span>
+          <span>
+            {isStudent ? "Panel del estudiante" : "Panel del profesor"}
+          </span>
         </div>
       </div>
 
@@ -108,8 +190,9 @@ function Sidebar() {
         <h3>StudySync Premium</h3>
 
         <p>
-          Accede a estadísticas avanzadas y herramientas adicionales para
-          docentes.
+          {isStudent
+            ? "Accede a herramientas avanzadas para mejorar tu aprendizaje."
+            : "Accede a estadísticas avanzadas y herramientas adicionales para docentes."}
         </p>
 
         <button type="button">Ver beneficios</button>
@@ -146,11 +229,13 @@ function Sidebar() {
         </button>
 
         <div className="sidebar-user">
-          <div className="sidebar-user-avatar">RV</div>
+          <div className="sidebar-user-avatar">
+            {initials || "SS"}
+          </div>
 
           <div className="sidebar-user-info">
-            <strong>Profesor Richard</strong>
-            <span>Administrador</span>
+            <strong>{displayName}</strong>
+            <span>{displayRole}</span>
           </div>
         </div>
       </div>
