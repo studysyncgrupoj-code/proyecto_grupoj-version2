@@ -1,17 +1,30 @@
+/* =========================================================
+   STUDYSYNC — SIDEBAR RESPONSIVE
+   Desktop / Laptop / Tablet / Mobile
+   ========================================================= */
+
 .app-sidebar {
   position: sticky;
   top: 0;
-  z-index: 30;
+  z-index: 60;
+
   width: 270px;
   height: 100vh;
+  height: 100dvh;
   min-height: 0;
+
   display: flex;
   flex-direction: column;
+
   padding: 24px 18px 22px;
-  overflow-x: hidden;
-  overflow-y: auto;
+
+  overflow: hidden;
+
   color: #f8fafc;
-  border-right: 1px solid rgba(148, 163, 184, 0.12);
+
+  border-right:
+    1px solid rgba(148, 163, 184, 0.12);
+
   background:
     radial-gradient(
       circle at 20% 0%,
@@ -23,11 +36,15 @@
       rgba(4, 8, 16, 0.99),
       rgba(2, 5, 11, 0.99)
     );
+
   box-shadow:
     18px 0 45px rgba(0, 0, 0, 0.3),
     inset -1px 0 0 rgba(255, 255, 255, 0.015);
+
   scrollbar-width: thin;
-  scrollbar-color: rgba(56, 189, 248, 0.25) transparent;
+  scrollbar-color:
+    rgba(56, 189, 248, 0.25)
+    transparent;
 }
 
 .app-sidebar,
@@ -37,31 +54,61 @@
   box-sizing: border-box;
 }
 
+/* =========================================================
+   SCROLL
+   ========================================================= */
+
 .app-sidebar::-webkit-scrollbar {
   width: 5px;
 }
 
+.app-sidebar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
 .app-sidebar::-webkit-scrollbar-thumb {
   border-radius: 999px;
-  background: rgba(56, 189, 248, 0.24);
+
+  background:
+    rgba(56, 189, 248, 0.24);
 }
+
+.app-sidebar::-webkit-scrollbar-thumb:hover {
+  background:
+    rgba(56, 189, 248, 0.4);
+}
+
+/* =========================================================
+   BRAND
+   ========================================================= */
 
 .sidebar-brand {
   display: flex;
   align-items: center;
   gap: 13px;
-  padding: 0 8px 24px;
+
+  flex: 0 0 auto;
+
+  padding:
+    0 8px 24px;
 }
 
 .sidebar-logo {
   width: 46px;
   height: 46px;
+
   flex: 0 0 auto;
+
   display: grid;
   place-items: center;
-  border: 1px solid rgba(125, 211, 252, 0.42);
+
+  border:
+    1px solid rgba(125, 211, 252, 0.42);
+
   border-radius: 14px;
-  color: #fff;
+
+  color: #ffffff;
+
   background:
     linear-gradient(
       135deg,
@@ -69,6 +116,7 @@
       #2563eb 58%,
       #1d4ed8
     );
+
   box-shadow:
     0 12px 30px rgba(37, 99, 235, 0.3),
     0 0 24px rgba(14, 165, 233, 0.14),
@@ -81,42 +129,69 @@
 
 .sidebar-brand-text h2 {
   margin: 0;
-  color: #fff;
+
+  color: #ffffff;
+
   font-size: 1.08rem;
   font-weight: 850;
+
   letter-spacing: -0.035em;
 }
 
 .sidebar-brand-text span {
   display: block;
+
   margin-top: 4px;
+
   color: #64748b;
+
   font-size: 0.72rem;
+
+  white-space: nowrap;
 }
+
+/* =========================================================
+   MENÚ
+   ========================================================= */
 
 .sidebar-menu {
   display: grid;
   gap: 6px;
+
+  flex: 0 0 auto;
 }
 
 .sidebar-link,
 .sidebar-logout {
   position: relative;
+
   width: 100%;
   min-height: 46px;
+
   display: flex;
   align-items: center;
   gap: 13px;
-  padding: 0 14px;
-  border: 1px solid transparent;
+
+  padding:
+    0 14px;
+
+  border:
+    1px solid transparent;
+
   border-radius: 13px;
+
   color: #8492a6;
+
   background: transparent;
+
   font-size: 0.89rem;
   font-weight: 680;
+
   text-align: left;
   text-decoration: none;
+
   cursor: pointer;
+
   transition:
     color 180ms ease,
     background 180ms ease,
@@ -131,35 +206,55 @@
 
 .sidebar-link:hover,
 .sidebar-logout:hover {
-  color: #fff;
-  border-color: rgba(56, 189, 248, 0.3);
-  background: rgba(14, 165, 233, 0.075);
+  color: #ffffff;
+
+  border-color:
+    rgba(56, 189, 248, 0.3);
+
+  background:
+    rgba(14, 165, 233, 0.075);
+
   box-shadow:
     inset 3px 0 0 #0ea5e9,
     0 10px 24px rgba(0, 0, 0, 0.22);
-  transform: translateX(3px);
+
+  transform:
+    translateX(3px);
 }
 
 .sidebar-link-active {
-  color: #fff;
-  border-color: rgba(56, 189, 248, 0.38);
+  color: #ffffff;
+
+  border-color:
+    rgba(56, 189, 248, 0.38);
+
   background:
     linear-gradient(
       90deg,
       rgba(14, 165, 233, 0.17),
       rgba(37, 99, 235, 0.065)
     );
+
   box-shadow:
     inset 3px 0 0 #38bdf8,
     0 12px 28px rgba(0, 0, 0, 0.24),
     0 0 22px rgba(14, 165, 233, 0.08);
 }
 
+/* =========================================================
+   PREMIUM
+   ========================================================= */
+
 .sidebar-premium {
   margin-top: 24px;
+
   padding: 18px;
-  border: 1px solid rgba(56, 189, 248, 0.18);
+
+  border:
+    1px solid rgba(56, 189, 248, 0.18);
+
   border-radius: 18px;
+
   background:
     radial-gradient(
       circle at 100% 0%,
@@ -171,6 +266,7 @@
       rgba(8, 17, 31, 0.95),
       rgba(3, 8, 17, 0.98)
     );
+
   box-shadow:
     0 18px 40px rgba(0, 0, 0, 0.38),
     inset 0 1px 0 rgba(255, 255, 255, 0.035);
@@ -179,24 +275,37 @@
 .premium-icon {
   width: 39px;
   height: 39px;
+
   display: grid;
   place-items: center;
+
   margin-bottom: 13px;
-  border: 1px solid rgba(250, 204, 21, 0.22);
+
+  border:
+    1px solid rgba(250, 204, 21, 0.22);
+
   border-radius: 12px;
+
   color: #fde047;
-  background: rgba(250, 204, 21, 0.09);
+
+  background:
+    rgba(250, 204, 21, 0.09);
 }
 
 .sidebar-premium h3 {
   margin: 0;
-  color: #fff;
+
+  color: #ffffff;
+
   font-size: 0.91rem;
 }
 
 .sidebar-premium p {
-  margin: 8px 0 14px;
+  margin:
+    8px 0 14px;
+
   color: #7f8ea3;
+
   font-size: 0.74rem;
   line-height: 1.55;
 }
@@ -204,13 +313,22 @@
 .sidebar-premium button {
   width: 100%;
   min-height: 39px;
-  border: 1px solid rgba(56, 189, 248, 0.25);
+
+  border:
+    1px solid rgba(56, 189, 248, 0.25);
+
   border-radius: 11px;
+
   color: #dff6ff;
-  background: rgba(6, 17, 26, 0.86);
+
+  background:
+    rgba(6, 17, 26, 0.86);
+
   font-size: 0.76rem;
   font-weight: 760;
+
   cursor: pointer;
+
   transition:
     border-color 180ms ease,
     background 180ms ease,
@@ -218,31 +336,56 @@
 }
 
 .sidebar-premium button:hover {
-  border-color: rgba(56, 189, 248, 0.48);
-  background: rgba(14, 165, 233, 0.11);
-  transform: translateY(-2px);
+  border-color:
+    rgba(56, 189, 248, 0.48);
+
+  background:
+    rgba(14, 165, 233, 0.11);
+
+  transform:
+    translateY(-2px);
 }
+
+/* =========================================================
+   PARTE INFERIOR
+   ========================================================= */
 
 .sidebar-bottom {
   display: flex;
   flex-direction: column;
+
+  flex: 0 0 auto;
+
   margin-top: 18px;
+
   padding-top: 16px;
-  border-top: 1px solid rgba(148, 163, 184, 0.1);
+
+  border-top:
+    1px solid rgba(148, 163, 184, 0.1);
 }
 
 .sidebar-logout {
   color: #fb7185;
 }
 
+/* =========================================================
+   USUARIO
+   ========================================================= */
+
 .sidebar-user {
   display: flex;
   align-items: center;
   gap: 11px;
+
   margin-top: 12px;
+
   padding: 12px;
-  border: 1px solid rgba(148, 163, 184, 0.11);
+
+  border:
+    1px solid rgba(148, 163, 184, 0.11);
+
   border-radius: 14px;
+
   background:
     linear-gradient(
       145deg,
@@ -254,18 +397,26 @@
 .sidebar-user-avatar {
   width: 39px;
   height: 39px;
+
   flex: 0 0 auto;
+
   display: grid;
   place-items: center;
-  border: 1px solid rgba(125, 211, 252, 0.28);
+
+  border:
+    1px solid rgba(125, 211, 252, 0.28);
+
   border-radius: 12px;
-  color: #fff;
+
+  color: #ffffff;
+
   background:
     linear-gradient(
       135deg,
       #0ea5e9,
       #1d4ed8
     );
+
   font-size: 0.76rem;
   font-weight: 850;
 }
@@ -277,24 +428,287 @@
 .sidebar-user-info strong,
 .sidebar-user-info span {
   display: block;
+
   overflow: hidden;
+
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .sidebar-user-info strong {
-  color: #fff;
+  color: #ffffff;
+
   font-size: 0.79rem;
 }
 
 .sidebar-user-info span {
   margin-top: 4px;
+
   color: #64748b;
+
   font-size: 0.68rem;
 }
 
+/* =========================================================
+   LAPTOP PEQUEÑO
+   ========================================================= */
+
+@media (max-width: 1180px) and (min-width: 901px) {
+  .app-sidebar {
+    width: 270px;
+
+    padding:
+      20px 15px;
+  }
+
+  .sidebar-brand {
+    padding-bottom: 20px;
+  }
+
+  .sidebar-premium {
+    padding: 15px;
+  }
+
+  .sidebar-link,
+  .sidebar-logout {
+    min-height: 44px;
+
+    padding-inline: 12px;
+
+    font-size: 0.84rem;
+  }
+}
+
+/* =========================================================
+   TABLET + MÓVIL
+   Convertimos sidebar lateral en navegación inferior.
+   ========================================================= */
+
 @media (max-width: 900px) {
   .app-sidebar {
+    position: fixed !important;
+
+    top: auto;
+    right: 0;
+    bottom: 0;
+    left: 0;
+
+    z-index: 1000;
+
+    width: 100% !important;
+    max-width: 100vw;
+
+    height: auto;
+    min-height: 72px;
+
+    display: flex !important;
+    flex-direction: row;
+    align-items: center;
+
+    padding:
+      8px 10px
+      calc(
+        8px +
+        env(safe-area-inset-bottom)
+      );
+
+    overflow-x: auto;
+    overflow-y: hidden;
+
+    border-top:
+      1px solid rgba(148, 163, 184, 0.16);
+
+    border-right: 0;
+
+    background:
+      linear-gradient(
+        180deg,
+        rgba(5, 10, 19, 0.96),
+        rgba(2, 5, 11, 0.99)
+      );
+
+    box-shadow:
+      0 -14px 40px rgba(0, 0, 0, 0.48),
+      inset 0 1px 0 rgba(255, 255, 255, 0.025);
+
+    backdrop-filter:
+      blur(22px);
+
+    scrollbar-width: none;
+  }
+
+  .app-sidebar::-webkit-scrollbar {
     display: none;
+  }
+
+  /* En móvil no necesitamos repetir la marca */
+
+  .sidebar-brand {
+    display: none;
+  }
+
+  /* Premium pasa a ocultarse para dar prioridad
+     a la navegación */
+
+  .sidebar-premium {
+    display: none;
+  }
+
+  /* Menú principal */
+
+  .sidebar-menu {
+    display: flex;
+
+    flex: 0 0 auto;
+
+    gap: 6px;
+  }
+
+  .sidebar-link,
+  .sidebar-logout {
+    width: auto;
+    min-width: 70px;
+    min-height: 54px;
+
+    flex: 0 0 auto;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    gap: 4px;
+
+    padding:
+      6px 9px;
+
+    border-radius: 12px;
+
+    font-size: 0.61rem;
+
+    white-space: nowrap;
+  }
+
+  .sidebar-link svg,
+  .sidebar-logout svg {
+    width: 19px;
+    height: 19px;
+  }
+
+  .sidebar-link:hover,
+  .sidebar-logout:hover {
+    transform: none;
+
+    box-shadow:
+      0 8px 20px rgba(0, 0, 0, 0.22);
+  }
+
+  .sidebar-link-active {
+    box-shadow:
+      inset 0 2px 0 #38bdf8,
+      0 8px 22px rgba(0, 0, 0, 0.25),
+      0 0 18px rgba(14, 165, 233, 0.07);
+  }
+
+  /* Configuración + Logout */
+
+  .sidebar-bottom {
+    display: flex;
+    flex-direction: row;
+
+    flex: 0 0 auto;
+
+    gap: 6px;
+
+    margin-top: 0;
+    margin-left: 6px;
+
+    padding-top: 0;
+    padding-left: 6px;
+
+    border-top: 0;
+
+    border-left:
+      1px solid rgba(148, 163, 184, 0.1);
+  }
+
+  /* Perfil completo no cabe en barra inferior */
+
+  .sidebar-user {
+    display: none;
+  }
+
+  /* Reserva espacio para la navegación inferior
+     en los layouts existentes */
+
+  body {
+    padding-bottom:
+      calc(
+        74px +
+        env(safe-area-inset-bottom)
+      );
+  }
+}
+
+/* =========================================================
+   MÓVIL
+   ========================================================= */
+
+@media (max-width: 600px) {
+  .app-sidebar {
+    min-height: 68px;
+
+    padding-inline: 7px;
+  }
+
+  .sidebar-link,
+  .sidebar-logout {
+    min-width: 64px;
+    min-height: 50px;
+
+    padding-inline: 7px;
+
+    font-size: 0.58rem;
+  }
+
+  .sidebar-link svg,
+  .sidebar-logout svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  body {
+    padding-bottom:
+      calc(
+        70px +
+        env(safe-area-inset-bottom)
+      );
+  }
+}
+
+/* =========================================================
+   MÓVIL PEQUEÑO
+   ========================================================= */
+
+@media (max-width: 420px) {
+  .sidebar-link,
+  .sidebar-logout {
+    min-width: 60px;
+
+    font-size: 0.55rem;
+  }
+}
+
+/* =========================================================
+   MOTION ACCESSIBILITY
+   ========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .app-sidebar,
+  .sidebar-link,
+  .sidebar-logout,
+  .sidebar-premium,
+  .sidebar-premium button {
+    transition: none;
   }
 }

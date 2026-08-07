@@ -1,21 +1,84 @@
 import { NavLink } from "react-router-dom";
 import {
   BarChart3,
+  Bell,
   BookOpen,
   CalendarDays,
+  ClipboardList,
   Crown,
   GraduationCap,
   LayoutDashboard,
   LogOut,
+  Mail,
   MessageCircle,
   Settings,
+  ShieldCheck,
   Timer,
+  UserCog,
   UserRound,
   Users,
   Video,
 } from "lucide-react";
 
 import "./Sidebar.css";
+
+const adminMenu = [
+  {
+    label: "Dashboard",
+    path: "/dashboard-admin",
+    icon: LayoutDashboard,
+  },
+  {
+    label: "Usuarios",
+    path: "/usuarios",
+    icon: Users,
+  },
+  {
+    label: "Profesores",
+    path: "/profesores",
+    icon: GraduationCap,
+  },
+  {
+    label: "Estudiantes",
+    path: "/estudiantes-admin",
+    icon: UserCog,
+  },
+  {
+    label: "Cursos",
+    path: "/cursos-admin",
+    icon: BookOpen,
+  },
+  {
+    label: "Centro académico",
+    path: "/gestion-academica-admin",
+    icon: ClipboardList,
+  },
+  {
+    label: "Salas",
+    path: "/salas",
+    icon: Video,
+  },
+  {
+    label: "Informes",
+    path: "/informes-admin",
+    icon: BarChart3,
+  },
+  {
+    label: "Correos",
+    path: "/correos-admin",
+    icon: Mail,
+  },
+  {
+    label: "Notificaciones",
+    path: "/notificaciones",
+    icon: Bell,
+  },
+  {
+    label: "Auditoría",
+    path: "/auditoria",
+    icon: ShieldCheck,
+  },
+];
 
 const professorMenu = [
   {
@@ -49,9 +112,14 @@ const professorMenu = [
     icon: MessageCircle,
   },
   {
-    label: "Estudiantes",
-    path: "/estudiantes",
+    label: "Usuarios",
+    path: "/usuarios",
     icon: Users,
+  },
+  {
+    label: "Gestión académica",
+    path: "/gestion-academica",
+    icon: ClipboardList,
   },
   {
     label: "Reportes",
@@ -97,6 +165,11 @@ const studentMenu = [
     icon: MessageCircle,
   },
   {
+    label: "Mi gestión académica",
+    path: "/mi-gestion-academica",
+    icon: ClipboardList,
+  },
+  {
     label: "Perfil",
     path: "/perfil",
     icon: UserRound,
@@ -117,19 +190,93 @@ function getStoredUser() {
   }
 }
 
+function normalizeRole(role) {
+  return String(role ?? "")
+    .trim()
+    .toLowerCase();
+}
+
+function getRoleInformation(role) {
+  const isAdmin =
+    role === "administrador" ||
+    role === "admin" ||
+    role === "administrator";
+
+  const isStudent =
+    role === "estudiante" ||
+    role === "student";
+
+  const isProfessor =
+    role === "profesor" ||
+    role === "teacher";
+
+  if (isAdmin) {
+    return {
+      type: "admin",
+      menu: adminMenu,
+      panelTitle: "Panel del administrador",
+      roleLabel: "Administrador",
+      fallbackName: "Administrador StudySync",
+      premiumTitle: "Control institucional",
+      premiumDescription:
+        "Supervisa usuarios, actividad académica y configuración general.",
+    };
+  }
+
+  if (isStudent) {
+    return {
+      type: "student",
+      menu: studentMenu,
+      panelTitle: "Panel del estudiante",
+      roleLabel: "Estudiante",
+      fallbackName: "Estudiante StudySync",
+      premiumTitle: "StudySync Premium",
+      premiumDescription:
+        "Accede a herramientas avanzadas para mejorar tu aprendizaje.",
+    };
+  }
+
+  if (isProfessor) {
+    return {
+      type: "professor",
+      menu: professorMenu,
+      panelTitle: "Panel del profesor",
+      roleLabel: "Profesor",
+      fallbackName: "Profesor StudySync",
+      premiumTitle: "StudySync Premium",
+      premiumDescription:
+        "Accede a estadísticas avanzadas y herramientas adicionales para docentes.",
+    };
+  }
+
+  return {
+    type: "student",
+    menu: studentMenu,
+    panelTitle: "Panel del estudiante",
+    roleLabel: "Estudiante",
+    fallbackName: "Usuario StudySync",
+    premiumTitle: "StudySync Premium",
+    premiumDescription:
+      "Accede a herramientas avanzadas para mejorar tu aprendizaje.",
+  };
+}
+
 function Sidebar() {
   const user = getStoredUser();
+  const normalizedRole = normalizeRole(user?.role);
+  const roleInformation = getRoleInformation(normalizedRole);
 
-  const normalizedRole = user?.role?.toLowerCase() ?? "";
-  const isStudent =
-    normalizedRole === "estudiante" || normalizedRole === "student";
+  const {
+    type,
+    menu,
+    panelTitle,
+    roleLabel,
+    fallbackName,
+    premiumTitle,
+    premiumDescription,
+  } = roleInformation;
 
-  const menuItems = isStudent ? studentMenu : professorMenu;
-
-  const displayName =
-    user?.name || (isStudent ? "Estudiante StudySync" : "Profesor Richard");
-
-  const displayRole = isStudent ? "Estudiante" : "Administrador";
+  const displayName = user?.name?.trim() || fallbackName;
 
   const initials = displayName
     .split(" ")
@@ -144,7 +291,7 @@ function Sidebar() {
   };
 
   return (
-    <aside className="app-sidebar">
+    <aside className={`app-sidebar sidebar-role-${type}`}>
       <div className="sidebar-brand">
         <div className="sidebar-logo">
           <GraduationCap size={24} strokeWidth={2.2} />
@@ -152,19 +299,17 @@ function Sidebar() {
 
         <div className="sidebar-brand-text">
           <h2>StudySync</h2>
-          <span>
-            {isStudent ? "Panel del estudiante" : "Panel del profesor"}
-          </span>
+          <span>{panelTitle}</span>
         </div>
       </div>
 
-      <nav className="sidebar-menu">
-        {menuItems.map((item) => {
+      <nav className="sidebar-menu" aria-label={panelTitle}>
+        {menu.map((item) => {
           const Icon = item.icon;
 
           return (
             <NavLink
-              key={item.path}
+              key={`${type}-${item.path}`}
               to={item.path}
               className={({ isActive }) =>
                 `sidebar-link ${isActive ? "sidebar-link-active" : ""}`
@@ -184,18 +329,20 @@ function Sidebar() {
 
       <div className="sidebar-premium">
         <div className="premium-icon">
-          <Crown size={22} strokeWidth={2} />
+          {type === "admin" ? (
+            <ShieldCheck size={22} strokeWidth={2} />
+          ) : (
+            <Crown size={22} strokeWidth={2} />
+          )}
         </div>
 
-        <h3>StudySync Premium</h3>
+        <h3>{premiumTitle}</h3>
 
-        <p>
-          {isStudent
-            ? "Accede a herramientas avanzadas para mejorar tu aprendizaje."
-            : "Accede a estadísticas avanzadas y herramientas adicionales para docentes."}
-        </p>
+        <p>{premiumDescription}</p>
 
-        <button type="button">Ver beneficios</button>
+        <button type="button">
+          {type === "admin" ? "Ver estado" : "Ver beneficios"}
+        </button>
       </div>
 
       <div className="sidebar-bottom">
@@ -235,7 +382,7 @@ function Sidebar() {
 
           <div className="sidebar-user-info">
             <strong>{displayName}</strong>
-            <span>{displayRole}</span>
+            <span>{roleLabel}</span>
           </div>
         </div>
       </div>

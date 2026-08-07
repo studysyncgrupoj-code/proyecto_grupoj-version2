@@ -4,7 +4,7 @@
 =========================================================== */
 
 .reports-layout{
-    min-height:100vh;
+    min-height: 100vh;
     display:grid;
     grid-template-columns:270px 1fr;
     background:#02050b;
@@ -275,7 +275,7 @@ GRÁFICA SEMANAL
     width:42px;
     height:250px;
     border-radius:25px;
-    overflow:hidden;
+    overflow: hidden;
     background:#0b1320;
     display:flex;
     align-items:flex-end;
@@ -457,7 +457,7 @@ CURSOS
 .reports-progress-track{
     height:8px;
     border-radius:30px;
-    overflow:hidden;
+    overflow: hidden;
     background:#101827;
 }
 
@@ -663,7 +663,7 @@ TABLA
     width:160px;
     height:7px;
     border-radius:30px;
-    overflow:hidden;
+    overflow: hidden;
     background:#111827;
 }
 

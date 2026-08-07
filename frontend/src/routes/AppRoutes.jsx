@@ -1,6 +1,7 @@
 import { lazy, Suspense } from "react";
 import {
   BrowserRouter,
+  Navigate,
   Route,
   Routes,
 } from "react-router-dom";
@@ -8,13 +9,69 @@ import {
 import RoleRoute from "../components/auth/RoleRoute";
 import PageLoader from "../components/ui/PageLoader";
 
-const Home = lazy(() => import("../pages/auth/Home"));
-const Login = lazy(() => import("../pages/auth/Login"));
-const Register = lazy(() => import("../pages/auth/Register"));
+/* =========================
+   PÁGINAS PÚBLICAS
+   ========================= */
+
+const Home = lazy(() =>
+  import("../pages/auth/Home"),
+);
+
+const Login = lazy(() =>
+  import("../pages/auth/Login"),
+);
+
+const Register = lazy(() =>
+  import("../pages/auth/Register"),
+);
+
+/* =========================
+   ADMINISTRADOR
+   ========================= */
 
 const DashboardAdmin = lazy(() =>
   import("../pages/admin/DashboardAdmin"),
 );
+
+const GestionAcademicaAdmin = lazy(() =>
+  import("../pages/admin/GestionAcademicaAdmin"),
+);
+
+const Usuarios = lazy(() =>
+  import("../pages/admin/Usuarios"),
+);
+
+const Profesores = lazy(() =>
+  import("../pages/admin/Profesores"),
+);
+
+const EstudiantesAdmin = lazy(() =>
+  import("../pages/admin/EstudiantesAdmin"),
+);
+
+const CursosAdmin = lazy(() =>
+  import("../pages/admin/CursosAdmin"),
+);
+
+const InformesAdmin = lazy(() =>
+  import("../pages/admin/InformesAdmin"),
+);
+
+const CorreosAdmin = lazy(() =>
+  import("../pages/admin/CorreosAdmin"),
+);
+
+const NotificacionesAdmin = lazy(() =>
+  import("../pages/admin/NotificacionesAdmin"),
+);
+
+const AuditoriaAdmin = lazy(() =>
+  import("../pages/admin/AuditoriaAdmin"),
+);
+
+/* =========================
+   PROFESOR
+   ========================= */
 
 const Dashboard = lazy(() =>
   import("../pages/teacher/DashboardProfesor"),
@@ -28,9 +85,25 @@ const Reportes = lazy(() =>
   import("../pages/teacher/Reportes"),
 );
 
+const GestionAcademica = lazy(() =>
+  import("../pages/teacher/GestionAcademica"),
+);
+
+/* =========================
+   ESTUDIANTE
+   ========================= */
+
 const DashboardEstudiante = lazy(() =>
   import("../pages/student/DashboardEstudiante"),
 );
+
+const MiGestionAcademica = lazy(() =>
+  import("../pages/student/MiGestionAcademica"),
+);
+
+/* =========================
+   PÁGINAS COMPARTIDAS
+   ========================= */
 
 const StudyRooms = lazy(() =>
   import("../pages/shared/StudyRooms"),
@@ -68,6 +141,10 @@ const PomodoroTimer = lazy(() =>
   import("../components/dashboard/PomodoroTimer"),
 );
 
+/* =========================
+   ROLES
+   ========================= */
+
 const allRoles = [
   "administrador",
   "admin",
@@ -75,6 +152,11 @@ const allRoles = [
   "teacher",
   "estudiante",
   "student",
+];
+
+const adminRoles = [
+  "administrador",
+  "admin",
 ];
 
 const professorRoles = [
@@ -91,22 +173,58 @@ const studentRoles = [
   "student",
 ];
 
-const adminRoles = [
-  "administrador",
-  "admin",
-];
+/* =========================
+   ROUTER PRINCIPAL
+   ========================= */
 
 function AppRoutes() {
   return (
     <BrowserRouter>
       <Suspense fallback={<PageLoader />}>
         <Routes>
-          {/* Rutas públicas */}
-          <Route path="/" element={<Home />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
+          {/* =========================
+              RUTAS PÚBLICAS
+              ========================= */}
 
-          {/* Dashboard administrador */}
+          <Route
+            path="/"
+            element={<Home />}
+          />
+
+          <Route
+            path="/login"
+            element={<Login />}
+          />
+
+          <Route
+            path="/register"
+            element={<Register />}
+          />
+
+          <Route
+            path="/registro"
+            element={
+              <Navigate
+                to="/register"
+                replace
+              />
+            }
+          />
+
+          <Route
+            path="/crear-cuenta"
+            element={
+              <Navigate
+                to="/register"
+                replace
+              />
+            }
+          />
+
+          {/* =========================
+              ADMINISTRADOR
+              ========================= */}
+
           <Route
             path="/dashboard-admin"
             element={
@@ -116,7 +234,91 @@ function AppRoutes() {
             }
           />
 
-          {/* Dashboard profesor */}
+          <Route
+            path="/usuarios"
+            element={
+              <RoleRoute allowedRoles={adminRoles}>
+                <Usuarios />
+              </RoleRoute>
+            }
+          />
+
+          <Route
+            path="/profesores"
+            element={
+              <RoleRoute allowedRoles={adminRoles}>
+                <Profesores />
+              </RoleRoute>
+            }
+          />
+
+          <Route
+            path="/estudiantes-admin"
+            element={
+              <RoleRoute allowedRoles={adminRoles}>
+                <EstudiantesAdmin />
+              </RoleRoute>
+            }
+          />
+
+          <Route
+            path="/cursos-admin"
+            element={
+              <RoleRoute allowedRoles={adminRoles}>
+                <CursosAdmin />
+              </RoleRoute>
+            }
+          />
+
+          <Route
+            path="/gestion-academica-admin"
+            element={
+              <RoleRoute allowedRoles={adminRoles}>
+                <GestionAcademicaAdmin />
+              </RoleRoute>
+            }
+          />
+
+          <Route
+            path="/informes-admin"
+            element={
+              <RoleRoute allowedRoles={adminRoles}>
+                <InformesAdmin />
+              </RoleRoute>
+            }
+          />
+
+          <Route
+            path="/correos-admin"
+            element={
+              <RoleRoute allowedRoles={adminRoles}>
+                <CorreosAdmin />
+              </RoleRoute>
+            }
+          />
+
+          <Route
+            path="/notificaciones"
+            element={
+              <RoleRoute allowedRoles={adminRoles}>
+                <NotificacionesAdmin />
+              </RoleRoute>
+            }
+          />
+
+          <Route
+            path="/auditoria"
+            element={
+              <RoleRoute allowedRoles={adminRoles}>
+                <AuditoriaAdmin />
+              </RoleRoute>
+            }
+          />
+
+          {/* =========================
+              PROFESOR
+              ========================= */}
+
           <Route
             path="/dashboard"
             element={
@@ -126,7 +328,37 @@ function AppRoutes() {
             }
           />
 
-          {/* Dashboard estudiante */}
+          <Route
+            path="/estudiantes"
+            element={
+              <RoleRoute allowedRoles={professorRoles}>
+                <Estudiantes />
+              </RoleRoute>
+            }
+          />
+
+          <Route
+            path="/reportes"
+            element={
+              <RoleRoute allowedRoles={professorRoles}>
+                <Reportes />
+              </RoleRoute>
+            }
+          />
+
+          <Route
+            path="/gestion-academica"
+            element={
+              <RoleRoute allowedRoles={professorRoles}>
+                <GestionAcademica />
+              </RoleRoute>
+            }
+          />
+
+          {/* =========================
+              ESTUDIANTE
+              ========================= */}
+
           <Route
             path="/dashboard-estudiante"
             element={
@@ -136,7 +368,19 @@ function AppRoutes() {
             }
           />
 
-          {/* Rutas compartidas */}
+          <Route
+            path="/mi-gestion-academica"
+            element={
+              <RoleRoute allowedRoles={studentRoles}>
+                <MiGestionAcademica />
+              </RoleRoute>
+            }
+          />
+
+          {/* =========================
+              RUTAS COMPARTIDAS
+              ========================= */}
+
           <Route
             path="/salas"
             element={
@@ -149,9 +393,10 @@ function AppRoutes() {
           <Route
             path="/study-rooms"
             element={
-              <RoleRoute allowedRoles={allRoles}>
-                <StudyRooms />
-              </RoleRoute>
+              <Navigate
+                to="/salas"
+                replace
+              />
             }
           />
 
@@ -218,27 +463,14 @@ function AppRoutes() {
             }
           />
 
-          {/* Rutas exclusivas de profesor y administrador */}
-          <Route
-            path="/estudiantes"
-            element={
-              <RoleRoute allowedRoles={professorRoles}>
-                <Estudiantes />
-              </RoleRoute>
-            }
-          />
+          {/* =========================
+              404 — SIEMPRE AL FINAL
+              ========================= */}
 
           <Route
-            path="/reportes"
-            element={
-              <RoleRoute allowedRoles={professorRoles}>
-                <Reportes />
-              </RoleRoute>
-            }
+            path="*"
+            element={<NotFound />}
           />
-
-          {/* Debe ir siempre al final */}
-          <Route path="*" element={<NotFound />} />
         </Routes>
       </Suspense>
     </BrowserRouter>

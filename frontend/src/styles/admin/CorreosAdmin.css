@@ -1,0 +1,1898 @@
+/* =========================================================
+   STUDYSYNC — CORREOS ADMIN
+   ========================================================= */
+
+.emails-admin-layout {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 270px minmax(0, 1fr);
+  color: #f8fafc;
+  background:
+    radial-gradient(
+      circle at 92% 0%,
+      rgba(37, 99, 235, 0.14),
+      transparent 30%
+    ),
+    radial-gradient(
+      circle at 72% 100%,
+      rgba(14, 165, 233, 0.06),
+      transparent 34%
+    ),
+    #02050b;
+}
+
+.emails-admin-layout,
+.emails-admin-layout *,
+.emails-admin-layout *::before,
+.emails-admin-layout *::after {
+  box-sizing: border-box;
+}
+
+.emails-admin-content {
+  min-width: 0;
+  padding: 32px;
+  overflow-x: hidden;
+}
+
+/* =========================================================
+   HEADER
+   ========================================================= */
+
+.emails-admin-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.emails-admin-eyebrow {
+  width: fit-content;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+
+  padding: 7px 12px;
+
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  border-radius: 999px;
+
+  color: #7dd3fc;
+  background: rgba(14, 165, 233, 0.08);
+
+  font-size: 0.7rem;
+  font-weight: 850;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.emails-admin-header h1 {
+  margin: 15px 0 0;
+
+  color: #ffffff;
+
+  font-size: clamp(2.7rem, 5vw, 4.4rem);
+  font-weight: 800;
+  letter-spacing: -0.065em;
+  line-height: 1;
+}
+
+.emails-admin-header p {
+  max-width: 760px;
+
+  margin: 14px 0 0;
+
+  color: #94a3b8;
+
+  line-height: 1.65;
+}
+
+/* =========================================================
+   BOTÓN NUEVO CORREO
+   ========================================================= */
+
+.emails-admin-create-button {
+  min-height: 47px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+
+  padding: 0 18px;
+
+  border: 1px solid rgba(125, 211, 252, 0.42);
+  border-radius: 13px;
+
+  color: #ffffff;
+
+  background:
+    linear-gradient(
+      135deg,
+      #0284c7,
+      #2563eb
+    );
+
+  box-shadow:
+    0 16px 34px rgba(37, 99, 235, 0.28),
+    0 0 24px rgba(14, 165, 233, 0.1);
+
+  cursor: pointer;
+
+  font-weight: 760;
+
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease,
+    border-color 180ms ease;
+}
+
+.emails-admin-create-button:hover {
+  transform: translateY(-3px);
+
+  border-color: rgba(125, 211, 252, 0.65);
+
+  box-shadow:
+    0 22px 42px rgba(37, 99, 235, 0.38),
+    0 0 30px rgba(14, 165, 233, 0.16);
+}
+
+.emails-admin-create-button:active {
+  transform: translateY(0) scale(0.98);
+}
+
+/* =========================================================
+   ESTADÍSTICAS
+   ========================================================= */
+
+.emails-admin-statistics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 18px;
+
+  margin-top: 30px;
+}
+
+.emails-admin-statistics > article {
+  position: relative;
+
+  min-width: 0;
+  min-height: 150px;
+
+  overflow: hidden;
+
+  padding: 20px;
+
+  border: 1px solid rgba(148, 163, 184, 0.13);
+  border-radius: 19px;
+
+  background:
+    radial-gradient(
+      circle at 100% 0%,
+      rgba(37, 99, 235, 0.08),
+      transparent 36%
+    ),
+    linear-gradient(
+      155deg,
+      rgba(8, 15, 29, 0.92),
+      rgba(3, 8, 16, 0.98)
+    );
+
+  box-shadow:
+    0 22px 52px rgba(0, 0, 0, 0.38),
+    inset 0 1px 0 rgba(255, 255, 255, 0.03);
+
+  transition:
+    border-color 180ms ease,
+    transform 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.emails-admin-statistics > article::before {
+  content: "";
+
+  position: absolute;
+
+  top: -70px;
+  right: -70px;
+
+  width: 160px;
+  height: 160px;
+
+  border-radius: 50%;
+
+  background:
+    radial-gradient(
+      circle,
+      rgba(14, 165, 233, 0.08),
+      transparent 68%
+    );
+
+  pointer-events: none;
+}
+
+.emails-admin-statistics > article:hover {
+  border-color: rgba(56, 189, 248, 0.36);
+
+  transform: translateY(-3px);
+
+  box-shadow:
+    0 28px 58px rgba(0, 0, 0, 0.48),
+    0 0 26px rgba(14, 165, 233, 0.09);
+}
+
+.emails-admin-statistics > article > div {
+  width: 44px;
+  height: 44px;
+
+  display: grid;
+  place-items: center;
+
+  margin-bottom: 15px;
+
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  border-radius: 14px;
+
+  color: #38bdf8;
+
+  background: rgba(14, 165, 233, 0.08);
+}
+
+.emails-admin-statistics span,
+.emails-admin-statistics strong,
+.emails-admin-statistics small {
+  display: block;
+}
+
+.emails-admin-statistics span {
+  color: #8fa1b7;
+
+  font-size: 0.74rem;
+}
+
+.emails-admin-statistics strong {
+  margin-top: 7px;
+
+  color: #ffffff;
+
+  font-size: 2rem;
+}
+
+.emails-admin-statistics small {
+  margin-top: 6px;
+
+  color: #38bdf8;
+
+  font-size: 0.67rem;
+}
+
+/* =========================================================
+   COLORES DE KPIs
+   ========================================================= */
+
+.emails-admin-statistics > article:nth-child(2) > div {
+  color: #86efac;
+
+  border-color: rgba(34, 197, 94, 0.22);
+
+  background: rgba(34, 197, 94, 0.07);
+}
+
+.emails-admin-statistics > article:nth-child(2) small {
+  color: #86efac;
+}
+
+.emails-admin-statistics > article:nth-child(3) > div {
+  color: #fde68a;
+
+  border-color: rgba(245, 158, 11, 0.22);
+
+  background: rgba(245, 158, 11, 0.07);
+}
+
+.emails-admin-statistics > article:nth-child(3) small {
+  color: #fde68a;
+}
+
+.emails-admin-statistics > article:nth-child(4) > div {
+  color: #fda4af;
+
+  border-color: rgba(244, 63, 94, 0.22);
+
+  background: rgba(244, 63, 94, 0.07);
+}
+
+.emails-admin-statistics > article:nth-child(4) small {
+  color: #fda4af;
+}
+
+/* =========================================================
+   PANEL PRINCIPAL
+   ========================================================= */
+
+.emails-admin-panel {
+  margin-top: 22px;
+
+  overflow: visible;
+
+  border: 1px solid rgba(148, 163, 184, 0.13);
+  border-radius: 22px;
+
+  background:
+    radial-gradient(
+      circle at 100% 0%,
+      rgba(37, 99, 235, 0.05),
+      transparent 35%
+    ),
+    linear-gradient(
+      155deg,
+      rgba(8, 15, 29, 0.92),
+      rgba(3, 8, 16, 0.98)
+    );
+
+  box-shadow:
+    0 24px 58px rgba(0, 0, 0, 0.42),
+    inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+
+/* =========================================================
+   TOOLBAR
+   ========================================================= */
+
+.emails-admin-toolbar {
+  display: grid;
+  grid-template-columns: minmax(280px, 1fr) auto;
+  gap: 16px;
+
+  padding: 20px;
+
+  border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+}
+
+.emails-admin-search {
+  min-width: 0;
+  min-height: 46px;
+
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  padding: 0 14px;
+
+  border: 1px solid rgba(148, 163, 184, 0.14);
+  border-radius: 13px;
+
+  color: #64748b;
+
+  background: rgba(4, 9, 18, 0.86);
+
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    color 180ms ease,
+    background 180ms ease;
+}
+
+.emails-admin-search:focus-within {
+  color: #38bdf8;
+
+  border-color: rgba(56, 189, 248, 0.5);
+
+  background: rgba(5, 14, 25, 0.96);
+
+  box-shadow:
+    0 0 0 3px rgba(14, 165, 233, 0.05),
+    0 0 24px rgba(14, 165, 233, 0.1);
+}
+
+.emails-admin-search input {
+  width: 100%;
+  min-width: 0;
+
+  border: 0;
+  outline: 0;
+
+  color: #f8fafc;
+
+  background: transparent;
+
+  font: inherit;
+  font-size: 0.78rem;
+}
+
+.emails-admin-search input::placeholder {
+  color: #526174;
+}
+
+/* =========================================================
+   FILTROS
+   ========================================================= */
+
+.emails-admin-filters {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.emails-admin-filters select {
+  min-width: 165px;
+  min-height: 46px;
+
+  padding: 0 13px;
+
+  border: 1px solid rgba(148, 163, 184, 0.14);
+  border-radius: 13px;
+
+  outline: 0;
+
+  color: #dbe7f5;
+
+  background: rgba(4, 9, 18, 0.86);
+
+  font: inherit;
+  font-size: 0.73rem;
+
+  cursor: pointer;
+
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.emails-admin-filters select:hover {
+  border-color: rgba(148, 163, 184, 0.28);
+}
+
+.emails-admin-filters select:focus {
+  border-color: rgba(56, 189, 248, 0.5);
+
+  box-shadow:
+    0 0 20px rgba(14, 165, 233, 0.08);
+}
+
+.emails-admin-filters select option {
+  color: #ffffff;
+  background: #07101e;
+}
+
+.emails-admin-clear-button {
+  min-height: 42px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+
+  padding: 0 12px;
+
+  border: 1px solid rgba(248, 113, 113, 0.2);
+  border-radius: 11px;
+
+  color: #fda4af;
+
+  background: rgba(248, 113, 113, 0.06);
+
+  cursor: pointer;
+
+  font-size: 0.7rem;
+  font-weight: 700;
+
+  transition:
+    color 180ms ease,
+    background 180ms ease,
+    border-color 180ms ease;
+}
+
+.emails-admin-clear-button:hover {
+  color: #fecdd3;
+
+  border-color: rgba(248, 113, 113, 0.36);
+
+  background: rgba(248, 113, 113, 0.1);
+}
+
+/* =========================================================
+   ENCABEZADO DE TABLA
+   ========================================================= */
+
+.emails-admin-table-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+
+  padding: 20px 20px 14px;
+}
+
+.emails-admin-table-heading span {
+  color: #38bdf8;
+
+  font-size: 0.65rem;
+  font-weight: 850;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.emails-admin-table-heading h2 {
+  margin: 7px 0 0;
+
+  color: #ffffff;
+
+  font-size: 1.3rem;
+}
+
+.emails-admin-table-heading small {
+  color: #64748b;
+
+  font-size: 0.7rem;
+}
+/* =========================================================
+   TABLA DE CORREOS
+   ========================================================= */
+
+.emails-admin-table-wrapper {
+  position: relative;
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: visible;
+  padding: 0 20px 20px;
+}
+
+.emails-admin-table {
+  width: 100%;
+  min-width: 1120px;
+  border-collapse: separate;
+  border-spacing: 0 8px;
+}
+
+.emails-admin-table thead th {
+  padding: 0 13px 8px;
+  color: #64748b;
+  font-size: 0.64rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-align: left;
+  text-transform: uppercase;
+}
+
+.emails-admin-table tbody tr {
+  position: relative;
+
+  background: rgba(5, 10, 19, 0.68);
+
+  transition:
+    background 180ms ease,
+    box-shadow 180ms ease,
+    border-color 180ms ease;
+}
+
+.emails-admin-table tbody tr:hover {
+  background: rgba(9, 22, 39, 0.9);
+
+  box-shadow:
+    0 15px 35px rgba(37, 99, 235, 0.11);
+}
+
+.emails-admin-table td {
+  position: relative;
+
+  padding: 14px 13px;
+
+  border-top: 1px solid rgba(148, 163, 184, 0.09);
+  border-bottom: 1px solid rgba(148, 163, 184, 0.09);
+
+  color: #cbd5e1;
+
+  font-size: 0.72rem;
+
+  vertical-align: middle;
+}
+
+.emails-admin-table td:first-child {
+  border-left: 1px solid rgba(148, 163, 184, 0.09);
+  border-radius: 14px 0 0 14px;
+}
+
+.emails-admin-table td:last-child {
+  border-right: 1px solid rgba(148, 163, 184, 0.09);
+  border-radius: 0 14px 14px 0;
+}
+
+.emails-admin-table tbody tr:hover td {
+  border-top-color: rgba(56, 189, 248, 0.12);
+  border-bottom-color: rgba(56, 189, 248, 0.12);
+}
+
+.emails-admin-table tbody tr:hover td:first-child {
+  border-left-color: rgba(56, 189, 248, 0.2);
+}
+
+.emails-admin-table tbody tr:hover td:last-child {
+  border-right-color: rgba(56, 189, 248, 0.2);
+}
+
+/* =========================================================
+   DESTINATARIO
+   ========================================================= */
+
+.emails-admin-recipient-cell {
+  min-width: 245px;
+
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.emails-admin-avatar {
+  width: 42px;
+  height: 42px;
+
+  display: grid;
+  place-items: center;
+
+  flex: 0 0 auto;
+
+  border: 1px solid rgba(125, 211, 252, 0.32);
+  border-radius: 13px;
+
+  color: #ffffff;
+
+  background:
+    linear-gradient(
+      135deg,
+      #0ea5e9,
+      #1d4ed8
+    );
+
+  box-shadow:
+    0 12px 26px rgba(37, 99, 235, 0.22);
+
+  font-size: 0.72rem;
+  font-weight: 850;
+}
+
+.emails-admin-recipient-cell > div:last-child {
+  min-width: 0;
+}
+
+.emails-admin-recipient-cell strong,
+.emails-admin-recipient-cell span {
+  display: block;
+}
+
+.emails-admin-recipient-cell strong {
+  color: #e8f0fb;
+
+  font-size: 0.78rem;
+}
+
+.emails-admin-recipient-cell span {
+  max-width: 220px;
+
+  margin-top: 5px;
+
+  overflow: hidden;
+
+  color: #64748b;
+
+  font-size: 0.64rem;
+
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* =========================================================
+   ASUNTO Y PREVIEW
+   ========================================================= */
+
+.emails-admin-subject-cell {
+  min-width: 270px;
+  max-width: 360px;
+}
+
+.emails-admin-subject-cell strong,
+.emails-admin-subject-cell span {
+  display: block;
+}
+
+.emails-admin-subject-cell strong {
+  overflow: hidden;
+
+  color: #dbe7f5;
+
+  font-size: 0.76rem;
+
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.emails-admin-subject-cell span {
+  margin-top: 5px;
+
+  display: -webkit-box;
+  overflow: hidden;
+
+  color: #64748b;
+
+  font-size: 0.64rem;
+  line-height: 1.5;
+
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+}
+
+/* =========================================================
+   CATEGORÍA
+   ========================================================= */
+
+.emails-admin-category {
+  width: fit-content;
+
+  display: inline-flex;
+  align-items: center;
+
+  padding: 7px 10px;
+
+  border: 1px solid rgba(56, 189, 248, 0.24);
+  border-radius: 999px;
+
+  color: #7dd3fc;
+
+  background: rgba(14, 165, 233, 0.07);
+
+  font-size: 0.65rem;
+  font-weight: 720;
+}
+
+/* =========================================================
+   FECHA
+   ========================================================= */
+
+.emails-admin-date {
+  min-width: 100px;
+}
+
+.emails-admin-date strong,
+.emails-admin-date span {
+  display: block;
+}
+
+.emails-admin-date strong {
+  color: #cbd5e1;
+
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.emails-admin-date span {
+  margin-top: 4px;
+
+  color: #64748b;
+
+  font-size: 0.63rem;
+}
+
+/* =========================================================
+   ESTADOS
+   ========================================================= */
+
+.emails-admin-status {
+  width: fit-content;
+
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+
+  padding: 6px 9px;
+
+  border: 1px solid;
+  border-radius: 999px;
+
+  font-size: 0.64rem;
+  font-weight: 750;
+}
+
+.emails-admin-status > span {
+  width: 7px;
+  height: 7px;
+
+  flex: 0 0 auto;
+
+  border-radius: 50%;
+}
+
+/* Enviado */
+
+.emails-admin-status-enviado {
+  color: #86efac;
+
+  border-color: rgba(34, 197, 94, 0.24);
+
+  background: rgba(34, 197, 94, 0.07);
+}
+
+.emails-admin-status-enviado > span {
+  background: #22c55e;
+
+  box-shadow:
+    0 0 10px rgba(34, 197, 94, 0.55);
+}
+
+/* Pendiente */
+
+.emails-admin-status-pendiente {
+  color: #fde68a;
+
+  border-color: rgba(245, 158, 11, 0.24);
+
+  background: rgba(245, 158, 11, 0.07);
+}
+
+.emails-admin-status-pendiente > span {
+  background: #f59e0b;
+
+  box-shadow:
+    0 0 10px rgba(245, 158, 11, 0.4);
+}
+
+/* Programado */
+
+.emails-admin-status-programado {
+  color: #c4b5fd;
+
+  border-color: rgba(139, 92, 246, 0.24);
+
+  background: rgba(139, 92, 246, 0.07);
+}
+
+.emails-admin-status-programado > span {
+  background: #8b5cf6;
+
+  box-shadow:
+    0 0 10px rgba(139, 92, 246, 0.4);
+}
+
+/* Fallido */
+
+.emails-admin-status-fallido {
+  color: #fda4af;
+
+  border-color: rgba(244, 63, 94, 0.24);
+
+  background: rgba(244, 63, 94, 0.07);
+}
+
+.emails-admin-status-fallido > span {
+  background: #fb7185;
+
+  box-shadow:
+    0 0 10px rgba(244, 63, 94, 0.38);
+}
+
+/* =========================================================
+   ACCIONES
+   ========================================================= */
+
+.emails-admin-actions-cell {
+  position: relative;
+
+  width: 58px;
+
+  text-align: right;
+}
+
+.emails-admin-actions-trigger {
+  width: 36px;
+  height: 36px;
+
+  display: grid;
+  place-items: center;
+
+  margin-left: auto;
+
+  border: 1px solid rgba(148, 163, 184, 0.12);
+  border-radius: 10px;
+
+  color: #94a3b8;
+
+  background: rgba(4, 9, 18, 0.84);
+
+  cursor: pointer;
+
+  transition:
+    color 180ms ease,
+    border-color 180ms ease,
+    background 180ms ease,
+    transform 180ms ease;
+}
+
+.emails-admin-actions-trigger:hover {
+  color: #ffffff;
+
+  border-color: rgba(56, 189, 248, 0.38);
+
+  background: rgba(14, 165, 233, 0.08);
+
+  transform: translateY(-1px);
+}
+
+.emails-admin-actions-trigger:active {
+  transform: scale(0.96);
+}
+
+/* =========================================================
+   MENÚ DE ACCIONES
+   ========================================================= */
+
+.emails-admin-actions-menu {
+  position: absolute;
+
+  top: calc(100% + 5px);
+  right: 4px;
+
+  z-index: 80;
+
+  width: 215px;
+
+  padding: 7px;
+
+  border: 1px solid rgba(148, 163, 184, 0.15);
+  border-radius: 14px;
+
+  background: rgba(5, 11, 21, 0.98);
+
+  box-shadow:
+    0 24px 60px rgba(0, 0, 0, 0.58),
+    inset 0 1px 0 rgba(255, 255, 255, 0.025);
+
+  backdrop-filter: blur(18px);
+
+  animation:
+    emails-admin-menu-enter
+    160ms ease both;
+}
+
+.emails-admin-table tbody tr:nth-last-child(-n + 2)
+  .emails-admin-actions-menu {
+  top: auto;
+  bottom: calc(100% + 5px);
+}
+
+.emails-admin-actions-menu button {
+  width: 100%;
+  min-height: 39px;
+
+  display: flex;
+  align-items: center;
+  gap: 9px;
+
+  padding: 0 10px;
+
+  border: 0;
+  border-radius: 9px;
+
+  color: #aebdd0;
+
+  background: transparent;
+
+  cursor: pointer;
+
+  font-size: 0.71rem;
+  text-align: left;
+
+  transition:
+    color 160ms ease,
+    background 160ms ease;
+}
+
+.emails-admin-actions-menu button:hover {
+  color: #ffffff;
+
+  background: rgba(14, 165, 233, 0.09);
+}
+
+.emails-admin-actions-menu .emails-admin-danger-action {
+  color: #fb7185;
+}
+
+.emails-admin-actions-menu
+  .emails-admin-danger-action:hover {
+  color: #fecdd3;
+
+  background: rgba(244, 63, 94, 0.09);
+}
+
+/* =========================================================
+   ESTADO VACÍO
+   ========================================================= */
+
+.emails-admin-empty-state {
+  min-height: 310px;
+
+  display: grid;
+  place-items: center;
+  align-content: center;
+
+  padding: 40px;
+
+  text-align: center;
+}
+
+.emails-admin-empty-state svg {
+  color: #38bdf8;
+}
+
+.emails-admin-empty-state h3 {
+  margin: 14px 0 0;
+
+  color: #ffffff;
+}
+
+.emails-admin-empty-state p {
+  max-width: 380px;
+
+  margin: 9px 0 0;
+
+  color: #64748b;
+
+  font-size: 0.78rem;
+  line-height: 1.6;
+}
+
+.emails-admin-empty-state button {
+  margin-top: 17px;
+
+  padding: 10px 14px;
+
+  border: 1px solid rgba(56, 189, 248, 0.32);
+  border-radius: 11px;
+
+  color: #dff6ff;
+
+  background: rgba(14, 165, 233, 0.08);
+
+  cursor: pointer;
+
+  transition:
+    border-color 180ms ease,
+    background 180ms ease;
+}
+
+.emails-admin-empty-state button:hover {
+  border-color: rgba(56, 189, 248, 0.52);
+
+  background: rgba(14, 165, 233, 0.13);
+}
+
+/* =========================================================
+   TOAST
+   ========================================================= */
+
+.emails-admin-notification {
+  position: fixed;
+
+  right: 24px;
+  bottom: 24px;
+
+  z-index: 150;
+
+  max-width: min(420px, calc(100vw - 32px));
+  min-height: 48px;
+
+  display: flex;
+  align-items: center;
+  gap: 9px;
+
+  padding: 0 15px;
+
+  border: 1px solid rgba(34, 197, 94, 0.28);
+  border-radius: 13px;
+
+  color: #dcfce7;
+
+  background: rgba(6, 24, 17, 0.97);
+
+  box-shadow:
+    0 22px 50px rgba(0, 0, 0, 0.48);
+
+  font-size: 0.75rem;
+  font-weight: 700;
+
+  animation:
+    emails-admin-toast-enter
+    220ms ease both;
+}
+
+/* =========================================================
+   SCROLL DE LA TABLA
+   ========================================================= */
+
+.emails-admin-table-wrapper::-webkit-scrollbar {
+  height: 9px;
+}
+
+.emails-admin-table-wrapper::-webkit-scrollbar-track {
+  border-radius: 999px;
+
+  background: rgba(4, 9, 18, 0.7);
+}
+
+.emails-admin-table-wrapper::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+
+  background:
+    linear-gradient(
+      90deg,
+      #0369a1,
+      #2563eb
+    );
+}
+
+.emails-admin-table-wrapper::-webkit-scrollbar-thumb:hover {
+  background:
+    linear-gradient(
+      90deg,
+      #0284c7,
+      #3b82f6
+    );
+}
+
+/* =========================================================
+   ANIMACIONES
+   ========================================================= */
+
+@keyframes emails-admin-menu-enter {
+  from {
+    opacity: 0;
+
+    transform:
+      translateY(-4px)
+      scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+
+    transform:
+      translateY(0)
+      scale(1);
+  }
+}
+
+@keyframes emails-admin-toast-enter {
+  from {
+    opacity: 0;
+
+    transform:
+      translateY(12px);
+  }
+
+  to {
+    opacity: 1;
+
+    transform:
+      translateY(0);
+  }
+}
+/* =========================================================
+   BACKDROP DE MODALES
+   ========================================================= */
+
+.emails-admin-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+
+  display: grid;
+  place-items: center;
+
+  padding: 22px;
+
+  overflow-y: auto;
+
+  background: rgba(0, 3, 8, 0.82);
+
+  backdrop-filter: blur(12px);
+}
+
+/* =========================================================
+   MODALES GENERALES
+   ========================================================= */
+
+.emails-admin-modal,
+.emails-admin-details-modal,
+.emails-admin-delete-modal {
+  width: min(780px, 100%);
+
+  overflow: hidden;
+
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  border-radius: 24px;
+
+  background:
+    radial-gradient(
+      circle at 100% 0%,
+      rgba(37, 99, 235, 0.13),
+      transparent 38%
+    ),
+    linear-gradient(
+      155deg,
+      rgba(8, 15, 29, 0.99),
+      rgba(3, 8, 16, 0.99)
+    );
+
+  box-shadow:
+    0 38px 90px rgba(0, 0, 0, 0.68),
+    inset 0 1px 0 rgba(255, 255, 255, 0.035);
+
+  animation:
+    emails-admin-modal-enter
+    220ms ease both;
+}
+
+/* =========================================================
+   HEADER DE MODALES
+   ========================================================= */
+
+.emails-admin-modal > header,
+.emails-admin-details-modal > header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+
+  padding: 22px;
+
+  border-bottom:
+    1px solid rgba(148, 163, 184, 0.1);
+}
+
+.emails-admin-details-modal > header {
+  display: grid;
+  grid-template-columns:
+    60px
+    minmax(0, 1fr)
+    auto;
+
+  align-items: center;
+}
+
+.emails-admin-modal header span,
+.emails-admin-details-modal header > div:nth-child(2) > span {
+  color: #38bdf8;
+
+  font-size: 0.66rem;
+  font-weight: 850;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+}
+
+.emails-admin-modal header h2,
+.emails-admin-details-modal header h2 {
+  margin: 6px 0 0;
+
+  color: #ffffff;
+
+  font-size: 1.45rem;
+}
+
+.emails-admin-details-modal header p {
+  margin: 6px 0 0;
+
+  color: #64748b;
+
+  font-size: 0.72rem;
+}
+
+.emails-admin-modal header > button,
+.emails-admin-details-modal header > button {
+  width: 39px;
+  height: 39px;
+
+  display: grid;
+  place-items: center;
+
+  flex: 0 0 auto;
+
+  border: 1px solid rgba(148, 163, 184, 0.13);
+  border-radius: 11px;
+
+  color: #94a3b8;
+
+  background: rgba(4, 9, 18, 0.72);
+
+  cursor: pointer;
+
+  transition:
+    color 180ms ease,
+    background 180ms ease,
+    transform 180ms ease;
+}
+
+.emails-admin-modal header > button:hover,
+.emails-admin-details-modal header > button:hover {
+  color: #ffffff;
+
+  background: rgba(14, 165, 233, 0.1);
+
+  transform: rotate(90deg);
+}
+
+/* =========================================================
+   FORMULARIO
+   ========================================================= */
+
+.emails-admin-modal form {
+  padding: 22px;
+}
+
+.emails-admin-form-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+
+  gap: 16px;
+}
+
+.emails-admin-form-grid label {
+  min-width: 0;
+
+  display: grid;
+  gap: 8px;
+}
+
+.emails-admin-form-grid label > span {
+  color: #94a3b8;
+
+  font-size: 0.71rem;
+  font-weight: 700;
+}
+
+.emails-admin-form-grid input,
+.emails-admin-form-grid select,
+.emails-admin-form-grid textarea {
+  width: 100%;
+  min-width: 0;
+
+  border: 1px solid rgba(148, 163, 184, 0.15);
+  border-radius: 12px;
+
+  outline: 0;
+
+  color: #f8fafc;
+
+  background: #050a13;
+
+  font: inherit;
+  font-size: 0.76rem;
+
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    background 180ms ease;
+}
+
+.emails-admin-form-grid input,
+.emails-admin-form-grid select {
+  min-height: 46px;
+
+  padding: 0 13px;
+}
+
+.emails-admin-form-grid textarea {
+  min-height: 170px;
+
+  padding: 13px;
+
+  resize: vertical;
+
+  line-height: 1.6;
+}
+
+.emails-admin-form-grid input:hover,
+.emails-admin-form-grid select:hover,
+.emails-admin-form-grid textarea:hover {
+  border-color:
+    rgba(148, 163, 184, 0.28);
+}
+
+.emails-admin-form-grid input:focus,
+.emails-admin-form-grid select:focus,
+.emails-admin-form-grid textarea:focus {
+  border-color:
+    rgba(56, 189, 248, 0.55);
+
+  background: #07101c;
+
+  box-shadow:
+    0 0 0 3px rgba(14, 165, 233, 0.06),
+    0 0 22px rgba(14, 165, 233, 0.09);
+}
+
+.emails-admin-form-grid input::placeholder,
+.emails-admin-form-grid textarea::placeholder {
+  color: #526174;
+}
+
+.emails-admin-form-grid select option {
+  color: #ffffff;
+
+  background: #07101e;
+}
+
+.emails-admin-full-field {
+  grid-column: 1 / -1;
+}
+
+.emails-admin-form-error {
+  margin: 15px 0 0;
+
+  padding: 11px 13px;
+
+  border:
+    1px solid rgba(248, 113, 113, 0.22);
+
+  border-radius: 11px;
+
+  color: #fda4af;
+
+  background:
+    rgba(248, 113, 113, 0.06);
+
+  font-size: 0.72rem;
+}
+
+/* =========================================================
+   FOOTERS Y BOTONES
+   ========================================================= */
+
+.emails-admin-modal footer,
+.emails-admin-details-modal footer,
+.emails-admin-delete-modal footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+
+  margin-top: 22px;
+
+  padding-top: 18px;
+
+  border-top:
+    1px solid rgba(148, 163, 184, 0.09);
+}
+
+.emails-admin-primary-button,
+.emails-admin-secondary-button,
+.emails-admin-delete-button {
+  min-height: 44px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  padding: 0 17px;
+
+  border-radius: 12px;
+
+  cursor: pointer;
+
+  font-weight: 750;
+
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease,
+    border-color 180ms ease,
+    background 180ms ease;
+}
+
+.emails-admin-primary-button {
+  border:
+    1px solid rgba(125, 211, 252, 0.4);
+
+  color: #ffffff;
+
+  background:
+    linear-gradient(
+      135deg,
+      #0284c7,
+      #2563eb
+    );
+
+  box-shadow:
+    0 14px 30px rgba(37, 99, 235, 0.22);
+}
+
+.emails-admin-primary-button:hover {
+  transform: translateY(-2px);
+
+  box-shadow:
+    0 19px 36px rgba(37, 99, 235, 0.34);
+}
+
+.emails-admin-secondary-button {
+  border:
+    1px solid rgba(148, 163, 184, 0.15);
+
+  color: #cbd5e1;
+
+  background:
+    rgba(4, 9, 18, 0.76);
+}
+
+.emails-admin-secondary-button:hover {
+  border-color:
+    rgba(148, 163, 184, 0.3);
+
+  color: #ffffff;
+
+  background:
+    rgba(15, 23, 42, 0.9);
+}
+
+.emails-admin-delete-button {
+  border:
+    1px solid rgba(244, 63, 94, 0.3);
+
+  color: #ffffff;
+
+  background:
+    linear-gradient(
+      135deg,
+      #e11d48,
+      #be123c
+    );
+
+  box-shadow:
+    0 14px 30px rgba(190, 18, 60, 0.2);
+}
+
+.emails-admin-delete-button:hover {
+  transform: translateY(-2px);
+
+  box-shadow:
+    0 18px 36px rgba(190, 18, 60, 0.32);
+}
+
+/* =========================================================
+   DETALLE DEL CORREO
+   ========================================================= */
+
+.emails-admin-details-icon {
+  width: 60px;
+  height: 60px;
+
+  display: grid;
+  place-items: center;
+
+  border:
+    1px solid rgba(125, 211, 252, 0.3);
+
+  border-radius: 18px;
+
+  color: #38bdf8;
+
+  background:
+    rgba(14, 165, 233, 0.08);
+
+  box-shadow:
+    0 14px 30px rgba(37, 99, 235, 0.16);
+}
+
+.emails-admin-details-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+
+  gap: 12px;
+
+  padding: 22px;
+}
+
+.emails-admin-details-grid article {
+  min-width: 0;
+
+  padding: 15px;
+
+  border:
+    1px solid rgba(148, 163, 184, 0.1);
+
+  border-radius: 13px;
+
+  background:
+    rgba(5, 10, 19, 0.62);
+
+  transition:
+    border-color 180ms ease,
+    background 180ms ease,
+    transform 180ms ease;
+}
+
+.emails-admin-details-grid article:hover {
+  transform: translateY(-2px);
+
+  border-color:
+    rgba(56, 189, 248, 0.22);
+
+  background:
+    rgba(9, 20, 35, 0.76);
+}
+
+.emails-admin-details-grid span,
+.emails-admin-details-grid strong {
+  display: block;
+}
+
+.emails-admin-details-grid span {
+  color: #64748b;
+
+  font-size: 0.66rem;
+}
+
+.emails-admin-details-grid strong {
+  margin-top: 7px;
+
+  overflow-wrap: anywhere;
+
+  color: #dbe7f5;
+
+  font-size: 0.77rem;
+}
+
+/* =========================================================
+   CUERPO DEL MENSAJE
+   ========================================================= */
+
+.emails-admin-message-body {
+  margin: 0 22px 22px;
+
+  padding: 18px;
+
+  border:
+    1px solid rgba(56, 189, 248, 0.13);
+
+  border-radius: 15px;
+
+  background:
+    rgba(6, 15, 27, 0.78);
+}
+
+.emails-admin-message-body > span {
+  color: #38bdf8;
+
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.emails-admin-message-body p {
+  margin: 12px 0 0;
+
+  color: #cbd5e1;
+
+  font-size: 0.78rem;
+  line-height: 1.8;
+
+  white-space: pre-line;
+}
+
+.emails-admin-details-modal footer {
+  margin: 0;
+
+  padding:
+    0 22px 22px;
+
+  border: 0;
+}
+
+/* =========================================================
+   MODAL DE ELIMINAR
+   ========================================================= */
+
+.emails-admin-delete-modal {
+  width: min(470px, 100%);
+
+  padding: 28px;
+
+  text-align: center;
+}
+
+.emails-admin-delete-modal > div:first-child {
+  width: 60px;
+  height: 60px;
+
+  display: grid;
+  place-items: center;
+
+  margin: 0 auto;
+
+  border:
+    1px solid rgba(244, 63, 94, 0.27);
+
+  border-radius: 19px;
+
+  color: #fb7185;
+
+  background:
+    rgba(244, 63, 94, 0.08);
+
+  box-shadow:
+    0 0 28px rgba(244, 63, 94, 0.08);
+}
+
+.emails-admin-delete-modal h2 {
+  margin: 18px 0 0;
+
+  color: #ffffff;
+}
+
+.emails-admin-delete-modal p {
+  margin: 11px 0 0;
+
+  color: #94a3b8;
+
+  font-size: 0.8rem;
+  line-height: 1.65;
+}
+
+.emails-admin-delete-modal p strong {
+  color: #ffffff;
+}
+
+.emails-admin-delete-modal footer {
+  justify-content: center;
+}
+
+/* =========================================================
+   ANIMACIÓN DEL MODAL
+   ========================================================= */
+
+@keyframes emails-admin-modal-enter {
+  from {
+    opacity: 0;
+
+    transform:
+      translateY(14px)
+      scale(0.982);
+  }
+
+  to {
+    opacity: 1;
+
+    transform:
+      translateY(0)
+      scale(1);
+  }
+}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 1240px) {
+  .emails-admin-statistics {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+  .emails-admin-toolbar {
+    grid-template-columns: 1fr;
+  }
+
+  .emails-admin-filters {
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 900px) {
+  .emails-admin-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .emails-admin-layout .app-sidebar {
+    display: none;
+  }
+
+  .emails-admin-content {
+    padding: 22px;
+  }
+}
+
+@media (max-width: 720px) {
+  .emails-admin-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .emails-admin-create-button {
+    width: 100%;
+  }
+
+  .emails-admin-statistics {
+    grid-template-columns: 1fr;
+  }
+
+  .emails-admin-filters {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .emails-admin-filters select,
+  .emails-admin-clear-button {
+    width: 100%;
+  }
+
+  .emails-admin-form-grid,
+  .emails-admin-details-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .emails-admin-full-field {
+    grid-column: auto;
+  }
+}
+
+@media (max-width: 520px) {
+  .emails-admin-content {
+    padding: 15px;
+  }
+
+  .emails-admin-panel {
+    border-radius: 18px;
+  }
+
+  .emails-admin-toolbar,
+  .emails-admin-table-heading {
+    padding-inline: 15px;
+  }
+
+  .emails-admin-table-wrapper {
+    padding-inline: 15px;
+  }
+
+  .emails-admin-modal-backdrop {
+    padding: 10px;
+  }
+
+  .emails-admin-modal form,
+  .emails-admin-modal > header,
+  .emails-admin-details-modal > header,
+  .emails-admin-details-grid {
+    padding: 17px;
+  }
+
+  .emails-admin-message-body {
+    margin-inline: 17px;
+  }
+
+  .emails-admin-modal footer,
+  .emails-admin-delete-modal footer {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .emails-admin-primary-button,
+  .emails-admin-secondary-button,
+  .emails-admin-delete-button {
+    width: 100%;
+  }
+
+  .emails-admin-delete-modal {
+    padding: 22px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .emails-admin-create-button,
+  .emails-admin-statistics > article,
+  .emails-admin-actions-trigger,
+  .emails-admin-actions-menu,
+  .emails-admin-modal,
+  .emails-admin-details-modal,
+  .emails-admin-delete-modal,
+  .emails-admin-notification {
+    animation: none;
+    transition: none;
+  }
+}

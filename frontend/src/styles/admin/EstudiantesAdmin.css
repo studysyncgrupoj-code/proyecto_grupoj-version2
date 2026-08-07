@@ -1,0 +1,1317 @@
+/* =========================================================
+   STUDYSYNC — ADMINISTRACIÓN DE ESTUDIANTES
+   ========================================================= */
+
+.students-admin-layout {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 270px minmax(0, 1fr);
+  color: #f8fafc;
+  background:
+    radial-gradient(circle at 92% 0%, rgba(37, 99, 235, 0.13), transparent 30%),
+    radial-gradient(circle at 70% 100%, rgba(14, 165, 233, 0.06), transparent 34%),
+    #02050b;
+}
+
+.students-admin-layout,
+.students-admin-layout *,
+.students-admin-layout *::before,
+.students-admin-layout *::after {
+  box-sizing: border-box;
+}
+
+.students-admin-content {
+  min-width: 0;
+  padding: 32px;
+  overflow-x: hidden;
+}
+
+/* =========================================================
+   HEADER
+   ========================================================= */
+
+.students-admin-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.students-admin-eyebrow {
+  width: fit-content;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 12px;
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  border-radius: 999px;
+  color: #7dd3fc;
+  background: rgba(14, 165, 233, 0.08);
+  font-size: 0.7rem;
+  font-weight: 850;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.students-admin-header h1 {
+  margin: 15px 0 0;
+  color: #fff;
+  font-size: clamp(2.7rem, 5vw, 4.4rem);
+  letter-spacing: -0.065em;
+  line-height: 1;
+}
+
+.students-admin-header p {
+  max-width: 760px;
+  margin: 14px 0 0;
+  color: #94a3b8;
+  line-height: 1.65;
+}
+
+.students-admin-create-button {
+  min-height: 47px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  padding: 0 18px;
+  border: 1px solid rgba(125, 211, 252, 0.42);
+  border-radius: 13px;
+  color: #fff;
+  background: linear-gradient(135deg, #0284c7, #2563eb);
+  box-shadow:
+    0 16px 34px rgba(37, 99, 235, 0.28),
+    0 0 24px rgba(14, 165, 233, 0.1);
+  cursor: pointer;
+  font-weight: 760;
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.students-admin-create-button:hover {
+  transform: translateY(-3px);
+  box-shadow:
+    0 22px 42px rgba(37, 99, 235, 0.38),
+    0 0 30px rgba(14, 165, 233, 0.16);
+}
+
+/* =========================================================
+   KPIs
+   ========================================================= */
+
+.students-admin-statistics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 18px;
+  margin-top: 30px;
+}
+
+.students-admin-statistics > article {
+  min-width: 0;
+  min-height: 150px;
+  padding: 20px;
+  border: 1px solid rgba(148, 163, 184, 0.13);
+  border-radius: 19px;
+  background:
+    radial-gradient(circle at 100% 0%, rgba(37, 99, 235, 0.08), transparent 36%),
+    linear-gradient(155deg, rgba(8, 15, 29, 0.92), rgba(3, 8, 16, 0.98));
+  box-shadow:
+    0 22px 52px rgba(0, 0, 0, 0.38),
+    inset 0 1px 0 rgba(255, 255, 255, 0.03);
+  transition:
+    border-color 180ms ease,
+    transform 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.students-admin-statistics > article:hover {
+  border-color: rgba(56, 189, 248, 0.36);
+  transform: translateY(-3px);
+  box-shadow:
+    0 28px 58px rgba(0, 0, 0, 0.48),
+    0 0 26px rgba(14, 165, 233, 0.09);
+}
+
+.students-admin-statistics > article > div {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  margin-bottom: 15px;
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  border-radius: 14px;
+  color: #38bdf8;
+  background: rgba(14, 165, 233, 0.08);
+}
+
+.students-admin-statistics span,
+.students-admin-statistics strong,
+.students-admin-statistics small {
+  display: block;
+}
+
+.students-admin-statistics span {
+  color: #8fa1b7;
+  font-size: 0.74rem;
+}
+
+.students-admin-statistics strong {
+  margin-top: 7px;
+  color: #fff;
+  font-size: 2rem;
+}
+
+.students-admin-statistics small {
+  margin-top: 6px;
+  color: #38bdf8;
+  font-size: 0.67rem;
+}
+
+/* =========================================================
+   PANEL PRINCIPAL
+   ========================================================= */
+
+.students-admin-panel {
+  margin-top: 22px;
+  border: 1px solid rgba(148, 163, 184, 0.13);
+  border-radius: 22px;
+  overflow: visible;
+  background:
+    radial-gradient(circle at 100% 0%, rgba(37, 99, 235, 0.05), transparent 35%),
+    linear-gradient(155deg, rgba(8, 15, 29, 0.92), rgba(3, 8, 16, 0.98));
+  box-shadow:
+    0 24px 58px rgba(0, 0, 0, 0.42),
+    inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+
+/* =========================================================
+   TOOLBAR
+   ========================================================= */
+
+.students-admin-toolbar {
+  display: grid;
+  grid-template-columns: minmax(260px, 1fr) auto;
+  gap: 16px;
+  padding: 20px;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+}
+
+.students-admin-search {
+  min-width: 0;
+  min-height: 46px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 14px;
+  border: 1px solid rgba(148, 163, 184, 0.14);
+  border-radius: 13px;
+  color: #64748b;
+  background: rgba(4, 9, 18, 0.86);
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    color 180ms ease;
+}
+
+.students-admin-search:focus-within {
+  color: #38bdf8;
+  border-color: rgba(56, 189, 248, 0.5);
+  box-shadow: 0 0 24px rgba(14, 165, 233, 0.1);
+}
+
+.students-admin-search input {
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  color: #f8fafc;
+  background: transparent;
+  font: inherit;
+  font-size: 0.78rem;
+}
+
+.students-admin-search input::placeholder {
+  color: #526174;
+}
+
+.students-admin-filters {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.students-admin-filters select {
+  min-height: 46px;
+  min-width: 160px;
+  padding: 0 13px;
+  border: 1px solid rgba(148, 163, 184, 0.14);
+  border-radius: 13px;
+  outline: 0;
+  color: #dbe7f5;
+  background: rgba(4, 9, 18, 0.86);
+  font: inherit;
+  font-size: 0.73rem;
+  cursor: pointer;
+}
+
+.students-admin-filters select option {
+  color: #fff;
+  background: #07101e;
+}
+
+.students-admin-clear-button {
+  min-height: 42px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 0 12px;
+  border: 1px solid rgba(248, 113, 113, 0.2);
+  border-radius: 11px;
+  color: #fda4af;
+  background: rgba(248, 113, 113, 0.06);
+  cursor: pointer;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.students-admin-table-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 20px 20px 14px;
+}
+
+.students-admin-table-heading span {
+  color: #38bdf8;
+  font-size: 0.65rem;
+  font-weight: 850;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.students-admin-table-heading h2 {
+  margin: 7px 0 0;
+  color: #fff;
+  font-size: 1.3rem;
+}
+
+.students-admin-table-heading small {
+  color: #64748b;
+  font-size: 0.7rem;
+}
+/* =========================================================
+   TABLA
+   ========================================================= */
+
+.students-admin-table-wrapper {
+  position: relative;
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: visible;
+  padding: 0 20px 20px;
+}
+
+.students-admin-table {
+  width: 100%;
+  min-width: 1120px;
+  border-collapse: separate;
+  border-spacing: 0 8px;
+}
+
+.students-admin-table thead th {
+  padding: 0 13px 8px;
+  color: #64748b;
+  font-size: 0.64rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-align: left;
+  text-transform: uppercase;
+}
+
+.students-admin-table tbody tr {
+  position: relative;
+  background: rgba(5, 10, 19, 0.68);
+  transition:
+    background 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.students-admin-table tbody tr:hover {
+  background: rgba(9, 22, 39, 0.9);
+  box-shadow: 0 15px 35px rgba(37, 99, 235, 0.11);
+}
+
+.students-admin-table td {
+  position: relative;
+  padding: 14px 13px;
+  border-top: 1px solid rgba(148, 163, 184, 0.09);
+  border-bottom: 1px solid rgba(148, 163, 184, 0.09);
+  vertical-align: middle;
+}
+
+.students-admin-table td:first-child {
+  border-left: 1px solid rgba(148, 163, 184, 0.09);
+  border-radius: 14px 0 0 14px;
+}
+
+.students-admin-table td:last-child {
+  border-right: 1px solid rgba(148, 163, 184, 0.09);
+  border-radius: 0 14px 14px 0;
+}
+
+/* =========================================================
+   CELDA DE ESTUDIANTE
+   ========================================================= */
+
+.students-admin-user-cell {
+  min-width: 245px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.students-admin-avatar,
+.students-admin-details-avatar {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  border: 1px solid rgba(125, 211, 252, 0.32);
+  color: #fff;
+  background: linear-gradient(135deg, #0ea5e9, #1d4ed8);
+  box-shadow: 0 12px 26px rgba(37, 99, 235, 0.22);
+  font-weight: 850;
+}
+
+.students-admin-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 13px;
+  font-size: 0.72rem;
+}
+
+.students-admin-user-cell strong,
+.students-admin-user-cell span {
+  display: block;
+}
+
+.students-admin-user-cell strong {
+  color: #e8f0fb;
+  font-size: 0.78rem;
+}
+
+.students-admin-user-cell span {
+  max-width: 220px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 5px;
+  overflow: hidden;
+  color: #64748b;
+  font-size: 0.64rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* =========================================================
+   CURSO Y VALORES
+   ========================================================= */
+
+.students-admin-course {
+  width: fit-content;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 10px;
+  border: 1px solid rgba(56, 189, 248, 0.24);
+  border-radius: 999px;
+  color: #7dd3fc;
+  background: rgba(14, 165, 233, 0.07);
+  font-size: 0.65rem;
+  font-weight: 720;
+}
+
+.students-admin-number {
+  color: #dbe7f5;
+  font-size: 0.78rem;
+}
+
+/* =========================================================
+   ESTADO ACADÉMICO
+   ========================================================= */
+
+.students-admin-academic-status {
+  width: fit-content;
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 9px;
+  border: 1px solid;
+  border-radius: 999px;
+  font-size: 0.64rem;
+  font-weight: 750;
+}
+
+.students-admin-excelente {
+  color: #86efac;
+  border-color: rgba(34, 197, 94, 0.24);
+  background: rgba(34, 197, 94, 0.07);
+}
+
+.students-admin-estable {
+  color: #7dd3fc;
+  border-color: rgba(56, 189, 248, 0.24);
+  background: rgba(14, 165, 233, 0.07);
+}
+
+.students-admin-seguimiento {
+  color: #fde68a;
+  border-color: rgba(245, 158, 11, 0.24);
+  background: rgba(245, 158, 11, 0.07);
+}
+
+.students-admin-alerta {
+  color: #fda4af;
+  border-color: rgba(244, 63, 94, 0.24);
+  background: rgba(244, 63, 94, 0.07);
+}
+
+/* =========================================================
+   ESTADO DE ACCESO
+   ========================================================= */
+
+.students-admin-status {
+  width: fit-content;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 9px;
+  border: 1px solid;
+  border-radius: 999px;
+  font-size: 0.64rem;
+  font-weight: 750;
+}
+
+.students-admin-status > span {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+}
+
+.students-admin-status-active {
+  color: #86efac;
+  border-color: rgba(34, 197, 94, 0.24);
+  background: rgba(34, 197, 94, 0.07);
+}
+
+.students-admin-status-active > span {
+  background: #22c55e;
+  box-shadow: 0 0 10px rgba(34, 197, 94, 0.55);
+}
+
+.students-admin-status-suspended {
+  color: #fda4af;
+  border-color: rgba(244, 63, 94, 0.24);
+  background: rgba(244, 63, 94, 0.07);
+}
+
+.students-admin-status-suspended > span {
+  background: #fb7185;
+}
+
+/* =========================================================
+   ACCIONES
+   ========================================================= */
+
+.students-admin-actions-cell {
+  position: relative;
+  width: 58px;
+  text-align: right;
+}
+
+.students-admin-actions-trigger {
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  margin-left: auto;
+  border: 1px solid rgba(148, 163, 184, 0.12);
+  border-radius: 10px;
+  color: #94a3b8;
+  background: rgba(4, 9, 18, 0.84);
+  cursor: pointer;
+  transition:
+    color 180ms ease,
+    border-color 180ms ease,
+    background 180ms ease;
+}
+
+.students-admin-actions-trigger:hover {
+  color: #fff;
+  border-color: rgba(56, 189, 248, 0.38);
+  background: rgba(14, 165, 233, 0.08);
+}
+
+.students-admin-actions-menu {
+  position: absolute;
+  top: calc(100% + 5px);
+  right: 4px;
+  z-index: 80;
+  width: 220px;
+  padding: 7px;
+  border: 1px solid rgba(148, 163, 184, 0.15);
+  border-radius: 14px;
+  background: rgba(5, 11, 21, 0.98);
+  box-shadow:
+    0 24px 60px rgba(0, 0, 0, 0.58),
+    inset 0 1px 0 rgba(255, 255, 255, 0.025);
+  backdrop-filter: blur(18px);
+  animation: students-admin-menu-enter 160ms ease both;
+}
+
+.students-admin-table tbody tr:nth-last-child(-n + 2)
+  .students-admin-actions-menu {
+  top: auto;
+  bottom: calc(100% + 5px);
+}
+
+.students-admin-actions-menu button {
+  width: 100%;
+  min-height: 39px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 9px;
+  color: #aebdd0;
+  background: transparent;
+  cursor: pointer;
+  font-size: 0.71rem;
+  text-align: left;
+  transition:
+    color 160ms ease,
+    background 160ms ease;
+}
+
+.students-admin-actions-menu button:hover {
+  color: #fff;
+  background: rgba(14, 165, 233, 0.09);
+}
+
+.students-admin-actions-menu .students-admin-danger-action {
+  color: #fb7185;
+}
+
+.students-admin-actions-menu .students-admin-danger-action:hover {
+  background: rgba(244, 63, 94, 0.09);
+}
+
+/* =========================================================
+   ESTADO VACÍO
+   ========================================================= */
+
+.students-admin-empty-state {
+  min-height: 310px;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  padding: 40px;
+  text-align: center;
+}
+
+.students-admin-empty-state svg {
+  color: #38bdf8;
+}
+
+.students-admin-empty-state h3 {
+  margin: 14px 0 0;
+  color: #fff;
+}
+
+.students-admin-empty-state p {
+  max-width: 380px;
+  margin: 9px 0 0;
+  color: #64748b;
+  font-size: 0.78rem;
+}
+
+.students-admin-empty-state button {
+  margin-top: 17px;
+  padding: 10px 14px;
+  border: 1px solid rgba(56, 189, 248, 0.32);
+  border-radius: 11px;
+  color: #dff6ff;
+  background: rgba(14, 165, 233, 0.08);
+  cursor: pointer;
+}
+
+/* =========================================================
+   NOTIFICACIÓN
+   ========================================================= */
+
+.students-admin-notification {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 150;
+  max-width: min(420px, calc(100vw - 32px));
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 0 15px;
+  border: 1px solid rgba(34, 197, 94, 0.28);
+  border-radius: 13px;
+  color: #dcfce7;
+  background: rgba(6, 24, 17, 0.97);
+  box-shadow: 0 22px 50px rgba(0, 0, 0, 0.48);
+  font-size: 0.75rem;
+  font-weight: 700;
+  animation: students-admin-toast-enter 220ms ease both;
+}
+
+/* =========================================================
+   ANIMACIONES
+   ========================================================= */
+
+@keyframes students-admin-menu-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes students-admin-toast-enter {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+/*=========================================================
+MODAL
+=========================================================*/
+
+.students-admin-modal-backdrop{
+
+    position:fixed;
+
+    inset:0;
+
+    z-index:120;
+
+    display:grid;
+
+    place-items:center;
+
+    padding:20px;
+
+    overflow-y:auto;
+
+    background:rgba(0,5,15,.82);
+
+    backdrop-filter:blur(12px);
+
+}
+
+/*=========================================================*/
+
+.students-admin-modal,
+.students-admin-details-modal,
+.students-admin-delete-modal{
+
+    width:min(760px,100%);
+
+    overflow: hidden;
+
+    border-radius:24px;
+
+    border:1px solid rgba(255,255,255,.08);
+
+    background:
+
+    linear-gradient(
+
+    160deg,
+
+    rgba(14,22,38,.98),
+
+    rgba(6,9,18,.99));
+
+    box-shadow:
+
+    0 40px 90px
+
+    rgba(0,0,0,.60);
+
+    animation:
+
+    students-admin-modal-enter
+
+    .25s ease;
+
+}
+
+/*=========================================================*/
+
+.students-admin-modal header,
+.students-admin-details-modal header{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    padding:24px;
+
+    border-bottom:
+
+    1px solid rgba(255,255,255,.06);
+
+}
+
+.students-admin-modal header span,
+.students-admin-details-modal header span{
+
+    color:#38bdf8;
+
+    font-size:.68rem;
+
+    letter-spacing:.10em;
+
+    font-weight:800;
+
+    text-transform:uppercase;
+
+}
+
+.students-admin-modal header h2,
+.students-admin-details-modal header h2{
+
+    margin-top:8px;
+
+    color:white;
+
+    font-size:1.45rem;
+
+}
+
+.students-admin-modal header button,
+.students-admin-details-modal header button{
+
+    width:42px;
+
+    height:42px;
+
+    border:none;
+
+    border-radius:12px;
+
+    background:#111827;
+
+    color:#94a3b8;
+
+    cursor:pointer;
+
+    transition:.25s;
+
+}
+
+.students-admin-modal header button:hover,
+.students-admin-details-modal header button:hover{
+
+    background:#1e293b;
+
+    color:white;
+
+}
+
+/*=========================================================
+FORMULARIO
+=========================================================*/
+
+.students-admin-modal form{
+
+    padding:24px;
+
+}
+
+.students-admin-form-grid{
+
+    display:grid;
+
+    grid-template-columns:
+
+    repeat(2,1fr);
+
+    gap:18px;
+
+}
+
+.students-admin-form-grid label{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:8px;
+
+}
+
+.students-admin-form-grid span{
+
+    color:#94a3b8;
+
+    font-size:.78rem;
+
+}
+
+.students-admin-form-grid input,
+.students-admin-form-grid select{
+
+    height:48px;
+
+    padding:0 16px;
+
+    border-radius:14px;
+
+    border:1px solid rgba(255,255,255,.06);
+
+    background:#0f172a;
+
+    color:white;
+
+    outline:none;
+
+    transition:.25s;
+
+}
+
+.students-admin-form-grid input:focus,
+.students-admin-form-grid select:focus{
+
+    border-color:#3b82f6;
+
+    box-shadow:
+
+    0 0 20px
+
+    rgba(59,130,246,.15);
+
+}
+
+.students-admin-form-error{
+
+    margin-top:20px;
+
+    padding:15px;
+
+    border-radius:14px;
+
+    background:
+
+    rgba(239,68,68,.10);
+
+    border:
+
+    1px solid
+
+    rgba(239,68,68,.25);
+
+    color:#fca5a5;
+
+}
+
+/*=========================================================
+FOOTER
+=========================================================*/
+
+.students-admin-modal footer,
+.students-admin-details-modal footer,
+.students-admin-delete-modal footer{
+
+    display:flex;
+
+    justify-content:flex-end;
+
+    gap:14px;
+
+    margin-top:28px;
+
+}
+
+.students-admin-primary-button,
+.students-admin-secondary-button,
+.students-admin-delete-button{
+
+    padding:14px 22px;
+
+    border:none;
+
+    border-radius:14px;
+
+    cursor:pointer;
+
+    font-weight:700;
+
+    transition:.25s;
+
+}
+
+.students-admin-primary-button{
+
+    background:
+
+    linear-gradient(
+    135deg,
+    #2563eb,
+    #0ea5e9);
+
+    color:white;
+
+}
+
+.students-admin-primary-button:hover{
+
+    transform:translateY(-2px);
+
+}
+
+.students-admin-secondary-button{
+
+    background:#1e293b;
+
+    color:white;
+
+}
+
+.students-admin-secondary-button:hover{
+
+    background:#334155;
+
+}
+
+.students-admin-delete-button{
+
+    background:#dc2626;
+
+    color:white;
+
+}
+
+.students-admin-delete-button:hover{
+
+    background:#ef4444;
+
+}
+
+/*=========================================================
+DETALLES
+=========================================================*/
+
+.students-admin-details-avatar{
+
+    width:60px;
+
+    height:60px;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    border-radius:18px;
+
+    background:
+
+    linear-gradient(
+    135deg,
+    #2563eb,
+    #0ea5e9);
+
+    color:white;
+
+    font-weight:800;
+
+    font-size:1rem;
+
+}
+
+.students-admin-details-grid{
+
+    display:grid;
+
+    grid-template-columns:
+
+    repeat(2,1fr);
+
+    gap:16px;
+
+    padding:24px;
+
+}
+
+.students-admin-details-grid article{
+
+    padding:18px;
+
+    border-radius:16px;
+
+    background:#0f172a;
+
+    border:1px solid rgba(255,255,255,.05);
+
+}
+
+.students-admin-details-grid span{
+
+    color:#64748b;
+
+    font-size:.72rem;
+
+}
+
+.students-admin-details-grid strong{
+
+    display:block;
+
+    margin-top:8px;
+
+    color:white;
+
+}
+
+.students-admin-alert-box{
+
+    display:flex;
+
+    gap:12px;
+
+    align-items:flex-start;
+
+    margin:0 24px;
+
+    padding:18px;
+
+    border-radius:16px;
+
+    background:rgba(245,158,11,.10);
+
+    border:1px solid rgba(245,158,11,.20);
+
+    color:#fde68a;
+
+}
+
+/*=========================================================
+ELIMINAR
+=========================================================*/
+
+.students-admin-delete-modal{
+
+    width:460px;
+
+    padding:30px;
+
+    text-align:center;
+
+}
+
+.students-admin-delete-modal h2{
+
+    margin:20px 0 10px;
+
+    color:white;
+
+}
+
+.students-admin-delete-modal p{
+
+    color:#94a3b8;
+
+    line-height:1.7;
+
+}
+
+.students-admin-delete-modal strong{
+
+    color:white;
+
+}
+
+/*=========================================================
+ANIMACION
+=========================================================*/
+
+@keyframes students-admin-modal-enter{
+
+    from{
+
+        opacity:0;
+
+        transform:
+
+        translateY(25px)
+        scale(.96);
+
+    }
+
+    to{
+
+        opacity:1;
+
+        transform:
+
+        translateY(0)
+        scale(1);
+
+    }
+
+}
+
+/*=========================================================
+RESPONSIVE
+=========================================================*/
+
+@media(max-width:1200px){
+
+.students-admin-statistics{
+
+grid-template-columns:
+
+repeat(2,1fr);
+
+}
+
+.students-admin-toolbar{
+
+grid-template-columns:1fr;
+
+}
+
+}
+
+@media(max-width:900px){
+
+.students-admin-layout{
+
+grid-template-columns:1fr;
+
+}
+
+.students-admin-layout .app-sidebar{
+
+display:none;
+
+}
+
+.students-admin-content{
+
+padding:24px;
+
+}
+
+}
+
+@media(max-width:768px){
+
+.students-admin-header{
+
+flex-direction:column;
+
+align-items:flex-start;
+
+}
+
+.students-admin-create-button{
+
+width:100%;
+
+}
+
+.students-admin-statistics{
+
+grid-template-columns:1fr;
+
+}
+
+.students-admin-form-grid,
+.students-admin-details-grid{
+
+grid-template-columns:1fr;
+
+}
+
+.students-admin-toolbar{
+
+display:flex;
+
+flex-direction:column;
+
+}
+
+.students-admin-filters{
+
+flex-direction:column;
+
+}
+
+.students-admin-filters select,
+.students-admin-clear-button{
+
+width:100%;
+
+}
+
+}
+
+@media(max-width:500px){
+
+.students-admin-content{
+
+padding:15px;
+
+}
+
+.students-admin-modal{
+
+border-radius:18px;
+
+}
+
+.students-admin-modal form,
+.students-admin-modal header,
+.students-admin-details-grid{
+
+padding:18px;
+
+}
+
+.students-admin-modal footer{
+
+flex-direction:column;
+
+}
+
+.students-admin-primary-button,
+.students-admin-secondary-button,
+.students-admin-delete-button{
+
+width:100%;
+
+}
+
+}
