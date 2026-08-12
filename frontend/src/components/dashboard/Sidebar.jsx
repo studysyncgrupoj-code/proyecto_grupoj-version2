@@ -1,9 +1,13 @@
+import { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
+
 import {
   BarChart3,
   Bell,
   BookOpen,
   CalendarDays,
+  ChevronLeft,
+  ChevronRight,
   ClipboardList,
   Crown,
   GraduationCap,
@@ -21,6 +25,10 @@ import {
 } from "lucide-react";
 
 import "./Sidebar.css";
+
+/* =========================================================
+   MENÚ ADMIN
+   ========================================================= */
 
 const adminMenu = [
   {
@@ -80,6 +88,10 @@ const adminMenu = [
   },
 ];
 
+/* =========================================================
+   MENÚ PROFESOR
+   ========================================================= */
+
 const professorMenu = [
   {
     label: "Dashboard",
@@ -133,6 +145,10 @@ const professorMenu = [
   },
 ];
 
+/* =========================================================
+   MENÚ ESTUDIANTE
+   ========================================================= */
+
 const studentMenu = [
   {
     label: "Dashboard",
@@ -175,6 +191,10 @@ const studentMenu = [
     icon: UserRound,
   },
 ];
+
+/* =========================================================
+   UTILIDADES
+   ========================================================= */
 
 function getStoredUser() {
   try {
@@ -261,10 +281,26 @@ function getRoleInformation(role) {
   };
 }
 
+/* =========================================================
+   SIDEBAR
+   ========================================================= */
+
 function Sidebar() {
+  const [collapsed, setCollapsed] = useState(() => {
+    return (
+      localStorage.getItem(
+        "studysync-sidebar-collapsed",
+      ) === "true"
+    );
+  });
+
   const user = getStoredUser();
-  const normalizedRole = normalizeRole(user?.role);
-  const roleInformation = getRoleInformation(normalizedRole);
+
+  const normalizedRole =
+    normalizeRole(user?.role);
+
+  const roleInformation =
+    getRoleInformation(normalizedRole);
 
   const {
     type,
@@ -276,34 +312,117 @@ function Sidebar() {
     premiumDescription,
   } = roleInformation;
 
-  const displayName = user?.name?.trim() || fallbackName;
+  const displayName =
+    user?.name?.trim() || fallbackName;
 
   const initials = displayName
     .split(" ")
     .filter(Boolean)
     .slice(0, 2)
-    .map((word) => word.charAt(0).toUpperCase())
+    .map((word) =>
+      word.charAt(0).toUpperCase(),
+    )
     .join("");
+
+  /* =======================================================
+     GUARDAR ESTADO DEL SIDEBAR
+     ======================================================= */
+
+  useEffect(() => {
+    localStorage.setItem(
+      "studysync-sidebar-collapsed",
+      String(collapsed),
+    );
+
+    document.documentElement.style.setProperty(
+      "--ss-sidebar-current-width",
+      collapsed ? "82px" : "270px",
+    );
+
+    document.body.classList.toggle(
+      "ss-sidebar-is-collapsed",
+      collapsed,
+    );
+
+    return () => {
+      document.body.classList.remove(
+        "ss-sidebar-is-collapsed",
+      );
+    };
+  }, [collapsed]);
+
+  const handleToggleSidebar = () => {
+    setCollapsed((current) => !current);
+  };
 
   const handleLogout = () => {
     localStorage.removeItem("user");
+
     window.location.href = "/login";
   };
 
   return (
-    <aside className={`app-sidebar sidebar-role-${type}`}>
+    <aside
+      className={`
+        app-sidebar
+        sidebar-role-${type}
+        ${collapsed ? "sidebar-collapsed" : ""}
+      `}
+    >
+      {/* ================================================
+          MARCA
+          ================================================ */}
+
       <div className="sidebar-brand">
         <div className="sidebar-logo">
-          <GraduationCap size={24} strokeWidth={2.2} />
+          <GraduationCap
+            size={24}
+            strokeWidth={2}
+          />
         </div>
 
         <div className="sidebar-brand-text">
           <h2>StudySync</h2>
           <span>{panelTitle}</span>
         </div>
+
+        <button
+          type="button"
+          className="sidebar-collapse-button"
+          onClick={handleToggleSidebar}
+          aria-label={
+            collapsed
+              ? "Mostrar menú"
+              : "Ocultar menú"
+          }
+          title={
+            collapsed
+              ? "Mostrar menú"
+              : "Ocultar menú"
+          }
+        >
+          {collapsed ? (
+            <ChevronRight
+              size={19}
+              strokeWidth={2.2}
+            />
+          ) : (
+            <ChevronLeft
+              size={19}
+              strokeWidth={2.2}
+            />
+          )}
+        </button>
       </div>
 
-      <nav className="sidebar-menu" aria-label={panelTitle}>
+      {/* ================================================
+          MENÚ
+          ================================================ */}
+
+      <nav
+        className="sidebar-menu"
+        aria-label={panelTitle}
+      >
         {menu.map((item) => {
           const Icon = item.icon;
 
@@ -311,8 +430,17 @@ function Sidebar() {
             <NavLink
               key={`${type}-${item.path}`}
               to={item.path}
+              title={
+                collapsed
+                  ? item.label
+                  : undefined
+              }
               className={({ isActive }) =>
-                `sidebar-link ${isActive ? "sidebar-link-active" : ""}`
+                `sidebar-link ${
+                  isActive
+                    ? "sidebar-link-active"
+                    : ""
+                }`
               }
             >
               <Icon
@@ -327,12 +455,22 @@ function Sidebar() {
         })}
       </nav>
 
+      {/* ================================================
+          PREMIUM
+          ================================================ */}
+
       <div className="sidebar-premium">
         <div className="premium-icon">
           {type === "admin" ? (
-            <ShieldCheck size={22} strokeWidth={2} />
+            <ShieldCheck
+              size={22}
+              strokeWidth={2}
+            />
           ) : (
-            <Crown size={22} strokeWidth={2} />
+            <Crown
+              size={22}
+              strokeWidth={2}
+            />
           )}
         </div>
 
@@ -341,15 +479,30 @@ function Sidebar() {
         <p>{premiumDescription}</p>
 
         <button type="button">
-          {type === "admin" ? "Ver estado" : "Ver beneficios"}
+          {type === "admin"
+            ? "Ver estado"
+            : "Ver beneficios"}
         </button>
       </div>
+
+      {/* ================================================
+          PARTE INFERIOR
+          ================================================ */}
 
       <div className="sidebar-bottom">
         <NavLink
           to="/configuracion"
+          title={
+            collapsed
+              ? "Configuración"
+              : undefined
+          }
           className={({ isActive }) =>
-            `sidebar-link ${isActive ? "sidebar-link-active" : ""}`
+            `sidebar-link ${
+              isActive
+                ? "sidebar-link-active"
+                : ""
+            }`
           }
         >
           <Settings
@@ -364,6 +517,11 @@ function Sidebar() {
         <button
           type="button"
           className="sidebar-logout"
+          title={
+            collapsed
+              ? "Cerrar sesión"
+              : undefined
+          }
           onClick={handleLogout}
         >
           <LogOut
@@ -375,7 +533,14 @@ function Sidebar() {
           <span>Cerrar sesión</span>
         </button>
 
-        <div className="sidebar-user">
+        <div
+          className="sidebar-user"
+          title={
+            collapsed
+              ? `${displayName} — ${roleLabel}`
+              : undefined
+          }
+        >
           <div className="sidebar-user-avatar">
             {initials || "SS"}
           </div>

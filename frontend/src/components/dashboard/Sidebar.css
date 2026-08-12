@@ -1,6 +1,10 @@
 /* =========================================================
-   STUDYSYNC — SIDEBAR RESPONSIVE
+   STUDYSYNC — SIDEBAR FINAL
    Desktop / Laptop / Tablet / Mobile
+   ========================================================= */
+
+/* =========================================================
+   BASE DESKTOP
    ========================================================= */
 
 .app-sidebar {
@@ -9,6 +13,8 @@
   z-index: 60;
 
   width: 270px;
+  min-width: 270px;
+
   height: 100vh;
   height: 100dvh;
   min-height: 0;
@@ -18,12 +24,12 @@
 
   padding: 24px 18px 22px;
 
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
 
   color: #f8fafc;
 
-  border-right:
-    1px solid rgba(148, 163, 184, 0.12);
+  border-right: 1px solid rgba(148, 163, 184, 0.12);
 
   background:
     radial-gradient(
@@ -45,6 +51,8 @@
   scrollbar-color:
     rgba(56, 189, 248, 0.25)
     transparent;
+
+  overscroll-behavior: contain;
 }
 
 .app-sidebar,
@@ -55,7 +63,7 @@
 }
 
 /* =========================================================
-   SCROLL
+   SCROLLBAR
    ========================================================= */
 
 .app-sidebar::-webkit-scrollbar {
@@ -75,7 +83,7 @@
 
 .app-sidebar::-webkit-scrollbar-thumb:hover {
   background:
-    rgba(56, 189, 248, 0.4);
+    rgba(56, 189, 248, 0.42);
 }
 
 /* =========================================================
@@ -89,8 +97,7 @@
 
   flex: 0 0 auto;
 
-  padding:
-    0 8px 24px;
+  padding: 0 8px 24px;
 }
 
 .sidebar-logo {
@@ -102,9 +109,7 @@
   display: grid;
   place-items: center;
 
-  border:
-    1px solid rgba(125, 211, 252, 0.42);
-
+  border: 1px solid rgba(125, 211, 252, 0.42);
   border-radius: 14px;
 
   color: #ffffff;
@@ -172,12 +177,9 @@
   align-items: center;
   gap: 13px;
 
-  padding:
-    0 14px;
+  padding: 0 14px;
 
-  border:
-    1px solid transparent;
-
+  border: 1px solid transparent;
   border-radius: 13px;
 
   color: #8492a6;
@@ -186,6 +188,8 @@
 
   font-size: 0.89rem;
   font-weight: 680;
+
+  line-height: 1.2;
 
   text-align: left;
   text-decoration: none;
@@ -218,8 +222,7 @@
     inset 3px 0 0 #0ea5e9,
     0 10px 24px rgba(0, 0, 0, 0.22);
 
-  transform:
-    translateX(3px);
+  transform: translateX(3px);
 }
 
 .sidebar-link-active {
@@ -249,6 +252,8 @@
   margin-top: 24px;
 
   padding: 18px;
+
+  flex: 0 0 auto;
 
   border:
     1px solid rgba(56, 189, 248, 0.18);
@@ -301,8 +306,7 @@
 }
 
 .sidebar-premium p {
-  margin:
-    8px 0 14px;
+  margin: 8px 0 14px;
 
   color: #7f8ea3;
 
@@ -342,8 +346,7 @@
   background:
     rgba(14, 165, 233, 0.11);
 
-  transform:
-    translateY(-2px);
+  transform: translateY(-2px);
 }
 
 /* =========================================================
@@ -368,6 +371,20 @@
   color: #fb7185;
 }
 
+.sidebar-logout:hover {
+  color: #fecdd3;
+
+  border-color:
+    rgba(244, 63, 94, 0.3);
+
+  background:
+    rgba(244, 63, 94, 0.08);
+
+  box-shadow:
+    inset 3px 0 0 #fb7185,
+    0 10px 24px rgba(0, 0, 0, 0.22);
+}
+
 /* =========================================================
    USUARIO
    ========================================================= */
@@ -376,6 +393,8 @@
   display: flex;
   align-items: center;
   gap: 11px;
+
+  flex: 0 0 auto;
 
   margin-top: 12px;
 
@@ -450,29 +469,60 @@
 }
 
 /* =========================================================
-   LAPTOP PEQUEÑO
+   DESKTOP / LAPTOP
+   No aplastamos el menú.
+   El sidebar tiene scroll independiente.
    ========================================================= */
 
-@media (max-width: 1180px) and (min-width: 901px) {
+@media (min-width: 901px) {
   .app-sidebar {
-    width: 270px;
+    display: flex !important;
 
-    padding:
-      20px 15px;
+    width: 270px !important;
+    min-width: 270px !important;
+
+    height: 100vh !important;
+    height: 100dvh !important;
+
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
   }
 
   .sidebar-brand {
-    padding-bottom: 20px;
+    display: flex !important;
   }
 
   .sidebar-premium {
-    padding: 15px;
+    display: block !important;
+  }
+
+  .sidebar-menu {
+    display: grid !important;
+  }
+
+  .sidebar-bottom {
+    display: flex !important;
+  }
+
+  .sidebar-user {
+    display: flex !important;
+  }
+}
+
+/* =========================================================
+   LAPTOP MÁS ESTRECHO
+   ========================================================= */
+
+@media (min-width: 901px) and (max-width: 1180px) {
+  .app-sidebar {
+    width: 245px !important;
+    min-width: 245px !important;
+
+    padding-inline: 15px;
   }
 
   .sidebar-link,
   .sidebar-logout {
-    min-height: 44px;
-
     padding-inline: 12px;
 
     font-size: 0.84rem;
@@ -481,172 +531,223 @@
 
 /* =========================================================
    TABLET + MÓVIL
-   Convertimos sidebar lateral en navegación inferior.
+   Barra inferior:
+   - menú principal desplazable
+   - configuración y cerrar sesión siempre visibles
    ========================================================= */
 
 @media (max-width: 900px) {
   .app-sidebar {
     position: fixed !important;
 
-    top: auto;
-    right: 0;
-    bottom: 0;
-    left: 0;
+    top: auto !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    left: 0 !important;
 
-    z-index: 1000;
+    z-index: 9999 !important;
 
     width: 100% !important;
-    max-width: 100vw;
+    max-width: 100vw !important;
 
-    height: auto;
-    min-height: 72px;
+    height: 76px !important;
+    min-height: 76px !important;
 
-    display: flex !important;
-    flex-direction: row;
-    align-items: center;
+    display: grid !important;
+
+    grid-template-columns:
+      minmax(0, 1fr)
+      auto !important;
+
+    align-items: stretch !important;
+    gap: 7px !important;
 
     padding:
-      8px 10px
-      calc(
-        8px +
-        env(safe-area-inset-bottom)
-      );
+      7px 8px
+      calc(7px + env(safe-area-inset-bottom)) !important;
 
-    overflow-x: auto;
-    overflow-y: hidden;
+    overflow: hidden !important;
 
     border-top:
-      1px solid rgba(148, 163, 184, 0.16);
+      1px solid rgba(148, 163, 184, 0.16) !important;
 
-    border-right: 0;
+    border-right: 0 !important;
 
     background:
       linear-gradient(
         180deg,
-        rgba(5, 10, 19, 0.96),
-        rgba(2, 5, 11, 0.99)
-      );
+        rgba(5, 10, 19, 0.97),
+        rgba(2, 5, 11, 0.995)
+      ) !important;
 
     box-shadow:
       0 -14px 40px rgba(0, 0, 0, 0.48),
-      inset 0 1px 0 rgba(255, 255, 255, 0.025);
+      inset 0 1px 0 rgba(255, 255, 255, 0.025) !important;
 
-    backdrop-filter:
-      blur(22px);
+    backdrop-filter: blur(22px);
+  }
+
+  /* Marca y Premium fuera de navegación móvil */
+
+  .app-sidebar .sidebar-brand,
+  .app-sidebar .sidebar-premium,
+  .app-sidebar .sidebar-user {
+    display: none !important;
+  }
+
+  /* =======================================================
+     MENÚ PRINCIPAL DESPLAZABLE
+     ======================================================= */
+
+  .app-sidebar .sidebar-menu {
+    min-width: 0;
+
+    display: flex !important;
+    align-items: stretch !important;
+
+    gap: 5px !important;
+
+    margin: 0 !important;
+    padding: 0 2px 1px 0 !important;
+
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
 
     scrollbar-width: none;
+
+    scroll-snap-type: x proximity;
   }
 
-  .app-sidebar::-webkit-scrollbar {
+  .app-sidebar .sidebar-menu::-webkit-scrollbar {
     display: none;
   }
 
-  /* En móvil no necesitamos repetir la marca */
+  .app-sidebar .sidebar-menu .sidebar-link {
+    width: 72px !important;
+    min-width: 72px !important;
+    min-height: 58px !important;
 
-  .sidebar-brand {
-    display: none;
+    flex: 0 0 72px !important;
+
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    gap: 4px !important;
+
+    padding: 5px 4px !important;
+
+    border-radius: 11px !important;
+
+    font-size: 0.58rem !important;
+
+    line-height: 1.08 !important;
+
+    text-align: center !important;
+
+    white-space: nowrap !important;
+
+    transform: none !important;
+
+    scroll-snap-align: start;
   }
 
-  /* Premium pasa a ocultarse para dar prioridad
-     a la navegación */
-
-  .sidebar-premium {
-    display: none;
+  .app-sidebar .sidebar-menu .sidebar-link svg,
+  .app-sidebar .sidebar-menu .sidebar-icon {
+    width: 18px !important;
+    height: 18px !important;
   }
 
-  /* Menú principal */
+  /* =======================================================
+     CONFIGURACIÓN + LOGOUT FIJOS
+     ======================================================= */
 
-  .sidebar-menu {
-    display: flex;
+  .app-sidebar .sidebar-bottom {
+    width: 110px !important;
 
-    flex: 0 0 auto;
+    display: grid !important;
 
-    gap: 6px;
-  }
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr)) !important;
 
-  .sidebar-link,
-  .sidebar-logout {
-    width: auto;
-    min-width: 70px;
-    min-height: 54px;
+    gap: 5px !important;
 
-    flex: 0 0 auto;
+    margin: 0 !important;
+    padding: 0 0 0 7px !important;
 
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-
-    gap: 4px;
-
-    padding:
-      6px 9px;
-
-    border-radius: 12px;
-
-    font-size: 0.61rem;
-
-    white-space: nowrap;
-  }
-
-  .sidebar-link svg,
-  .sidebar-logout svg {
-    width: 19px;
-    height: 19px;
-  }
-
-  .sidebar-link:hover,
-  .sidebar-logout:hover {
-    transform: none;
-
-    box-shadow:
-      0 8px 20px rgba(0, 0, 0, 0.22);
-  }
-
-  .sidebar-link-active {
-    box-shadow:
-      inset 0 2px 0 #38bdf8,
-      0 8px 22px rgba(0, 0, 0, 0.25),
-      0 0 18px rgba(14, 165, 233, 0.07);
-  }
-
-  /* Configuración + Logout */
-
-  .sidebar-bottom {
-    display: flex;
-    flex-direction: row;
-
-    flex: 0 0 auto;
-
-    gap: 6px;
-
-    margin-top: 0;
-    margin-left: 6px;
-
-    padding-top: 0;
-    padding-left: 6px;
-
-    border-top: 0;
+    border-top: 0 !important;
 
     border-left:
-      1px solid rgba(148, 163, 184, 0.1);
+      1px solid rgba(148, 163, 184, 0.12) !important;
   }
 
-  /* Perfil completo no cabe en barra inferior */
+  .app-sidebar .sidebar-bottom .sidebar-link,
+  .app-sidebar .sidebar-bottom .sidebar-logout {
+    width: 100% !important;
+    min-width: 0 !important;
+    min-height: 58px !important;
 
-  .sidebar-user {
-    display: none;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    gap: 4px !important;
+
+    padding: 5px 2px !important;
+
+    border-radius: 11px !important;
+
+    font-size: 0 !important;
+
+    text-align: center !important;
+
+    transform: none !important;
   }
 
-  /* Reserva espacio para la navegación inferior
-     en los layouts existentes */
+  .app-sidebar .sidebar-bottom .sidebar-link svg,
+  .app-sidebar .sidebar-bottom .sidebar-logout svg {
+    width: 20px !important;
+    height: 20px !important;
+  }
+
+  /* Tooltip simple para no perder significado */
+
+  .app-sidebar .sidebar-bottom .sidebar-link::after {
+    content: "Config.";
+    display: block;
+
+    color: #94a3b8;
+
+    font-size: 0.5rem;
+    font-weight: 700;
+  }
+
+  .app-sidebar .sidebar-bottom .sidebar-logout::after {
+    content: "Salir";
+    display: block;
+
+    color: #fb7185;
+
+    font-size: 0.5rem;
+    font-weight: 700;
+  }
+
+  .app-sidebar .sidebar-logout {
+    color: #fb7185 !important;
+  }
+
+  /* =======================================================
+     RESERVA ESPACIO PARA BARRA INFERIOR
+     ======================================================= */
 
   body {
     padding-bottom:
       calc(
-        74px +
+        76px +
         env(safe-area-inset-bottom)
-      );
+      ) !important;
   }
 }
 
@@ -656,33 +757,57 @@
 
 @media (max-width: 600px) {
   .app-sidebar {
-    min-height: 68px;
+    height: 72px !important;
+    min-height: 72px !important;
 
-    padding-inline: 7px;
+    grid-template-columns:
+      minmax(0, 1fr)
+      96px !important;
+
+    gap: 4px !important;
+
+    padding-inline: 5px !important;
   }
 
-  .sidebar-link,
-  .sidebar-logout {
-    min-width: 64px;
-    min-height: 50px;
-
-    padding-inline: 7px;
-
-    font-size: 0.58rem;
+  .app-sidebar .sidebar-menu {
+    gap: 3px !important;
   }
 
-  .sidebar-link svg,
-  .sidebar-logout svg {
-    width: 18px;
-    height: 18px;
+  .app-sidebar .sidebar-menu .sidebar-link {
+    width: 64px !important;
+    min-width: 64px !important;
+    min-height: 54px !important;
+
+    flex-basis: 64px !important;
+
+    font-size: 0.53rem !important;
+  }
+
+  .app-sidebar .sidebar-menu .sidebar-link svg,
+  .app-sidebar .sidebar-menu .sidebar-icon {
+    width: 17px !important;
+    height: 17px !important;
+  }
+
+  .app-sidebar .sidebar-bottom {
+    width: 96px !important;
+
+    gap: 3px !important;
+
+    padding-left: 4px !important;
+  }
+
+  .app-sidebar .sidebar-bottom .sidebar-link,
+  .app-sidebar .sidebar-bottom .sidebar-logout {
+    min-height: 54px !important;
   }
 
   body {
     padding-bottom:
       calc(
-        70px +
+        72px +
         env(safe-area-inset-bottom)
-      );
+      ) !important;
   }
 }
 
@@ -691,16 +816,39 @@
    ========================================================= */
 
 @media (max-width: 420px) {
-  .sidebar-link,
-  .sidebar-logout {
-    min-width: 60px;
+  .app-sidebar {
+    grid-template-columns:
+      minmax(0, 1fr)
+      88px !important;
+  }
 
-    font-size: 0.55rem;
+  .app-sidebar .sidebar-menu .sidebar-link {
+    width: 59px !important;
+    min-width: 59px !important;
+
+    flex-basis: 59px !important;
+
+    font-size: 0.5rem !important;
+  }
+
+  .app-sidebar .sidebar-bottom {
+    width: 88px !important;
+  }
+
+  .app-sidebar .sidebar-bottom .sidebar-link svg,
+  .app-sidebar .sidebar-bottom .sidebar-logout svg {
+    width: 18px !important;
+    height: 18px !important;
+  }
+
+  .app-sidebar .sidebar-bottom .sidebar-link::after,
+  .app-sidebar .sidebar-bottom .sidebar-logout::after {
+    font-size: 0.46rem;
   }
 }
 
 /* =========================================================
-   MOTION ACCESSIBILITY
+   ACCESIBILIDAD
    ========================================================= */
 
 @media (prefers-reduced-motion: reduce) {
@@ -709,6 +857,278 @@
   .sidebar-logout,
   .sidebar-premium,
   .sidebar-premium button {
-    transition: none;
+    transition: none !important;
+  }
+}
+/* =========================================================
+   STUDYSYNC — SIDEBAR COLAPSABLE
+   Desktop / Laptop
+   ========================================================= */
+
+:root {
+  --ss-sidebar-current-width: 270px;
+}
+
+.app-sidebar {
+  transition:
+    width 220ms ease,
+    min-width 220ms ease,
+    padding 220ms ease;
+}
+
+/* =========================================================
+   BOTÓN FLECHA
+   ========================================================= */
+
+.sidebar-collapse-button {
+  width: 36px;
+  height: 36px;
+
+  flex: 0 0 36px;
+
+  display: grid;
+  place-items: center;
+
+  margin-left: auto;
+
+  padding: 0;
+
+  border:
+    1px solid rgba(56, 189, 248, 0.3);
+
+  border-radius: 11px;
+
+  color: #7dd3fc;
+
+  background:
+    rgba(14, 165, 233, 0.08);
+
+  box-shadow:
+    0 8px 22px rgba(0, 0, 0, 0.22);
+
+  cursor: pointer;
+
+  transition:
+    color 160ms ease,
+    background 160ms ease,
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    transform 160ms ease;
+}
+
+.sidebar-collapse-button:hover {
+  color: #ffffff;
+
+  border-color:
+    rgba(56, 189, 248, 0.55);
+
+  background:
+    rgba(14, 165, 233, 0.17);
+
+  box-shadow:
+    0 10px 26px rgba(14, 165, 233, 0.14);
+
+  transform: translateY(-1px);
+}
+
+/* =========================================================
+   DESKTOP COLAPSADO
+   ========================================================= */
+
+@media (min-width: 901px) {
+
+  .app-sidebar.sidebar-collapsed {
+    width: 82px !important;
+    min-width: 82px !important;
+
+    padding:
+      20px 11px 18px !important;
+
+    overflow-x: hidden !important;
+  }
+
+  /* BRAND */
+
+  .app-sidebar.sidebar-collapsed
+  .sidebar-brand {
+    position: relative;
+
+    display: flex !important;
+    flex-direction: column;
+
+    gap: 10px;
+
+    padding:
+      0 0 18px !important;
+  }
+
+  .app-sidebar.sidebar-collapsed
+  .sidebar-logo {
+    width: 46px;
+    height: 46px;
+  }
+
+  .app-sidebar.sidebar-collapsed
+  .sidebar-brand-text {
+    display: none;
+  }
+
+  .app-sidebar.sidebar-collapsed
+  .sidebar-collapse-button {
+    width: 46px;
+    height: 38px;
+
+    margin:
+      0 auto;
+  }
+
+  /* MENÚ */
+
+  .app-sidebar.sidebar-collapsed
+  .sidebar-menu {
+    width: 100%;
+
+    display: grid !important;
+
+    gap: 7px;
+  }
+
+  .app-sidebar.sidebar-collapsed
+  .sidebar-link,
+  .app-sidebar.sidebar-collapsed
+  .sidebar-logout {
+    width: 100% !important;
+    min-width: 0 !important;
+
+    min-height: 48px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 0;
+
+    padding:
+      0 !important;
+
+    border-radius: 12px;
+
+    transform: none;
+  }
+
+  .app-sidebar.sidebar-collapsed
+  .sidebar-link > span,
+  .app-sidebar.sidebar-collapsed
+  .sidebar-logout > span {
+    display: none;
+  }
+
+  .app-sidebar.sidebar-collapsed
+  .sidebar-icon {
+    width: 21px;
+    height: 21px;
+
+    margin: 0;
+  }
+
+  .app-sidebar.sidebar-collapsed
+  .sidebar-link:hover,
+  .app-sidebar.sidebar-collapsed
+  .sidebar-logout:hover {
+    transform: none;
+
+    box-shadow:
+      inset 2px 0 0 #0ea5e9,
+      0 8px 22px rgba(0, 0, 0, 0.28);
+  }
+
+  /* PREMIUM */
+
+  .app-sidebar.sidebar-collapsed
+  .sidebar-premium {
+    display: none !important;
+  }
+
+  /* PARTE INFERIOR */
+
+  .app-sidebar.sidebar-collapsed
+  .sidebar-bottom {
+    width: 100%;
+
+    margin-top:
+      14px !important;
+
+    padding-top:
+      12px !important;
+
+    gap: 6px;
+  }
+
+  /* USUARIO */
+
+  .app-sidebar.sidebar-collapsed
+  .sidebar-user {
+    width: 100%;
+
+    display: flex !important;
+    justify-content: center;
+
+    margin-top:
+      8px !important;
+
+    padding:
+      7px 0 !important;
+  }
+
+  .app-sidebar.sidebar-collapsed
+  .sidebar-user-avatar {
+    width: 38px;
+    height: 38px;
+
+    border-radius: 11px;
+  }
+
+  .app-sidebar.sidebar-collapsed
+  .sidebar-user-info {
+    display: none;
+  }
+}
+
+/* =========================================================
+   TODOS LOS LAYOUTS QUE CONTIENEN DIRECTAMENTE EL SIDEBAR
+
+   Esto permite que el contenido gane espacio automáticamente
+   cuando el menú se colapsa.
+   ========================================================= */
+
+@media (min-width: 901px) {
+
+  [class*="layout"]:has(> .app-sidebar),
+  [class*="Layout"]:has(> .app-sidebar) {
+    grid-template-columns:
+      var(--ss-sidebar-current-width)
+      minmax(0, 1fr) !important;
+
+    transition:
+      grid-template-columns 220ms ease;
+  }
+}
+
+/* =========================================================
+   TABLET / MÓVIL
+
+   No usamos modo colapsado lateral.
+   Conservamos el responsive móvil que ya tienes.
+   ========================================================= */
+
+@media (max-width: 900px) {
+
+  .sidebar-collapse-button {
+    display: none !important;
+  }
+
+  .app-sidebar.sidebar-collapsed {
+    width: 100% !important;
+    min-width: 0 !important;
   }
 }

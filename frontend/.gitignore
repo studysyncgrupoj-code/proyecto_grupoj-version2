@@ -22,3 +22,23 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# StudySync - archivos locales / temporales
+src_backup_antes_admin_final/
+*.Zone.Identifier
+*:Zone.Identifier
+*.swp
+src/styles/admin.zip
+breakpoints-audit.txt
+hidden-responsive-audit.txt
+sidebar-audit.txt
+
+# StudySync - archivos locales / temporales
+src_backup_antes_admin_final/
+*.Zone.Identifier
+*:Zone.Identifier
+*.swp
+src/styles/admin.zip
+breakpoints-audit.txt
+hidden-responsive-audit.txt
+sidebar-audit.txt

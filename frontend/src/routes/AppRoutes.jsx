@@ -6,6 +6,7 @@ import {
   Routes,
 } from "react-router-dom";
 
+import ScrollToTop from "../components/ui/ScrollToTop";
 import RoleRoute from "../components/auth/RoleRoute";
 import PageLoader from "../components/ui/PageLoader";
 
@@ -180,6 +181,8 @@ const studentRoles = [
 function AppRoutes() {
   return (
     <BrowserRouter>
+      <ScrollToTop />
+
       <Suspense fallback={<PageLoader />}>
         <Routes>
           {/* =========================

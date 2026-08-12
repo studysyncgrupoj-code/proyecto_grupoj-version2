@@ -1,4 +1,5 @@
 import "../../styles/teacher/Estudiantes.css";
+import Sidebar from "../../components/dashboard/Sidebar";
 
 import { Link, useNavigate } from 'react-router-dom'
 import { useMemo, useState } from 'react'
@@ -177,6 +178,7 @@ function Estudiantes() {
 
   return (
     <div className="estudiantes-layout">
+      <Sidebar/>
       <aside className="app-sidebar">
         <div className="sidebar-brand">
           <div className="sidebar-logo">S</div>
