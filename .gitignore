@@ -1,11 +1,33 @@
-backend/studysync-api/target/
-<<<<<<< HEAD
-
+# Variables de entorno
 .env
 **/.env
+
+# Dependencias frontend
+node_modules/
+
+# Builds frontend
+dist/
+build/
+
+# Backend Java / Maven
+target/
+*.class
+
+# Logs
 *.log
 backend/studysync-api/backend.log
 backend/studysync-api/spring.log
-=======
->>>>>>> origin/main
-node_modules/
+backend/studysync-api/error.txt
+
+# Backups locales
+frontend_backup/
+
+# VS Code
+.vscode/
+
+# Archivos temporales
+*.tmp
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
