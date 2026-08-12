@@ -8,10 +8,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/users")
-<<<<<<< HEAD
-@CrossOrigin(origins = "*")
-=======
->>>>>>> origin/main
 public class UserController {
 
     private final UserService userService;
