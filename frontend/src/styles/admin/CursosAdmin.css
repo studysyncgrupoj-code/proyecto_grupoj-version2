@@ -316,7 +316,8 @@
 
 .courses-admin-table {
   width: 100%;
-  min-width: 1180px;
+  table-layout: fixed;
+  min-width: 100%;
   border-collapse: separate;
   border-spacing: 0 8px;
 }
@@ -563,7 +564,7 @@
   animation: courses-admin-menu-enter 160ms ease both;
 }
 
-.courses-admin-table tbody tr:nth-last-child(-n + 2)
+.courses-admin-table tbody tr:last-child
   .courses-admin-actions-menu {
   top: auto;
   bottom: calc(100% + 5px);

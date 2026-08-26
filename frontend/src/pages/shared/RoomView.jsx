@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import {
   BookOpen,
-  Clock3,
   Focus,
+  LogOut,
   MessageCircle,
   Send,
   Sparkles,
@@ -14,6 +15,7 @@ import Sidebar from "../../components/dashboard/Sidebar";
 import RoomPomodoro from "../../components/dashboard/RoomPomodoro";
 
 import "../../styles/shared/RoomView.css";
+
 const participants = [
   { name: "Ana", initials: "AN", status: "Estudiando" },
   { name: "Luis", initials: "LU", status: "Resolviendo ejercicios" },
@@ -36,9 +38,146 @@ const initialMessages = [
   },
 ];
 
+const SESSION_API = "http://localhost:8080/api/sessions";
+
 function RoomView() {
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const room = location.state?.room;
+
   const [messages, setMessages] = useState(initialMessages);
   const [messageText, setMessageText] = useState("");
+
+  const [studySessionId, setStudySessionId] = useState(null);
+  const [startingSession, setStartingSession] = useState(false);
+  const [sessionError, setSessionError] = useState("");
+
+  const sessionStartedRef = useRef(false);
+
+  const storedUser = (() => {
+    try {
+      return JSON.parse(localStorage.getItem("user") || "{}");
+    } catch {
+      return {};
+    }
+  })();
+
+  useEffect(() => {
+    if (!room?.id || !storedUser?.id) return;
+    if (sessionStartedRef.current) return;
+
+    sessionStartedRef.current = true;
+
+    const startStudySession = async () => {
+      setStartingSession(true);
+      setSessionError("");
+
+      try {
+        const response = await fetch(`${SESSION_API}/start`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            userId: Number(storedUser.id),
+            roomId: Number(room.id),
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error(`No fue posible iniciar la sesión: ${response.status}`);
+        }
+
+        const session = await response.json();
+        setStudySessionId(session.id);
+      } catch (error) {
+        console.error("Error iniciando sesión de estudio:", error);
+        sessionStartedRef.current = false;
+        setSessionError("No fue posible registrar el inicio de la sesión.");
+      } finally {
+        setStartingSession(false);
+      }
+    };
+
+    startStudySession();
+  }, [room?.id, storedUser?.id]);
+
+  const finishStudySession = async () => {
+    if (!studySessionId) {
+      return true;
+    }
+
+    try {
+      const response = await fetch(
+        `${SESSION_API}/${studySessionId}/finish`,
+        {
+          method: "PUT",
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(
+          `No fue posible finalizar la sesión: ${response.status}`
+        );
+      }
+
+      setStudySessionId(null);
+
+      return true;
+    } catch (error) {
+      console.error(
+        "Error finalizando sesión de estudio:",
+        error
+      );
+
+      setSessionError(
+        "No fue posible registrar el final de la sesión."
+      );
+
+      return false;
+    }
+  };
+
+  const handleLeaveRoom = async () => {
+    const finished = await finishStudySession();
+
+    if (!finished) {
+      return;
+    }
+
+    navigate("/salas");
+  };
+
+  if (!room) {
+    return (
+      <div className="room-view-layout">
+        <Sidebar />
+
+        <main className="room-view-content">
+          <section className="room-view-hero">
+            <div>
+              <span className="room-view-eyebrow">
+                <Sparkles size={15} />
+                Sesión colaborativa
+              </span>
+
+              <h1>Sala no encontrada</h1>
+
+              <p>
+                No se recibió información de la sala seleccionada.
+              </p>
+
+              <button
+                type="button"
+                onClick={() => navigate("/salas")}
+              >
+                Volver a salas
+              </button>
+            </div>
+          </section>
+        </main>
+      </div>
+    );
+  }
 
   const handleSubmitMessage = (event) => {
     event.preventDefault();
@@ -53,7 +192,7 @@ function RoomView() {
       ...currentMessages,
       {
         id: Date.now(),
-        author: "Richard",
+        author: storedUser.name || "Usuario",
         text: trimmedMessage,
         time: "Ahora",
       },
@@ -74,11 +213,18 @@ function RoomView() {
               Sesión colaborativa
             </span>
 
-            <h1>Sala Matemáticas</h1>
+            <h1>{room.nombre || "Sala StudySync"}</h1>
 
             <p>
-              Álgebra y cálculo colaborativo en tiempo real.
+              {room.descripcion ||
+                "Sala de estudio colaborativo"}
             </p>
+
+            {sessionError && (
+              <p style={{ color: "#ff6b6b" }}>
+                {sessionError}
+              </p>
+            )}
           </div>
 
           <div className="room-view-statuses">
@@ -89,8 +235,22 @@ function RoomView() {
 
             <span className="room-view-badge room-view-badge-live">
               <span />
-              En vivo
+              {startingSession
+                ? "Iniciando sesión..."
+                : studySessionId
+                ? "Sesión activa"
+                : "Disponible"}
             </span>
+
+            <button
+              type="button"
+              className="room-view-badge room-view-badge-live"
+              onClick={handleLeaveRoom}
+              disabled={startingSession}
+            >
+              <LogOut size={14} />
+              Salir de sala
+            </button>
           </div>
         </section>
 
@@ -99,8 +259,10 @@ function RoomView() {
             <article className="room-session-card">
               <div className="room-session-header">
                 <div>
-                  <span className="room-section-label">Objetivo</span>
-                  <h2>Objetivo de la sesión</h2>
+                  <span className="room-section-label">
+                    Objetivo
+                  </span>
+                  <h2>Información de la sala</h2>
                 </div>
 
                 <div className="room-session-icon">
@@ -109,27 +271,33 @@ function RoomView() {
               </div>
 
               <p className="room-session-description">
-                Resolver ejercicios de derivadas parciales y reforzar técnicas
-                de integración para el examen final.
+                {room.descripcion ||
+                  "Sala de estudio colaborativo"}
               </p>
 
               <div className="room-session-stats">
                 <article>
                   <div>
-                    <Clock3 size={19} />
+                    <Users size={19} />
                   </div>
 
-                  <span>Tiempo promedio</span>
-                  <strong>2h 14m</strong>
+                  <span>Tipo de acceso</span>
+                  <strong>
+                    {room.privada ? "Privada" : "Pública"}
+                  </strong>
                 </article>
 
                 <article>
                   <div>
-                    <Users size={19} />
+                    <Video size={19} />
                   </div>
 
-                  <span>Participación</span>
-                  <strong>87%</strong>
+                  <span>Estado</span>
+                  <strong>
+                    {studySessionId
+                      ? "Sesión activa"
+                      : "Disponible"}
+                  </strong>
                 </article>
 
                 <article>
@@ -137,8 +305,13 @@ function RoomView() {
                     <Focus size={19} />
                   </div>
 
-                  <span>Pomodoros completados</span>
-                  <strong>32</strong>
+                  <span>Creador</span>
+                  <strong>
+                    {Number(room.creadorId) ===
+                    Number(storedUser.id)
+                      ? storedUser.name || "Tú"
+                      : `Usuario ${room.creadorId}`}
+                  </strong>
                 </article>
               </div>
             </article>
@@ -146,7 +319,9 @@ function RoomView() {
             <article className="room-participants-card">
               <div className="room-card-header">
                 <div>
-                  <span className="room-section-label">Participantes</span>
+                  <span className="room-section-label">
+                    Participantes
+                  </span>
                   <h2>Estudiantes conectados</h2>
                 </div>
 
@@ -177,7 +352,9 @@ function RoomView() {
             <article className="room-chat-card">
               <div className="room-card-header">
                 <div>
-                  <span className="room-section-label">Conversación</span>
+                  <span className="room-section-label">
+                    Conversación
+                  </span>
                   <h2>Chat de estudio</h2>
                 </div>
 
@@ -188,9 +365,14 @@ function RoomView() {
 
               <div className="room-chat-messages">
                 {messages.map((message) => (
-                  <article className="room-chat-message" key={message.id}>
+                  <article
+                    className="room-chat-message"
+                    key={message.id}
+                  >
                     <div className="room-chat-avatar">
-                      {message.author.slice(0, 2).toUpperCase()}
+                      {message.author
+                        .slice(0, 2)
+                        .toUpperCase()}
                     </div>
 
                     <div>
@@ -213,10 +395,15 @@ function RoomView() {
                   type="text"
                   placeholder="Escribe un mensaje..."
                   value={messageText}
-                  onChange={(event) => setMessageText(event.target.value)}
+                  onChange={(event) =>
+                    setMessageText(event.target.value)
+                  }
                 />
 
-                <button type="submit" aria-label="Enviar mensaje">
+                <button
+                  type="submit"
+                  aria-label="Enviar mensaje"
+                >
                   <Send size={18} />
                   Enviar
                 </button>
@@ -228,8 +415,15 @@ function RoomView() {
             <article className="room-live-card">
               <div className="room-live-card-header">
                 <div>
-                  <span className="room-section-label">Estado</span>
-                  <h2>Sala activa</h2>
+                  <span className="room-section-label">
+                    Estado
+                  </span>
+
+                  <h2>
+                    {studySessionId
+                      ? "Sesión en curso"
+                      : "Sala disponible"}
+                  </h2>
                 </div>
 
                 <Video size={22} />
@@ -237,12 +431,18 @@ function RoomView() {
 
               <div className="room-live-card-status">
                 <span />
-                12 estudiantes conectados
+
+                {studySessionId
+                  ? "Estudiando ahora"
+                  : room.privada
+                  ? "Acceso restringido"
+                  : "Acceso público"}
               </div>
 
               <p>
-                La sesión se encuentra activa y sincronizada para todos los
-                participantes.
+                {studySessionId
+                  ? "Tu tiempo de estudio está siendo registrado por StudySync."
+                  : "Esta sala está registrada en StudySync y lista para una sesión de estudio."}
               </p>
             </article>
 

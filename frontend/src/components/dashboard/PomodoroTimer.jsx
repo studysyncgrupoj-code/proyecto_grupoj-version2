@@ -88,6 +88,14 @@ const loadSettings = () => {
   }
 };
 
+const loadUser = () => {
+  try {
+    return JSON.parse(window.localStorage.getItem("user") || "{}");
+  } catch {
+    return {};
+  }
+};
+
 function PomodoroTimer() {
   const [settings, setSettings] = useState(loadSettings);
   const [mode, setMode] = useState("focus");
@@ -98,6 +106,12 @@ function PomodoroTimer() {
   const [showSettings, setShowSettings] = useState(false);
   const [taskDraft, setTaskDraft] = useState("");
   const [tasks, setTasks] = useState([]);
+
+  // ID de la sesión Pomodoro actualmente registrada en PostgreSQL.
+  const [activePomodoroId, setActivePomodoroId] = useState(null);
+
+  const storedUser = useMemo(() => loadUser(), []);
+  const userId = storedUser?.id;
 
   const modeDuration = useMemo(() => {
     if (mode === "shortBreak") {
@@ -110,6 +124,95 @@ function PomodoroTimer() {
 
     return settings.focusMinutes * 60;
   }, [mode, settings]);
+
+  const startBackendPomodoro = async () => {
+    if (!userId) {
+      throw new Error("No existe un usuario autenticado.");
+    }
+
+    const response = await fetch(
+      "http://localhost:8080/api/pomodoro/start",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          userId,
+          roomId: null,
+          durationMinutes: settings.focusMinutes,
+          breakMinutes: settings.shortBreakMinutes,
+        }),
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("No fue posible iniciar el Pomodoro en el backend.");
+    }
+
+    const session = await response.json();
+
+    if (!session?.id) {
+      throw new Error("El backend no devolvió el ID del Pomodoro.");
+    }
+
+    setActivePomodoroId(session.id);
+
+    return session.id;
+  };
+
+  const pauseBackendPomodoro = async (pomodoroId) => {
+    if (!pomodoroId) {
+      return;
+    }
+
+    const response = await fetch(
+      `http://localhost:8080/api/pomodoro/${pomodoroId}/pause`,
+      {
+        method: "PUT",
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("No fue posible pausar el Pomodoro.");
+    }
+  };
+
+  const resumeBackendPomodoro = async (pomodoroId) => {
+    if (!pomodoroId) {
+      return;
+    }
+
+    const response = await fetch(
+      `http://localhost:8080/api/pomodoro/${pomodoroId}/resume`,
+      {
+        method: "PUT",
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("No fue posible reanudar el Pomodoro.");
+    }
+  };
+
+  const finishBackendPomodoro = async (pomodoroId) => {
+    if (!pomodoroId) {
+      return;
+    }
+
+    const response = await fetch(
+      `http://localhost:8080/api/pomodoro/${pomodoroId}/finish`,
+      {
+        method: "PUT",
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("No fue posible finalizar el Pomodoro.");
+    }
+
+    setActivePomodoroId(null);
+  };
 
   useEffect(() => {
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
@@ -132,41 +235,66 @@ function PomodoroTimer() {
       return;
     }
 
-    setIsRunning(false);
+    const completeCurrentBlock = async () => {
+      setIsRunning(false);
 
-    if (mode === "focus") {
-      setCompletedSessions((currentValue) => currentValue + 1);
+      if (mode === "focus") {
+        try {
+          if (activePomodoroId) {
+            await finishBackendPomodoro(activePomodoroId);
+          }
+        } catch (error) {
+          console.error(
+            "Error finalizando Pomodoro en el backend:",
+            error
+          );
+        }
 
-      const isLastCycle = currentCycle >= settings.cycles;
-      const nextMode = isLastCycle ? "longBreak" : "shortBreak";
+        setCompletedSessions((currentValue) => currentValue + 1);
 
-      setMode(nextMode);
-      setTimeLeft(
-        nextMode === "longBreak"
-          ? settings.longBreakMinutes * 60
-          : settings.shortBreakMinutes * 60
-      );
+        const isLastCycle = currentCycle >= settings.cycles;
+        const nextMode = isLastCycle ? "longBreak" : "shortBreak";
 
-      if (settings.autoStartNext) {
-        setIsRunning(true);
+        setMode(nextMode);
+
+        setTimeLeft(
+          nextMode === "longBreak"
+            ? settings.longBreakMinutes * 60
+            : settings.shortBreakMinutes * 60
+        );
+
+        if (settings.autoStartNext) {
+          setIsRunning(true);
+        }
+
+        return;
       }
 
-      return;
-    }
+      const nextCycle =
+        mode === "longBreak"
+          ? 1
+          : Math.min(currentCycle + 1, settings.cycles);
 
-    const nextCycle =
-      mode === "longBreak"
-        ? 1
-        : Math.min(currentCycle + 1, settings.cycles);
+      setCurrentCycle(nextCycle);
+      setMode("focus");
+      setTimeLeft(settings.focusMinutes * 60);
 
-    setCurrentCycle(nextCycle);
-    setMode("focus");
-    setTimeLeft(settings.focusMinutes * 60);
+      if (settings.autoStartNext) {
+        try {
+          await startBackendPomodoro();
+          setIsRunning(true);
+        } catch (error) {
+          console.error(
+            "Error iniciando automáticamente el siguiente Pomodoro:",
+            error
+          );
+        }
+      }
+    };
 
-    if (settings.autoStartNext) {
-      setIsRunning(true);
-    }
+    completeCurrentBlock();
   }, [
+    activePomodoroId,
     currentCycle,
     mode,
     settings.autoStartNext,
@@ -194,20 +322,114 @@ function PomodoroTimer() {
     longBreak: "Descanso largo",
   }[mode];
 
-  const handleToggle = () => {
+  const handleToggle = async () => {
     if (timeLeft <= 0) {
       setTimeLeft(modeDuration);
     }
 
-    setIsRunning((currentValue) => !currentValue);
+    // Los descansos funcionan localmente.
+    if (mode !== "focus") {
+      setIsRunning((currentValue) => !currentValue);
+      return;
+    }
+
+    try {
+      // Está corriendo: debemos pausarlo.
+      if (isRunning) {
+        if (activePomodoroId) {
+          await pauseBackendPomodoro(activePomodoroId);
+        }
+
+        setIsRunning(false);
+        return;
+      }
+
+      // Existe una sesión pausada: debemos reanudarla.
+      if (activePomodoroId) {
+        await resumeBackendPomodoro(activePomodoroId);
+        setIsRunning(true);
+        return;
+      }
+
+      // No existe una sesión: crearla en PostgreSQL.
+      await startBackendPomodoro();
+      setIsRunning(true);
+    } catch (error) {
+      console.error("Error sincronizando Pomodoro:", error);
+
+      alert(
+        "No fue posible sincronizar el Pomodoro con el backend. Verifica que Spring Boot esté ejecutándose."
+      );
+    }
   };
 
-  const handleReset = () => {
+  const handleReset = async () => {
+    try {
+      // Si hay una sesión activa, la dejamos pausada.
+      if (activePomodoroId && isRunning && mode === "focus") {
+        await pauseBackendPomodoro(activePomodoroId);
+      }
+    } catch (error) {
+      console.error(
+        "No fue posible pausar la sesión antes de reiniciar:",
+        error
+      );
+    }
+
     setTimeLeft(modeDuration);
     setIsRunning(false);
   };
 
-  const applyPreset = (preset) => {
+  const changeMode = async (nextMode) => {
+    try {
+      // Evitar dejar una sesión activa corriendo en el backend
+      // si el usuario cambia manualmente a descanso.
+      if (
+        mode === "focus" &&
+        isRunning &&
+        activePomodoroId
+      ) {
+        await pauseBackendPomodoro(activePomodoroId);
+      }
+    } catch (error) {
+      console.error(
+        "No fue posible pausar el Pomodoro al cambiar de modo:",
+        error
+      );
+    }
+
+    setMode(nextMode);
+    setIsRunning(false);
+
+    if (nextMode === "focus") {
+      setTimeLeft(settings.focusMinutes * 60);
+      return;
+    }
+
+    if (nextMode === "shortBreak") {
+      setTimeLeft(settings.shortBreakMinutes * 60);
+      return;
+    }
+
+    setTimeLeft(settings.longBreakMinutes * 60);
+  };
+
+  const applyPreset = async (preset) => {
+    try {
+      if (
+        mode === "focus" &&
+        isRunning &&
+        activePomodoroId
+      ) {
+        await pauseBackendPomodoro(activePomodoroId);
+      }
+    } catch (error) {
+      console.error(
+        "No fue posible pausar la sesión antes de cambiar el preset:",
+        error
+      );
+    }
+
     const nextSettings = {
       ...settings,
       focusMinutes: preset.focusMinutes,
@@ -466,11 +688,7 @@ function PomodoroTimer() {
             <button
               type="button"
               className={mode === "focus" ? "active" : ""}
-              onClick={() => {
-                setMode("focus");
-                setTimeLeft(settings.focusMinutes * 60);
-                setIsRunning(false);
-              }}
+              onClick={() => changeMode("focus")}
             >
               <Focus size={15} />
               Clase
@@ -479,11 +697,7 @@ function PomodoroTimer() {
             <button
               type="button"
               className={mode === "shortBreak" ? "active" : ""}
-              onClick={() => {
-                setMode("shortBreak");
-                setTimeLeft(settings.shortBreakMinutes * 60);
-                setIsRunning(false);
-              }}
+              onClick={() => changeMode("shortBreak")}
             >
               <Coffee size={15} />
               Descanso corto
@@ -492,11 +706,7 @@ function PomodoroTimer() {
             <button
               type="button"
               className={mode === "longBreak" ? "active" : ""}
-              onClick={() => {
-                setMode("longBreak");
-                setTimeLeft(settings.longBreakMinutes * 60);
-                setIsRunning(false);
-              }}
+              onClick={() => changeMode("longBreak")}
             >
               <Coffee size={15} />
               Descanso largo

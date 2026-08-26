@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import {
   ArrowRight,
   BookOpen,
@@ -16,6 +17,7 @@ import { Link } from "react-router-dom";
 import Sidebar from "../../components/dashboard/Sidebar";
 
 import "../../styles/student/DashboardEstudiante.css";
+
 const courses = [
   {
     id: 1,
@@ -40,27 +42,6 @@ const courses = [
   },
 ];
 
-const tasks = [
-  {
-    id: 1,
-    title: "Resolver ejercicios de JavaScript",
-    subject: "JavaScript moderno",
-    completed: true,
-  },
-  {
-    id: 2,
-    title: "Revisar consultas SQL",
-    subject: "Bases de datos",
-    completed: true,
-  },
-  {
-    id: 3,
-    title: "Completar práctica de componentes",
-    subject: "React",
-    completed: false,
-  },
-];
-
 const friends = [
   { id: 1, name: "Ana", initials: "AN", status: "En sala de React" },
   { id: 2, name: "Luis", initials: "LU", status: "Modo Focus" },
@@ -68,6 +49,89 @@ const friends = [
 ];
 
 function DashboardEstudiante() {
+  const [statistics, setStatistics] = useState({
+    totalHoursStudied: 0,
+    completedGoals: 0,
+    completedSessions: 0,
+    totalMinutesStudied: 0,
+    totalPomodoros: 0,
+    pendingGoals: 0,
+    userId: null,
+  });
+
+  const [goals, setGoals] = useState([]);
+  const [loadingData, setLoadingData] = useState(true);
+
+  let storedUser = {};
+
+  try {
+    storedUser = JSON.parse(localStorage.getItem("user") || "{}");
+  } catch (error) {
+    console.error("No fue posible leer el usuario almacenado:", error);
+  }
+
+  const userId = storedUser.id;
+
+  const firstName = storedUser.name
+    ? storedUser.name.trim().split(/\s+/)[0]
+    : "Estudiante";
+
+  useEffect(() => {
+    if (!userId) {
+      setLoadingData(false);
+      return;
+    }
+
+    const loadDashboardData = async () => {
+      try {
+        const [statisticsResponse, goalsResponse] = await Promise.all([
+          fetch(`http://localhost:8080/api/statistics/${userId}`),
+          fetch(`http://localhost:8080/api/goals/user/${userId}`),
+        ]);
+
+        if (!statisticsResponse.ok) {
+          throw new Error("No fue posible consultar las estadísticas");
+        }
+
+        if (!goalsResponse.ok) {
+          throw new Error("No fue posible consultar los objetivos");
+        }
+
+        const statisticsData = await statisticsResponse.json();
+        const goalsData = await goalsResponse.json();
+
+        setStatistics(statisticsData);
+        setGoals(Array.isArray(goalsData) ? goalsData : []);
+      } catch (error) {
+        console.error(
+          "Error cargando la información del dashboard:",
+          error
+        );
+      } finally {
+        setLoadingData(false);
+      }
+    };
+
+    loadDashboardData();
+  }, [userId]);
+
+  const formatStudyTime = (minutes) => {
+    const totalMinutes = Number(minutes) || 0;
+
+    const hours = Math.floor(totalMinutes / 60);
+    const remainingMinutes = totalMinutes % 60;
+
+    return `${hours}h ${remainingMinutes}m`;
+  };
+
+  const completedGoals = goals.filter(
+    (goal) => goal.completed
+  ).length;
+
+  const pendingGoals = goals.filter(
+    (goal) => !goal.completed
+  ).length;
+
   return (
     <div className="student-dashboard-layout">
       <Sidebar />
@@ -81,7 +145,7 @@ function DashboardEstudiante() {
             </span>
 
             <h1>
-              Buenos días, <span>Richard</span>
+              Buenos días, <span>{firstName}</span>
             </h1>
 
             <p>
@@ -136,8 +200,18 @@ function DashboardEstudiante() {
 
             <div>
               <span>Tiempo estudiado</span>
-              <strong>18h 40m</strong>
-              <small>+2h esta semana</small>
+
+              <strong>
+                {loadingData
+                  ? "..."
+                  : formatStudyTime(
+                      statistics.totalMinutesStudied
+                    )}
+              </strong>
+
+              <small>
+                {statistics.completedSessions} sesiones completadas
+              </small>
             </div>
           </article>
 
@@ -148,8 +222,16 @@ function DashboardEstudiante() {
 
             <div>
               <span>Objetivos completados</span>
-              <strong>14</strong>
-              <small>2 pendientes hoy</small>
+
+              <strong>
+                {loadingData
+                  ? "..."
+                  : statistics.completedGoals}
+              </strong>
+
+              <small>
+                {statistics.pendingGoals} pendientes
+              </small>
             </div>
           </article>
 
@@ -171,9 +253,15 @@ function DashboardEstudiante() {
             </div>
 
             <div>
-              <span>Logros obtenidos</span>
-              <strong>8</strong>
-              <small>Próximo al nivel 9</small>
+              <span>Pomodoros completados</span>
+
+              <strong>
+                {loadingData
+                  ? "..."
+                  : statistics.totalPomodoros}
+              </strong>
+
+              <small>Sesiones de concentración</small>
             </div>
           </article>
         </section>
@@ -217,7 +305,9 @@ function DashboardEstudiante() {
 
                       <div className="student-progress-track">
                         <span
-                          style={{ width: `${course.progress}%` }}
+                          style={{
+                            width: `${course.progress}%`,
+                          }}
                         />
                       </div>
 
@@ -243,33 +333,64 @@ function DashboardEstudiante() {
                   <span className="student-section-label">
                     Organización
                   </span>
-                  <h2>Objetivos de hoy</h2>
+                  <h2>Objetivos de estudio</h2>
                 </div>
 
                 <span className="student-task-counter">
-                  2 de 3 completados
+                  {completedGoals} de {goals.length} completados
                 </span>
               </div>
 
               <div className="student-task-list">
-                {tasks.map((task) => (
-                  <article
-                    className={`student-task-item ${
-                      task.completed ? "completed" : ""
-                    }`}
-                    key={task.id}
-                  >
-                    <div className="student-task-check">
-                      {task.completed && <CheckCircle2 size={19} />}
-                    </div>
-
+                {loadingData ? (
+                  <article className="student-task-item">
                     <div>
-                      <strong>{task.title}</strong>
-                      <span>{task.subject}</span>
+                      <strong>Cargando objetivos...</strong>
                     </div>
                   </article>
-                ))}
+                ) : goals.length === 0 ? (
+                  <article className="student-task-item">
+                    <div>
+                      <strong>No tienes objetivos registrados</strong>
+                      <span>
+                        Crea una meta para comenzar a medir tu progreso.
+                      </span>
+                    </div>
+                  </article>
+                ) : (
+                  goals.map((goal) => (
+                    <article
+                      className={`student-task-item ${
+                        goal.completed ? "completed" : ""
+                      }`}
+                      key={goal.id}
+                    >
+                      <div className="student-task-check">
+                        {goal.completed && (
+                          <CheckCircle2 size={19} />
+                        )}
+                      </div>
+
+                      <div>
+                        <strong>{goal.title}</strong>
+
+                        <span>
+                          {goal.currentHours || 0} de{" "}
+                          {goal.targetHours || 0} horas
+                        </span>
+                      </div>
+                    </article>
+                  ))
+                )}
               </div>
+
+              {!loadingData && goals.length > 0 && (
+                <small>
+                  {pendingGoals} objetivo
+                  {pendingGoals !== 1 ? "s" : ""} pendiente
+                  {pendingGoals !== 1 ? "s" : ""}
+                </small>
+              )}
             </article>
           </div>
 

@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 
 import "../../styles/auth/Login.css";
+
 function Login() {
   const navigate = useNavigate();
 
@@ -33,43 +34,91 @@ function Login() {
     }));
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
 
-    const role = formData.role.toLowerCase();
+    try {
+      const response = await fetch(
+        "http://localhost:8080/api/users/login",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email: formData.email.trim(),
+            password: formData.password,
+          }),
+        }
+      );
 
-    const userNames = {
-      administrador: "Administrador StudySync",
-      profesor: "Profesor Richard",
-      estudiante: "Estudiante StudySync",
-    };
+      if (response.status === 401) {
+        alert("Correo o contraseña incorrectos.");
+        return;
+      }
 
-    const normalizedRole =
-      role === "administrador"
-        ? "Administrador"
-        : role === "profesor"
-          ? "Profesor"
-          : "Estudiante";
+      if (!response.ok) {
+        throw new Error(`Error del servidor: ${response.status}`);
+      }
 
-    const user = {
-      name: userNames[role] || "Usuario StudySync",
-      role: normalizedRole,
-      email: formData.email,
-    };
+      const user = await response.json();
 
-    localStorage.setItem("user", JSON.stringify(user));
+      if (!user || !user.id) {
+        alert("Correo o contraseña incorrectos.");
+        return;
+      }
 
-    if (role === "administrador") {
-      navigate("/dashboard-admin");
-      return;
+      if (user.activo === false) {
+        alert("Este usuario se encuentra inactivo.");
+        return;
+      }
+
+      const role = (user.rol || "").trim().toLowerCase();
+      const selectedRole = formData.role.trim().toLowerCase();
+
+      if (role !== selectedRole) {
+        alert(
+          `Este usuario está registrado como ${user.rol}. Selecciona el tipo de usuario correcto.`
+        );
+        return;
+      }
+
+      const frontendUser = {
+        id: user.id,
+        name: `${user.nombre || ""} ${user.apellido || ""}`.trim(),
+        email: user.email,
+        role:
+          role === "administrador"
+            ? "Administrador"
+            : role === "profesor"
+            ? "Profesor"
+            : "Estudiante",
+        activo: user.activo,
+      };
+
+      localStorage.setItem(
+        "user",
+        JSON.stringify(frontendUser)
+      );
+
+      if (role === "administrador") {
+        navigate("/dashboard-admin");
+        return;
+      }
+
+      if (role === "profesor") {
+        navigate("/dashboard");
+        return;
+      }
+
+      navigate("/dashboard-estudiante");
+    } catch (error) {
+      console.error("Error de login:", error);
+
+      alert(
+        "No fue posible conectar con el backend. Verifica que Spring Boot esté ejecutándose."
+      );
     }
-
-    if (role === "profesor") {
-      navigate("/dashboard");
-      return;
-    }
-
-    navigate("/dashboard-estudiante");
   };
 
   return (

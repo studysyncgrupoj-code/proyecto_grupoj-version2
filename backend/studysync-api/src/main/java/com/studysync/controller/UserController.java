@@ -2,6 +2,9 @@ package com.studysync.controller;
 
 import com.studysync.model.User;
 import com.studysync.service.UserService;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -25,8 +28,22 @@ public class UserController {
     public User createUser(@RequestBody User user) {
         return userService.saveUser(user);
     }
+
     @PostMapping("/login")
-    public User login(@RequestBody User user) {
-    return userService.login(user.getEmail(), user.getPassword());
+    public ResponseEntity<User> login(@RequestBody User user) {
+
+        User authenticatedUser =
+                userService.login(
+                        user.getEmail(),
+                        user.getPassword()
+                );
+
+        if (authenticatedUser == null) {
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .build();
+        }
+
+        return ResponseEntity.ok(authenticatedUser);
     }
 }

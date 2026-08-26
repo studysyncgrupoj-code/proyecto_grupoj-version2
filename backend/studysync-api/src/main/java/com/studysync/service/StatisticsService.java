@@ -1,5 +1,6 @@
 package com.studysync.service;
 
+import com.studysync.model.PomodoroSession;
 import com.studysync.model.StudyGoal;
 import com.studysync.model.StudySession;
 import com.studysync.repository.PomodoroSessionRepository;
@@ -19,9 +20,9 @@ public class StatisticsService {
     private final PomodoroSessionRepository pomodoroSessionRepository;
 
     public StatisticsService(
-            StudySessionRepository studySessionRepository,
-            StudyGoalRepository studyGoalRepository,
-            PomodoroSessionRepository pomodoroSessionRepository
+        StudySessionRepository studySessionRepository,
+        StudyGoalRepository studyGoalRepository,
+        PomodoroSessionRepository pomodoroSessionRepository
     ) {
         this.studySessionRepository = studySessionRepository;
         this.studyGoalRepository = studyGoalRepository;
@@ -31,33 +32,85 @@ public class StatisticsService {
     public Map<String, Object> getUserStatistics(Long userId) {
 
         List<StudySession> completedSessions =
-                studySessionRepository.findByUserIdAndCompletedTrue(userId);
+            studySessionRepository.findByUserIdAndCompletedTrue(userId);
 
-        int totalMinutes = completedSessions.stream()
-                .mapToInt(session ->
-                        session.getMinutesStudied() == null
-                                ? 0
-                                : session.getMinutesStudied()
-                )
-                .sum();
+        int studySessionMinutes = completedSessions.stream()
+            .mapToInt(session ->
+                session.getMinutesStudied() == null
+                    ? 0
+                    : session.getMinutesStudied()
+            )
+            .sum();
 
-        List<StudyGoal> goals = studyGoalRepository.findByUserId(userId);
+        List<PomodoroSession> completedPomodoros =
+            pomodoroSessionRepository.findByUserIdAndStatus(
+                userId,
+                "COMPLETED"
+            );
+
+        int pomodoroMinutes = completedPomodoros.stream()
+            .mapToInt(session ->
+                session.getDurationMinutes() == null
+                    ? 0
+                    : session.getDurationMinutes()
+            )
+            .sum();
+
+        int totalMinutes =
+            studySessionMinutes + pomodoroMinutes;
+
+        List<StudyGoal> goals =
+            studyGoalRepository.findByUserId(userId);
 
         long completedGoals = goals.stream()
-                .filter(goal -> Boolean.TRUE.equals(goal.getCompleted()))
-                .count();
+            .filter(goal ->
+                Boolean.TRUE.equals(goal.getCompleted())
+            )
+            .count();
 
-        long pendingGoals = goals.size() - completedGoals;
+        long pendingGoals =
+            goals.size() - completedGoals;
 
-        Map<String, Object> statistics = new HashMap<>();
+        long totalPomodoros =
+            pomodoroSessionRepository.countByUserIdAndStatus(
+                userId,
+                "COMPLETED"
+            );
+
+        Map<String, Object> statistics =
+            new HashMap<>();
 
         statistics.put("userId", userId);
-        statistics.put("completedSessions", completedSessions.size());
-        statistics.put("totalMinutesStudied", totalMinutes);
-        statistics.put("totalHoursStudied", totalMinutes / 60.0);
-        statistics.put("completedGoals", completedGoals);
-        statistics.put("pendingGoals", pendingGoals);
-        statistics.put("totalPomodoros", pomodoroSessionRepository.count());
+
+        statistics.put(
+            "completedSessions",
+            completedSessions.size()
+        );
+
+        statistics.put(
+            "totalMinutesStudied",
+            totalMinutes
+        );
+
+        statistics.put(
+            "totalHoursStudied",
+            totalMinutes / 60.0
+        );
+
+        statistics.put(
+            "completedGoals",
+            completedGoals
+        );
+
+        statistics.put(
+            "pendingGoals",
+            pendingGoals
+        );
+
+        statistics.put(
+            "totalPomodoros",
+            totalPomodoros
+        );
 
         return statistics;
     }

@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   BookOpen,
   Check,
@@ -20,73 +20,9 @@ import {
 import Sidebar from "../../components/dashboard/Sidebar";
 import "../../styles/admin/CursosAdmin.css";
 
-const initialCourses = [
-  {
-    id: 1,
-    name: "Matemáticas avanzadas",
-    category: "Matemáticas",
-    professor: "Laura Méndez",
-    duration: "12 semanas",
-    students: 128,
-    capacity: 160,
-    progress: 68,
-    status: "Activo",
-    description:
-      "Curso enfocado en razonamiento matemático, funciones y resolución de problemas.",
-  },
-  {
-    id: 2,
-    name: "Física aplicada",
-    category: "Física",
-    professor: "Carlos Andrade",
-    duration: "10 semanas",
-    students: 94,
-    capacity: 120,
-    progress: 54,
-    status: "Activo",
-    description:
-      "Fundamentos de física con actividades prácticas y análisis de casos.",
-  },
-  {
-    id: 3,
-    name: "Álgebra lineal",
-    category: "Matemáticas",
-    professor: "Diana Torres",
-    duration: "8 semanas",
-    students: 76,
-    capacity: 100,
-    progress: 81,
-    status: "Activo",
-    description:
-      "Matrices, vectores, sistemas de ecuaciones y aplicaciones.",
-  },
-  {
-    id: 4,
-    name: "Programación básica",
-    category: "Tecnología",
-    professor: "Julián Vargas",
-    duration: "14 semanas",
-    students: 73,
-    capacity: 90,
-    progress: 42,
-    status: "Borrador",
-    description:
-      "Introducción a lógica, estructuras de control y desarrollo de software.",
-  },
-  {
-    id: 5,
-    name: "Comunicación efectiva",
-    category: "Lenguaje",
-    professor: "Mariana López",
-    duration: "6 semanas",
-    students: 118,
-    capacity: 140,
-    progress: 100,
-    status: "Finalizado",
-    description:
-      "Fortalecimiento de habilidades de lectura, escritura y comunicación oral.",
-  },
-];
+const COURSES_API = "http://localhost:8080/api/courses";
+
+const initialCourses = [];
 
 const emptyForm = {
   name: "",
@@ -115,6 +51,46 @@ function CursosAdmin() {
   const [formData, setFormData] = useState(emptyForm);
   const [formError, setFormError] = useState("");
   const [notification, setNotification] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState("");
+
+  useEffect(() => {
+    const loadCourses = async () => {
+      setLoading(true);
+      setLoadError("");
+
+      try {
+        const response = await fetch(COURSES_API);
+
+        if (!response.ok) {
+          throw new Error(`No fue posible cargar los cursos: ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        setCourses(
+          data.map((course) => ({
+            ...course,
+            students: Number(course.students ?? 0),
+            capacity: Number(course.capacity ?? 1),
+            progress: Number(course.progress ?? 0),
+            category: course.category ?? "",
+            professor: course.professor ?? "",
+            duration: course.duration ?? "",
+            status: course.status ?? "Activo",
+            description: course.description ?? "",
+          }))
+        );
+      } catch (error) {
+        console.error("Error cargando cursos:", error);
+        setLoadError("No fue posible cargar los cursos desde el backend.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadCourses();
+  }, []);
 
   const statistics = useMemo(() => {
     const active = courses.filter(
@@ -123,12 +99,12 @@ function CursosAdmin() {
 
     const totalStudents = courses.reduce(
       (accumulator, course) =>
-        accumulator + course.students,
+        accumulator + Number(course.students ?? 0),
       0,
     );
 
     const professors = new Set(
-      courses.map((course) => course.professor),
+      courses.map((course) => course.professor).filter(Boolean),
     ).size;
 
     return {
@@ -152,11 +128,11 @@ function CursosAdmin() {
     return courses.filter((course) => {
       const matchesSearch =
         !normalizedSearch ||
-        course.name.toLowerCase().includes(normalizedSearch) ||
-        course.professor
+        (course.name || "").toLowerCase().includes(normalizedSearch) ||
+        (course.professor || "")
           .toLowerCase()
           .includes(normalizedSearch) ||
-        course.category
+        (course.category || "")
           .toLowerCase()
           .includes(normalizedSearch);
 
@@ -246,7 +222,7 @@ function CursosAdmin() {
     return "";
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
 
     const validationError = validateForm();
@@ -261,52 +237,86 @@ function CursosAdmin() {
       Number(formData.capacity) || 1,
     );
 
-    if (isEditing && selectedCourse) {
-      setCourses((currentCourses) =>
-        currentCourses.map((course) =>
-          course.id === selectedCourse.id
-            ? {
-                ...course,
-                name: formData.name.trim(),
-                category: formData.category.trim(),
-                professor: formData.professor.trim(),
-                duration: formData.duration.trim(),
-                capacity,
-                status: formData.status,
-                description: formData.description.trim(),
-              }
-            : course,
-        ),
-      );
+    const payload = {
+      name: formData.name.trim(),
+      category: formData.category.trim(),
+      professor: formData.professor.trim(),
+      duration: formData.duration.trim(),
+      capacity,
+      progress:
+        isEditing && selectedCourse
+          ? Number(selectedCourse.progress ?? 0)
+          : 0,
+      status: formData.status,
+      description: formData.description.trim(),
+    };
 
-      showNotification(
-        "Curso actualizado correctamente.",
-      );
-    } else {
-      const newCourse = {
-        id: Date.now(),
-        name: formData.name.trim(),
-        category: formData.category.trim(),
-        professor: formData.professor.trim(),
-        duration: formData.duration.trim(),
-        students: 0,
-        capacity,
-        progress: 0,
-        status: formData.status,
-        description: formData.description.trim(),
+    try {
+      const url =
+        isEditing && selectedCourse
+          ? `${COURSES_API}/${selectedCourse.id}`
+          : COURSES_API;
+
+      const response = await fetch(url, {
+        method:
+          isEditing && selectedCourse
+            ? "PUT"
+            : "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        throw new Error(
+          `No fue posible guardar el curso: ${response.status}`
+        );
+      }
+
+      const savedCourse = await response.json();
+
+      const normalizedCourse = {
+        ...savedCourse,
+        students: Number(
+          savedCourse.students ??
+            selectedCourse?.students ??
+            0
+        ),
+        capacity: Number(savedCourse.capacity ?? capacity),
+        progress: Number(savedCourse.progress ?? 0),
       };
 
-      setCourses((currentCourses) => [
-        newCourse,
-        ...currentCourses,
-      ]);
+      if (isEditing && selectedCourse) {
+        setCourses((currentCourses) =>
+          currentCourses.map((course) =>
+            course.id === selectedCourse.id
+              ? normalizedCourse
+              : course,
+          ),
+        );
 
-      showNotification(
-        "Curso creado correctamente.",
+        showNotification(
+          "Curso actualizado correctamente.",
+        );
+      } else {
+        setCourses((currentCourses) => [
+          normalizedCourse,
+          ...currentCourses,
+        ]);
+
+        showNotification(
+          "Curso creado correctamente.",
+        );
+      }
+
+      closeModal();
+    } catch (error) {
+      console.error("Error guardando curso:", error);
+      setFormError(
+        "No fue posible guardar el curso. Verifica que el backend esté ejecutándose."
       );
     }
-
-    closeModal();
   };
 
   const openDetails = (course) => {
@@ -321,21 +331,42 @@ function CursosAdmin() {
     setIsDeleteOpen(true);
   };
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (!selectedCourse) {
       return;
     }
 
-    setCourses((currentCourses) =>
-      currentCourses.filter(
-        (course) => course.id !== selectedCourse.id,
-      ),
-    );
+    try {
+      const response = await fetch(
+        `${COURSES_API}/${selectedCourse.id}`,
+        {
+          method: "DELETE",
+        }
+      );
 
-    setSelectedCourse(null);
-    setIsDeleteOpen(false);
+      if (!response.ok) {
+        throw new Error(
+          `No fue posible eliminar el curso: ${response.status}`
+        );
+      }
 
-    showNotification("Curso eliminado correctamente.");
+      setCourses((currentCourses) =>
+        currentCourses.filter(
+          (course) => course.id !== selectedCourse.id,
+        ),
+      );
+
+      setSelectedCourse(null);
+      setIsDeleteOpen(false);
+
+      showNotification("Curso eliminado correctamente.");
+    } catch (error) {
+      console.error("Error eliminando curso:", error);
+      setIsDeleteOpen(false);
+      showNotification(
+        "No fue posible eliminar el curso."
+      );
+    }
   };
 
   const clearFilters = () => {
@@ -477,6 +508,22 @@ function CursosAdmin() {
             </div>
           </div>
 
+          {loading && (
+            <div className="courses-admin-empty-state">
+              <BookOpen size={36} />
+              <h3>Cargando cursos...</h3>
+              <p>Consultando información del backend.</p>
+            </div>
+          )}
+
+          {loadError && !loading && (
+            <div className="courses-admin-empty-state">
+              <BookOpen size={36} />
+              <h3>No fue posible cargar los cursos</h3>
+              <p>{loadError}</p>
+            </div>
+          )}
+
           <div className="courses-admin-table-heading">
             <div>
               <span>Directorio académico</span>
@@ -507,7 +554,8 @@ function CursosAdmin() {
               <tbody>
                 {filteredCourses.map((course) => {
                   const occupancy = Math.round(
-                    (course.students / course.capacity) *
+                    (Number(course.students ?? 0) /
+                      Math.max(1, Number(course.capacity ?? 1))) *
                       100,
                   );
 
