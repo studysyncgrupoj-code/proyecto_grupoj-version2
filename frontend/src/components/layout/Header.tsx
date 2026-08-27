@@ -2,71 +2,13 @@
 
 import { ArrowRight, GraduationCap, Menu, X } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
+import { useState } from "react";
+import { HEADER_LINKS, isNavLinkActive } from "@/config/navigation"; // Ajusta la ruta
 
-interface Section {
-  id: string;
-  label: string;
-}
-
-const sections: Section[] = [
-  { id: "home", label: "Inicio" },
-  { id: "salas", label: "Salas" },
-  { id: "beneficios", label: "Beneficios" },
-  { id: "testimonios", label: "Testimonios" },
-  { id: "contacto", label: "Contacto" },
-];
-
-interface HeaderProps {
-  activeSection?: string;
-  setActiveSection?: (section: string) => void;
-}
-
-export default function Header({
-  activeSection: propActiveSection,
-  setActiveSection: propSetActiveSection,
-}: HeaderProps) {
+export default function Header() {
+  const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
-
-  // Estados de respaldo por si no se reciben props desde el componente padre
-  const [internalActiveSection, setInternalActiveSection] =
-    useState<string>("home");
-
-  const activeSection = propActiveSection ?? internalActiveSection;
-  const setActiveSection = propSetActiveSection ?? setInternalActiveSection;
-
-  useEffect(() => {
-    const observerCallback: IntersectionObserverCallback = (entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          setActiveSection(entry.target.id);
-        }
-      });
-    };
-
-    const observerOptions: IntersectionObserverInit = {
-      root: null,
-      rootMargin: "-20% 0px -60% 0px",
-      threshold: 0,
-    };
-
-    const observer = new IntersectionObserver(
-      observerCallback,
-      observerOptions,
-    );
-
-    sections.forEach((section) => {
-      const element = document.getElementById(section.id);
-      if (element) observer.observe(element);
-    });
-
-    return () => observer.disconnect();
-  }, [setActiveSection]);
-
-  const handleNavClick = (sectionId: string) => {
-    setActiveSection(sectionId);
-    setMobileMenuOpen(false);
-  };
 
   return (
     <header className="fixed top-0 left-0 w-full z-50 flex items-center justify-between min-h-20 px-6 sm:px-12 border-b border-border bg-black/76 backdrop-blur-md">
@@ -98,28 +40,61 @@ export default function Header({
         }`}
         aria-label="Navegación principal"
       >
-        {sections.map((item) => (
-          <a
-            key={item.id}
-            href={`#${item.id}`}
-            className={`relative py-2 lg:py-7 px-3 lg:px-0 text-xs font-bold transition-colors duration-200 rounded-lg lg:rounded-none ${
-              activeSection === item.id
-                ? "text-foreground lg:text-foreground bg-active lg:bg-transparent"
-                : "text-muted-foreground hover:text-foreground"
-            }`}
-            onClick={() => handleNavClick(item.id)}
-          >
-            {item.label}
-            <span
-              className={`absolute right-0 bottom-0 left-0 h-0.5 rounded-full bg-primary shadow-md transition-transform duration-200 hidden lg:block ${
-                activeSection === item.id ? "scale-x-100" : "scale-x-0"
-              }`}
-              aria-hidden="true"
-            />
-          </a>
-        ))}
-      </nav>
+        {HEADER_LINKS.map((link) => {
+          const isActive = isNavLinkActive(pathname, link);
+          const isExternal = link.href.startsWith("http");
 
+          // Enlaces externos
+          if (isExternal) {
+            return (
+              <a
+                key={link.href}
+                href={link.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`relative py-2 lg:py-7 px-3 lg:px-0 text-xs font-bold transition-colors duration-200 rounded-lg lg:rounded-none ${
+                  isActive
+                    ? "text-foreground lg:text-foreground bg-active lg:bg-transparent"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                {link.labelKey}
+                <span
+                  className={`absolute right-0 bottom-0 left-0 h-0.5 rounded-full bg-primary shadow-md transition-transform duration-200 hidden lg:block ${
+                    isActive ? "scale-x-100" : "scale-x-0"
+                  }`}
+                  aria-hidden="true"
+                />
+              </a>
+            );
+          }
+
+          // Enlaces internos (Next.js Link)
+          return (
+            <Link
+              key={link.href}
+              href={link.href}
+              className={`relative py-2 lg:py-7 px-3 lg:px-0 text-xs font-bold transition-colors duration-200 rounded-lg lg:rounded-none ${
+                isActive
+                  ? "text-foreground lg:text-foreground bg-active lg:bg-transparent"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              {link.labelKey}
+              <span
+                className={`absolute right-0 bottom-0 left-0 h-0.5 rounded-full bg-primary shadow-md transition-transform duration-200 hidden lg:block ${
+                  isActive ? "scale-x-100" : "scale-x-0"
+                }`}
+                aria-hidden="true"
+              />
+            </Link>
+          );
+        })}
+      </nav>
+      
+       {/* TODO: Migrar boton a un sistema reutilizable */}
       {/* Actions */}
       <div className="flex items-center gap-4">
         <Link
@@ -137,7 +112,7 @@ export default function Header({
           <ArrowRight size={16} />
         </Link>
 
-        {/* TODO: Migrar boton a un sistema reutilizable */}
+       
         <button
           type="button"
           className="w-10 h-10 grid place-items-center border border-border rounded-xl text-foreground bg-background cursor-pointer lg:hidden"
