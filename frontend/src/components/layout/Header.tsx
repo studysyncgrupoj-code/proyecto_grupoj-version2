@@ -1,14 +1,19 @@
 "use client";
 
-import { ArrowRight, GraduationCap, Menu, X } from "lucide-react";
+import { HEADER_LINKS, isNavLinkActive } from "@/config/navigation";
+import { IconMap } from "@/lib/iconMap";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { HEADER_LINKS, isNavLinkActive } from "@/config/navigation"; // Ajusta la ruta
 
 export default function Header() {
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
+
+  const ArrowRight = IconMap.ui.arrowRight;
+  const GraduationCap = IconMap.ui.graduationCap;
+  const Menu = IconMap.ui.menu;
+  const X = IconMap.ui.close;
 
   return (
     <header className="fixed top-0 left-0 w-full z-50 flex items-center justify-between min-h-20 px-6 sm:px-12 border-b border-border bg-black/76 backdrop-blur-md">
@@ -93,8 +98,8 @@ export default function Header() {
           );
         })}
       </nav>
-      
-       {/* TODO: Migrar boton a un sistema reutilizable */}
+
+      {/* TODO: Migrar boton a un sistema reutilizable */}
       {/* Actions */}
       <div className="flex items-center gap-4">
         <Link
@@ -112,7 +117,6 @@ export default function Header() {
           <ArrowRight size={16} />
         </Link>
 
-       
         <button
           type="button"
           className="w-10 h-10 grid place-items-center border border-border rounded-xl text-foreground bg-background cursor-pointer lg:hidden"
