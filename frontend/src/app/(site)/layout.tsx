@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Plus_Jakarta_Sans, Public_Sans } from "next/font/google";
 import "../globals.css";
 
+import Footer from "@/components/layout/Footer";
 import Header from "@/components/layout/Header";
 
 const plusJakartaSans = Plus_Jakarta_Sans({
@@ -21,7 +22,7 @@ export const metadata: Metadata = {
   icons: {
     icon: [
       {
-        url: "/favicon.svg", 
+        url: "/favicon.svg",
         type: "image/svg+xml",
       },
     ],
@@ -40,7 +41,8 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col font-sans">
         <Header />
-        {children}
+        <main className="min-h-screen pt-20">{children}</main>
+        <Footer />
       </body>
     </html>
   );
