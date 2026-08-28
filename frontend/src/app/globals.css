@@ -1,0 +1,70 @@
+@import "tailwindcss";
+
+:root {
+  --background: oklch(0.1822 0 0);
+  --foreground: oklch(0.9842 0.0034 247.86);
+  
+  --muted-foreground: oklch(0.7107 0.0351 256.79);
+  
+  --primary: oklch(0.4882 0.2172 264.38);
+  --primary-foreground: oklch(0.9842 0.0034 247.86);
+  
+  --secondary: oklch(0.2792 0.0412 258.86);
+  --secondary-foreground: oklch(0.9842 0.0034 247.86);
+  
+  --accent: oklch(0.5592 0.1725 228.44);
+  --accent-foreground: oklch(0.9842 0.0034 247.86);
+  
+  --card: oklch(0.2192 0.0152 264.65);
+  --card-foreground: oklch(0.9842 0.0034 247.86);
+  
+  --border: oklch(0.2792 0.0412 258.86);
+  --input: oklch(0.2792 0.0412 258.86);
+  --ring: oklch(0.4882 0.2172 264.38);
+  
+  --success: oklch(0.6272 0.1944 149.35);
+  --warning: oklch(0.8142 0.1499 78.19);
+  --danger: oklch(0.5772 0.2451 27.33);
+  --info: oklch(0.6852 0.1692 238.44);
+  
+  --hover: oklch(0.2792 0.0412 258.86 / 0.8);
+  --active: oklch(0.4882 0.2172 264.38 / 0.3);
+  --disabled: oklch(0.7107 0.0351 256.79 / 0.5);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-public-sans), Arial, Helvetica, sans-serif;
+  --font-heading: var(--font-plus-jakarta), sans-serif;
+
+  --color-muted-foreground: var(--muted-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+  --color-info: var(--info);
+  --color-hover: var(--hover);
+  --color-active: var(--active);
+  --color-disabled: var(--disabled);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+}
