@@ -803,6 +803,49 @@ export default function Home() {
           ))}
         </div>
       </section>
+
+      <section
+        id="contacto"
+        className="border-accent/20 relative mx-auto w-[calc(100%-10vw)] scroll-mt-22 overflow-hidden rounded-[30px] border bg-linear-to-br from-[rgba(3,28,48,0.97)] to-[rgba(3,8,18,0.99)] px-[7%] py-20 text-center shadow-[0_35px_75px_rgba(0,0,0,0.55),0_0_45px_rgba(14,165,233,0.08)] max-[720px]:w-[calc(100%-28px)] max-[720px]:px-5 max-[720px]:py-16.25"
+      >
+        <div
+          className="pointer-events-none absolute -top-77.5 left-1/2 size-125 -translate-x-1/2 rounded-full bg-[rgba(14,165,233,0.19)] blur-[20px]"
+          aria-hidden="true"
+        />
+
+        <div className="relative z-2 mx-auto max-w-187.5">
+          <span className="border-accent/25 bg-accent/7 text-accent mx-auto inline-flex w-fit items-center gap-2 rounded-full border px-3 py-1.75 text-[0.65rem] font-extrabold tracking-[0.09em] uppercase">
+            <Sparkles size={15} aria-hidden="true" />
+            Tu siguiente sesión comienza aquí
+          </span>
+
+          <h2 className="mt-4.75 text-[clamp(2.4rem,4vw,4.2rem)] leading-[1.05] font-bold tracking-[-0.06em] text-white">
+            Construye hoy una mejor forma de aprender
+          </h2>
+
+          <p className="mx-auto mt-4.75 max-w-155 text-[0.8rem] leading-[1.7] text-[#8492a6]">
+            Crea tu cuenta y empieza a organizar tus cursos, salas, sesiones de
+            concentración y objetivos académicos.
+          </p>
+
+          <div className="mt-7.25 flex flex-wrap justify-center gap-3 max-[520px]:flex-col">
+            <CustomLink
+              href="/registro"
+              className="border-accent/46 inline-flex min-h-12.5 items-center justify-center gap-2.25 rounded-[13px] border bg-linear-to-br from-sky-600 to-blue-700 px-5.25 text-[0.75rem] font-extrabold text-white shadow-[0_14px_28px_rgba(37,99,235,0.22)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_18px_38px_rgba(37,99,235,0.32),0_0_25px_rgba(14,165,233,0.13)] max-[520px]:w-full"
+            >
+              Crear cuenta gratis
+              <ArrowRight size={18} aria-hidden="true" />
+            </CustomLink>
+
+            <CustomLink
+              href="/login"
+              className="hover:border-accent/46 inline-flex min-h-12.5 items-center justify-center gap-2.25 rounded-[13px] border border-slate-400/20 bg-[rgba(7,12,22,0.82)] px-5.25 text-[0.75rem] font-extrabold text-[#dbe7f5] transition-all duration-200 hover:-translate-y-0.5 hover:text-sky-300 max-[520px]:w-full"
+            >
+              Ya tengo una cuenta
+            </CustomLink>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }
