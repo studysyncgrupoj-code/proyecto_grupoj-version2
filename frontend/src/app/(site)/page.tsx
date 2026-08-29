@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/Button";
+import { CustomLink } from "@/components/ui/Link";
 import { IconMap } from "@/lib/iconMap";
 
 export default function Home() {
@@ -13,6 +14,8 @@ export default function Home() {
     video: Video,
     zap: Zap,
     brain: BrainCircuit,
+    arrowRight: ArrowRight,
+    checkCircle: CheckCircle2,
   } = IconMap.ui;
 
   const stats = [
@@ -67,8 +70,35 @@ export default function Home() {
     },
   ];
 
+  const studyRooms = [
+    {
+      id: 1,
+      title: "React y JavaScript",
+      subject: "Desarrollo frontend",
+      members: 18,
+      progress: 82,
+      status: "Activa",
+    },
+    {
+      id: 2,
+      title: "Cálculo diferencial",
+      subject: "Matemáticas",
+      members: 12,
+      progress: 64,
+      status: "Activa",
+    },
+    {
+      id: 3,
+      title: "Bases de datos",
+      subject: "SQL y modelado",
+      members: 9,
+      progress: 46,
+      status: "Próximamente",
+    },
+  ];
+
   return (
-    <div>
+    <div className="mb-8">
       <section className="relative grid min-h-[calc(100vh-5rem)] content-center overflow-hidden bg-background px-[5vw] py-17.5 max-[1180px]:py-15 max-[720px]:min-h-[calc(100vh-5rem)] max-[720px]:px-5 max-[720px]:py-12.5">
         {/* Glow superior derecho */}
         <div
@@ -355,7 +385,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="mx-auto w-[calc(100%-10vw)] max-w-355 py-20 md:py-27.5">
+      <section className="mx-auto w-[calc(100%-10vw)] max-w-355 py-20 md:py-14">
         <header className="mx-auto max-w-170 text-center">
           <span className="mx-auto inline-flex w-fit items-center gap-2 rounded-full border border-accent/25 bg-accent/10 px-3 py-2 text-[0.65rem] font-extrabold uppercase tracking-[0.09em] text-accent">
             <BrainCircuit size={15} aria-hidden="true" />
@@ -407,6 +437,147 @@ export default function Home() {
               </article>
             );
           })}
+        </div>
+      </section>
+
+      <section
+        id="salas"
+        className="mx-auto  w-[calc(100%-10vw)] rounded-4xl border border-accent/12 bg-[radial-gradient(circle_at_85%_25%,rgba(14,165,233,0.08),transparent_27%),linear-gradient(145deg,rgba(5,10,18,0.98),rgba(1,3,7,0.99))] px-[5%] py-20 shadow-[0_35px_75px_rgba(0,0,0,0.53),inset_0_1px_0_rgba(255,255,255,0.025)] scroll-mt-22 my-8"
+      >
+        <div className="max-w-170">
+          <span className="inline-flex w-fit items-center gap-2 rounded-full border border-accent/25 bg-accent/7 px-3 py-1.75 text-[0.65rem] font-extrabold uppercase tracking-[0.09em] text-accent">
+            <Video size={15} aria-hidden="true" />
+            Salas de estudio
+          </span>
+
+          <h2 className="mt-4 text-[clamp(2.2rem,4vw,4rem)] font-bold leading-[1.06] tracking-[-0.055em] text-white">
+            Aprender acompañado cambia los resultados
+          </h2>
+
+          <p className="mt-4 text-[0.82rem] leading-[1.75] text-[#718096]">
+            Únete a sesiones colaborativas, comparte recursos y mantén el ritmo
+            junto a personas con tus mismos objetivos.
+          </p>
+        </div>
+
+        <div className="mt-11 grid grid-cols-[minmax(0,1.25fr)_minmax(290px,0.75fr)] items-stretch gap-4.5">
+          <div className="grid grid-cols-3 gap-3.25">
+            {studyRooms.map((room) => {
+              const isActive = room.status === "Activa";
+
+              return (
+                <article
+                  key={room.id}
+                  className="min-w-0 rounded-[18px] border border-border/12 bg-[rgba(2,6,12,0.88)] p-5"
+                >
+                  <div className="flex items-center justify-between gap-2.75">
+                    <div className="grid size-10.75 place-items-center rounded-[13px] bg-accent/8 text-accent">
+                      <Video size={21} aria-hidden="true" />
+                    </div>
+
+                    <span
+                      className={`inline-flex items-center gap-1.5 rounded-full border px-2 py-1 text-[0.54rem] font-bold ${isActive ? "border-green-500/22 bg-green-500/7 text-green-300" : "border-amber-500/22 bg-amber-500/6 text-amber-300"}`}
+                    >
+                      <span
+                        className={`size-1.5 rounded-full ${isActive ? "bg-green-500" : "bg-amber-500"}`}
+                        aria-hidden="true"
+                      />
+                      {room.status}
+                    </span>
+                  </div>
+
+                  <span className="mt-6 block text-[0.58rem] font-bold uppercase tracking-[0.07em] text-accent">
+                    {room.subject}
+                  </span>
+
+                  <h3 className="mt-1.75 text-[0.89rem] font-semibold text-white">
+                    {room.title}
+                  </h3>
+
+                  <div className="mt-7 flex justify-between gap-2.5 text-[0.57rem] text-[#526174]">
+                    <span>Progreso de la sesión</span>
+                    <strong className="text-sky-300">{room.progress}%</strong>
+                  </div>
+
+                  <div className="mt-2.25 h-1.5 overflow-hidden rounded-full bg-[#111827]">
+                    <span
+                      className="block h-full rounded-[inherit] bg-linear-to-r from-sky-500 to-blue-600 shadow-[0_0_12px_rgba(14,165,233,0.35)]"
+                      style={{ width: `${room.progress}%` }}
+                    />
+                  </div>
+
+                  <footer className="mt-5 flex items-center justify-between gap-3 border-t border-border/9 pt-3.75">
+                    <span className="flex items-center gap-1.5 text-[0.58rem] text-[#64748b]">
+                      <Users size={16} aria-hidden="true" />
+                      {room.members} participantes
+                    </span>
+
+                    <button
+                      type="button"
+                      className="grid size-8 place-items-center rounded-[9px] border border-accent/22 bg-accent/7 text-accent"
+                      aria-label={`Abrir ${room.title}`}
+                    >
+                      <ArrowRight size={17} aria-hidden="true" />
+                    </button>
+                  </footer>
+                </article>
+              );
+            })}
+          </div>
+
+          <aside className="flex min-h-97.5 flex-col items-start rounded-[20px] border border-accent/18 bg-linear-to-br from-[rgba(3,30,51,0.8)] to-[rgba(3,8,18,0.92)] p-7">
+            <span className="inline-flex w-fit items-center gap-2 rounded-full border border-accent/25 bg-accent/7 px-3 py-1.75 text-[0.65rem] font-extrabold uppercase tracking-[0.09em] text-accent">
+              <Sparkles size={15} aria-hidden="true" />
+              Sesiones en tiempo real
+            </span>
+
+            <h3 className="mt-5.5 text-[1.55rem] font-bold leading-[1.2] tracking-[-0.04em] text-white">
+              Convierte el estudio en una experiencia compartida
+            </h3>
+
+            <p className="mt-3.5 text-[0.72rem] leading-[1.7] text-[#718096]">
+              Crea salas públicas o privadas, activa sesiones de Pomodoro,
+              conversa con tu equipo y consulta materiales sin abandonar la
+              sesión.
+            </p>
+
+            <div className="mt-5.5 grid gap-3">
+              <span className="flex items-center gap-2.25 text-[0.68rem] text-[#94a3b8]">
+                <CheckCircle2
+                  size={18}
+                  className="text-accent"
+                  aria-hidden="true"
+                />
+                Chat y colaboración en vivo
+              </span>
+
+              <span className="flex items-center gap-2.25 text-[0.68rem] text-[#94a3b8]">
+                <CheckCircle2
+                  size={18}
+                  className="text-accent"
+                  aria-hidden="true"
+                />
+                Temporizador Pomodoro compartido
+              </span>
+
+              <span className="flex items-center gap-2.25 text-[0.68rem] text-[#94a3b8]">
+                <CheckCircle2
+                  size={18}
+                  className="text-accent"
+                  aria-hidden="true"
+                />
+                Gestión de recursos y participantes
+              </span>
+            </div>
+
+            <CustomLink
+              href="/salas"
+              className="mt-auto inline-flex min-h-11.25 w-full items-center justify-center gap-2.25 rounded-[13px] border border-accent/46 bg-linear-to-br from-sky-600 to-blue-700 px-4 text-[0.75rem] font-extrabold text-white shadow-[0_14px_28px_rgba(37,99,235,0.22)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_18px_38px_rgba(37,99,235,0.32),0_0_25px_rgba(14,165,233,0.13)]"
+            >
+              Explorar salas
+              <ArrowRight size={18} aria-hidden="true" />
+            </CustomLink>
+          </aside>
         </div>
       </section>
     </div>
