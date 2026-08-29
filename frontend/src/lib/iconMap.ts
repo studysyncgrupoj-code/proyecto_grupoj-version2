@@ -1,14 +1,48 @@
-import { ArrowRight, GraduationCap, Menu, X, GlobeCheck } from "lucide-react";
+import {
+  ArrowRight,
+  Bot,
+  BrainCircuit,
+  CalendarDays,
+  CheckCircle2,
+  Clock3,
+  GlobeCheck,
+  GraduationCap,
+  Menu,
+  MessageCircle,
+  Play,
+  ShieldCheck,
+  Sparkles,
+  Star,
+  Target,
+  Users,
+  Video,
+  X,
+  Zap,
+} from "lucide-react";
 
 export const IconMap = {
   ui: {
     arrowRight: ArrowRight,
-    graduationCap: GraduationCap,
     menu: Menu,
     close: X,
+    play: Play,
+    zap: Zap,
+    graduationCap: GraduationCap,
+    brain: BrainCircuit,
+    target: Target,
+    checkCircle: CheckCircle2,
+    shield: ShieldCheck,
+    star: Star,
+    message: MessageCircle,
+    video: Video,
+    calendar: CalendarDays,
+    clock: Clock3,
+    bot: Bot,
+    sparkles: Sparkles,
+    users: Users,
   },
   social: {
-    globecheck: GlobeCheck // TODO: temporal para evitar errores de TS en Button
+    globecheck: GlobeCheck, // TODO: temporal para evitar errores de TS en Button
   },
 } as const;
 
