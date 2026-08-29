@@ -22,6 +22,7 @@ import {
 
 export const IconMap = {
   ui: {
+<<<<<<< HEAD
     arrowRight: ArrowRight,
     menu: Menu,
     close: X,
@@ -40,6 +41,28 @@ export const IconMap = {
     bot: Bot,
     sparkles: Sparkles,
     users: Users,
+=======
+    ui: {
+      arrowRight: ArrowRight,
+      menu: Menu,
+      close: X,
+      play: Play,
+      zap: Zap,
+      graduationCap: GraduationCap,
+      brain: BrainCircuit,
+      target: Target,
+      checkCircle: CheckCircle2,
+      shield: ShieldCheck,
+      star: Star,
+      message: MessageCircle,
+      video: Video,
+      calendar: CalendarDays,
+      clock: Clock3,
+      bot: Bot,
+      sparkles: Sparkles,
+      users: Users,
+    },
+>>>>>>> 670df99c782a1beef6d6391c4681c9e2c8010957
   },
   social: {
     globecheck: GlobeCheck, // TODO: temporal para evitar errores de TS en Button
