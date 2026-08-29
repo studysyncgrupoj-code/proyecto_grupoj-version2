@@ -16,6 +16,10 @@ export default function Home() {
     brain: BrainCircuit,
     arrowRight: ArrowRight,
     checkCircle: CheckCircle2,
+    calendar: CalendarDays,
+    clock: Clock3,
+    message: MessageCircle,
+    shield: ShieldCheck,
   } = IconMap.ui;
 
   const stats = [
@@ -581,9 +585,135 @@ export default function Home() {
         </div>
       </section>
 
-      <div className="m-2 flex items-center bg-red-500 p-4 text-white">
-        Hola Mundo
-      </div>
+      <section
+        id="beneficios"
+        className="mx-auto grid w-[calc(100%-10vw)] grid-cols-[minmax(0,1.3fr)_minmax(330px,0.7fr)] items-center gap-18.75 py-30 max-[1180px]:grid-cols-1 max-[720px]:w-[calc(100%-40px)] max-[720px]:py-21.25"
+      >
+        <div>
+          <div className="max-w-170">
+            <span className="border-accent/25 bg-accent/7 text-accent inline-flex w-fit items-center gap-2 rounded-full border px-3 py-1.75 text-[0.65rem] font-extrabold tracking-[0.09em] uppercase">
+              <Zap size={15} aria-hidden="true" />
+              Una experiencia completa
+            </span>
+
+            <h2 className="mt-4 text-[clamp(2.2rem,4vw,4rem)] leading-[1.06] font-bold tracking-[-0.055em] text-white">
+              Menos herramientas. Más concentración.
+            </h2>
+
+            <p className="mt-4 text-[0.82rem] leading-[1.75] text-[#718096]">
+              StudySync reúne las funciones esenciales para que puedas
+              organizar, estudiar, colaborar y medir tu evolución.
+            </p>
+          </div>
+
+          <div className="mt-9.5 grid grid-cols-2 gap-3.25 max-[720px]:grid-cols-1">
+            <article className="border-border/10 grid grid-cols-[43px_minmax(0,1fr)] gap-3 rounded-2xl border bg-[rgba(4,8,15,0.75)] p-4.25">
+              <span className="bg-accent/7 text-accent grid size-10.75 place-items-center rounded-xl">
+                <CalendarDays size={20} aria-hidden="true" />
+              </span>
+
+              <div>
+                <h3 className="m-0 text-[0.8rem] font-semibold text-slate-200">
+                  Organización académica
+                </h3>
+
+                <p className="mt-1.75 text-[0.64rem] leading-[1.55] text-[#64748b]">
+                  Planifica cursos, sesiones, tareas y eventos desde un
+                  calendario centralizado.
+                </p>
+              </div>
+            </article>
+
+            <article className="border-border/10 grid grid-cols-[43px_minmax(0,1fr)] gap-3 rounded-2xl border bg-[rgba(4,8,15,0.75)] p-4.25">
+              <span className="bg-accent/7 text-accent grid size-10.75 place-items-center rounded-xl">
+                <Clock3 size={20} aria-hidden="true" />
+              </span>
+
+              <div>
+                <h3 className="m-0 text-[0.8rem] font-semibold text-slate-200">
+                  Pomodoro integrado
+                </h3>
+
+                <p className="mt-1.75 text-[0.64rem] leading-[1.55] text-[#64748b]">
+                  Gestiona periodos de concentración y descanso con métricas
+                  claras.
+                </p>
+              </div>
+            </article>
+
+            <article className="border-border/10 grid grid-cols-[43px_minmax(0,1fr)] gap-3 rounded-2xl border bg-[rgba(4,8,15,0.75)] p-4.25">
+              <span className="bg-accent/7 text-accent grid size-10.75 place-items-center rounded-xl">
+                <Bot size={20} aria-hidden="true" />
+              </span>
+
+              <div>
+                <h3 className="m-0 text-[0.8rem] font-semibold text-slate-200">
+                  Coach académico con IA
+                </h3>
+
+                <p className="mt-1.75 text-[0.64rem] leading-[1.55] text-[#64748b]">
+                  Recibe recomendaciones basadas en tus metas, actividad y
+                  progreso.
+                </p>
+              </div>
+            </article>
+
+            <article className="border-border/10 grid grid-cols-[43px_minmax(0,1fr)] gap-3 rounded-2xl border bg-[rgba(4,8,15,0.75)] p-4.25">
+              <span className="bg-accent/7 text-accent grid size-10.75 place-items-center rounded-xl">
+                <MessageCircle size={20} aria-hidden="true" />
+              </span>
+
+              <div>
+                <h3 className="m-0 text-[0.8rem] font-semibold text-slate-200">
+                  Comunicación directa
+                </h3>
+
+                <p className="mt-1.75 text-[0.64rem] leading-[1.55] text-[#64748b]">
+                  Mantén conversaciones con profesores, compañeros y grupos de
+                  estudio.
+                </p>
+              </div>
+            </article>
+          </div>
+        </div>
+
+        <div className="border-accent/20 relative overflow-hidden rounded-[25px] border bg-[radial-gradient(circle_at_90%_5%,rgba(14,165,233,0.15),transparent_32%),linear-gradient(145deg,rgba(5,18,34,0.98),rgba(1,5,12,0.99))] p-8.75 shadow-[0_30px_65px_rgba(0,0,0,0.55),0_0_35px_rgba(14,165,233,0.07)] max-[1180px]:max-w-155 max-[720px]:p-6.25">
+          <span className="border-accent/30 bg-accent/9 grid size-16.25 place-items-center rounded-[19px] border text-sky-300">
+            <ShieldCheck size={30} aria-hidden="true" />
+          </span>
+
+          <span className="text-accent mt-7 block text-[0.62rem] font-extrabold tracking-[0.08em] uppercase">
+            Plataforma confiable
+          </span>
+
+          <h3 className="mt-2.5 text-[1.65rem] leading-[1.2] font-bold tracking-[-0.045em] text-white">
+            Tu información y tu progreso siempre protegidos
+          </h3>
+
+          <p className="mt-3.75 text-[0.72rem] leading-[1.7] text-[#718096]">
+            StudySync integra controles de privacidad, seguridad de cuenta y
+            configuraciones personalizadas para cada usuario.
+          </p>
+
+          <div className="mt-7 grid grid-cols-2 gap-2.5 max-[720px]:grid-cols-1">
+            <article className="border-border/10 rounded-[14px] border bg-black/24 p-4">
+              <strong className="block text-[1.35rem] text-white">24/7</strong>
+
+              <span className="mt-1.25 block text-[0.59rem] text-[#526174]">
+                Disponibilidad
+              </span>
+            </article>
+
+            <article className="border-border/10 rounded-[14px] border bg-black/24 p-4">
+              <strong className="block text-[1.35rem] text-white">100%</strong>
+
+              <span className="mt-1.25 block text-[0.59rem] text-[#526174]">
+                Control de privacidad
+              </span>
+            </article>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }
