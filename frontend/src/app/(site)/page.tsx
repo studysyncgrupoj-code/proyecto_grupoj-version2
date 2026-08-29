@@ -20,6 +20,7 @@ export default function Home() {
     clock: Clock3,
     message: MessageCircle,
     shield: ShieldCheck,
+    star: Star,
   } = IconMap.ui;
 
   const stats = [
@@ -98,6 +99,33 @@ export default function Home() {
       members: 9,
       progress: 46,
       status: 'Próximamente',
+    },
+  ];
+
+  const testimonials = [
+    {
+      id: 1,
+      name: 'Lucía Martínez',
+      role: 'Estudiante de desarrollo web',
+      initials: 'LM',
+      quote:
+        'StudySync me ayudó a organizar mis sesiones y avanzar en proyectos que antes siempre dejaba incompletos.',
+    },
+    {
+      id: 2,
+      name: 'Andrés Gómez',
+      role: 'Estudiante universitario',
+      initials: 'AG',
+      quote:
+        'Las salas colaborativas y el Pomodoro compartido hicieron que estudiar fuera mucho más constante.',
+    },
+    {
+      id: 3,
+      name: 'Camila Rodríguez',
+      role: 'Profesora de tecnología',
+      initials: 'CR',
+      quote:
+        'Ahora puedo acompañar mejor a mis estudiantes, organizar cursos y revisar su progreso desde una sola plataforma.',
     },
   ];
 
@@ -712,6 +740,67 @@ export default function Home() {
               </span>
             </article>
           </div>
+        </div>
+      </section>
+
+      <section
+        id="testimonios"
+        className="border-border/9 mx-auto w-[calc(100%-10vw)] scroll-mt-22 border-t py-27.5 max-[720px]:w-[calc(100%-40px)] max-[720px]:py-20"
+      >
+        <div className="mx-auto max-w-170 text-center">
+          <span className="border-accent/25 bg-accent/7 text-accent mx-auto inline-flex w-fit items-center gap-2 rounded-full border px-3 py-1.75 text-[0.65rem] font-extrabold tracking-[0.09em] uppercase">
+            <Star size={15} fill="currentColor" aria-hidden="true" />
+            Historias de progreso
+          </span>
+
+          <h2 className="mt-4 text-[clamp(2.2rem,4vw,4rem)] leading-[1.06] font-bold tracking-[-0.055em] text-white">
+            Personas que ya estudian de otra manera
+          </h2>
+
+          <p className="mx-auto mt-4 max-w-170 text-[0.82rem] leading-[1.75] text-[#718096]">
+            Experiencias de estudiantes y profesores que encontraron una forma
+            más organizada de avanzar.
+          </p>
+        </div>
+
+        <div className="mt-12 grid grid-cols-3 gap-3.75 max-[960px]:grid-cols-1">
+          {testimonials.map((testimonial) => (
+            <article
+              key={testimonial.id}
+              className="border-border/11 rounded-[20px] border bg-linear-to-br from-[rgba(7,12,21,0.95)] to-[rgba(2,4,9,0.98)] p-6.25"
+            >
+              <div className="text-accent flex gap-1">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <Star
+                    key={star}
+                    size={15}
+                    fill="currentColor"
+                    aria-hidden="true"
+                  />
+                ))}
+              </div>
+
+              <blockquote className="mt-5.5 min-h-28.75 text-[0.77rem] leading-[1.8] text-slate-300">
+                “{testimonial.quote}”
+              </blockquote>
+
+              <footer className="border-border/9 mt-6 flex items-center gap-2.75 border-t pt-4.5">
+                <span className="grid size-10.5 place-items-center rounded-xl bg-linear-to-br from-sky-500 to-blue-700 text-[0.64rem] font-extrabold text-white">
+                  {testimonial.initials}
+                </span>
+
+                <div>
+                  <strong className="block text-[0.7rem] font-semibold text-slate-200">
+                    {testimonial.name}
+                  </strong>
+
+                  <small className="mt-1 block text-[0.58rem] text-[#526174]">
+                    {testimonial.role}
+                  </small>
+                </div>
+              </footer>
+            </article>
+          ))}
         </div>
       </section>
     </div>
