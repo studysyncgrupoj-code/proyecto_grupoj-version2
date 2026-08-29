@@ -1,11 +1,11 @@
-"use client";
+'use client';
 
-import { HEADER_LINKS, isNavLinkActive } from "@/config/navigation";
-import { IconMap } from "@/lib/iconMap";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useState } from "react";
-import { Button } from "../ui/Button";
+import { HEADER_LINKS, isNavLinkActive } from '@/config/navigation';
+import { IconMap } from '@/lib/iconMap';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { useState } from 'react';
+import { Button } from '../ui/Button';
 
 export default function Header() {
   const pathname = usePathname();
@@ -14,21 +14,21 @@ export default function Header() {
   const GraduationCap = IconMap.ui.graduationCap;
 
   return (
-    <header className="fixed top-0 left-0 w-full z-50 flex items-center justify-between min-h-20 px-6 sm:px-12 border-b border-border bg-black/76 backdrop-blur-md">
+    <header className="border-border fixed top-0 left-0 z-50 flex min-h-20 w-full items-center justify-between border-b bg-black/76 px-6 backdrop-blur-md sm:px-12">
       {/* Brand / Logo */}
       <Link
         href="/"
-        className="inline-flex items-center gap-3 w-fit"
+        className="inline-flex w-fit items-center gap-3"
         aria-label="StudySync - Ir al inicio"
       >
-        <span className="w-10 h-10 grid place-items-center border border-accent-foreground rounded-xl text-primary-foreground bg-linear-to-br from-primary to-blue-900 shadow-lg">
+        <span className="border-accent-foreground text-primary-foreground from-primary grid h-10 w-10 place-items-center rounded-xl border bg-linear-to-br to-blue-900 shadow-lg">
           <GraduationCap size={32} strokeWidth={2} />
         </span>
         <span className="leading-none">
-          <span className="block text-foreground text-base font-bold tracking-tight">
+          <span className="text-foreground block text-base font-bold tracking-tight">
             StudySync
           </span>
-          <span className="mt-1 text-muted-foreground text-[0.6rem] tracking-wide hidden sm:block">
+          <span className="text-muted-foreground mt-1 hidden text-[0.6rem] tracking-wide sm:block">
             Aprende. Conecta. Avanza.
           </span>
         </span>
@@ -36,12 +36,12 @@ export default function Header() {
 
       {/* Navigation Menu - Desktop */}
       <nav
-        className="hidden lg:flex items-center gap-6 lg:gap-8"
+        className="hidden items-center gap-6 lg:flex lg:gap-8"
         aria-label="Navegación principal"
       >
         {HEADER_LINKS.map((link) => {
           const isActive = isNavLinkActive(pathname, link);
-          const isExternal = link.href.startsWith("http");
+          const isExternal = link.href.startsWith('http');
 
           if (isExternal) {
             return (
@@ -50,16 +50,16 @@ export default function Header() {
                 href={link.href}
                 target="_blank"
                 rel="noopener noreferrer"
-                className={`relative py-7 px-0 text-xs font-bold transition-colors duration-200 ${
+                className={`relative px-0 py-7 text-xs font-bold transition-colors duration-200 ${
                   isActive
-                    ? "text-foreground"
-                    : "text-muted-foreground hover:text-foreground"
+                    ? 'text-foreground'
+                    : 'text-muted-foreground hover:text-foreground'
                 }`}
               >
                 {link.labelKey}
                 <span
-                  className={`absolute right-0 bottom-0 left-0 h-0.5 rounded-full bg-primary shadow-md transition-transform duration-200 ${
-                    isActive ? "scale-x-100" : "scale-x-0"
+                  className={`bg-primary absolute right-0 bottom-0 left-0 h-0.5 rounded-full shadow-md transition-transform duration-200 ${
+                    isActive ? 'scale-x-100' : 'scale-x-0'
                   }`}
                   aria-hidden="true"
                 />
@@ -71,16 +71,16 @@ export default function Header() {
             <Link
               key={link.href}
               href={link.href}
-              className={`relative py-7 px-0 text-xs font-bold transition-colors duration-200 ${
+              className={`relative px-0 py-7 text-xs font-bold transition-colors duration-200 ${
                 isActive
-                  ? "text-foreground"
-                  : "text-muted-foreground hover:text-foreground"
+                  ? 'text-foreground'
+                  : 'text-muted-foreground hover:text-foreground'
               }`}
             >
               {link.labelKey}
               <span
-                className={`absolute right-0 bottom-0 left-0 h-0.5 rounded-full bg-primary shadow-md transition-transform duration-200 ${
-                  isActive ? "scale-x-100" : "scale-x-0"
+                className={`bg-primary absolute right-0 bottom-0 left-0 h-0.5 rounded-full shadow-md transition-transform duration-200 ${
+                  isActive ? 'scale-x-100' : 'scale-x-0'
                 }`}
                 aria-hidden="true"
               />
@@ -91,10 +91,10 @@ export default function Header() {
 
       {/* Navigation Menu - Mobile */}
       {mobileMenuOpen && (
-        <div className="lg:hidden absolute top-20 right-4 left-4 flex flex-col items-stretch gap-1 p-4 border border-border rounded-2xl bg-background shadow-2xl z-50">
+        <div className="border-border bg-background absolute top-20 right-4 left-4 z-50 flex flex-col items-stretch gap-1 rounded-2xl border p-4 shadow-2xl lg:hidden">
           {HEADER_LINKS.map((link) => {
             const isActive = isNavLinkActive(pathname, link);
-            const isExternal = link.href.startsWith("http");
+            const isExternal = link.href.startsWith('http');
 
             if (isExternal) {
               return (
@@ -103,10 +103,10 @@ export default function Header() {
                   href={link.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className={`relative py-2 px-3 text-xs font-bold transition-colors duration-200 rounded-lg ${
+                  className={`relative rounded-lg px-3 py-2 text-xs font-bold transition-colors duration-200 ${
                     isActive
-                      ? "text-foreground bg-active"
-                      : "text-muted-foreground hover:text-foreground"
+                      ? 'text-foreground bg-active'
+                      : 'text-muted-foreground hover:text-foreground'
                   }`}
                   onClick={() => setMobileMenuOpen(false)}
                 >
@@ -119,10 +119,10 @@ export default function Header() {
               <Link
                 key={link.href}
                 href={link.href}
-                className={`relative py-2 px-3 text-xs font-bold transition-colors duration-200 rounded-lg ${
+                className={`relative rounded-lg px-3 py-2 text-xs font-bold transition-colors duration-200 ${
                   isActive
-                    ? "text-foreground bg-active"
-                    : "text-muted-foreground hover:text-foreground"
+                    ? 'text-foreground bg-active'
+                    : 'text-muted-foreground hover:text-foreground'
                 }`}
                 onClick={() => setMobileMenuOpen(false)}
               >
@@ -132,7 +132,7 @@ export default function Header() {
           })}
 
           {/* Separador */}
-          <hr className="my-3 border-border" />
+          <hr className="border-border my-3" />
 
           {/* Login */}
           <Button
@@ -188,12 +188,12 @@ export default function Header() {
         <Button
           variant="ghost"
           size="lg"
-          icon={mobileMenuOpen ? "close" : "menu"}
-          className="lg:hidden text-foreground"
+          icon={mobileMenuOpen ? 'close' : 'menu'}
+          className="text-foreground lg:hidden"
           aria-label={
             mobileMenuOpen
-              ? "Cerrar menú de navegación"
-              : "Abrir menú de navegación"
+              ? 'Cerrar menú de navegación'
+              : 'Abrir menú de navegación'
           }
           onClick={() => setMobileMenuOpen((prev) => !prev)}
         />
