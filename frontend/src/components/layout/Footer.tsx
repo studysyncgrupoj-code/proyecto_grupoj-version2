@@ -1,64 +1,64 @@
-import { IconMap } from "@/lib/iconMap";
-import { CustomLink } from "../ui/Link";
+import { IconMap } from '@/lib/iconMap';
+import { CustomLink } from '../ui/Link';
 
 const FOOTER_LINKS = [
   {
-    title: "Plataforma",
+    title: 'Plataforma',
     links: [
-      { name: "Cursos", href: "#" },
-      { name: "Rutas de Aprendizaje", href: "#" },
-      { name: "Precios", href: "#" },
+      { name: 'Cursos', href: '#' },
+      { name: 'Rutas de Aprendizaje', href: '#' },
+      { name: 'Precios', href: '#' },
     ],
   },
   {
-    title: "Comunidad",
+    title: 'Comunidad',
     links: [
-      { name: "Acerca de", href: "#" },
-      { name: "Blog", href: "#" },
-      { name: "Foro", href: "#" },
+      { name: 'Acerca de', href: '#' },
+      { name: 'Blog', href: '#' },
+      { name: 'Foro', href: '#' },
     ],
   },
   {
-    title: "Soporte",
+    title: 'Soporte',
     links: [
-      { name: "Centro de Ayuda", href: "#" },
-      { name: "Contacto", href: "#" },
-      { name: "Estado", href: "#" },
+      { name: 'Centro de Ayuda', href: '#' },
+      { name: 'Contacto', href: '#' },
+      { name: 'Estado', href: '#' },
     ],
   },
 ];
 
 const LEGAL_LINKS = [
-  { name: "Privacidad", href: "#" },
-  { name: "Términos", href: "#" },
+  { name: 'Privacidad', href: '#' },
+  { name: 'Términos', href: '#' },
 ];
 
 export default function Footer() {
   const GraduationCap = IconMap.ui.graduationCap;
 
   return (
-    <footer className="mt-auto w-full bg-background border-t border-border py-12 px-4 md:px-8">
+    <footer className="bg-background border-border mt-auto w-full border-t px-4 py-12 md:px-8">
       <div className="mx-auto max-w-7xl">
         <div className="grid grid-cols-1 gap-8 md:grid-cols-4">
           <section className="md:col-span-1">
             <CustomLink
               href="/"
-              className="inline-flex items-center gap-3 w-fit"
+              className="inline-flex w-fit items-center gap-3"
               aria-label="StudySync - Ir al inicio"
             >
-              <span className="w-10 h-10 grid place-items-center border border-accent-foreground rounded-xl text-primary-foreground bg-linear-to-br from-primary to-blue-900 shadow-lg">
+              <span className="border-accent-foreground text-primary-foreground from-primary grid h-10 w-10 place-items-center rounded-xl border bg-linear-to-br to-blue-900 shadow-lg">
                 <GraduationCap size={32} strokeWidth={2} />
               </span>
               <span className="leading-none">
-                <span className="block text-foreground text-base font-bold tracking-tight">
+                <span className="text-foreground block text-base font-bold tracking-tight">
                   StudySync
                 </span>
-                <span className="mt-1 text-muted-foreground text-[0.6rem] tracking-wide hidden sm:block">
+                <span className="text-muted-foreground mt-1 hidden text-[0.6rem] tracking-wide sm:block">
                   Aprende. Conecta. Avanza.
                 </span>
               </span>
             </CustomLink>
-            <p className="mt-4 text-sm text-muted-foreground max-w-xs">
+            <p className="text-muted-foreground mt-4 max-w-xs text-sm">
               Plataforma educativa moderna construida para potenciar el
               aprendizaje y la colaboración en línea.
             </p>
@@ -66,10 +66,10 @@ export default function Footer() {
 
           {FOOTER_LINKS.map((section) => (
             <nav key={section.title} aria-label={section.title}>
-              <h2 className="font-heading font-semibold text-foreground mb-4">
+              <h2 className="font-heading text-foreground mb-4 font-semibold">
                 {section.title}
               </h2>
-              <ul className="space-y-3 text-sm text-muted-foreground">
+              <ul className="text-muted-foreground space-y-3 text-sm">
                 {section.links.map((link) => (
                   <li key={link.name}>
                     <CustomLink
@@ -85,12 +85,12 @@ export default function Footer() {
           ))}
         </div>
 
-        <div className="mt-12 pt-8 border-t border-border flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-sm text-muted-foreground">
+        <div className="border-border mt-12 flex flex-col items-center justify-between gap-4 border-t pt-8 md:flex-row">
+          <p className="text-muted-foreground text-sm">
             © 2026 StudySync. Todos los derechos reservados.
           </p>
           <nav aria-label="Legal">
-            <ul className="flex space-x-6 text-sm text-muted-foreground">
+            <ul className="text-muted-foreground flex space-x-6 text-sm">
               {LEGAL_LINKS.map((link) => (
                 <li key={link.name}>
                   <CustomLink

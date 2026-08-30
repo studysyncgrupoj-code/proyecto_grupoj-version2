@@ -18,7 +18,7 @@ import {
   Video,
   X,
   Zap,
-} from "lucide-react";
+} from 'lucide-react';
 
 export const IconMap = {
   ui: {
@@ -49,8 +49,8 @@ export const IconMap = {
 export type IconCategory = keyof typeof IconMap;
 
 /** Tipados específicos por categoría para evitar errores de índice cruzado */
-export type UiIconName = keyof (typeof IconMap)["ui"];
-export type SocialIconName = keyof (typeof IconMap)["social"];
+export type UiIconName = keyof (typeof IconMap)['ui'];
+export type SocialIconName = keyof (typeof IconMap)['social'];
 
 /** Unión global de nombres para compatibilidad general si es requerida */
 export type IconName = UiIconName | SocialIconName;
