@@ -16,46 +16,121 @@ const passwordRegex =
 // ESQUEMAS BASE
 // ============================================
 
-const nombreField = z
-  .string()
-  .trim()
-  .min(2, 'El nombre debe tener al menos 2 caracteres')
-  .max(100, 'El nombre no puede exceder los 100 caracteres')
-  .regex(
-    nameRegex,
-    'El nombre solo puede contener letras, espacios, apóstrofes, guiones y puntos',
-  );
+const nombreField = z.string().superRefine((val, ctx) => {
+  const trimmed = val?.trim() ?? '';
 
-const apellidoField = z
-  .string()
-  .trim()
-  .min(2, 'El apellido debe tener al menos 2 caracteres')
-  .max(100, 'El apellido no puede exceder los 100 caracteres')
-  .regex(
-    nameRegex,
-    'El apellido solo puede contener letras, espacios, apóstrofes, guiones y puntos',
-  );
+  if (trimmed === '') {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'El nombre es requerido',
+    });
+    return;
+  }
+  if (trimmed.length < 2) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'El nombre debe tener al menos 2 caracteres',
+    });
+  }
+  if (trimmed.length > 100) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'El nombre no puede exceder los 100 caracteres',
+    });
+  }
+  if (!nameRegex.test(trimmed)) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message:
+        'El nombre solo puede contener letras, espacios, apóstrofes, guiones y puntos',
+    });
+  }
+});
 
-const emailField = z
-  .string()
-  .trim()
-  .email('Correo electrónico inválido')
-  .max(emailMaxLength, 'El correo no puede exceder los 254 caracteres');
+const apellidoField = z.string().superRefine((val, ctx) => {
+  const trimmed = val?.trim() ?? '';
 
-const passwordField = z
-  .string()
-  .min(
-    passwordMinLength,
-    `La contraseña debe tener al menos ${passwordMinLength} caracteres`,
-  )
-  .max(
-    passwordMaxLength,
-    `La contraseña no puede exceder los ${passwordMaxLength} caracteres`,
-  )
-  .regex(
-    passwordRegex,
-    'La contraseña debe contener al menos una letra minúscula, una mayúscula y un caracter especial',
-  );
+  if (trimmed === '') {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'El apellido es requerido',
+    });
+    return;
+  }
+  if (trimmed.length < 2) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'El apellido debe tener al menos 2 caracteres',
+    });
+  }
+  if (trimmed.length > 100) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'El apellido no puede exceder los 100 caracteres',
+    });
+  }
+  if (!nameRegex.test(trimmed)) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message:
+        'El apellido solo puede contener letras, espacios, apóstrofes, guiones y puntos',
+    });
+  }
+});
+
+const emailField = z.string().superRefine((val, ctx) => {
+  const trimmed = val?.trim() ?? '';
+
+  if (trimmed === '') {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'El correo electrónico es requerido',
+    });
+    return;
+  }
+  if (trimmed.length > emailMaxLength) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'El correo no puede exceder los 254 caracteres',
+    });
+  }
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(trimmed)) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'Correo electrónico inválido',
+    });
+  }
+});
+
+const passwordField = z.string().superRefine((val, ctx) => {
+  if (!val || val === '') {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'La contraseña es requerida',
+    });
+    return;
+  }
+  if (val.length < passwordMinLength) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: `La contraseña debe tener al menos ${passwordMinLength} caracteres`,
+    });
+  }
+  if (val.length > passwordMaxLength) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: `La contraseña no puede exceder los ${passwordMaxLength} caracteres`,
+    });
+  }
+  if (!passwordRegex.test(val)) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message:
+        'La contraseña debe contener al menos una letra minúscula, una mayúscula y un caracter especial',
+    });
+  }
+});
 
 // ============================================
 // SCHEMAS PRINCIPALES
