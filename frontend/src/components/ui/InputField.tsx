@@ -5,7 +5,7 @@ export interface InputFieldProps {
   label: string;
   name?: string;
   type?: string;
-  value: string | number | boolean;
+  value: string | number | boolean | null | undefined;
   onChange?: (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
   placeholder?: string;
   autoComplete?: string;

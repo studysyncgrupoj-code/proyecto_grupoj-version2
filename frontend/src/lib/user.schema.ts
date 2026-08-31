@@ -8,7 +8,6 @@ const passwordMinLength = 6;
 const passwordMaxLength = 15;
 const emailMaxLength = 254;
 
-// Regex para contraseña: al menos una minúscula, una mayúscula y un caracter especial
 const passwordRegex =
   /^(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*()_+\-=\[\]{};:'",.<>/?\\|`~])/;
 
@@ -16,121 +15,57 @@ const passwordRegex =
 // ESQUEMAS BASE
 // ============================================
 
-const nombreField = z.string().superRefine((val, ctx) => {
-  const trimmed = val?.trim() ?? '';
+const nombreField = z
+  .string()
+  .trim()
+  .min(1, 'El nombre es requerido')
+  .min(2, 'El nombre debe tener al menos 2 caracteres')
+  .max(100, 'El nombre no puede exceder los 100 caracteres')
+  .refine((val) => nameRegex.test(val), {
+    message:
+      'El nombre solo puede contener letras, espacios, apóstrofes, guiones y puntos',
+  });
 
-  if (trimmed === '') {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      message: 'El nombre es requerido',
-    });
-    return;
-  }
-  if (trimmed.length < 2) {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      message: 'El nombre debe tener al menos 2 caracteres',
-    });
-  }
-  if (trimmed.length > 100) {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      message: 'El nombre no puede exceder los 100 caracteres',
-    });
-  }
-  if (!nameRegex.test(trimmed)) {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      message:
-        'El nombre solo puede contener letras, espacios, apóstrofes, guiones y puntos',
-    });
-  }
-});
+const apellidoField = z
+  .string()
+  .trim()
+  .min(1, 'El apellido es requerido')
+  .min(2, 'El apellido debe tener al menos 2 caracteres')
+  .max(100, 'El apellido no puede exceder los 100 caracteres')
+  .refine((val) => nameRegex.test(val), {
+    message:
+      'El apellido solo puede contener letras, espacios, apóstrofes, guiones y puntos',
+  });
 
-const apellidoField = z.string().superRefine((val, ctx) => {
-  const trimmed = val?.trim() ?? '';
+// Validación de email moderna usando z.email() a nivel superior
+const emailField = z
+  .string()
+  .trim()
+  .min(1, 'El correo electrónico es requerido')
+  .max(
+    emailMaxLength,
+    `El correo no puede exceder los ${emailMaxLength} caracteres`,
+  )
+  .email('Correo electrónico inválido')
+  .refine((val) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val), {
+    message: 'Correo electrónico inválido',
+  });
 
-  if (trimmed === '') {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      message: 'El apellido es requerido',
-    });
-    return;
-  }
-  if (trimmed.length < 2) {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      message: 'El apellido debe tener al menos 2 caracteres',
-    });
-  }
-  if (trimmed.length > 100) {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      message: 'El apellido no puede exceder los 100 caracteres',
-    });
-  }
-  if (!nameRegex.test(trimmed)) {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      message:
-        'El apellido solo puede contener letras, espacios, apóstrofes, guiones y puntos',
-    });
-  }
-});
-
-const emailField = z.string().superRefine((val, ctx) => {
-  const trimmed = val?.trim() ?? '';
-
-  if (trimmed === '') {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      message: 'El correo electrónico es requerido',
-    });
-    return;
-  }
-  if (trimmed.length > emailMaxLength) {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      message: 'El correo no puede exceder los 254 caracteres',
-    });
-  }
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(trimmed)) {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      message: 'Correo electrónico inválido',
-    });
-  }
-});
-
-const passwordField = z.string().superRefine((val, ctx) => {
-  if (!val || val === '') {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      message: 'La contraseña es requerida',
-    });
-    return;
-  }
-  if (val.length < passwordMinLength) {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      message: `La contraseña debe tener al menos ${passwordMinLength} caracteres`,
-    });
-  }
-  if (val.length > passwordMaxLength) {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      message: `La contraseña no puede exceder los ${passwordMaxLength} caracteres`,
-    });
-  }
-  if (!passwordRegex.test(val)) {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      message:
-        'La contraseña debe contener al menos una letra minúscula, una mayúscula y un caracter especial',
-    });
-  }
-});
+const passwordField = z
+  .string()
+  .min(1, 'La contraseña es requerida')
+  .min(
+    passwordMinLength,
+    `La contraseña debe tener al menos ${passwordMinLength} caracteres`,
+  )
+  .max(
+    passwordMaxLength,
+    `La contraseña no puede exceder los ${passwordMaxLength} caracteres`,
+  )
+  .refine((val) => passwordRegex.test(val), {
+    message:
+      'La contraseña debe contener al menos una letra minúscula, una mayúscula y un caracter especial',
+  });
 
 // ============================================
 // SCHEMAS PRINCIPALES
@@ -141,7 +76,7 @@ export const registerSchema = z.object({
   apellido: apellidoField,
   email: emailField,
   password: passwordField,
-  activo: z.boolean().default(true),
+  activo: z.boolean(),
 });
 
 export const registerWithConfirmSchema = registerSchema
