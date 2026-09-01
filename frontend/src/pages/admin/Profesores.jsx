@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   BookOpen,
   Check,
@@ -20,73 +20,10 @@ import {
 import Sidebar from "../../components/dashboard/Sidebar";
 import "../../styles/admin/Profesores.css";
 
-const initialProfessors = [
-  {
-    id: 1,
-    name: "Laura Méndez",
-    initials: "LM",
-    email: "laura.mendez@studysync.com",
-    phone: "+57 310 824 5687",
-    specialty: "Matemáticas",
-    courses: 4,
-    students: 128,
-    reports: 18,
-    status: "Activo",
-    lastAccess: "Hoy, 8:20 p. m.",
-  },
-  {
-    id: 2,
-    name: "Carlos Andrade",
-    initials: "CA",
-    email: "carlos.andrade@studysync.com",
-    phone: "+57 315 689 4578",
-    specialty: "Física",
-    courses: 3,
-    students: 94,
-    reports: 12,
-    status: "Activo",
-    lastAccess: "Hoy, 6:35 p. m.",
-  },
-  {
-    id: 3,
-    name: "Diana Torres",
-    initials: "DT",
-    email: "diana.torres@studysync.com",
-    phone: "+57 301 568 9742",
-    specialty: "Álgebra",
-    courses: 5,
-    students: 146,
-    reports: 22,
-    status: "Activo",
-    lastAccess: "Hace 42 min",
-  },
-  {
-    id: 4,
-    name: "Julián Vargas",
-    initials: "JV",
-    email: "julian.vargas@studysync.com",
-    phone: "+57 320 476 8521",
-    specialty: "Programación",
-    courses: 2,
-    students: 73,
-    reports: 8,
-    status: "Inactivo",
-    lastAccess: "Hace 9 días",
-  },
-  {
-    id: 5,
-    name: "Mariana López",
-    initials: "ML",
-    email: "mariana.lopez@studysync.com",
-    phone: "+57 312 785 4690",
-    specialty: "Lenguaje",
-    courses: 4,
-    students: 118,
-    reports: 16,
-    status: "Activo",
-    lastAccess: "Ayer, 9:10 p. m.",
-  },
-];
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
+
+const USERS_API = `${API_BASE_URL}/api/users`;
 
 const emptyForm = {
   name: "",
@@ -97,7 +34,7 @@ const emptyForm = {
 };
 
 function getInitials(name) {
-  return name
+  return String(name || "")
     .split(" ")
     .filter(Boolean)
     .slice(0, 2)
@@ -105,8 +42,39 @@ function getInitials(name) {
     .join("");
 }
 
+function splitName(fullName) {
+  const parts = String(fullName || "")
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean);
+
+  return {
+    nombre: parts.shift() || "",
+    apellido: parts.join(" "),
+  };
+}
+
+function mapProfessorFromApi(user) {
+  const name = `${user.nombre ?? ""} ${user.apellido ?? ""}`.trim();
+
+  return {
+    id: user.id,
+    name: name || "Profesor sin nombre",
+    initials: getInitials(name),
+    email: user.email ?? "",
+    phone: "No registrado",
+    specialty: "No registrada",
+    courses: 0,
+    students: 0,
+    reports: 0,
+    status: user.activo === false ? "Inactivo" : "Activo",
+    lastAccess: "Sin información",
+    apiData: user,
+  };
+}
+
 function Profesores() {
-  const [professors, setProfessors] = useState(initialProfessors);
+  const [professors, setProfessors] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("Todos");
   const [specialtyFilter, setSpecialtyFilter] = useState("Todas");
@@ -122,6 +90,54 @@ function Profesores() {
   const [formData, setFormData] = useState(emptyForm);
   const [formError, setFormError] = useState("");
   const [notification, setNotification] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
+
+  const showNotification = (message) => {
+    setNotification(message);
+
+    window.setTimeout(() => {
+      setNotification("");
+    }, 2800);
+  };
+
+  const loadProfessors = async () => {
+    try {
+      setIsLoading(true);
+
+      const response = await fetch(USERS_API);
+
+      if (!response.ok) {
+        throw new Error(
+          `No fue posible cargar los profesores (${response.status}).`,
+        );
+      }
+
+      const data = await response.json();
+
+      const professorUsers = Array.isArray(data)
+        ? data
+            .filter(
+              (user) =>
+                String(user.rol || "").toUpperCase() === "PROFESOR",
+            )
+            .map(mapProfessorFromApi)
+        : [];
+
+      setProfessors(professorUsers);
+    } catch (error) {
+      console.error("Error cargando profesores:", error);
+
+      showNotification(
+        "No fue posible cargar los profesores desde el backend.",
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadProfessors();
+  }, []);
 
   const statistics = useMemo(() => {
     const active = professors.filter(
@@ -190,14 +206,6 @@ function Profesores() {
     specialtyFilter,
   ]);
 
-  const showNotification = (message) => {
-    setNotification(message);
-
-    window.setTimeout(() => {
-      setNotification("");
-    }, 2800);
-  };
-
   const handleChange = (event) => {
     const { name, value } = event.target;
 
@@ -224,8 +232,14 @@ function Profesores() {
     setFormData({
       name: professor.name,
       email: professor.email,
-      phone: professor.phone,
-      specialty: professor.specialty,
+      phone:
+        professor.phone === "No registrado"
+          ? ""
+          : professor.phone,
+      specialty:
+        professor.specialty === "No registrada"
+          ? ""
+          : professor.specialty,
       status: professor.status,
     });
 
@@ -264,7 +278,7 @@ function Profesores() {
     return "";
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
 
     const validationError = validateForm();
@@ -274,78 +288,203 @@ function Profesores() {
       return;
     }
 
-    if (isEditing && selectedProfessor) {
-      setProfessors((currentProfessors) =>
-        currentProfessors.map((professor) =>
-          professor.id === selectedProfessor.id
-            ? {
-                ...professor,
-                name: formData.name.trim(),
-                initials: getInitials(formData.name),
-                email: formData.email.trim(),
-                phone: formData.phone.trim(),
-                specialty: formData.specialty.trim(),
-                status: formData.status,
-              }
-            : professor,
-        ),
-      );
+    const { nombre, apellido } = splitName(formData.name);
 
-      showNotification(
-        "Profesor actualizado correctamente.",
-      );
-    } else {
-      const newProfessor = {
-        id: Date.now(),
-        name: formData.name.trim(),
-        initials: getInitials(formData.name),
-        email: formData.email.trim(),
-        phone: formData.phone.trim(),
-        specialty: formData.specialty.trim(),
-        courses: 0,
-        students: 0,
-        reports: 0,
-        status: formData.status,
-        lastAccess: "Sin iniciar sesión",
-      };
+    const payload = {
+      nombre,
+      apellido,
+      email: formData.email.trim(),
+      rol: "PROFESOR",
+      activo: formData.status === "Activo",
+    };
 
-      setProfessors((currentProfessors) => [
-        newProfessor,
-        ...currentProfessors,
-      ]);
+    try {
+      if (isEditing && selectedProfessor) {
+        const response = await fetch(
+          `${USERS_API}/${selectedProfessor.id}`,
+          {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(payload),
+          },
+        );
 
-      showNotification(
-        "Profesor creado correctamente.",
+        if (!response.ok) {
+          throw new Error(
+            `No fue posible actualizar el profesor (${response.status}).`,
+          );
+        }
+
+        const updatedApiProfessor = await response.json();
+        const updatedProfessor =
+          mapProfessorFromApi(updatedApiProfessor);
+
+        setProfessors((currentProfessors) =>
+          currentProfessors.map((professor) =>
+            professor.id === selectedProfessor.id
+              ? {
+                  ...updatedProfessor,
+                  phone:
+                    formData.phone.trim() ||
+                    professor.phone ||
+                    "No registrado",
+                  specialty:
+                    formData.specialty.trim() ||
+                    professor.specialty ||
+                    "No registrada",
+                  courses: professor.courses,
+                  students: professor.students,
+                  reports: professor.reports,
+                  lastAccess: professor.lastAccess,
+                }
+              : professor,
+          ),
+        );
+
+        showNotification(
+          "Profesor actualizado correctamente.",
+        );
+      } else {
+        const response = await fetch(USERS_API, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+        });
+
+        if (!response.ok) {
+          let message =
+            "No fue posible crear el profesor.";
+
+          try {
+            const errorData = await response.json();
+
+            message =
+              errorData.message ||
+              errorData.error ||
+              message;
+          } catch {
+            // El backend no devolvió JSON.
+          }
+
+          throw new Error(message);
+        }
+
+        const createdApiProfessor = await response.json();
+
+        const createdProfessor = {
+          ...mapProfessorFromApi(createdApiProfessor),
+          phone:
+            formData.phone.trim() ||
+            "No registrado",
+          specialty:
+            formData.specialty.trim() ||
+            "No registrada",
+        };
+
+        setProfessors((currentProfessors) => [
+          createdProfessor,
+          ...currentProfessors,
+        ]);
+
+        showNotification(
+          "Profesor creado correctamente.",
+        );
+      }
+
+      closeModal();
+    } catch (error) {
+      console.error("Error guardando profesor:", error);
+
+      setFormError(
+        error.message ||
+          "No fue posible guardar el profesor.",
       );
     }
-
-    closeModal();
   };
 
-  const toggleStatus = (professor) => {
+  const toggleStatus = async (professor) => {
     const nextStatus =
       professor.status === "Activo"
         ? "Inactivo"
         : "Activo";
 
-    setProfessors((currentProfessors) =>
-      currentProfessors.map((currentProfessor) =>
-        currentProfessor.id === professor.id
-          ? {
-              ...currentProfessor,
-              status: nextStatus,
-            }
-          : currentProfessor,
-      ),
-    );
+    const names = splitName(professor.name);
 
-    setActiveMenu(null);
+    const payload = {
+      nombre:
+        professor.apiData?.nombre ??
+        names.nombre,
 
-    showNotification(
-      nextStatus === "Activo"
-        ? "Profesor activado correctamente."
-        : "Profesor desactivado correctamente.",
-    );
+      apellido:
+        professor.apiData?.apellido ??
+        names.apellido,
+
+      email: professor.email,
+
+      rol: "PROFESOR",
+
+      activo: nextStatus === "Activo",
+    };
+
+    try {
+      const response = await fetch(
+        `${USERS_API}/${professor.id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+        },
+      );
+
+      if (!response.ok) {
+        throw new Error(
+          `No fue posible cambiar el estado (${response.status}).`,
+        );
+      }
+
+      const updatedApiProfessor = await response.json();
+      const updatedProfessor =
+        mapProfessorFromApi(updatedApiProfessor);
+
+      setProfessors((currentProfessors) =>
+        currentProfessors.map((currentProfessor) =>
+          currentProfessor.id === professor.id
+            ? {
+                ...updatedProfessor,
+                phone: currentProfessor.phone,
+                specialty: currentProfessor.specialty,
+                courses: currentProfessor.courses,
+                students: currentProfessor.students,
+                reports: currentProfessor.reports,
+                lastAccess: currentProfessor.lastAccess,
+              }
+            : currentProfessor,
+        ),
+      );
+
+      setActiveMenu(null);
+
+      showNotification(
+        nextStatus === "Activo"
+          ? "Profesor activado correctamente."
+          : "Profesor desactivado correctamente.",
+      );
+    } catch (error) {
+      console.error(
+        "Error cambiando estado del profesor:",
+        error,
+      );
+
+      showNotification(
+        "No fue posible cambiar el estado del profesor.",
+      );
+    }
   };
 
   const openDetails = (professor) => {
@@ -360,24 +499,48 @@ function Profesores() {
     setIsDeleteOpen(true);
   };
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (!selectedProfessor) {
       return;
     }
 
-    setProfessors((currentProfessors) =>
-      currentProfessors.filter(
-        (professor) =>
-          professor.id !== selectedProfessor.id,
-      ),
-    );
+    try {
+      const response = await fetch(
+        `${USERS_API}/${selectedProfessor.id}`,
+        {
+          method: "DELETE",
+        },
+      );
 
-    setSelectedProfessor(null);
-    setIsDeleteOpen(false);
+      if (!response.ok && response.status !== 204) {
+        throw new Error(
+          `No fue posible eliminar el profesor (${response.status}).`,
+        );
+      }
 
-    showNotification(
-      "Profesor eliminado correctamente.",
-    );
+      setProfessors((currentProfessors) =>
+        currentProfessors.filter(
+          (professor) =>
+            professor.id !== selectedProfessor.id,
+        ),
+      );
+
+      setSelectedProfessor(null);
+      setIsDeleteOpen(false);
+
+      showNotification(
+        "Profesor eliminado correctamente.",
+      );
+    } catch (error) {
+      console.error(
+        "Error eliminando profesor:",
+        error,
+      );
+
+      showNotification(
+        "No fue posible eliminar el profesor.",
+      );
+    }
   };
 
   const clearFilters = () => {
@@ -501,7 +664,11 @@ function Profesores() {
                 <option value="Todos">
                   Todos los estados
                 </option>
-                <option value="Activo">Activo</option>
+
+                <option value="Activo">
+                  Activo
+                </option>
+
                 <option value="Inactivo">
                   Inactivo
                 </option>
@@ -529,10 +696,13 @@ function Profesores() {
             </div>
 
             <small>
-              {filteredProfessors.length} resultado
-              {filteredProfessors.length === 1
-                ? ""
-                : "s"}
+              {isLoading
+                ? "Cargando..."
+                : `${filteredProfessors.length} resultado${
+                    filteredProfessors.length === 1
+                      ? ""
+                      : "s"
+                  }`}
             </small>
           </div>
 
@@ -689,25 +859,26 @@ function Profesores() {
               </tbody>
             </table>
 
-            {filteredProfessors.length === 0 && (
-              <div className="professors-empty-state">
-                <GraduationCap size={36} />
+            {!isLoading &&
+              filteredProfessors.length === 0 && (
+                <div className="professors-empty-state">
+                  <GraduationCap size={36} />
 
-                <h3>No encontramos profesores</h3>
+                  <h3>No encontramos profesores</h3>
 
-                <p>
-                  Cambia los filtros o utiliza otro término de
-                  búsqueda.
-                </p>
+                  <p>
+                    Cambia los filtros o utiliza otro término de
+                    búsqueda.
+                  </p>
 
-                <button
-                  type="button"
-                  onClick={clearFilters}
-                >
-                  Limpiar filtros
-                </button>
-              </div>
-            )}
+                  <button
+                    type="button"
+                    onClick={clearFilters}
+                  >
+                    Limpiar filtros
+                  </button>
+                </div>
+              )}
           </div>
         </section>
       </main>
@@ -875,6 +1046,7 @@ function Profesores() {
             <div className="professors-details-grid">
               <article>
                 <span>Correo</span>
+
                 <strong>
                   {selectedProfessor.email}
                 </strong>
@@ -882,6 +1054,7 @@ function Profesores() {
 
               <article>
                 <span>Teléfono</span>
+
                 <strong>
                   {selectedProfessor.phone ||
                     "No registrado"}
@@ -890,6 +1063,7 @@ function Profesores() {
 
               <article>
                 <span>Cursos asignados</span>
+
                 <strong>
                   {selectedProfessor.courses}
                 </strong>
@@ -897,6 +1071,7 @@ function Profesores() {
 
               <article>
                 <span>Estudiantes</span>
+
                 <strong>
                   {selectedProfessor.students}
                 </strong>
@@ -904,6 +1079,7 @@ function Profesores() {
 
               <article>
                 <span>Informes enviados</span>
+
                 <strong>
                   {selectedProfessor.reports}
                 </strong>
@@ -911,6 +1087,7 @@ function Profesores() {
 
               <article>
                 <span>Estado</span>
+
                 <strong>
                   {selectedProfessor.status}
                 </strong>
@@ -918,6 +1095,7 @@ function Profesores() {
 
               <article>
                 <span>Último acceso</span>
+
                 <strong>
                   {selectedProfessor.lastAccess}
                 </strong>
@@ -930,7 +1108,9 @@ function Profesores() {
                 className="professors-primary-button"
                 onClick={() => {
                   const professor = selectedProfessor;
+
                   setIsDetailsOpen(false);
+
                   openEditModal(professor);
                 }}
               >
@@ -963,7 +1143,9 @@ function Profesores() {
               <button
                 type="button"
                 className="professors-secondary-button"
-                onClick={() => setIsDeleteOpen(false)}
+                onClick={() =>
+                  setIsDeleteOpen(false)
+                }
               >
                 Cancelar
               </button>

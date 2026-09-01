@@ -58,13 +58,25 @@ function Register() {
     try {
       setIsSubmitting(true);
 
-      const response = await fetch("http://localhost:8080/api/users", {
+      const API_BASE_URL =
+            import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
+
+          const REGISTER_PATH =
+            import.meta.env.VITE_REGISTER_PATH || "/auth/register";
+
+          const response = await fetch(`${API_BASE_URL}${REGISTER_PATH}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(formData),
-      });
+        body: JSON.stringify({
+          nombre: formData.nombre,
+          apellido: formData.apellido,
+          email: formData.email,
+          password: formData.password,
+          activo: true,
+        }),
+              });
 
       if (!response.ok) {
         let errorMessage = "Error al registrar el usuario.";

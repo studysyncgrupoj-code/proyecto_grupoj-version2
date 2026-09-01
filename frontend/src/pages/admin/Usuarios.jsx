@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Check,
   Edit3,
@@ -21,74 +21,10 @@ import {
 import Sidebar from "../../components/dashboard/Sidebar";
 import "../../styles/admin/Usuarios.css";
 
-const initialUsers = [
-  {
-    id: 1,
-    name: "Richard Villaparedes",
-    document: "1024587963",
-    email: "richard@studysync.com",
-    phone: "+57 300 456 7890",
-    role: "Administrador",
-    status: "Activo",
-    lastAccess: "Hoy, 8:42 p. m.",
-    createdAt: "15/07/2026",
-  },
-  {
-    id: 2,
-    name: "Laura Méndez",
-    document: "1032458967",
-    email: "laura.mendez@studysync.com",
-    phone: "+57 310 824 5687",
-    role: "Profesor",
-    status: "Activo",
-    lastAccess: "Hoy, 6:18 p. m.",
-    createdAt: "20/07/2026",
-  },
-  {
-    id: 3,
-    name: "Carlos Ramírez",
-    document: "1008564921",
-    email: "carlos.ramirez@studysync.com",
-    phone: "+57 315 587 4521",
-    role: "Estudiante",
-    status: "Activo",
-    lastAccess: "Hace 35 min",
-    createdAt: "21/07/2026",
-  },
-  {
-    id: 4,
-    name: "Ana Torres",
-    document: "1014569872",
-    email: "ana.torres@studysync.com",
-    phone: "+57 320 458 9632",
-    role: "Estudiante",
-    status: "Activo",
-    lastAccess: "Ayer, 9:16 p. m.",
-    createdAt: "22/07/2026",
-  },
-  {
-    id: 5,
-    name: "Julián Vargas",
-    document: "1056874239",
-    email: "julian.vargas@studysync.com",
-    phone: "+57 301 695 4782",
-    role: "Profesor",
-    status: "Inactivo",
-    lastAccess: "Hace 8 días",
-    createdAt: "24/07/2026",
-  },
-  {
-    id: 6,
-    name: "María González",
-    document: "1023698754",
-    email: "maria.gonzalez@studysync.com",
-    phone: "+57 312 845 6974",
-    role: "Estudiante",
-    status: "Activo",
-    lastAccess: "Hoy, 11:35 a. m.",
-    createdAt: "26/07/2026",
-  },
-];
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
+
+const USERS_API = `${API_BASE_URL}/api/users`;
 
 const emptyForm = {
   name: "",
@@ -102,7 +38,7 @@ const emptyForm = {
 };
 
 function getInitials(name) {
-  return name
+  return String(name || "")
     .split(" ")
     .filter(Boolean)
     .slice(0, 2)
@@ -110,8 +46,71 @@ function getInitials(name) {
     .join("");
 }
 
+function normalizeRole(role) {
+  const normalized = String(role || "").toUpperCase();
+
+  if (normalized === "ADMINISTRADOR") {
+    return "Administrador";
+  }
+
+  if (normalized === "PROFESOR") {
+    return "Profesor";
+  }
+
+  return "Estudiante";
+}
+
+function roleToApi(role) {
+  if (role === "Administrador") {
+    return "ADMINISTRADOR";
+  }
+
+  if (role === "Profesor") {
+    return "PROFESOR";
+  }
+
+  return "ESTUDIANTE";
+}
+
+function mapUserFromApi(user) {
+  const fullName = `${user.nombre ?? ""} ${
+    user.apellido ?? ""
+  }`.trim();
+
+  return {
+    id: user.id,
+    name: fullName || "Usuario sin nombre",
+    document: "No registrado",
+    email: user.email ?? "",
+    phone: "No registrado",
+    role: normalizeRole(user.rol),
+    status: user.activo === false ? "Inactivo" : "Activo",
+    lastAccess: "Sin información",
+    createdAt: user.fechaCreacion
+      ? new Date(user.fechaCreacion).toLocaleDateString("es-CO")
+      : "Sin información",
+
+    apiData: user,
+  };
+}
+
+function splitName(fullName) {
+  const parts = String(fullName || "")
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean);
+
+  const nombre = parts.shift() || "";
+  const apellido = parts.join(" ");
+
+  return {
+    nombre,
+    apellido,
+  };
+}
+
 function Usuarios() {
-  const [users, setUsers] = useState(initialUsers);
+  const [users, setUsers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [roleFilter, setRoleFilter] = useState("Todos");
   const [statusFilter, setStatusFilter] = useState("Todos");
@@ -120,26 +119,68 @@ function Usuarios() {
   const [selectedUser, setSelectedUser] = useState(null);
 
   const [isUserModalOpen, setIsUserModalOpen] = useState(false);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] =
+    useState(false);
+  const [isDetailsModalOpen, setIsDetailsModalOpen] =
+    useState(false);
   const [isEditing, setIsEditing] = useState(false);
 
   const [formData, setFormData] = useState(emptyForm);
   const [formError, setFormError] = useState("");
   const [notification, setNotification] = useState("");
 
+  const [isLoading, setIsLoading] = useState(true);
+
+  const loadUsers = async () => {
+    try {
+      setIsLoading(true);
+
+      const response = await fetch(USERS_API);
+
+      if (!response.ok) {
+        throw new Error(
+          `No fue posible cargar los usuarios (${response.status}).`,
+        );
+      }
+
+      const data = await response.json();
+
+      const mappedUsers = Array.isArray(data)
+        ? data.map(mapUserFromApi)
+        : [];
+
+      setUsers(mappedUsers);
+    } catch (error) {
+      console.error("Error cargando usuarios:", error);
+
+      showNotification(
+        "No fue posible cargar los usuarios desde el backend.",
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadUsers();
+  }, []);
+
   const statistics = useMemo(() => {
     return {
       total: users.length,
+
       administrators: users.filter(
         (user) => user.role === "Administrador",
       ).length,
+
       professors: users.filter(
         (user) => user.role === "Profesor",
       ).length,
+
       students: users.filter(
         (user) => user.role === "Estudiante",
       ).length,
+
       active: users.filter(
         (user) => user.status === "Activo",
       ).length,
@@ -200,9 +241,10 @@ function Usuarios() {
 
     setFormData({
       name: user.name,
-      document: user.document,
+      document:
+        user.document === "No registrado" ? "" : user.document,
       email: user.email,
-      phone: user.phone,
+      phone: user.phone === "No registrado" ? "" : user.phone,
       role: user.role,
       status: user.status,
       password: "",
@@ -255,7 +297,27 @@ function Usuarios() {
     return "";
   };
 
-  const handleSubmit = (event) => {
+  const buildPayload = (userForEdit = null) => {
+    const { nombre, apellido } = splitName(formData.name);
+
+    const payload = {
+      nombre,
+      apellido,
+      email: formData.email.trim(),
+      rol: roleToApi(formData.role),
+      activo: formData.status === "Activo",
+    };
+
+    if (formData.password) {
+      payload.password = formData.password;
+    } else if (userForEdit?.apiData?.password) {
+      payload.password = userForEdit.apiData.password;
+    }
+
+    return payload;
+  };
+
+  const handleSubmit = async (event) => {
     event.preventDefault();
 
     const validationError = validateForm();
@@ -265,70 +327,169 @@ function Usuarios() {
       return;
     }
 
-    if (isEditing && selectedUser) {
-      setUsers((currentUsers) =>
-        currentUsers.map((user) =>
-          user.id === selectedUser.id
-            ? {
-                ...user,
-                name: formData.name.trim(),
-                document: formData.document.trim(),
-                email: formData.email.trim(),
-                phone: formData.phone.trim(),
-                role: formData.role,
-                status: formData.status,
-              }
-            : user,
-        ),
+    try {
+      if (isEditing && selectedUser) {
+        const response = await fetch(
+          `${USERS_API}/${selectedUser.id}`,
+          {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(
+              buildPayload(selectedUser),
+            ),
+          },
+        );
+
+        if (!response.ok) {
+          throw new Error(
+            `No fue posible actualizar el usuario (${response.status}).`,
+          );
+        }
+
+        const updatedApiUser = await response.json();
+        const updatedUser = mapUserFromApi(updatedApiUser);
+
+        setUsers((currentUsers) =>
+          currentUsers.map((user) =>
+            user.id === selectedUser.id
+              ? {
+                  ...updatedUser,
+                  document:
+                    formData.document.trim() ||
+                    "No registrado",
+                  phone:
+                    formData.phone.trim() ||
+                    "No registrado",
+                  lastAccess: user.lastAccess,
+                }
+              : user,
+          ),
+        );
+
+        showNotification(
+          "Usuario actualizado correctamente.",
+        );
+      } else {
+        const response = await fetch(USERS_API, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(buildPayload()),
+        });
+
+        if (!response.ok) {
+          let message = "No fue posible crear el usuario.";
+
+          try {
+            const errorData = await response.json();
+
+            message =
+              errorData.message ||
+              errorData.error ||
+              message;
+          } catch {
+            // El backend no devolvió JSON.
+          }
+
+          throw new Error(message);
+        }
+
+        const createdApiUser = await response.json();
+        const createdUser = mapUserFromApi(createdApiUser);
+
+        setUsers((currentUsers) => [
+          {
+            ...createdUser,
+            document:
+              formData.document.trim() || "No registrado",
+            phone:
+              formData.phone.trim() || "No registrado",
+          },
+          ...currentUsers,
+        ]);
+
+        showNotification("Usuario creado correctamente.");
+      }
+
+      closeUserModal();
+    } catch (error) {
+      console.error("Error guardando usuario:", error);
+
+      setFormError(
+        error.message ||
+          "No fue posible guardar el usuario.",
       );
-
-      showNotification("Usuario actualizado correctamente.");
-    } else {
-      const newUser = {
-        id: Date.now(),
-        name: formData.name.trim(),
-        document: formData.document.trim(),
-        email: formData.email.trim(),
-        phone: formData.phone.trim(),
-        role: formData.role,
-        status: formData.status,
-        lastAccess: "Sin iniciar sesión",
-        createdAt: new Date().toLocaleDateString("es-CO"),
-      };
-
-      setUsers((currentUsers) => [
-        newUser,
-        ...currentUsers,
-      ]);
-
-      showNotification("Usuario creado correctamente.");
     }
-
-    closeUserModal();
   };
 
-  const handleToggleStatus = (user) => {
+  const handleToggleStatus = async (user) => {
     const nextStatus =
       user.status === "Activo" ? "Inactivo" : "Activo";
 
-    setUsers((currentUsers) =>
-      currentUsers.map((currentUser) =>
-        currentUser.id === user.id
-          ? {
-              ...currentUser,
-              status: nextStatus,
-            }
-          : currentUser,
-      ),
-    );
+    try {
+      const payload = {
+        nombre: user.apiData?.nombre ?? splitName(user.name).nombre,
+        apellido:
+          user.apiData?.apellido ?? splitName(user.name).apellido,
+        email: user.email,
+        password: user.apiData?.password ?? "",
+        rol: user.apiData?.rol ?? roleToApi(user.role),
+        activo: nextStatus === "Activo",
+      };
 
-    setActiveMenu(null);
+      const response = await fetch(
+        `${USERS_API}/${user.id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+        },
+      );
 
-    showNotification(
-      nextStatus === "Activo"
-        ? "Usuario activado correctamente."
-        : "Usuario desactivado correctamente.",
-    );
+      if (!response.ok) {
+        throw new Error(
+          `No fue posible cambiar el estado (${response.status}).`,
+        );
+      }
+
+      const updatedApiUser = await response.json();
+      const mappedUser = mapUserFromApi(updatedApiUser);
+
+      setUsers((currentUsers) =>
+        currentUsers.map((currentUser) =>
+          currentUser.id === user.id
+            ? {
+                ...mappedUser,
+                document: currentUser.document,
+                phone: currentUser.phone,
+                lastAccess: currentUser.lastAccess,
+              }
+            : currentUser,
+        ),
+      );
+
+      setActiveMenu(null);
+
+      showNotification(
+        nextStatus === "Activo"
+          ? "Usuario activado correctamente."
+          : "Usuario desactivado correctamente.",
+      );
+    } catch (error) {
+      console.error(
+        "Error cambiando estado del usuario:",
+        error,
+      );
+
+      showNotification(
+        "No fue posible cambiar el estado del usuario.",
+      );
+    }
   };
 
   const handleResetPassword = (user) => {
@@ -345,21 +506,42 @@ function Usuarios() {
     setIsDeleteModalOpen(true);
   };
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (!selectedUser) {
       return;
     }
 
-    setUsers((currentUsers) =>
-      currentUsers.filter(
-        (user) => user.id !== selectedUser.id,
-      ),
-    );
+    try {
+      const response = await fetch(
+        `${USERS_API}/${selectedUser.id}`,
+        {
+          method: "DELETE",
+        },
+      );
 
-    setIsDeleteModalOpen(false);
-    setSelectedUser(null);
+      if (!response.ok && response.status !== 204) {
+        throw new Error(
+          `No fue posible eliminar el usuario (${response.status}).`,
+        );
+      }
 
-    showNotification("Usuario eliminado correctamente.");
+      setUsers((currentUsers) =>
+        currentUsers.filter(
+          (user) => user.id !== selectedUser.id,
+        ),
+      );
+
+      setIsDeleteModalOpen(false);
+      setSelectedUser(null);
+
+      showNotification("Usuario eliminado correctamente.");
+    } catch (error) {
+      console.error("Error eliminando usuario:", error);
+
+      showNotification(
+        "No fue posible eliminar el usuario.",
+      );
+    }
   };
 
   const openDetailsModal = (user) => {
@@ -487,7 +669,9 @@ function Usuarios() {
                   }
                   aria-label="Filtrar por estado"
                 >
-                  <option value="Todos">Todos los estados</option>
+                  <option value="Todos">
+                    Todos los estados
+                  </option>
                   <option value="Activo">Activo</option>
                   <option value="Inactivo">Inactivo</option>
                 </select>
@@ -515,8 +699,11 @@ function Usuarios() {
             </div>
 
             <small>
-              {filteredUsers.length} resultado
-              {filteredUsers.length === 1 ? "" : "s"}
+              {isLoading
+                ? "Cargando..."
+                : `${filteredUsers.length} resultado${
+                    filteredUsers.length === 1 ? "" : "s"
+                  }`}
             </small>
           </div>
 
@@ -675,7 +862,7 @@ function Usuarios() {
               </tbody>
             </table>
 
-            {filteredUsers.length === 0 && (
+            {!isLoading && filteredUsers.length === 0 && (
               <div className="users-empty-state">
                 <Users size={34} />
                 <h3>No encontramos usuarios</h3>
@@ -958,9 +1145,7 @@ function Usuarios() {
 
               <article>
                 <span>Teléfono</span>
-                <strong>
-                  {selectedUser.phone || "No registrado"}
-                </strong>
+                <strong>{selectedUser.phone}</strong>
               </article>
 
               <article>
@@ -984,8 +1169,9 @@ function Usuarios() {
                 type="button"
                 className="users-primary-button"
                 onClick={() => {
+                  const user = selectedUser;
                   setIsDetailsModalOpen(false);
-                  openEditModal(selectedUser);
+                  openEditModal(user);
                 }}
               >
                 <Edit3 size={17} />

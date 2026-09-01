@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Award,
   BookOpen,
@@ -19,6 +19,12 @@ import {
 import Sidebar from "../../components/dashboard/Sidebar";
 
 import "../../styles/shared/Perfil.css";
+
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
+
+const USERS_API = `${API_BASE_URL}/api/users`;
+
 const professorAchievements = [
   {
     id: 1,
@@ -66,7 +72,6 @@ const professorActivity = [
     time: "Hace 2 días",
   },
 ];
-
 
 const studentAchievements = [
   {
@@ -119,96 +124,470 @@ const studentActivity = [
 function getStoredUser() {
   try {
     const storedUser = localStorage.getItem("user");
-    return storedUser ? JSON.parse(storedUser) : null;
+
+    return storedUser
+      ? JSON.parse(storedUser)
+      : null;
   } catch {
     return null;
   }
 }
 
+function getUserRole(user) {
+  return String(
+    user?.rol ??
+      user?.role ??
+      "",
+  ).toUpperCase();
+}
+
+function roleLabel(role) {
+  const normalizedRole =
+    String(role || "").toUpperCase();
+
+  if (normalizedRole === "ADMINISTRADOR") {
+    return "Administrador";
+  }
+
+  if (normalizedRole === "PROFESOR") {
+    return "Profesor";
+  }
+
+  if (normalizedRole === "ESTUDIANTE") {
+    return "Estudiante";
+  }
+
+  return "Usuario";
+}
+
 function getInitials(name) {
-  return name
+  return String(name || "")
     .split(" ")
     .filter(Boolean)
     .slice(0, 2)
-    .map((word) => word.charAt(0).toUpperCase())
+    .map((word) =>
+      word.charAt(0).toUpperCase(),
+    )
     .join("");
 }
 
-function Perfil() {
-  const storedUser = getStoredUser();
-  const normalizedRole = storedUser?.role?.toLowerCase() ?? "";
+function splitName(fullName) {
+  const parts = String(fullName || "")
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean);
+
+  return {
+    nombre: parts.shift() || "",
+    apellido: parts.join(" "),
+  };
+}
+
+function createProfileFromUser(
+  user,
+  currentProfile = null,
+) {
+  const role =
+    getUserRole(user);
+
   const isStudent =
-    normalizedRole === "estudiante" || normalizedRole === "student";
+    role === "ESTUDIANTE" ||
+    role === "STUDENT";
 
-  const defaultProfile = isStudent
-    ? {
-        name: storedUser?.name || "Estudiante StudySync",
-        role: "Estudiante",
-        email: storedUser?.email || "estudiante@studysync.com",
+  const fullName =
+    `${user?.nombre ?? ""} ${
+      user?.apellido ?? ""
+    }`.trim() ||
+    user?.name ||
+    currentProfile?.name ||
+    (isStudent
+      ? "Estudiante StudySync"
+      : "Usuario StudySync");
+
+  return {
+    name: fullName,
+
+    role:
+      roleLabel(role),
+
+    email:
+      user?.email ??
+      currentProfile?.email ??
+      "",
+
+    location:
+      currentProfile?.location ??
+      "Bogotá, Colombia",
+
+    specialty:
+      currentProfile?.specialty ??
+      (isStudent
+        ? "Desarrollo web y aprendizaje colaborativo"
+        : "Desarrollo web y arquitectura de software"),
+
+    biography:
+      currentProfile?.biography ??
+      (isStudent
+        ? "Estudiante enfocado en mejorar sus habilidades, participar en salas de estudio y alcanzar sus objetivos académicos dentro de StudySync."
+        : "Profesor enfocado en desarrollo web, buenas prácticas, arquitectura frontend y construcción de proyectos tecnológicos colaborativos."),
+  };
+}
+
+function Perfil() {
+  const [storedUser, setStoredUser] =
+    useState(() => getStoredUser());
+
+  const [apiUser, setApiUser] =
+    useState(null);
+
+  const initialRole =
+    getUserRole(storedUser);
+
+  const initialIsStudent =
+    initialRole === "ESTUDIANTE" ||
+    initialRole === "STUDENT";
+
+  const initialProfile =
+    createProfileFromUser(
+      storedUser,
+      {
         location: "Bogotá, Colombia",
-        specialty: "Desarrollo web y aprendizaje colaborativo",
+
+        specialty:
+          initialIsStudent
+            ? "Desarrollo web y aprendizaje colaborativo"
+            : "Desarrollo web y arquitectura de software",
+
         biography:
-          "Estudiante enfocado en mejorar sus habilidades, participar en salas de estudio y alcanzar sus objetivos académicos dentro de StudySync.",
+          initialIsStudent
+            ? "Estudiante enfocado en mejorar sus habilidades, participar en salas de estudio y alcanzar sus objetivos académicos dentro de StudySync."
+            : "Profesor enfocado en desarrollo web, buenas prácticas, arquitectura frontend y construcción de proyectos tecnológicos colaborativos.",
+      },
+    );
+
+  const [isEditing, setIsEditing] =
+    useState(false);
+
+  const [profile, setProfile] =
+    useState(initialProfile);
+
+  const [formData, setFormData] =
+    useState(initialProfile);
+
+  const [isLoading, setIsLoading] =
+    useState(true);
+
+  const [isSaving, setIsSaving] =
+    useState(false);
+
+  const [error, setError] =
+    useState("");
+
+  const currentRole =
+    getUserRole(
+      apiUser || storedUser,
+    );
+
+  const isStudent =
+    currentRole === "ESTUDIANTE" ||
+    currentRole === "STUDENT";
+
+  const userId =
+    apiUser?.id ??
+    storedUser?.id;
+
+  useEffect(() => {
+    const loadProfile = async () => {
+      if (!userId) {
+        setIsLoading(false);
+        return;
       }
-    : {
-        name: storedUser?.name || "Profesor Richard",
-        role: "Profesor y administrador",
-        email: storedUser?.email || "richard@studysync.com",
-        location: "Bogotá, Colombia",
-        specialty: "Desarrollo web y arquitectura de software",
-        biography:
-          "Profesor enfocado en desarrollo web, buenas prácticas, arquitectura frontend y construcción de proyectos tecnológicos colaborativos.",
-      };
 
-  const [isEditing, setIsEditing] = useState(false);
-  const [profile, setProfile] = useState(defaultProfile);
-  const [formData, setFormData] = useState(defaultProfile);
+      try {
+        setIsLoading(true);
+        setError("");
 
-  const achievements = isStudent
-    ? studentAchievements
-    : professorAchievements;
+        const response =
+          await fetch(
+            `${USERS_API}/${userId}`,
+          );
 
-  const recentActivity = isStudent
-    ? studentActivity
-    : professorActivity;
+        if (!response.ok) {
+          throw new Error(
+            `No fue posible cargar el perfil (${response.status}).`,
+          );
+        }
 
-  const initials = getInitials(profile.name) || "SS";
+        const user =
+          await response.json();
+
+        setApiUser(user);
+
+        setStoredUser(user);
+
+        const backendProfile =
+          createProfileFromUser(
+            user,
+            profile,
+          );
+
+        setProfile(backendProfile);
+        setFormData(backendProfile);
+
+        localStorage.setItem(
+          "user",
+          JSON.stringify(user),
+        );
+      } catch (loadError) {
+        console.error(
+          "Error cargando perfil:",
+          loadError,
+        );
+
+        setError(
+          "No fue posible cargar el perfil desde el backend.",
+        );
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadProfile();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userId]);
+
+  const achievements =
+    isStudent
+      ? studentAchievements
+      : professorAchievements;
+
+  const recentActivity =
+    isStudent
+      ? studentActivity
+      : professorActivity;
+
+  const initials =
+    getInitials(profile.name) ||
+    "SS";
 
   const handleChange = (event) => {
-    const { name, value } = event.target;
+    const { name, value } =
+      event.target;
 
-    setFormData((currentData) => ({
-      ...currentData,
-      [name]: value,
-    }));
+    setFormData(
+      (currentData) => ({
+        ...currentData,
+        [name]: value,
+      }),
+    );
+
+    setError("");
   };
 
   const handleEdit = () => {
     setFormData(profile);
+    setError("");
     setIsEditing(true);
   };
 
   const handleCancel = () => {
     setFormData(profile);
+    setError("");
     setIsEditing(false);
   };
 
-  const handleSave = (event) => {
+  const handleSave = async (
+    event,
+  ) => {
     event.preventDefault();
-    setProfile(formData);
 
-    localStorage.setItem(
-      "user",
-      JSON.stringify({
-        ...(storedUser ?? {}),
-        name: formData.name,
-        role: isStudent ? "Estudiante" : "Profesor",
-        email: formData.email,
-      }),
+    if (!userId) {
+      setError(
+        "No se encontró el identificador del usuario autenticado.",
+      );
+      return;
+    }
+
+    const {
+      nombre,
+      apellido,
+    } = splitName(
+      formData.name,
     );
 
-    setIsEditing(false);
+    const currentApiUser =
+      apiUser ||
+      storedUser ||
+      {};
+
+    const payload = {
+      ...currentApiUser,
+
+      nombre,
+      apellido,
+
+      email:
+        formData.email.trim(),
+
+      rol:
+        currentApiUser.rol ||
+        currentApiUser.role ||
+        "ESTUDIANTE",
+
+      activo:
+        currentApiUser.activo ??
+        true,
+    };
+
+    delete payload.name;
+    delete payload.role;
+
+    try {
+      setIsSaving(true);
+      setError("");
+
+      const response =
+        await fetch(
+          `${USERS_API}/${userId}`,
+          {
+            method: "PUT",
+
+            headers: {
+              "Content-Type":
+                "application/json",
+            },
+
+            body: JSON.stringify(
+              payload,
+            ),
+          },
+        );
+
+      if (!response.ok) {
+        let message =
+          `No fue posible actualizar el perfil (${response.status}).`;
+
+        try {
+          const errorData =
+            await response.json();
+
+          message =
+            errorData.message ||
+            errorData.error ||
+            message;
+        } catch {
+          // El backend no devolvió JSON.
+        }
+
+        throw new Error(message);
+      }
+
+      const updatedUser =
+        await response.json();
+
+      setApiUser(updatedUser);
+      setStoredUser(updatedUser);
+
+      const updatedProfile =
+        createProfileFromUser(
+          updatedUser,
+          {
+            ...formData,
+
+            location:
+              formData.location,
+
+            specialty:
+              formData.specialty,
+
+            biography:
+              formData.biography,
+          },
+        );
+
+      setProfile(
+        updatedProfile,
+      );
+
+      setFormData(
+        updatedProfile,
+      );
+
+      localStorage.setItem(
+        "user",
+        JSON.stringify(
+          updatedUser,
+        ),
+      );
+
+      localStorage.setItem(
+        `profile_extra_${userId}`,
+        JSON.stringify({
+          location:
+            formData.location,
+
+          specialty:
+            formData.specialty,
+
+          biography:
+            formData.biography,
+        }),
+      );
+
+      setIsEditing(false);
+    } catch (saveError) {
+      console.error(
+        "Error actualizando perfil:",
+        saveError,
+      );
+
+      setError(
+        saveError.message ||
+          "No fue posible guardar los cambios.",
+      );
+    } finally {
+      setIsSaving(false);
+    }
   };
+
+  useEffect(() => {
+    if (!userId) {
+      return;
+    }
+
+    try {
+      const storedExtras =
+        localStorage.getItem(
+          `profile_extra_${userId}`,
+        );
+
+      if (!storedExtras) {
+        return;
+      }
+
+      const extras =
+        JSON.parse(
+          storedExtras,
+        );
+
+      setProfile(
+        (currentProfile) => ({
+          ...currentProfile,
+          ...extras,
+        }),
+      );
+
+      setFormData(
+        (currentProfile) => ({
+          ...currentProfile,
+          ...extras,
+        }),
+      );
+    } catch {
+      // Si falla el dato local adicional,
+      // simplemente se utilizan los valores por defecto.
+    }
+  }, [userId]);
 
   return (
     <div className="profile-layout">
@@ -222,7 +601,9 @@ function Perfil() {
               Perfil profesional
             </span>
 
-            <h1>Mi perfil</h1>
+            <h1>
+              Mi perfil
+            </h1>
 
             <p>
               {isStudent
@@ -236,12 +617,23 @@ function Perfil() {
               type="button"
               className="profile-edit-button"
               onClick={handleEdit}
+              disabled={isLoading}
             >
               <Edit3 size={18} />
               Editar perfil
             </button>
           )}
         </header>
+
+        {error && (
+          <p
+            style={{
+              marginBottom: "16px",
+            }}
+          >
+            {error}
+          </p>
+        )}
 
         <section className="profile-main-grid">
           <section className="profile-card profile-identity-card">
@@ -251,9 +643,14 @@ function Perfil() {
 
             <div className="profile-avatar-wrapper">
               <div className="profile-avatar">
-                <span>{initials}</span>
+                <span>
+                  {initials}
+                </span>
 
-                <button type="button" aria-label="Cambiar foto de perfil">
+                <button
+                  type="button"
+                  aria-label="Cambiar foto de perfil"
+                >
                   <Camera size={17} />
                 </button>
               </div>
@@ -263,11 +660,20 @@ function Perfil() {
               <div className="profile-name-section">
                 <div>
                   <div className="profile-name-line">
-                    <h2>{profile.name}</h2>
-                    <CheckCircle2 size={20} />
+                    <h2>
+                      {isLoading
+                        ? "Cargando..."
+                        : profile.name}
+                    </h2>
+
+                    <CheckCircle2
+                      size={20}
+                    />
                   </div>
 
-                  <p>{profile.role}</p>
+                  <p>
+                    {profile.role}
+                  </p>
                 </div>
 
                 <span className="profile-status">
@@ -279,32 +685,63 @@ function Perfil() {
               <div className="profile-information-list">
                 <article>
                   <Mail size={18} />
+
                   <div>
-                    <span>Correo electrónico</span>
-                    <strong>{profile.email}</strong>
+                    <span>
+                      Correo electrónico
+                    </span>
+
+                    <strong>
+                      {profile.email}
+                    </strong>
                   </div>
                 </article>
 
                 <article>
                   <MapPin size={18} />
+
                   <div>
-                    <span>Ubicación</span>
-                    <strong>{profile.location}</strong>
+                    <span>
+                      Ubicación
+                    </span>
+
+                    <strong>
+                      {
+                        profile.location
+                      }
+                    </strong>
                   </div>
                 </article>
 
                 <article>
-                  <BookOpen size={18} />
+                  <BookOpen
+                    size={18}
+                  />
+
                   <div>
-                    <span>{isStudent ? "Área de estudio" : "Especialidad"}</span>
-                    <strong>{profile.specialty}</strong>
+                    <span>
+                      {isStudent
+                        ? "Área de estudio"
+                        : "Especialidad"}
+                    </span>
+
+                    <strong>
+                      {
+                        profile.specialty
+                      }
+                    </strong>
                   </div>
                 </article>
               </div>
 
               <div className="profile-biography">
-                <span>Acerca de mí</span>
-                <p>{profile.biography}</p>
+                <span>
+                  Acerca de mí
+                </span>
+
+                <p>
+                  {profile.biography}
+                </p>
               </div>
             </div>
           </section>
@@ -313,75 +750,152 @@ function Perfil() {
             <section className="profile-card profile-level-card">
               <div className="profile-card-heading">
                 <div>
-                  <span>{isStudent ? "Nivel académico" : "Nivel profesional"}</span>
-                  <h3>{isStudent ? "Estudiante avanzado" : "Profesor experto"}</h3>
+                  <span>
+                    {isStudent
+                      ? "Nivel académico"
+                      : "Nivel profesional"}
+                  </span>
+
+                  <h3>
+                    {isStudent
+                      ? "Estudiante avanzado"
+                      : "Profesor experto"}
+                  </h3>
                 </div>
 
                 <div className="profile-level-icon">
-                  <ShieldCheck size={24} />
+                  <ShieldCheck
+                    size={24}
+                  />
                 </div>
               </div>
 
               <div className="profile-level-progress">
                 <div>
-                  <span>Progreso al siguiente nivel</span>
-                  <strong>{isStudent ? "64%" : "78%"}</strong>
+                  <span>
+                    Progreso al siguiente nivel
+                  </span>
+
+                  <strong>
+                    {isStudent
+                      ? "64%"
+                      : "78%"}
+                  </strong>
                 </div>
 
                 <div className="profile-progress-track">
-                  <span style={{ width: isStudent ? "64%" : "78%" }} />
+                  <span
+                    style={{
+                      width:
+                        isStudent
+                          ? "64%"
+                          : "78%",
+                    }}
+                  />
                 </div>
               </div>
 
               <div className="profile-level-footer">
-                <span>{isStudent ? "2.560 XP obtenidos" : "3.940 XP obtenidos"}</span>
-                <span>{isStudent ? "1.440 XP restantes" : "1.060 XP restantes"}</span>
+                <span>
+                  {isStudent
+                    ? "2.560 XP obtenidos"
+                    : "3.940 XP obtenidos"}
+                </span>
+
+                <span>
+                  {isStudent
+                    ? "1.440 XP restantes"
+                    : "1.060 XP restantes"}
+                </span>
               </div>
             </section>
 
             <section className="profile-card profile-statistics-card">
               <div className="profile-card-title">
-                <h3>Estadísticas</h3>
-                <span>Este semestre</span>
+                <h3>
+                  Estadísticas
+                </h3>
+
+                <span>
+                  Este semestre
+                </span>
               </div>
 
               <div className="profile-statistics-grid">
                 {isStudent ? (
                   <>
                     <article>
-                      <strong>18h</strong>
-                      <span>Tiempo estudiado</span>
+                      <strong>
+                        18h
+                      </strong>
+                      <span>
+                        Tiempo estudiado
+                      </span>
                     </article>
+
                     <article>
-                      <strong>3</strong>
-                      <span>Cursos activos</span>
+                      <strong>
+                        3
+                      </strong>
+                      <span>
+                        Cursos activos
+                      </span>
                     </article>
+
                     <article>
-                      <strong>24</strong>
-                      <span>Sesiones Focus</span>
+                      <strong>
+                        24
+                      </strong>
+                      <span>
+                        Sesiones Focus
+                      </span>
                     </article>
+
                     <article>
-                      <strong>8</strong>
-                      <span>Logros</span>
+                      <strong>
+                        8
+                      </strong>
+                      <span>
+                        Logros
+                      </span>
                     </article>
                   </>
                 ) : (
                   <>
                     <article>
-                      <strong>128</strong>
-                      <span>Estudiantes</span>
+                      <strong>
+                        128
+                      </strong>
+                      <span>
+                        Estudiantes
+                      </span>
                     </article>
+
                     <article>
-                      <strong>12</strong>
-                      <span>Cursos</span>
+                      <strong>
+                        12
+                      </strong>
+                      <span>
+                        Cursos
+                      </span>
                     </article>
+
                     <article>
-                      <strong>46</strong>
-                      <span>Salas creadas</span>
+                      <strong>
+                        46
+                      </strong>
+                      <span>
+                        Salas creadas
+                      </span>
                     </article>
+
                     <article>
-                      <strong>4.9</strong>
-                      <span>Calificación</span>
+                      <strong>
+                        4.9
+                      </strong>
+                      <span>
+                        Calificación
+                      </span>
                     </article>
                   </>
                 )}
@@ -394,55 +908,101 @@ function Perfil() {
           <section className="profile-card profile-achievements-card">
             <div className="profile-section-heading">
               <div>
-                <span>Reconocimientos</span>
-                <h2>Logros destacados</h2>
+                <span>
+                  Reconocimientos
+                </span>
+
+                <h2>
+                  Logros destacados
+                </h2>
               </div>
 
               <Award size={22} />
             </div>
 
             <div className="profile-achievements-list">
-              {achievements.map((achievement) => {
-                const Icon = achievement.icon;
+              {achievements.map(
+                (achievement) => {
+                  const Icon =
+                    achievement.icon;
 
-                return (
-                  <article key={achievement.id}>
-                    <div className="profile-achievement-icon">
-                      <Icon size={21} />
-                    </div>
+                  return (
+                    <article
+                      key={
+                        achievement.id
+                      }
+                    >
+                      <div className="profile-achievement-icon">
+                        <Icon
+                          size={21}
+                        />
+                      </div>
 
-                    <div>
-                      <h3>{achievement.title}</h3>
-                      <p>{achievement.description}</p>
-                    </div>
-                  </article>
-                );
-              })}
+                      <div>
+                        <h3>
+                          {
+                            achievement.title
+                          }
+                        </h3>
+
+                        <p>
+                          {
+                            achievement.description
+                          }
+                        </p>
+                      </div>
+                    </article>
+                  );
+                },
+              )}
             </div>
           </section>
 
           <section className="profile-card profile-activity-card">
             <div className="profile-section-heading">
               <div>
-                <span>Historial reciente</span>
-                <h2>Actividad</h2>
+                <span>
+                  Historial reciente
+                </span>
+
+                <h2>
+                  Actividad
+                </h2>
               </div>
 
               <Clock3 size={22} />
             </div>
 
             <div className="profile-activity-list">
-              {recentActivity.map((activity) => (
-                <article key={activity.id}>
-                  <div className="profile-activity-point" />
+              {recentActivity.map(
+                (activity) => (
+                  <article
+                    key={activity.id}
+                  >
+                    <div className="profile-activity-point" />
 
-                  <div>
-                    <h3>{activity.title}</h3>
-                    <p>{activity.description}</p>
-                    <span>{activity.time}</span>
-                  </div>
-                </article>
-              ))}
+                    <div>
+                      <h3>
+                        {
+                          activity.title
+                        }
+                      </h3>
+
+                      <p>
+                        {
+                          activity.description
+                        }
+                      </p>
+
+                      <span>
+                        {
+                          activity.time
+                        }
+                      </span>
+                    </div>
+                  </article>
+                ),
+              )}
             </div>
           </section>
         </section>
@@ -453,8 +1013,13 @@ function Perfil() {
           <section className="profile-edit-modal">
             <header>
               <div>
-                <span>Configuración personal</span>
-                <h2>Editar perfil</h2>
+                <span>
+                  Configuración personal
+                </span>
+
+                <h2>
+                  Editar perfil
+                </h2>
               </div>
 
               <button
@@ -466,87 +1031,157 @@ function Perfil() {
               </button>
             </header>
 
-            <form onSubmit={handleSave}>
+            <form
+              onSubmit={handleSave}
+            >
               <div className="profile-form-grid">
                 <label>
-                  <span>Nombre completo</span>
+                  <span>
+                    Nombre completo
+                  </span>
+
                   <input
                     type="text"
                     name="name"
-                    value={formData.name}
-                    onChange={handleChange}
+                    value={
+                      formData.name
+                    }
+                    onChange={
+                      handleChange
+                    }
                     required
                   />
                 </label>
 
                 <label>
-                  <span>Cargo o rol</span>
+                  <span>
+                    Cargo o rol
+                  </span>
+
                   <input
                     type="text"
                     name="role"
-                    value={formData.role}
-                    onChange={handleChange}
-                    required
+                    value={
+                      formData.role
+                    }
+                    readOnly
                   />
                 </label>
 
                 <label>
-                  <span>Correo electrónico</span>
+                  <span>
+                    Correo electrónico
+                  </span>
+
                   <input
                     type="email"
                     name="email"
-                    value={formData.email}
-                    onChange={handleChange}
+                    value={
+                      formData.email
+                    }
+                    onChange={
+                      handleChange
+                    }
                     required
                   />
                 </label>
 
                 <label>
-                  <span>Ubicación</span>
+                  <span>
+                    Ubicación
+                  </span>
+
                   <input
                     type="text"
                     name="location"
-                    value={formData.location}
-                    onChange={handleChange}
+                    value={
+                      formData.location
+                    }
+                    onChange={
+                      handleChange
+                    }
                     required
                   />
                 </label>
 
                 <label className="profile-form-full-width">
-                  <span>Especialidad</span>
+                  <span>
+                    {isStudent
+                      ? "Área de estudio"
+                      : "Especialidad"}
+                  </span>
+
                   <input
                     type="text"
                     name="specialty"
-                    value={formData.specialty}
-                    onChange={handleChange}
+                    value={
+                      formData.specialty
+                    }
+                    onChange={
+                      handleChange
+                    }
                     required
                   />
                 </label>
 
                 <label className="profile-form-full-width">
-                  <span>Biografía</span>
+                  <span>
+                    Biografía
+                  </span>
+
                   <textarea
                     name="biography"
-                    value={formData.biography}
-                    onChange={handleChange}
+                    value={
+                      formData.biography
+                    }
+                    onChange={
+                      handleChange
+                    }
                     rows="5"
                     required
                   />
                 </label>
               </div>
 
+              {error && (
+                <p
+                  style={{
+                    marginTop:
+                      "12px",
+                  }}
+                >
+                  {error}
+                </p>
+              )}
+
               <footer>
                 <button
                   type="button"
                   className="profile-cancel-button"
-                  onClick={handleCancel}
+                  onClick={
+                    handleCancel
+                  }
+                  disabled={
+                    isSaving
+                  }
                 >
                   Cancelar
                 </button>
 
-                <button type="submit" className="profile-save-button">
-                  <Save size={18} />
-                  Guardar cambios
+                <button
+                  type="submit"
+                  className="profile-save-button"
+                  disabled={
+                    isSaving
+                  }
+                >
+                  <Save
+                    size={18}
+                  />
+
+                  {isSaving
+                    ? "Guardando..."
+                    : "Guardar cambios"}
                 </button>
               </footer>
             </form>

@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   AlertTriangle,
   BookOpen,
@@ -22,78 +22,10 @@ import {
 import Sidebar from "../../components/dashboard/Sidebar";
 import "../../styles/admin/EstudiantesAdmin.css";
 
-const initialStudents = [
-  {
-    id: 1,
-    name: "Ana Martínez",
-    initials: "AM",
-    email: "ana.martinez@studysync.com",
-    phone: "+57 310 824 5687",
-    course: "Matemáticas avanzadas",
-    average: 92,
-    attendance: 96,
-    reports: 2,
-    status: "Activo",
-    academicStatus: "Excelente",
-    lastAccess: "Hoy, 8:20 p. m.",
-  },
-  {
-    id: 2,
-    name: "Carlos Ramírez",
-    initials: "CR",
-    email: "carlos.ramirez@studysync.com",
-    phone: "+57 315 689 4578",
-    course: "Cálculo diferencial",
-    average: 78,
-    attendance: 88,
-    reports: 1,
-    status: "Activo",
-    academicStatus: "Seguimiento",
-    lastAccess: "Hoy, 6:35 p. m.",
-  },
-  {
-    id: 3,
-    name: "María González",
-    initials: "MG",
-    email: "maria.gonzalez@studysync.com",
-    phone: "+57 301 568 9742",
-    course: "Física aplicada",
-    average: 86,
-    attendance: 94,
-    reports: 0,
-    status: "Activo",
-    academicStatus: "Estable",
-    lastAccess: "Hace 42 min",
-  },
-  {
-    id: 4,
-    name: "Luis Herrera",
-    initials: "LH",
-    email: "luis.herrera@studysync.com",
-    phone: "+57 320 476 8521",
-    course: "Álgebra lineal",
-    average: 64,
-    attendance: 72,
-    reports: 3,
-    status: "Suspendido",
-    academicStatus: "Alerta",
-    lastAccess: "Hace 9 días",
-  },
-  {
-    id: 5,
-    name: "Sofía López",
-    initials: "SL",
-    email: "sofia.lopez@studysync.com",
-    phone: "+57 312 785 4690",
-    course: "Programación básica",
-    average: 89,
-    attendance: 97,
-    reports: 1,
-    status: "Activo",
-    academicStatus: "Excelente",
-    lastAccess: "Ayer, 9:10 p. m.",
-  },
-];
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
+
+const USERS_API = `${API_BASE_URL}/api/users`;
 
 const emptyForm = {
   name: "",
@@ -107,7 +39,7 @@ const emptyForm = {
 };
 
 function getInitials(name) {
-  return name
+  return String(name || "")
     .split(" ")
     .filter(Boolean)
     .slice(0, 2)
@@ -115,8 +47,48 @@ function getInitials(name) {
     .join("");
 }
 
+function splitName(fullName) {
+  const parts = String(fullName || "")
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean);
+
+  return {
+    nombre: parts.shift() || "",
+    apellido: parts.join(" "),
+  };
+}
+
+function mapStudentFromApi(user) {
+  const name = `${user.nombre ?? ""} ${user.apellido ?? ""}`.trim();
+
+  return {
+    id: user.id,
+    name: name || "Estudiante sin nombre",
+    initials: getInitials(name),
+    email: user.email ?? "",
+
+    // Estos campos todavía no existen en User.java.
+    phone: "No registrado",
+    course: "Sin curso asignado",
+    average: 0,
+    attendance: 0,
+    reports: 0,
+    academicStatus: "Estable",
+    lastAccess: "Sin información",
+
+    status:
+      user.activo === false
+        ? "Suspendido"
+        : "Activo",
+
+    apiData: user,
+  };
+}
+
 function EstudiantesAdmin() {
-  const [students, setStudents] = useState(initialStudents);
+  const [students, setStudents] = useState([]);
+
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("Todos");
   const [courseFilter, setCourseFilter] = useState("Todos");
@@ -132,6 +104,55 @@ function EstudiantesAdmin() {
   const [formData, setFormData] = useState(emptyForm);
   const [formError, setFormError] = useState("");
   const [notification, setNotification] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
+
+  const showNotification = (message) => {
+    setNotification(message);
+
+    window.setTimeout(() => {
+      setNotification("");
+    }, 2800);
+  };
+
+  const loadStudents = async () => {
+    try {
+      setIsLoading(true);
+
+      const response = await fetch(USERS_API);
+
+      if (!response.ok) {
+        throw new Error(
+          `No fue posible cargar los estudiantes (${response.status}).`,
+        );
+      }
+
+      const data = await response.json();
+
+      const studentUsers = Array.isArray(data)
+        ? data
+            .filter(
+              (user) =>
+                String(user.rol || "").toUpperCase() ===
+                "ESTUDIANTE",
+            )
+            .map(mapStudentFromApi)
+        : [];
+
+      setStudents(studentUsers);
+    } catch (error) {
+      console.error("Error cargando estudiantes:", error);
+
+      showNotification(
+        "No fue posible cargar los estudiantes desde el backend.",
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadStudents();
+  }, []);
 
   const statistics = useMemo(() => {
     const active = students.filter(
@@ -142,13 +163,16 @@ function EstudiantesAdmin() {
       (student) => student.status === "Suspendido",
     ).length;
 
-    const average = Math.round(
-      students.reduce(
-        (accumulator, student) =>
-          accumulator + student.average,
-        0,
-      ) / students.length,
-    );
+    const average =
+      students.length > 0
+        ? Math.round(
+            students.reduce(
+              (accumulator, student) =>
+                accumulator + Number(student.average || 0),
+              0,
+            ) / students.length,
+          )
+        : 0;
 
     return {
       total: students.length,
@@ -161,19 +185,31 @@ function EstudiantesAdmin() {
   const courses = useMemo(() => {
     return [
       "Todos",
-      ...new Set(students.map((student) => student.course)),
+      ...new Set(
+        students.map(
+          (student) =>
+            student.course || "Sin curso asignado",
+        ),
+      ),
     ];
   }, [students]);
 
   const filteredStudents = useMemo(() => {
-    const normalizedSearch = searchTerm.trim().toLowerCase();
+    const normalizedSearch =
+      searchTerm.trim().toLowerCase();
 
     return students.filter((student) => {
       const matchesSearch =
         !normalizedSearch ||
-        student.name.toLowerCase().includes(normalizedSearch) ||
-        student.email.toLowerCase().includes(normalizedSearch) ||
-        student.course.toLowerCase().includes(normalizedSearch);
+        student.name
+          .toLowerCase()
+          .includes(normalizedSearch) ||
+        student.email
+          .toLowerCase()
+          .includes(normalizedSearch) ||
+        student.course
+          .toLowerCase()
+          .includes(normalizedSearch);
 
       const matchesStatus =
         statusFilter === "Todos" ||
@@ -183,17 +219,18 @@ function EstudiantesAdmin() {
         courseFilter === "Todos" ||
         student.course === courseFilter;
 
-      return matchesSearch && matchesStatus && matchesCourse;
+      return (
+        matchesSearch &&
+        matchesStatus &&
+        matchesCourse
+      );
     });
-  }, [students, searchTerm, statusFilter, courseFilter]);
-
-  const showNotification = (message) => {
-    setNotification(message);
-
-    window.setTimeout(() => {
-      setNotification("");
-    }, 2800);
-  };
+  }, [
+    students,
+    searchTerm,
+    statusFilter,
+    courseFilter,
+  ]);
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -221,12 +258,24 @@ function EstudiantesAdmin() {
     setFormData({
       name: student.name,
       email: student.email,
-      phone: student.phone,
-      course: student.course,
+
+      phone:
+        student.phone === "No registrado"
+          ? ""
+          : student.phone,
+
+      course:
+        student.course === "Sin curso asignado"
+          ? ""
+          : student.course,
+
       average: String(student.average),
       attendance: String(student.attendance),
+
       status: student.status,
-      academicStatus: student.academicStatus,
+
+      academicStatus:
+        student.academicStatus || "Estable",
     });
 
     setActiveMenu(null);
@@ -264,7 +313,7 @@ function EstudiantesAdmin() {
     return "";
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
 
     const validationError = validateForm();
@@ -276,90 +325,274 @@ function EstudiantesAdmin() {
 
     const average = Math.min(
       100,
-      Math.max(0, Number(formData.average) || 0),
+      Math.max(
+        0,
+        Number(formData.average) || 0,
+      ),
     );
 
     const attendance = Math.min(
       100,
-      Math.max(0, Number(formData.attendance) || 0),
+      Math.max(
+        0,
+        Number(formData.attendance) || 0,
+      ),
     );
 
-    if (isEditing && selectedStudent) {
-      setStudents((currentStudents) =>
-        currentStudents.map((student) =>
-          student.id === selectedStudent.id
-            ? {
-                ...student,
-                name: formData.name.trim(),
-                initials: getInitials(formData.name),
-                email: formData.email.trim(),
-                phone: formData.phone.trim(),
-                course: formData.course.trim(),
-                average,
-                attendance,
-                status: formData.status,
-                academicStatus: formData.academicStatus,
-              }
-            : student,
-        ),
+    const { nombre, apellido } =
+      splitName(formData.name);
+
+    const payload = {
+      nombre,
+      apellido,
+      email: formData.email.trim(),
+      rol: "ESTUDIANTE",
+      activo: formData.status === "Activo",
+    };
+
+    try {
+      if (isEditing && selectedStudent) {
+        const response = await fetch(
+          `${USERS_API}/${selectedStudent.id}`,
+          {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(payload),
+          },
+        );
+
+        if (!response.ok) {
+          throw new Error(
+            `No fue posible actualizar el estudiante (${response.status}).`,
+          );
+        }
+
+        const updatedApiStudent =
+          await response.json();
+
+        const updatedStudent =
+          mapStudentFromApi(updatedApiStudent);
+
+        setStudents((currentStudents) =>
+          currentStudents.map((student) =>
+            student.id === selectedStudent.id
+              ? {
+                  ...updatedStudent,
+
+                  // Se mantienen en React porque User.java
+                  // todavía no posee estos campos.
+                  phone:
+                    formData.phone.trim() ||
+                    student.phone ||
+                    "No registrado",
+
+                  course:
+                    formData.course.trim() ||
+                    student.course ||
+                    "Sin curso asignado",
+
+                  average,
+                  attendance,
+
+                  reports: student.reports,
+
+                  academicStatus:
+                    formData.academicStatus,
+
+                  lastAccess:
+                    student.lastAccess,
+                }
+              : student,
+          ),
+        );
+
+        showNotification(
+          "Estudiante actualizado correctamente.",
+        );
+      } else {
+        const response = await fetch(USERS_API, {
+          method: "POST",
+          headers: {
+            "Content-Type":
+              "application/json",
+          },
+
+          body: JSON.stringify(payload),
+        });
+
+        if (!response.ok) {
+          let message =
+            "No fue posible crear el estudiante.";
+
+          try {
+            const errorData =
+              await response.json();
+
+            message =
+              errorData.message ||
+              errorData.error ||
+              message;
+          } catch {
+            // El backend no devolvió JSON.
+          }
+
+          throw new Error(message);
+        }
+
+        const createdApiStudent =
+          await response.json();
+
+        const createdStudent = {
+          ...mapStudentFromApi(
+            createdApiStudent,
+          ),
+
+          phone:
+            formData.phone.trim() ||
+            "No registrado",
+
+          course:
+            formData.course.trim() ||
+            "Sin curso asignado",
+
+          average,
+          attendance,
+
+          academicStatus:
+            formData.academicStatus,
+        };
+
+        setStudents(
+          (currentStudents) => [
+            createdStudent,
+            ...currentStudents,
+          ],
+        );
+
+        showNotification(
+          "Estudiante creado correctamente.",
+        );
+      }
+
+      closeModal();
+    } catch (error) {
+      console.error(
+        "Error guardando estudiante:",
+        error,
       );
 
-      showNotification(
-        "Estudiante actualizado correctamente.",
-      );
-    } else {
-      const newStudent = {
-        id: Date.now(),
-        name: formData.name.trim(),
-        initials: getInitials(formData.name),
-        email: formData.email.trim(),
-        phone: formData.phone.trim(),
-        course: formData.course.trim(),
-        average,
-        attendance,
-        reports: 0,
-        status: formData.status,
-        academicStatus: formData.academicStatus,
-        lastAccess: "Sin iniciar sesión",
-      };
-
-      setStudents((currentStudents) => [
-        newStudent,
-        ...currentStudents,
-      ]);
-
-      showNotification(
-        "Estudiante creado correctamente.",
+      setFormError(
+        error.message ||
+          "No fue posible guardar el estudiante.",
       );
     }
-
-    closeModal();
   };
 
-  const toggleStatus = (student) => {
+  const toggleStatus = async (student) => {
     const nextStatus =
       student.status === "Activo"
         ? "Suspendido"
         : "Activo";
 
-    setStudents((currentStudents) =>
-      currentStudents.map((currentStudent) =>
-        currentStudent.id === student.id
-          ? {
-              ...currentStudent,
-              status: nextStatus,
-            }
-          : currentStudent,
-      ),
-    );
+    const names =
+      splitName(student.name);
 
-    setActiveMenu(null);
+    const payload = {
+      nombre:
+        student.apiData?.nombre ??
+        names.nombre,
 
-    showNotification(
-      nextStatus === "Activo"
-        ? "Estudiante activado correctamente."
-        : "Estudiante suspendido correctamente.",
-    );
+      apellido:
+        student.apiData?.apellido ??
+        names.apellido,
+
+      email: student.email,
+
+      rol: "ESTUDIANTE",
+
+      activo:
+        nextStatus === "Activo",
+    };
+
+    try {
+      const response = await fetch(
+        `${USERS_API}/${student.id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type":
+              "application/json",
+          },
+          body: JSON.stringify(payload),
+        },
+      );
+
+      if (!response.ok) {
+        throw new Error(
+          `No fue posible cambiar el estado (${response.status}).`,
+        );
+      }
+
+      const updatedApiStudent =
+        await response.json();
+
+      const updatedStudent =
+        mapStudentFromApi(
+          updatedApiStudent,
+        );
+
+      setStudents((currentStudents) =>
+        currentStudents.map(
+          (currentStudent) =>
+            currentStudent.id ===
+            student.id
+              ? {
+                  ...updatedStudent,
+
+                  phone:
+                    currentStudent.phone,
+
+                  course:
+                    currentStudent.course,
+
+                  average:
+                    currentStudent.average,
+
+                  attendance:
+                    currentStudent.attendance,
+
+                  reports:
+                    currentStudent.reports,
+
+                  academicStatus:
+                    currentStudent.academicStatus,
+
+                  lastAccess:
+                    currentStudent.lastAccess,
+                }
+              : currentStudent,
+        ),
+      );
+
+      setActiveMenu(null);
+
+      showNotification(
+        nextStatus === "Activo"
+          ? "Estudiante activado correctamente."
+          : "Estudiante suspendido correctamente.",
+      );
+    } catch (error) {
+      console.error(
+        "Error cambiando estado del estudiante:",
+        error,
+      );
+
+      showNotification(
+        "No fue posible cambiar el estado del estudiante.",
+      );
+    }
   };
 
   const openDetails = (student) => {
@@ -374,23 +607,53 @@ function EstudiantesAdmin() {
     setIsDeleteOpen(true);
   };
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (!selectedStudent) {
       return;
     }
 
-    setStudents((currentStudents) =>
-      currentStudents.filter(
-        (student) => student.id !== selectedStudent.id,
-      ),
-    );
+    try {
+      const response = await fetch(
+        `${USERS_API}/${selectedStudent.id}`,
+        {
+          method: "DELETE",
+        },
+      );
 
-    setSelectedStudent(null);
-    setIsDeleteOpen(false);
+      if (
+        !response.ok &&
+        response.status !== 204
+      ) {
+        throw new Error(
+          `No fue posible eliminar el estudiante (${response.status}).`,
+        );
+      }
 
-    showNotification(
-      "Estudiante eliminado correctamente.",
-    );
+      setStudents(
+        (currentStudents) =>
+          currentStudents.filter(
+            (student) =>
+              student.id !==
+              selectedStudent.id,
+          ),
+      );
+
+      setSelectedStudent(null);
+      setIsDeleteOpen(false);
+
+      showNotification(
+        "Estudiante eliminado correctamente.",
+      );
+    } catch (error) {
+      console.error(
+        "Error eliminando estudiante:",
+        error,
+      );
+
+      showNotification(
+        "No fue posible eliminar el estudiante.",
+      );
+    }
   };
 
   const clearFilters = () => {
@@ -414,8 +677,8 @@ function EstudiantesAdmin() {
             <h1>Estudiantes</h1>
 
             <p>
-              Supervisa expedientes, rendimiento, asistencia, alertas y
-              estado general de los estudiantes.
+              Supervisa expedientes, rendimiento, asistencia,
+              alertas y estado general de los estudiantes.
             </p>
           </div>
 
@@ -434,6 +697,7 @@ function EstudiantesAdmin() {
             <div>
               <Users size={22} />
             </div>
+
             <span>Total estudiantes</span>
             <strong>{statistics.total}</strong>
             <small>Registrados en StudySync</small>
@@ -443,6 +707,7 @@ function EstudiantesAdmin() {
             <div>
               <UserCheck size={22} />
             </div>
+
             <span>Estudiantes activos</span>
             <strong>{statistics.active}</strong>
             <small>Con acceso habilitado</small>
@@ -452,6 +717,7 @@ function EstudiantesAdmin() {
             <div>
               <UserX size={22} />
             </div>
+
             <span>Suspendidos</span>
             <strong>{statistics.suspended}</strong>
             <small>Requieren revisión</small>
@@ -461,6 +727,7 @@ function EstudiantesAdmin() {
             <div>
               <TrendingUp size={22} />
             </div>
+
             <span>Promedio general</span>
             <strong>{statistics.average}%</strong>
             <small>Rendimiento académico</small>
@@ -476,7 +743,9 @@ function EstudiantesAdmin() {
                 type="search"
                 value={searchTerm}
                 onChange={(event) =>
-                  setSearchTerm(event.target.value)
+                  setSearchTerm(
+                    event.target.value,
+                  )
                 }
                 placeholder="Buscar estudiante, correo o curso..."
               />
@@ -486,11 +755,16 @@ function EstudiantesAdmin() {
               <select
                 value={courseFilter}
                 onChange={(event) =>
-                  setCourseFilter(event.target.value)
+                  setCourseFilter(
+                    event.target.value,
+                  )
                 }
               >
                 {courses.map((course) => (
-                  <option key={course} value={course}>
+                  <option
+                    key={course}
+                    value={course}
+                  >
                     {course === "Todos"
                       ? "Todos los cursos"
                       : course}
@@ -501,13 +775,19 @@ function EstudiantesAdmin() {
               <select
                 value={statusFilter}
                 onChange={(event) =>
-                  setStatusFilter(event.target.value)
+                  setStatusFilter(
+                    event.target.value,
+                  )
                 }
               >
                 <option value="Todos">
                   Todos los estados
                 </option>
-                <option value="Activo">Activo</option>
+
+                <option value="Activo">
+                  Activo
+                </option>
+
                 <option value="Suspendido">
                   Suspendido
                 </option>
@@ -515,7 +795,8 @@ function EstudiantesAdmin() {
 
               {(searchTerm ||
                 courseFilter !== "Todos" ||
-                statusFilter !== "Todos") && (
+                statusFilter !==
+                  "Todos") && (
                 <button
                   type="button"
                   className="students-admin-clear-button"
@@ -530,13 +811,24 @@ function EstudiantesAdmin() {
 
           <div className="students-admin-table-heading">
             <div>
-              <span>Directorio académico</span>
-              <h2>Estudiantes registrados</h2>
+              <span>
+                Directorio académico
+              </span>
+
+              <h2>
+                Estudiantes registrados
+              </h2>
             </div>
 
             <small>
-              {filteredStudents.length} resultado
-              {filteredStudents.length === 1 ? "" : "s"}
+              {isLoading
+                ? "Cargando..."
+                : `${filteredStudents.length} resultado${
+                    filteredStudents.length ===
+                    1
+                      ? ""
+                      : "s"
+                  }`}
             </small>
           </div>
 
@@ -549,169 +841,219 @@ function EstudiantesAdmin() {
                   <th>Promedio</th>
                   <th>Asistencia</th>
                   <th>Informes</th>
-                  <th>Estado académico</th>
+                  <th>
+                    Estado académico
+                  </th>
                   <th>Acceso</th>
                   <th />
                 </tr>
               </thead>
 
               <tbody>
-                {filteredStudents.map((student) => (
-                  <tr key={student.id}>
-                    <td>
-                      <div className="students-admin-user-cell">
-                        <div className="students-admin-avatar">
-                          {student.initials}
+                {filteredStudents.map(
+                  (student) => (
+                    <tr key={student.id}>
+                      <td>
+                        <div className="students-admin-user-cell">
+                          <div className="students-admin-avatar">
+                            {
+                              student.initials
+                            }
+                          </div>
+
+                          <div>
+                            <strong>
+                              {student.name}
+                            </strong>
+
+                            <span>
+                              <Mail
+                                size={13}
+                              />
+                              {student.email}
+                            </span>
+                          </div>
                         </div>
+                      </td>
 
-                        <div>
-                          <strong>{student.name}</strong>
-                          <span>
-                            <Mail size={13} />
-                            {student.email}
-                          </span>
-                        </div>
-                      </div>
-                    </td>
+                      <td>
+                        <span className="students-admin-course">
+                          <BookOpen
+                            size={14}
+                          />
+                          {student.course}
+                        </span>
+                      </td>
 
-                    <td>
-                      <span className="students-admin-course">
-                        <BookOpen size={14} />
-                        {student.course}
-                      </span>
-                    </td>
+                      <td>
+                        <strong className="students-admin-number">
+                          {student.average}%
+                        </strong>
+                      </td>
 
-                    <td>
-                      <strong className="students-admin-number">
-                        {student.average}%
-                      </strong>
-                    </td>
+                      <td>
+                        <strong className="students-admin-number">
+                          {
+                            student.attendance
+                          }
+                          %
+                        </strong>
+                      </td>
 
-                    <td>
-                      <strong className="students-admin-number">
-                        {student.attendance}%
-                      </strong>
-                    </td>
+                      <td>
+                        <strong className="students-admin-number">
+                          {student.reports}
+                        </strong>
+                      </td>
 
-                    <td>
-                      <strong className="students-admin-number">
-                        {student.reports}
-                      </strong>
-                    </td>
+                      <td>
+                        <span
+                          className={`students-admin-academic-status students-admin-${student.academicStatus.toLowerCase()}`}
+                        >
+                          {
+                            student.academicStatus
+                          }
+                        </span>
+                      </td>
 
-                    <td>
-                      <span
-                        className={`students-admin-academic-status students-admin-${student.academicStatus.toLowerCase()}`}
-                      >
-                        {student.academicStatus}
-                      </span>
-                    </td>
+                      <td>
+                        <span
+                          className={`students-admin-status ${
+                            student.status ===
+                            "Activo"
+                              ? "students-admin-status-active"
+                              : "students-admin-status-suspended"
+                          }`}
+                        >
+                          <span />
+                          {student.status}
+                        </span>
+                      </td>
 
-                    <td>
-                      <span
-                        className={`students-admin-status ${
-                          student.status === "Activo"
-                            ? "students-admin-status-active"
-                            : "students-admin-status-suspended"
-                        }`}
-                      >
-                        <span />
-                        {student.status}
-                      </span>
-                    </td>
+                      <td className="students-admin-actions-cell">
+                        <button
+                          type="button"
+                          className="students-admin-actions-trigger"
+                          onClick={() =>
+                            setActiveMenu(
+                              (current) =>
+                                current ===
+                                student.id
+                                  ? null
+                                  : student.id,
+                            )
+                          }
+                          aria-label={`Acciones para ${student.name}`}
+                        >
+                          <MoreVertical
+                            size={18}
+                          />
+                        </button>
 
-                    <td className="students-admin-actions-cell">
-                      <button
-                        type="button"
-                        className="students-admin-actions-trigger"
-                        onClick={() =>
-                          setActiveMenu((current) =>
-                            current === student.id
-                              ? null
-                              : student.id,
-                          )
-                        }
-                        aria-label={`Acciones para ${student.name}`}
-                      >
-                        <MoreVertical size={18} />
-                      </button>
+                        {activeMenu ===
+                          student.id && (
+                          <div className="students-admin-actions-menu">
+                            <button
+                              type="button"
+                              onClick={() =>
+                                openDetails(
+                                  student,
+                                )
+                              }
+                            >
+                              <Eye size={16} />
+                              Ver expediente
+                            </button>
 
-                      {activeMenu === student.id && (
-                        <div className="students-admin-actions-menu">
-                          <button
-                            type="button"
-                            onClick={() =>
-                              openDetails(student)
-                            }
-                          >
-                            <Eye size={16} />
-                            Ver expediente
-                          </button>
+                            <button
+                              type="button"
+                              onClick={() =>
+                                openEditModal(
+                                  student,
+                                )
+                              }
+                            >
+                              <Edit3
+                                size={16}
+                              />
+                              Editar estudiante
+                            </button>
 
-                          <button
-                            type="button"
-                            onClick={() =>
-                              openEditModal(student)
-                            }
-                          >
-                            <Edit3 size={16} />
-                            Editar estudiante
-                          </button>
+                            <button
+                              type="button"
+                              onClick={() =>
+                                toggleStatus(
+                                  student,
+                                )
+                              }
+                            >
+                              {student.status ===
+                              "Activo" ? (
+                                <UserX
+                                  size={16}
+                                />
+                              ) : (
+                                <UserCheck
+                                  size={16}
+                                />
+                              )}
 
-                          <button
-                            type="button"
-                            onClick={() =>
-                              toggleStatus(student)
-                            }
-                          >
-                            {student.status === "Activo" ? (
-                              <UserX size={16} />
-                            ) : (
-                              <UserCheck size={16} />
-                            )}
+                              {student.status ===
+                              "Activo"
+                                ? "Suspender"
+                                : "Activar"}
+                            </button>
 
-                            {student.status === "Activo"
-                              ? "Suspender"
-                              : "Activar"}
-                          </button>
-
-                          <button
-                            type="button"
-                            className="students-admin-danger-action"
-                            onClick={() =>
-                              openDeleteModal(student)
-                            }
-                          >
-                            <Trash2 size={16} />
-                            Eliminar estudiante
-                          </button>
-                        </div>
-                      )}
-                    </td>
-                  </tr>
-                ))}
+                            <button
+                              type="button"
+                              className="students-admin-danger-action"
+                              onClick={() =>
+                                openDeleteModal(
+                                  student,
+                                )
+                              }
+                            >
+                              <Trash2
+                                size={16}
+                              />
+                              Eliminar estudiante
+                            </button>
+                          </div>
+                        )}
+                      </td>
+                    </tr>
+                  ),
+                )}
               </tbody>
             </table>
 
-            {filteredStudents.length === 0 && (
-              <div className="students-admin-empty-state">
-                <GraduationCap size={36} />
+            {!isLoading &&
+              filteredStudents.length ===
+                0 && (
+                <div className="students-admin-empty-state">
+                  <GraduationCap
+                    size={36}
+                  />
 
-                <h3>No encontramos estudiantes</h3>
+                  <h3>
+                    No encontramos
+                    estudiantes
+                  </h3>
 
-                <p>
-                  Cambia los filtros o utiliza otro término de
-                  búsqueda.
-                </p>
+                  <p>
+                    Cambia los filtros o
+                    utiliza otro término de
+                    búsqueda.
+                  </p>
 
-                <button
-                  type="button"
-                  onClick={clearFilters}
-                >
-                  Limpiar filtros
-                </button>
-              </div>
-            )}
+                  <button
+                    type="button"
+                    onClick={clearFilters}
+                  >
+                    Limpiar filtros
+                  </button>
+                </div>
+              )}
           </div>
         </section>
       </main>
@@ -752,7 +1094,9 @@ function EstudiantesAdmin() {
             <form onSubmit={handleSubmit}>
               <div className="students-admin-form-grid">
                 <label>
-                  <span>Nombre completo *</span>
+                  <span>
+                    Nombre completo *
+                  </span>
 
                   <input
                     type="text"
@@ -765,7 +1109,9 @@ function EstudiantesAdmin() {
                 </label>
 
                 <label>
-                  <span>Correo electrónico *</span>
+                  <span>
+                    Correo electrónico *
+                  </span>
 
                   <input
                     type="email"
@@ -810,7 +1156,9 @@ function EstudiantesAdmin() {
                     name="average"
                     min="0"
                     max="100"
-                    value={formData.average}
+                    value={
+                      formData.average
+                    }
                     onChange={handleChange}
                     placeholder="0 - 100"
                   />
@@ -824,14 +1172,18 @@ function EstudiantesAdmin() {
                     name="attendance"
                     min="0"
                     max="100"
-                    value={formData.attendance}
+                    value={
+                      formData.attendance
+                    }
                     onChange={handleChange}
                     placeholder="0 - 100"
                   />
                 </label>
 
                 <label>
-                  <span>Estado de acceso</span>
+                  <span>
+                    Estado de acceso
+                  </span>
 
                   <select
                     name="status"
@@ -849,11 +1201,15 @@ function EstudiantesAdmin() {
                 </label>
 
                 <label>
-                  <span>Estado académico</span>
+                  <span>
+                    Estado académico
+                  </span>
 
                   <select
                     name="academicStatus"
-                    value={formData.academicStatus}
+                    value={
+                      formData.academicStatus
+                    }
                     onChange={handleChange}
                   >
                     <option value="Excelente">
@@ -906,148 +1262,216 @@ function EstudiantesAdmin() {
         </div>
       )}
 
-      {isDetailsOpen && selectedStudent && (
-        <div className="students-admin-modal-backdrop">
-          <section className="students-admin-details-modal">
-            <header>
-              <div className="students-admin-details-avatar">
-                {selectedStudent.initials}
+      {isDetailsOpen &&
+        selectedStudent && (
+          <div className="students-admin-modal-backdrop">
+            <section className="students-admin-details-modal">
+              <header>
+                <div className="students-admin-details-avatar">
+                  {
+                    selectedStudent.initials
+                  }
+                </div>
+
+                <div>
+                  <span>
+                    Expediente académico
+                  </span>
+
+                  <h2>
+                    {selectedStudent.name}
+                  </h2>
+
+                  <p>
+                    {
+                      selectedStudent.course
+                    }
+                  </p>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() =>
+                    setIsDetailsOpen(
+                      false,
+                    )
+                  }
+                >
+                  <X size={20} />
+                </button>
+              </header>
+
+              <div className="students-admin-details-grid">
+                <article>
+                  <span>Correo</span>
+
+                  <strong>
+                    {
+                      selectedStudent.email
+                    }
+                  </strong>
+                </article>
+
+                <article>
+                  <span>Teléfono</span>
+
+                  <strong>
+                    {selectedStudent.phone ||
+                      "No registrado"}
+                  </strong>
+                </article>
+
+                <article>
+                  <span>Promedio</span>
+
+                  <strong>
+                    {
+                      selectedStudent.average
+                    }
+                    %
+                  </strong>
+                </article>
+
+                <article>
+                  <span>Asistencia</span>
+
+                  <strong>
+                    {
+                      selectedStudent.attendance
+                    }
+                    %
+                  </strong>
+                </article>
+
+                <article>
+                  <span>Informes</span>
+
+                  <strong>
+                    {
+                      selectedStudent.reports
+                    }
+                  </strong>
+                </article>
+
+                <article>
+                  <span>
+                    Estado académico
+                  </span>
+
+                  <strong>
+                    {
+                      selectedStudent.academicStatus
+                    }
+                  </strong>
+                </article>
+
+                <article>
+                  <span>Acceso</span>
+
+                  <strong>
+                    {
+                      selectedStudent.status
+                    }
+                  </strong>
+                </article>
+
+                <article>
+                  <span>
+                    Último acceso
+                  </span>
+
+                  <strong>
+                    {
+                      selectedStudent.lastAccess
+                    }
+                  </strong>
+                </article>
               </div>
 
+              <div className="students-admin-alert-box">
+                <AlertTriangle
+                  size={19}
+                />
+
+                <p>
+                  Aquí se mostrarán
+                  observaciones, alertas,
+                  evidencias e informes
+                  asociados al estudiante.
+                </p>
+              </div>
+
+              <footer>
+                <button
+                  type="button"
+                  className="students-admin-primary-button"
+                  onClick={() => {
+                    const student =
+                      selectedStudent;
+
+                    setIsDetailsOpen(false);
+
+                    openEditModal(
+                      student,
+                    );
+                  }}
+                >
+                  <Edit3 size={17} />
+                  Editar estudiante
+                </button>
+              </footer>
+            </section>
+          </div>
+        )}
+
+      {isDeleteOpen &&
+        selectedStudent && (
+          <div className="students-admin-modal-backdrop">
+            <section className="students-admin-delete-modal">
               <div>
-                <span>Expediente académico</span>
-                <h2>{selectedStudent.name}</h2>
-                <p>{selectedStudent.course}</p>
+                <Trash2 size={25} />
               </div>
 
-              <button
-                type="button"
-                onClick={() => setIsDetailsOpen(false)}
-              >
-                <X size={20} />
-              </button>
-            </header>
-
-            <div className="students-admin-details-grid">
-              <article>
-                <span>Correo</span>
-                <strong>{selectedStudent.email}</strong>
-              </article>
-
-              <article>
-                <span>Teléfono</span>
-                <strong>
-                  {selectedStudent.phone ||
-                    "No registrado"}
-                </strong>
-              </article>
-
-              <article>
-                <span>Promedio</span>
-                <strong>
-                  {selectedStudent.average}%
-                </strong>
-              </article>
-
-              <article>
-                <span>Asistencia</span>
-                <strong>
-                  {selectedStudent.attendance}%
-                </strong>
-              </article>
-
-              <article>
-                <span>Informes</span>
-                <strong>
-                  {selectedStudent.reports}
-                </strong>
-              </article>
-
-              <article>
-                <span>Estado académico</span>
-                <strong>
-                  {selectedStudent.academicStatus}
-                </strong>
-              </article>
-
-              <article>
-                <span>Acceso</span>
-                <strong>
-                  {selectedStudent.status}
-                </strong>
-              </article>
-
-              <article>
-                <span>Último acceso</span>
-                <strong>
-                  {selectedStudent.lastAccess}
-                </strong>
-              </article>
-            </div>
-
-            <div className="students-admin-alert-box">
-              <AlertTriangle size={19} />
+              <h2>
+                Eliminar estudiante
+              </h2>
 
               <p>
-                Aquí se mostrarán observaciones, alertas,
-                evidencias e informes asociados al estudiante.
+                Vas a eliminar a{" "}
+                <strong>
+                  {
+                    selectedStudent.name
+                  }
+                </strong>
+                . Esta acción no se puede
+                deshacer.
               </p>
-            </div>
 
-            <footer>
-              <button
-                type="button"
-                className="students-admin-primary-button"
-                onClick={() => {
-                  const student = selectedStudent;
-                  setIsDetailsOpen(false);
-                  openEditModal(student);
-                }}
-              >
-                <Edit3 size={17} />
-                Editar estudiante
-              </button>
-            </footer>
-          </section>
-        </div>
-      )}
+              <footer>
+                <button
+                  type="button"
+                  className="students-admin-secondary-button"
+                  onClick={() =>
+                    setIsDeleteOpen(
+                      false,
+                    )
+                  }
+                >
+                  Cancelar
+                </button>
 
-      {isDeleteOpen && selectedStudent && (
-        <div className="students-admin-modal-backdrop">
-          <section className="students-admin-delete-modal">
-            <div>
-              <Trash2 size={25} />
-            </div>
-
-            <h2>Eliminar estudiante</h2>
-
-            <p>
-              Vas a eliminar a{" "}
-              <strong>{selectedStudent.name}</strong>. Esta acción
-              no se puede deshacer.
-            </p>
-
-            <footer>
-              <button
-                type="button"
-                className="students-admin-secondary-button"
-                onClick={() => setIsDeleteOpen(false)}
-              >
-                Cancelar
-              </button>
-
-              <button
-                type="button"
-                className="students-admin-delete-button"
-                onClick={handleDelete}
-              >
-                <Trash2 size={17} />
-                Eliminar
-              </button>
-            </footer>
-          </section>
-        </div>
-      )}
+                <button
+                  type="button"
+                  className="students-admin-delete-button"
+                  onClick={handleDelete}
+                >
+                  <Trash2 size={17} />
+                  Eliminar
+                </button>
+              </footer>
+            </section>
+          </div>
+        )}
     </div>
   );
 }
