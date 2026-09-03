@@ -74,6 +74,7 @@ function Register() {
           apellido: formData.apellido,
           email: formData.email,
           password: formData.password,
+          rol: formData.rol,
           activo: true,
         }),
               });
