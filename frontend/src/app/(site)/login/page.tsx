@@ -28,7 +28,7 @@ export default function LoginPage() {
   const { shield: ShieldCheck, sparkles: Sparkles, users: Users } = IconMap.ui;
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-[1.5fr_1fr]">
+    <div className="grid min-h-[calc(100vh-5rem)] grid-cols-1 lg:grid-cols-[1.5fr_1fr]">
       {/* Sección de showcase - izquierda */}
       <section className="border-border/20 relative flex flex-col items-center overflow-hidden border-r bg-linear-to-br p-8">
         {/* Patrón de fondo sutil */}
