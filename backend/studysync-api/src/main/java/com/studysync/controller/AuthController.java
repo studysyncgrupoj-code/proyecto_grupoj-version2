@@ -2,6 +2,7 @@ package com.studysync.controller;
 
 import com.studysync.model.User;
 import com.studysync.service.UserService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,14 +21,23 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody User user) {
+        try {
+            if (user.getActivo() == null) {
+                user.setActivo(true);
+            }
 
-        if (user.getActivo() == null) {
-            user.setActivo(true);
+            User savedUser = userService.saveUser(user);
+
+            return ResponseEntity.status(HttpStatus.CREATED).body(savedUser);
+
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(Map.of("message", e.getMessage()));
+
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("message", e.getMessage()));
         }
-
-        User savedUser = userService.saveUser(user);
-
-        return ResponseEntity.ok(savedUser);
     }
 
     @PostMapping("/login")
@@ -39,10 +49,10 @@ public class AuthController {
         User user = userService.login(email, password);
 
         if (user == null) {
-            return ResponseEntity.status(401)
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(Map.of("message", "Credenciales incorrectas"));
         }
 
         return ResponseEntity.ok(user);
     }
-}                                                                                                                                                           
+}
