@@ -76,7 +76,6 @@ export const registerSchema = z.object({
   apellido: apellidoField,
   email: emailField,
   password: passwordField,
-  activo: z.boolean(),
 });
 
 export const registerWithConfirmSchema = registerSchema
