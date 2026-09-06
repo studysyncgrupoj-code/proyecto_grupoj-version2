@@ -1,3 +1,4 @@
+import { checkRateLimit } from '@/lib/ratelimit';
 import { loginSchema } from '@/lib/user.schema';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
@@ -96,6 +97,36 @@ const logger = {
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
+    // 0. Control de Rate Limiting por IP usando el módulo reutilizable
+    // TODO: Agregar CAPTCHA (ej. Cloudflare Turnstile o hCaptcha)
+    const ip =
+      request.headers.get('x-forwarded-for')?.split(',')[0].trim() ??
+      request.headers.get('x-real-ip') ??
+      '127.0.0.1';
+
+    // 10 peticiones máximo en una ventana de 10 minutos
+    const limitResult = await checkRateLimit(ip, 10, '10 m');
+
+    if (!limitResult.success) {
+      logger.error('Rate limit excedido para inicio de sesión', { ip });
+
+      return NextResponse.json(
+        {
+          status: 429,
+          message:
+            'Demasiadas solicitudes de inicio de sesión. Por favor, inténtalo más tarde.',
+        },
+        {
+          status: 429,
+          headers: {
+            'X-RateLimit-Limit': limitResult.limit.toString(),
+            'X-RateLimit-Remaining': limitResult.remaining.toString(),
+            'X-RateLimit-Reset': limitResult.reset.toString(),
+          },
+        },
+      );
+    }
+
     // 1. Recepción de credenciales con validación JSON
     let body: unknown;
 
@@ -134,6 +165,36 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     const { email, password }: LoginRequestData = result.data;
 
     logger.info('Credenciales recibidas', { email });
+
+    // 2.1 Rate limiting adicional por email: 5 solicitudes / 10 minutos
+    // Complementa el límite por IP para mitigar rotación de IP en el mismo email
+    const emailLimitResult = await checkRateLimit(
+      `login-email:${email.toLowerCase()}`,
+      5,
+      '10 m',
+    );
+
+    if (!emailLimitResult.success) {
+      logger.error('Rate limit excedido para inicio de sesión por email', {
+        email,
+      });
+
+      return NextResponse.json(
+        {
+          status: 429,
+          message:
+            'Demasiados intentos de inicio de sesión con este correo. Intenta más tarde.',
+        },
+        {
+          status: 429,
+          headers: {
+            'X-RateLimit-Limit': emailLimitResult.limit.toString(),
+            'X-RateLimit-Remaining': emailLimitResult.remaining.toString(),
+            'X-RateLimit-Reset': emailLimitResult.reset.toString(),
+          },
+        },
+      );
+    }
 
     // 3. Verificar configuración
     if (!API_BASE_URL) {
@@ -274,7 +335,14 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         message: 'Credenciales válidas.',
         data: data.data,
       },
-      { status: 200 },
+      {
+        status: 200,
+        headers: {
+          'X-RateLimit-Limit': limitResult.limit.toString(),
+          'X-RateLimit-Remaining': limitResult.remaining.toString(),
+          'X-RateLimit-Reset': limitResult.reset.toString(),
+        },
+      },
     );
   } catch (error) {
     // 9. Error interno del servidor

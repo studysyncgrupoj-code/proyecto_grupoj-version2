@@ -1,4 +1,5 @@
-import { registerWithConfirmSchema } from '@/lib/user.schema';
+import { checkRateLimit } from '@/lib/ratelimit';
+import { registerSchema } from '@/lib/user.schema';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
@@ -6,16 +7,7 @@ import { z } from 'zod';
 // TIPOS Y ESQUEMAS
 // ============================================================
 
-const apiRegisterSchema = registerWithConfirmSchema
-  .omit({ confirmPassword: true })
-  .pick({
-    nombre: true,
-    apellido: true,
-    email: true,
-    password: true,
-  });
-
-type RegisterRequestData = z.infer<typeof apiRegisterSchema>;
+type RegisterRequestData = z.infer<typeof registerSchema>;
 
 // ============================================================
 // CONSTANTES
@@ -29,11 +21,35 @@ const API_BASE_URL = process.env.API_BASE_URL;
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
+    // 0. Rate limiting por IP: 5 solicitudes / 30 minutos
+    const ip =
+      request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ??
+      request.headers.get('x-real-ip') ??
+      'unknown';
+
+    const rateLimitResult = await checkRateLimit(`register:${ip}`, 5, '30 m');
+
+    if (!rateLimitResult.success) {
+      return NextResponse.json(
+        {
+          error: 'Demasiados intentos de registro. Intenta de nuevo más tarde.',
+        },
+        {
+          status: 429,
+          headers: {
+            'X-RateLimit-Limit': rateLimitResult.limit.toString(),
+            'X-RateLimit-Remaining': rateLimitResult.remaining.toString(),
+            'X-RateLimit-Reset': rateLimitResult.reset.toString(),
+          },
+        },
+      );
+    }
+
     // 1. Recepción de datos del cliente
     const body = await request.json();
 
     // 2. Validación de formato
-    const result = apiRegisterSchema.safeParse(body);
+    const result = registerSchema.safeParse(body);
 
     if (!result.success) {
       return NextResponse.json(
@@ -49,6 +65,31 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     }
 
     const validatedData: RegisterRequestData = result.data;
+
+    // 2.1 Rate limiting adicional por email: 3 solicitudes / 30 minutos
+    // TODO: Agregar CAPTCHA (ej. Cloudflare Turnstile o hCaptcha)
+    const emailRateLimitResult = await checkRateLimit(
+      `register-email:${validatedData.email.toLowerCase()}`,
+      3,
+      '30 m',
+    );
+
+    if (!emailRateLimitResult.success) {
+      return NextResponse.json(
+        {
+          error:
+            'Demasiados intentos de registro con este correo. Intenta de nuevo más tarde.',
+        },
+        {
+          status: 429,
+          headers: {
+            'X-RateLimit-Limit': emailRateLimitResult.limit.toString(),
+            'X-RateLimit-Remaining': emailRateLimitResult.remaining.toString(),
+            'X-RateLimit-Reset': emailRateLimitResult.reset.toString(),
+          },
+        },
+      );
+    }
 
     // 3. Verificar configuración
     if (!API_BASE_URL) {
