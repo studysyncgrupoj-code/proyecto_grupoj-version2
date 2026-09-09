@@ -6,16 +6,14 @@ import { CustomLink } from '@/components/ui/Link';
 import { IconMap } from '@/lib/iconMap';
 import { loginSchema, type LoginInput } from '@/lib/user.schema';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
+import { signIn } from 'next-auth/react';
 
 type MessageType = 'success' | 'error' | '';
 
 export default function LoginForm() {
-  const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
-  const [remember, setRemember] = useState(false);
   const [message, setMessage] = useState('');
   const [messageType, setMessageType] = useState<MessageType>('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -48,17 +46,14 @@ export default function LoginForm() {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
+      const response = await signIn('credentials', {
+        ...data,
+        redirect: false,
+        redirectTo: '/dashboard',
       });
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(
-          errorData.message || errorData.error || 'No se pudo iniciar sesión.',
-        );
+      if (!response || response.error) {
+        throw new Error('Correo electrónico o contraseña incorrectos.');
       }
 
       setMessage('Sesión iniciada correctamente. Redirigiendo...');
@@ -69,7 +64,7 @@ export default function LoginForm() {
         password: '',
       });
 
-      setTimeout(() => router.push('/dashboard'), 1200);
+      window.location.assign(response.url ?? '/dashboard');
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : 'No se pudo iniciar sesión.';
@@ -161,21 +156,9 @@ export default function LoginForm() {
             )}
           />
 
-          {/* Recordarme + Olvidé mi contraseña */}
-          <div className="flex items-center justify-between gap-2">
-            <label className="text-muted-foreground inline-flex cursor-pointer items-center gap-2 text-xs leading-relaxed">
-              <input
-                type="checkbox"
-                checked={remember}
-                onChange={(e) => setRemember(e.target.checked)}
-                className="accent-primary"
-                disabled={isSubmitting}
-              />
-              <span>Recordarme</span>
-            </label>
-
+          <div className="flex justify-end">
             <CustomLink
-              href="/recuperar-password"
+              href="/forgot-password"
               className="text-primary hover:text-primary/80 text-xs font-semibold no-underline transition-colors"
             >
               ¿Olvidaste tu contraseña?
@@ -211,19 +194,6 @@ export default function LoginForm() {
             {isSubmitting ? 'Iniciando sesión...' : 'Iniciar sesión'}
           </Button>
 
-          <div className="text-muted-foreground my-1 flex items-center gap-3 text-xs before:h-px before:flex-1 before:bg-current/15 before:content-[''] after:h-px after:flex-1 after:bg-current/15 after:content-['']">
-            o continúa con
-          </div>
-
-          <button
-            type="button"
-            className="border-border/50 bg-background/50 hover:bg-background text-foreground flex items-center justify-center gap-2.5 rounded-xl border py-2.5 text-sm font-medium transition-colors"
-          >
-            <span className="grid size-5 place-items-center text-sm font-bold">
-              G
-            </span>
-            Continuar con Google
-          </button>
         </form>
 
         <p className="text-muted-foreground mt-5 text-center text-sm">
