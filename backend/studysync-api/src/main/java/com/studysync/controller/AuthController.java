@@ -1,8 +1,7 @@
 package com.studysync.controller;
 
-import com.studysync.model.User;
-import com.studysync.security.JwtService;
-import com.studysync.service.UserService;
+import com.studysync.model.UserProfile;
+import com.studysync.service.AuthService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,83 +14,170 @@ import java.util.Map;
 @CrossOrigin(origins = "*")
 public class AuthController {
 
-    private final UserService userService;
-    private final JwtService jwtService;
+    private final AuthService authService;
 
-    public AuthController(
-            UserService userService,
-            JwtService jwtService
-    ) {
-        this.userService = userService;
-        this.jwtService = jwtService;
+    public AuthController(AuthService authService) {
+        this.authService = authService;
     }
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody User user) {
-
+    public ResponseEntity<?> register(
+            @RequestBody Map<String, Object> body
+    ) {
         try {
 
-            if (user.getActivo() == null) {
-                user.setActivo(true);
+            String nombre =
+                    body.get("nombre") != null
+                            ? body.get("nombre").toString()
+                            : null;
+
+            String apellidos = null;
+
+            if (body.get("apellidos") != null) {
+                apellidos = body.get("apellidos").toString();
+            } else if (body.get("apellido") != null) {
+                apellidos = body.get("apellido").toString();
             }
 
-            if (user.getRol() == null || user.getRol().isBlank()) {
-                user.setRol("ESTUDIANTE");
+            String email =
+                    body.get("email") != null
+                            ? body.get("email").toString()
+                            : null;
+
+            String contrasena = null;
+
+            if (body.get("contrasena") != null) {
+                contrasena = body.get("contrasena").toString();
+            } else if (body.get("password") != null) {
+                contrasena = body.get("password").toString();
             }
 
-            User savedUser = userService.saveUser(user);
-            savedUser.setPassword(null);
+            UserProfile profile =
+                    authService.register(
+                            nombre,
+                            apellidos,
+                            email,
+                            contrasena
+                    );
 
             return ResponseEntity
                     .status(HttpStatus.CREATED)
-                    .body(savedUser);
+                    .body(
+                            Map.of(
+                                    "status", 201,
+                                    "message",
+                                    "Usuario registrado exitosamente.",
+                                    "uuid",
+                                    profile.getUserId()
+                            )
+                    );
 
         } catch (IllegalStateException e) {
 
             return ResponseEntity
                     .status(HttpStatus.CONFLICT)
-                    .body(Map.of("message", e.getMessage()));
+                    .body(
+                            Map.of(
+                                    "status", 409,
+                                    "message", e.getMessage()
+                            )
+                    );
 
         } catch (IllegalArgumentException e) {
 
             return ResponseEntity
                     .badRequest()
-                    .body(Map.of("message", e.getMessage()));
+                    .body(
+                            Map.of(
+                                    "status", 400,
+                                    "message", e.getMessage()
+                            )
+                    );
         }
     }
 
     @PostMapping("/login")
     public ResponseEntity<?> login(
-            @RequestBody Map<String, String> credentials
+            @RequestBody Map<String, Object> body
     ) {
 
-        User user = userService.login(
-                credentials.get("email"),
-                credentials.get("password")
-        );
+        String email =
+                body.get("email") != null
+                        ? body.get("email").toString()
+                        : null;
 
-        if (user == null) {
-            return ResponseEntity
-                    .status(HttpStatus.UNAUTHORIZED)
-                    .body(Map.of(
-                            "message",
-                            "Credenciales incorrectas"
-                    ));
+        String contrasena = null;
+
+        if (body.get("contrasena") != null) {
+            contrasena = body.get("contrasena").toString();
+        } else if (body.get("password") != null) {
+            contrasena = body.get("password").toString();
         }
 
-        String token = jwtService.generateToken(
-                user.getEmail(),
-                user.getRol()
-        );
+        try {
 
-        user.setPassword(null);
+            AuthService.LoginResult result =
+                    authService.login(
+                            email,
+                            contrasena
+                    );
 
-        Map<String, Object> response =
-                new LinkedHashMap<>();
+            if (result == null) {
 
-        response.put("token", token);
-        response.put("user", user);
+                return ResponseEntity
+                        .status(HttpStatus.UNAUTHORIZED)
+                        .body(
+                                Map.of(
+                                        "status", 401,
+                                        "message",
+                                        "Credenciales inválidas."
+                                )
+                        );
+            }
 
-        return ResponseEntity.ok(response);
+            Map<String, Object> data =
+                    new LinkedHashMap<>();
+
+            data.put(
+                    "nombre",
+                    result.profile().getNombre()
+            );
+
+            data.put(
+                    "apellidos",
+                    result.profile().getApellidos()
+            );
+
+            data.put(
+                    "uuid",
+                    result.authAccount().getId()
+            );
+
+            data.put(
+                    "rol",
+                    result.profile().getRol().name()
+            );
+
+            return ResponseEntity.ok(
+                    Map.of(
+                            "status", 200,
+                            "message",
+                            "Credenciales válidas.",
+                            "data", data
+                    )
+            );
+
+        } catch (AuthService.AccountInactiveException e) {
+
+            return ResponseEntity
+                    .status(HttpStatus.FORBIDDEN)
+                    .body(
+                            Map.of(
+                                    "status", 403,
+                                    "message",
+                                    "La cuenta se encuentra inactiva."
+                            )
+                    );
+        }
     }
 }
