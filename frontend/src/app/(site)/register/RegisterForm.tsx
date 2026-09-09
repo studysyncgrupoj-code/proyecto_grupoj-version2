@@ -52,7 +52,6 @@ export default function RegisterForm() {
       email: '',
       password: '',
       confirmPassword: '',
-      activo: true,
       acceptedTerms: false,
     },
     mode: 'onChange',
@@ -65,7 +64,7 @@ export default function RegisterForm() {
 
     try {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { acceptedTerms, ...formData } = data;
+      const { confirmPassword, acceptedTerms, ...formData } = data;
 
       const response = await fetch('/api/auth/register', {
         method: 'POST',
@@ -91,7 +90,6 @@ export default function RegisterForm() {
         email: '',
         password: '',
         confirmPassword: '',
-        activo: true,
         acceptedTerms: false,
       });
 
