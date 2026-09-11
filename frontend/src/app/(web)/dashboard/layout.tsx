@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
 import { Plus_Jakarta_Sans, Public_Sans } from 'next/font/google';
-import '../../globals.css';
+import '../globals.css';
+
+import SideBar from '@/components/layout/dashboard/sidebar/SideBar';
 
 const plusJakartaSans = Plus_Jakarta_Sans({
   variable: '--font-plus-jakarta',
@@ -12,7 +14,7 @@ const publicSans = Public_Sans({
   subsets: ['latin'],
 });
 
-// Metadatos optimizados para el Dashboard (Evita indexación por privacidad)
+// Metadatos optimizados para el Dashboard
 export const metadata: Metadata = {
   title: 'Dashboard | StudySync',
   description:
@@ -34,7 +36,7 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
@@ -45,7 +47,11 @@ export default function RootLayout({
       className={`${plusJakartaSans.variable} ${publicSans.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col font-sans">
-        <main className="min-h-screen">{children}</main>
+        {/* Contenedor flex para poner el Sidebar al lado del contenido principal */}
+        <div className="flex min-h-screen w-full">
+          <SideBar />
+          <main className="bg-background min-h-screen flex-1">{children}</main>
+        </div>
       </body>
     </html>
   );
