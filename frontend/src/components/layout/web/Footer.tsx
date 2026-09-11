@@ -1,5 +1,5 @@
 import { IconMap } from '@/lib/iconMap';
-import { CustomLink } from '../ui/Link';
+import { CustomLink } from '../../ui/Link';
 
 const FOOTER_LINKS = [
   {
