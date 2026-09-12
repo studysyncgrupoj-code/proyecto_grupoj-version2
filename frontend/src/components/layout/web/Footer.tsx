@@ -1,4 +1,4 @@
-import { IconMap } from '@/lib/iconMap';
+import Logo from '@/components/ui/logo';
 import { CustomLink } from '../../ui/Link';
 
 const FOOTER_LINKS = [
@@ -34,30 +34,12 @@ const LEGAL_LINKS = [
 ];
 
 export default function Footer() {
-  const GraduationCap = IconMap.ui.graduationCap;
-
   return (
     <footer className="bg-background border-border mt-auto w-full border-t px-4 py-12 md:px-8">
       <div className="mx-auto max-w-7xl">
         <div className="grid grid-cols-1 gap-8 md:grid-cols-4">
           <section className="md:col-span-1">
-            <CustomLink
-              href="/"
-              className="inline-flex w-fit items-center gap-3"
-              aria-label="StudySync - Ir al inicio"
-            >
-              <span className="border-accent-foreground text-primary-foreground from-primary grid h-10 w-10 place-items-center rounded-xl border bg-linear-to-br to-blue-900 shadow-lg">
-                <GraduationCap size={32} strokeWidth={2} />
-              </span>
-              <span className="leading-none">
-                <span className="text-foreground block text-base font-bold tracking-tight">
-                  StudySync
-                </span>
-                <span className="text-muted-foreground mt-1 hidden text-[0.6rem] tracking-wide sm:block">
-                  Aprende. Conecta. Avanza.
-                </span>
-              </span>
-            </CustomLink>
+            <Logo />
             <p className="text-muted-foreground mt-4 max-w-xs text-sm">
               Plataforma educativa moderna construida para potenciar el
               aprendizaje y la colaboración en línea.

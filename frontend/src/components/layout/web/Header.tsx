@@ -1,7 +1,7 @@
 'use client';
 
+import Logo from '@/components/ui/logo';
 import { HEADER_LINKS, isNavLinkActive } from '@/config/navigation';
-import { IconMap } from '@/lib/iconMap';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
@@ -11,28 +11,10 @@ export default function Header() {
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
 
-  const GraduationCap = IconMap.ui.graduationCap;
-
   return (
     <header className="border-border fixed top-0 left-0 z-50 flex min-h-20 w-full items-center justify-between border-b bg-black/76 px-6 backdrop-blur-md sm:px-12">
       {/* Brand / Logo */}
-      <Link
-        href="/"
-        className="inline-flex w-fit items-center gap-3"
-        aria-label="StudySync - Ir al inicio"
-      >
-        <span className="border-accent-foreground text-primary-foreground from-primary grid h-10 w-10 place-items-center rounded-xl border bg-linear-to-br to-blue-900 shadow-lg">
-          <GraduationCap size={32} strokeWidth={2} />
-        </span>
-        <span className="leading-none">
-          <span className="text-foreground block text-base font-bold tracking-tight">
-            StudySync
-          </span>
-          <span className="text-muted-foreground mt-1 hidden text-[0.6rem] tracking-wide sm:block">
-            Aprende. Conecta. Avanza.
-          </span>
-        </span>
-      </Link>
+      <Logo />
 
       {/* Navigation Menu - Desktop */}
       <nav
