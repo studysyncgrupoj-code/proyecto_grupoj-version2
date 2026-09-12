@@ -1,14 +1,19 @@
 // auth.ts
 import { checkRateLimit } from '@/lib/ratelimit';
 import { loginSchema } from '@/lib/user.schema';
+import type { UserRole } from '@/types/next-auth';
 import NextAuth from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
+import { z } from 'zod';
 
 // ============================================================
 // CONSTANTES Y CONFIGURACIÓN
 // ============================================================
 const API_BASE_URL = process.env.API_BASE_URL;
 const API_TIMEOUT_MS = 10000; // 10 segundos
+
+// Esquema para validar el rol devuelto por el backend
+const UserRoleSchema = z.enum(['student', 'teacher', 'admin']);
 
 // Tipo para metadatos de logs
 interface LogMeta {
@@ -57,7 +62,9 @@ const logger = {
   },
 };
 
-const isLoginSuccessResponse = (value: unknown): value is LoginSuccessResponse => {
+const isLoginSuccessResponse = (
+  value: unknown,
+): value is LoginSuccessResponse => {
   if (!value || typeof value !== 'object') {
     return false;
   }
@@ -171,18 +178,30 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             return null;
           }
 
+          // 5. Validar que el rol devuelto sea uno de los permitidos
+          const roleParse = UserRoleSchema.safeParse(data.data.rol);
+          if (!roleParse.success) {
+            logger.error('Rol inválido devuelto por el backend', {
+              rol: data.data.rol,
+              uuid: data.data.uuid,
+            });
+            return null;
+          }
+
+          const role: UserRole = roleParse.data;
+
           logger.info('Autenticación exitosa con backend externo', {
             email,
             uuid: data.data.uuid,
-            rol: data.data.rol,
+            rol: role,
           });
 
-          // 5. Retornar el objeto usuario limpio que Auth.js mapeará en su sesión
+          // 6. Retornar el objeto usuario limpio que Auth.js mapeará en su sesión
           return {
             id: String(data.data.uuid),
             name: `${data.data.nombre} ${data.data.apellidos}`,
-            email: email,
-            role: data.data.rol,
+            email,
+            role, // ← ahora es UserRole, no string
           };
         } catch (error) {
           logger.error('Error interno crítico en authorize', {
@@ -206,10 +225,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       return token;
     },
     session({ session, token }) {
-      if (session.user && typeof token.id === 'string') {
-        session.user.id = token.id;
-        session.user.role =
-          typeof token.role === 'string' ? token.role : undefined;
+      if (session.user) {
+        if (typeof token.id === 'string') {
+          session.user.id = token.id;
+        }
+        session.user.role = token.role;
       }
 
       return session;

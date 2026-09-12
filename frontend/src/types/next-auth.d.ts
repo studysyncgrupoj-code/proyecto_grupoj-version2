@@ -1,6 +1,6 @@
-import type { DefaultSession } from 'next-auth';
+import type { DefaultSession, DefaultUser } from 'next-auth';
+import type { DefaultJWT } from 'next-auth/jwt';
 
-// Definimos los roles válidos en tu aplicación
 export type UserRole = 'student' | 'teacher' | 'admin';
 
 declare module 'next-auth' {
@@ -11,13 +11,14 @@ declare module 'next-auth' {
     };
   }
 
-  interface User {
+  interface User extends DefaultUser {
+    id: string;
     role?: UserRole;
   }
 }
 
 declare module 'next-auth/jwt' {
-  interface JWT {
+  interface JWT extends DefaultJWT {
     id?: string;
     role?: UserRole;
   }
