@@ -6,6 +6,8 @@ import {
   BrainCircuit,
   CalendarDays,
   CheckCircle2,
+  ChevronLeft,
+  ChevronRight,
   ClipboardList,
   Clock3,
   Eye,
@@ -55,6 +57,8 @@ export const IconMap = {
     lock: LockKeyhole,
     mail: Mail,
     user: User,
+    chevronLeft: ChevronLeft,
+    chevronRight: ChevronRight,
   },
   social: {
     globecheck: GlobeCheck, // TODO: temporal para evitar errores de TS en Button
