@@ -1,9 +1,11 @@
 import type { Metadata } from 'next';
 import { Plus_Jakarta_Sans, Public_Sans } from 'next/font/google';
-import "../globals.css"
+import '../globals.css';
 
 import Footer from '@/components/layout/web/Footer';
 import Header from '@/components/layout/web/Header';
+
+import { ThemeProvider } from 'next-themes';
 
 const plusJakartaSans = Plus_Jakarta_Sans({
   variable: '--font-plus-jakarta',
@@ -40,9 +42,18 @@ export default function RootLayout({
       className={`${plusJakartaSans.variable} ${publicSans.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col font-sans">
-        <Header />
-        <main className="min-h-screen pt-20">{children}</main>
-        <Footer />
+        <ThemeProvider
+          storageKey="theme"
+          defaultTheme="system"
+          enableSystem={true}
+          enableColorScheme={true}
+          themes={['light', 'dark']}
+          attribute="data-theme"
+        >
+          <Header />
+          <main className="min-h-screen pt-20">{children}</main>
+          <Footer />
+        </ThemeProvider>
       </body>
     </html>
   );
