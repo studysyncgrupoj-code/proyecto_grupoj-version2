@@ -1,6 +1,6 @@
 // src/components/Logo.tsx
-import { GraduationCap } from 'lucide-react';
 import Link from 'next/link';
+import { FaGraduationCap } from 'react-icons/fa';
 
 export type LogoVariant = 'full' | 'compact';
 
@@ -43,7 +43,7 @@ export default function Logo({
         className="border-accent-foreground text-primary-foreground from-primary grid h-10 w-10 place-items-center rounded-xl border bg-linear-to-br to-blue-900 shadow-lg"
         aria-hidden="true"
       >
-        <GraduationCap size={iconSize} strokeWidth={2} />
+        <FaGraduationCap size={iconSize} strokeWidth={2} />
       </span>
 
       {!isCompact && (
