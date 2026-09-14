@@ -20,10 +20,7 @@ export default async function SideBar() {
   return (
     <SidebarShell>
       <div>
-        <SidebarBrand
-          dashboardPath={navConfig.dashboardPath}
-          panelTitle={navConfig.panelTitle}
-        />
+        <SidebarBrand />
         <SidebarNav items={navConfig.menu} />
       </div>
 

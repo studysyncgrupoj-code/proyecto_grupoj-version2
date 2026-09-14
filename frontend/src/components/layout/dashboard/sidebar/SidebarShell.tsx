@@ -34,15 +34,15 @@ export default function SidebarShell({
   return (
     <SidebarContext.Provider value={{ collapsed, toggleCollapsed }}>
       <aside
-        className={`border-border bg-background text-foreground flex h-screen flex-col justify-between border-r transition-[width] duration-200 ${collapsed ? 'w-20' : 'w-64'}`}
+        className={`border-border text-foreground relative flex h-screen flex-col justify-between border-r bg-[radial-gradient(circle_at_20%_0%,color-mix(in_oklch,var(--accent)_9%,transparent),transparent_28%),linear-gradient(180deg,var(--background),var(--background))] shadow-[18px_0_45px_rgba(0,0,0,0.3),inset_-1px_0_0_rgba(255,255,255,0.015)] transition-[width] duration-200 ${collapsed ? 'w-20' : 'w-64'}`}
       >
         <Button
-          variant="ghost"
+          variant="primary"
           size="sm"
           icon={collapsed ? 'chevronRight' : 'chevronLeft'}
           aria-label={collapsed ? 'Mostrar menú' : 'Ocultar menú'}
           onClick={toggleCollapsed}
-          className="mt-2 mr-2 self-end"
+          className="absolute top-6 -right-3.5 z-20 h-7 w-7 rounded-full p-0 shadow-md"
         />
 
         {children}
