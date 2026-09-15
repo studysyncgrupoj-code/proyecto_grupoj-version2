@@ -2,8 +2,7 @@ import type { Metadata } from 'next';
 import { Plus_Jakarta_Sans, Public_Sans } from 'next/font/google';
 import '../globals.css';
 
-import Footer from '@/components/layout/Footer';
-import Header from '@/components/layout/Header';
+import SideBar from '@/components/layout/dashboard/sidebar/SideBar';
 
 const plusJakartaSans = Plus_Jakarta_Sans({
   variable: '--font-plus-jakarta',
@@ -15,10 +14,18 @@ const publicSans = Public_Sans({
   subsets: ['latin'],
 });
 
-// TODO: Crear metadatos para la página de inicio
+// Metadatos optimizados para el Dashboard
 export const metadata: Metadata = {
-  title: 'StudySync',
-  description: 'Aprende. Conecta. Avanza.',
+  title: 'Dashboard | StudySync',
+  description:
+    'Panel de control de StudySync. Gestiona tu aprendizaje, conexiones y progreso.',
+  robots: {
+    index: false,
+    googleBot: {
+      index: false,
+      follow: false,
+    },
+  },
   icons: {
     icon: [
       {
@@ -29,7 +36,7 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
@@ -40,9 +47,11 @@ export default function RootLayout({
       className={`${plusJakartaSans.variable} ${publicSans.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col font-sans">
-        <Header />
-        <main className="min-h-screen pt-20">{children}</main>
-        <Footer />
+        {/* Contenedor flex para poner el Sidebar al lado del contenido principal */}
+        <div className="flex min-h-screen w-full">
+          <SideBar />
+          <main className="bg-background min-h-screen flex-1">{children}</main>
+        </div>
       </body>
     </html>
   );

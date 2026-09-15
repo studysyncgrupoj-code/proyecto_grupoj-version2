@@ -1,21 +1,42 @@
+import { checkRateLimit } from '@/lib/ratelimit';
 import { registerWithConfirmSchema } from '@/lib/user.schema';
 import { NextRequest, NextResponse } from 'next/server';
 
-export async function POST(request: NextRequest) {
-  try {
-    const body = await request.json();
+const API_BASE_URL = process.env.API_BASE_URL;
 
-    // Validar directamente con el schema completo.
-    // Se agrega activo=true para garantizar que los nuevos usuarios
-    // queden habilitados desde el registro.
-    const result = registerWithConfirmSchema.safeParse({
-      ...body,
-    });
+export async function POST(request: NextRequest): Promise<NextResponse> {
+  try {
+    // 1. Rate limiting por IP: 5 solicitudes / 30 minutos
+    const clientIp =
+      request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+      request.headers.get('x-real-ip') ||
+      'unknown';
+
+    const ipRateLimitResult = await checkRateLimit(
+      `register-ip:${clientIp}`,
+      5,
+      '30 m',
+    );
+
+    if (!ipRateLimitResult.success) {
+      return NextResponse.json(
+        {
+          status: 429,
+          message: 'Demasiados intentos de registro. Intenta nuevamente más tarde.',
+        },
+        { status: 429 },
+      );
+    }
+
+    // 2. Recibir y validar los datos enviados por el formulario
+    const body = await request.json();
+    const result = registerWithConfirmSchema.safeParse(body);
 
     if (!result.success) {
       return NextResponse.json(
         {
-          error: 'Datos de registro inválidos',
+          status: 400,
+          message: 'Datos de registro inválidos o incompletos.',
           details: result.error.issues.map((issue) => ({
             field: issue.path.join('.'),
             message: issue.message,
@@ -25,96 +46,79 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Enviar al backend únicamente los campos que maneja User.java.
-    // confirmPassword se utiliza solamente para validación en Next.js.
-    const validatedData = {
-      nombre: result.data.nombre,
-      apellido: result.data.apellido,
-      email: result.data.email,
-      password: result.data.password,
-    };
+    // 3. Rate limiting adicional por correo: 3 solicitudes / 30 minutos
+    const emailRateLimitResult = await checkRateLimit(
+      `register-email:${result.data.email.toLowerCase()}`,
+      3,
+      '30 m',
+    );
 
-    const API_BASE_URL = process.env.API_BASE_URL;
-
-    if (!API_BASE_URL) {
-      console.error(
-        'API_BASE_URL no configurada en variables de entorno',
+    if (!emailRateLimitResult.success) {
+      return NextResponse.json(
+        {
+          status: 429,
+          message: 'Demasiados intentos de registro para este correo. Intenta nuevamente más tarde.',
+        },
+        { status: 429 },
       );
+    }
+
+    // 4. Verificar configuración del backend
+    if (!API_BASE_URL) {
+      console.error('API_BASE_URL no configurada');
 
       return NextResponse.json(
         {
-          error: 'Error de configuración del servidor',
+          status: 500,
+          message: 'Error de configuración del servidor.',
         },
         { status: 500 },
       );
     }
 
-    const EXTERNAL_API_URL = `${API_BASE_URL}/auth/register`;
+    // 5. Traducir el formulario de Next.js al contrato de Spring Boot
+    const backendPayload = {
+      nombre: result.data.nombre,
+      apellidos: result.data.apellido,
+      email: result.data.email.toLowerCase(),
+      contrasena: result.data.password,
+    };
 
-    const API_KEY = process.env.API_KEY;
-
-    const clientIp =
-      request.headers.get('x-forwarded-for') || '';
-
-    const response = await fetch(EXTERNAL_API_URL, {
+    // confirmPassword NO se envía al backend.
+    const response = await fetch(`${API_BASE_URL}/auth/register`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        ...(API_KEY && {
-          Authorization: `Bearer ${API_KEY}`,
-        }),
-        ...(clientIp && {
-          'X-Forwarded-For': clientIp,
-        }),
       },
-      body: JSON.stringify(validatedData),
+      body: JSON.stringify(backendPayload),
+      cache: 'no-store',
     });
 
-    let data;
+    // 6. Leer la respuesta de Spring Boot
+    let data: unknown;
 
     try {
       data = await response.json();
     } catch {
       data = {
-        error: 'Respuesta inválida del servidor externo',
+        status: response.status,
+        message: 'Respuesta inválida del servidor.',
       };
     }
 
-    if (!response.ok) {
-      console.error('Error en API externa:', data);
-
-      return NextResponse.json(
-        {
-          error:
-            data.message ||
-            data.error ||
-            'Error al registrar usuario',
-          ...data,
-        },
-        { status: response.status },
-      );
-    }
-
-    return NextResponse.json(
-      {
-        message: 'Usuario registrado exitosamente',
-        user: data.user || data,
-      },
-      { status: 201 },
-    );
+    // 7. Mantener el código HTTP y la respuesta del backend
+    return NextResponse.json(data, {
+      status: response.status,
+    });
   } catch (error) {
     console.error('Error en registro:', error);
 
-    const errorMessage =
-      error instanceof Error
-        ? error.message
-        : 'Error interno del servidor';
-
     return NextResponse.json(
       {
-        error: errorMessage,
+        status: 503,
+        message: 'No fue posible conectar con el servicio de autenticación.',
       },
-      { status: 500 },
+      { status: 503 },
     );
   }
 }

@@ -4,18 +4,28 @@ import { Button } from '@/components/ui/Button';
 import { InputField } from '@/components/ui/InputField';
 import { CustomLink } from '@/components/ui/Link';
 import { IconMap } from '@/lib/iconMap';
-import { loginSchema, type LoginInput } from '@/lib/user.schema';
+import { registerWithConfirmSchema } from '@/lib/user.schema';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
+import { z } from 'zod';
 
 type MessageType = 'success' | 'error' | '';
 
-export default function LoginForm() {
+// Extendemos el schema para incluir acceptedTerms como booleano con validación
+const registerSchema = registerWithConfirmSchema.extend({
+  acceptedTerms: z.boolean().refine((val) => val === true, {
+    message: 'Debes aceptar los términos y condiciones',
+  }),
+});
+
+type RegisterFormInput = z.infer<typeof registerSchema>;
+
+export default function RegisterForm() {
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
-  const [remember, setRemember] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [message, setMessage] = useState('');
   const [messageType, setMessageType] = useState<MessageType>('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -25,6 +35,7 @@ export default function LoginForm() {
     eyeOff: EyeOff,
     lock: LockKeyhole,
     mail: Mail,
+    user: User,
     graduationCap: GraduationCap,
   } = IconMap.ui;
 
@@ -33,46 +44,61 @@ export default function LoginForm() {
     control,
     formState: { errors, isValid },
     reset,
-  } = useForm<LoginInput>({
-    resolver: zodResolver(loginSchema),
+  } = useForm<RegisterFormInput>({
+    resolver: zodResolver(registerSchema),
     defaultValues: {
+      nombre: '',
+      apellido: '',
       email: '',
       password: '',
+      confirmPassword: '',
+      acceptedTerms: false,
     },
     mode: 'onChange',
   });
 
-  const onSubmit = async (data: LoginInput) => {
+  const onSubmit = async (data: RegisterFormInput) => {
     setMessage('');
     setMessageType('');
     setIsSubmitting(true);
 
     try {
-      const response = await fetch('/api/auth/login', {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { confirmPassword, acceptedTerms, ...formData } = data;
+
+      const response = await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
+        body: JSON.stringify(formData),
       });
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         throw new Error(
-          errorData.message || errorData.error || 'No se pudo iniciar sesión.',
+          errorData.message ||
+            errorData.error ||
+            'Error al registrar el usuario.',
         );
       }
 
-      setMessage('Sesión iniciada correctamente. Redirigiendo...');
+      setMessage('Usuario registrado correctamente. Redirigiendo...');
       setMessageType('success');
 
       reset({
+        nombre: '',
+        apellido: '',
         email: '',
         password: '',
+        confirmPassword: '',
+        acceptedTerms: false,
       });
 
-      setTimeout(() => router.push('/dashboard'), 1200);
+      setTimeout(() => router.push('/login'), 1200);
     } catch (error) {
       const errorMessage =
-        error instanceof Error ? error.message : 'No se pudo iniciar sesión.';
+        error instanceof Error
+          ? error.message
+          : 'No se pudo registrar el usuario.';
       setMessage(errorMessage);
       setMessageType('error');
     } finally {
@@ -92,17 +118,61 @@ export default function LoginForm() {
 
         <header className="mb-6">
           <span className="text-primary text-xs font-extrabold tracking-[0.13em] uppercase">
-            Bienvenido de nuevo
+            Nueva cuenta
           </span>
           <h2 className="text-foreground my-2.5 text-4xl tracking-[-0.045em]">
-            Inicia sesión
+            Regístrate
           </h2>
           <p className="text-muted-foreground m-0 text-sm leading-relaxed">
-            Ingresa tus datos para continuar a tu espacio de trabajo.
+            Completa tus datos para empezar a utilizar StudySync.
           </p>
         </header>
 
         <form className="grid gap-3.5" onSubmit={handleSubmit(onSubmit)}>
+          {/* Campo Nombre */}
+          <Controller
+            name="nombre"
+            control={control}
+            render={({ field }) => (
+              <InputField
+                label="Nombre"
+                id="nombre"
+                value={field.value}
+                onChange={field.onChange}
+                placeholder="Escribe tu nombre"
+                autoComplete="given-name"
+                icon={<User />}
+                error={errors.nombre?.message}
+                required
+                disabled={isSubmitting}
+                size="md"
+                variant="default"
+              />
+            )}
+          />
+
+          {/* Campo Apellido */}
+          <Controller
+            name="apellido"
+            control={control}
+            render={({ field }) => (
+              <InputField
+                label="Apellido"
+                id="apellido"
+                value={field.value}
+                onChange={field.onChange}
+                placeholder="Escribe tu apellido"
+                autoComplete="family-name"
+                icon={<User />}
+                error={errors.apellido?.message}
+                required
+                disabled={isSubmitting}
+                size="md"
+                variant="default"
+              />
+            )}
+          />
+
           {/* Campo Email */}
           <Controller
             name="email"
@@ -137,8 +207,8 @@ export default function LoginForm() {
                 type={showPassword ? 'text' : 'password'}
                 value={field.value}
                 onChange={field.onChange}
-                placeholder="Ingresa tu contraseña"
-                autoComplete="current-password"
+                placeholder="Crea una contraseña"
+                autoComplete="new-password"
                 icon={<LockKeyhole />}
                 error={errors.password?.message}
                 required
@@ -161,26 +231,69 @@ export default function LoginForm() {
             )}
           />
 
-          {/* Recordarme + Olvidé mi contraseña */}
-          <div className="flex items-center justify-between gap-2">
-            <label className="text-muted-foreground inline-flex cursor-pointer items-center gap-2 text-xs leading-relaxed">
-              <input
-                type="checkbox"
-                checked={remember}
-                onChange={(e) => setRemember(e.target.checked)}
-                className="accent-primary"
+          {/* Campo Confirmar Contraseña */}
+          <Controller
+            name="confirmPassword"
+            control={control}
+            render={({ field }) => (
+              <InputField
+                label="Confirmar contraseña"
+                id="confirmPassword"
+                type={showConfirmPassword ? 'text' : 'password'}
+                value={field.value}
+                onChange={field.onChange}
+                placeholder="Confirma tu contraseña"
+                autoComplete="new-password"
+                icon={<LockKeyhole />}
+                error={errors.confirmPassword?.message}
+                required
                 disabled={isSubmitting}
+                size="md"
+                variant="default"
+                rightElement={
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword((prev) => !prev)}
+                    aria-label={
+                      showConfirmPassword
+                        ? 'Ocultar contraseña'
+                        : 'Mostrar contraseña'
+                    }
+                    className="text-muted-foreground hover:text-primary grid cursor-pointer place-items-center border-0 bg-transparent p-1 transition-colors"
+                  >
+                    {showConfirmPassword ? (
+                      <EyeOff size={18} />
+                    ) : (
+                      <Eye size={18} />
+                    )}
+                  </button>
+                }
               />
-              <span>Recordarme</span>
-            </label>
+            )}
+          />
 
-            <CustomLink
-              href="/recuperar-password"
-              className="text-primary hover:text-primary/80 text-xs font-semibold no-underline transition-colors"
-            >
-              ¿Olvidaste tu contraseña?
-            </CustomLink>
-          </div>
+          {/* Checkbox Términos y Condiciones */}
+          <Controller
+            name="acceptedTerms"
+            control={control}
+            render={({ field }) => (
+              <label className="text-muted-foreground inline-flex cursor-pointer items-start gap-2 text-xs leading-relaxed">
+                <input
+                  type="checkbox"
+                  checked={field.value}
+                  onChange={(e) => field.onChange(e.target.checked)}
+                  className="accent-primary mt-0.5"
+                  disabled={isSubmitting}
+                />
+                <span>Acepto los términos y la política de privacidad.</span>
+              </label>
+            )}
+          />
+          {errors.acceptedTerms && (
+            <p className="text-danger text-xs leading-relaxed">
+              {errors.acceptedTerms.message}
+            </p>
+          )}
 
           {/* Mensaje de estado */}
           {message && (
@@ -206,33 +319,21 @@ export default function LoginForm() {
             iconPosition="right"
             type="submit"
             disabled={isSubmitting || !isValid}
-            aria-label={isSubmitting ? 'Iniciando sesión...' : 'Iniciar sesión'}
+            aria-label={
+              isSubmitting ? 'Registrando usuario...' : 'Crear cuenta'
+            }
           >
-            {isSubmitting ? 'Iniciando sesión...' : 'Iniciar sesión'}
+            {isSubmitting ? 'Registrando...' : 'Crear cuenta'}
           </Button>
-
-          <div className="text-muted-foreground my-1 flex items-center gap-3 text-xs before:h-px before:flex-1 before:bg-current/15 before:content-[''] after:h-px after:flex-1 after:bg-current/15 after:content-['']">
-            o continúa con
-          </div>
-
-          <button
-            type="button"
-            className="border-border/50 bg-background/50 hover:bg-background text-foreground flex items-center justify-center gap-2.5 rounded-xl border py-2.5 text-sm font-medium transition-colors"
-          >
-            <span className="grid size-5 place-items-center text-sm font-bold">
-              G
-            </span>
-            Continuar con Google
-          </button>
         </form>
 
         <p className="text-muted-foreground mt-5 text-center text-sm">
-          ¿Todavía no tienes una cuenta?
+          ¿Ya tienes una cuenta?
           <CustomLink
-            href="/register"
+            href="/login"
             className="text-primary hover:text-primary/80 ml-1.5 font-semibold no-underline transition-colors"
           >
-            Crear cuenta
+            Iniciar sesión
           </CustomLink>
         </p>
       </div>
