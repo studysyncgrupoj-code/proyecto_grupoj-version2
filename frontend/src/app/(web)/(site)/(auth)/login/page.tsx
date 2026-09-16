@@ -11,13 +11,13 @@ const BenefitCard = ({
   title: string;
   description: string;
 }) => (
-  <article className="group border-border/50 bg-card/50 hover:border-primary/40 hover:bg-card flex items-center gap-3.5 rounded-2xl border p-4 shadow-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-lg">
+  <article className="group border-border bg-surface hover:border-primary-hover hover:bg-surface-hover flex items-center gap-3.5 rounded-2xl border p-4 shadow-sm transition-all duration-200 hover:-translate-y-1">
     <div className="border-primary/30 bg-primary/10 text-primary grid size-10 shrink-0 place-items-center rounded-xl border">
       {icon}
     </div>
     <span>
       <strong className="text-foreground block text-sm">{title}</strong>
-      <small className="text-muted-foreground mt-1 block text-xs leading-relaxed">
+      <small className="text-foreground-muted mt-1 block text-xs leading-relaxed">
         {description}
       </small>
     </span>
@@ -30,7 +30,7 @@ export default function LoginPage() {
   return (
     <div className="grid min-h-[calc(100vh-5rem)] grid-cols-1 lg:grid-cols-[1.5fr_1fr]">
       {/* Sección de showcase - izquierda */}
-      <section className="border-border/20 relative flex flex-col items-center overflow-hidden border-r bg-linear-to-br p-8">
+      <section className="border-border relative flex flex-col items-center overflow-hidden border-r bg-background p-8">
         {/* Patrón de fondo sutil */}
         <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,var(--accent)_1px,transparent_1px),linear-gradient(to_bottom,var(--accent)_1px,transparent_1px)] mask-[linear-gradient(to_bottom,black,transparent_82%)] bg-size-[42px_42px] opacity-10" />
 
@@ -53,7 +53,7 @@ export default function LoginPage() {
           </h1>
 
           {/* Descripción */}
-          <p className="text-muted-foreground max-w-lg text-lg leading-relaxed">
+          <p className="text-foreground-muted max-w-lg text-lg leading-relaxed">
             Accede a tus salas de estudio, revisa tus cursos pendientes y mantén
             tu rendimiento al día en StudySync.
           </p>

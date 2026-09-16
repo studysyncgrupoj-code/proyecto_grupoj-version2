@@ -11,13 +11,13 @@ const BenefitCard = ({
   title: string;
   description: string;
 }) => (
-  <article className="group border-border/50 bg-card/50 hover:border-primary/40 hover:bg-card flex items-center gap-3.5 rounded-2xl border p-4 shadow-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-lg">
+  <article className="group border-border bg-surface hover:border-primary-hover hover:bg-surface-hover flex items-center gap-3.5 rounded-2xl border p-4 shadow-sm transition-all duration-200 hover:-translate-y-1">
     <div className="border-primary/30 bg-primary/10 text-primary grid size-10 shrink-0 place-items-center rounded-xl border">
       {icon}
     </div>
     <span>
       <strong className="text-foreground block text-sm">{title}</strong>
-      <small className="text-muted-foreground mt-1 block text-xs leading-relaxed">
+      <small className="text-foreground-muted mt-1 block text-xs leading-relaxed">
         {description}
       </small>
     </span>
@@ -30,9 +30,9 @@ export default function RegisterPage() {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-[1.5fr_1fr]">
       {/* Sección de showcase - izquierda */}
-      <section className="border-border/20 relative flex flex-col items-center overflow-hidden border-r bg-linear-to-br p-8">
+      <section className="border-border relative flex flex-col items-center overflow-hidden border-r bg-background p-8">
         {/* Decoración de fondo simplificada */}
-        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,var(--color-sky-400)_1px,transparent_1px),linear-gradient(to_bottom,var(--color-sky-400)_1px,transparent_1px)] mask-[linear-gradient(to_bottom,black,transparent_80%)] bg-size-[40px_40px] opacity-10" />
+        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,var(--accent)_1px,transparent_1px),linear-gradient(to_bottom,var(--accent)_1px,transparent_1px)] mask-[linear-gradient(to_bottom,black,transparent_80%)] bg-size-[40px_40px] opacity-10" />
 
         {/* Glows decorativos */}
         <div className="bg-primary/10 pointer-events-none absolute -top-40 -right-24 size-96 rounded-full blur-3xl" />
@@ -55,7 +55,7 @@ export default function RegisterPage() {
           </h1>
 
           {/* Descripción */}
-          <p className="text-muted-foreground max-w-lg text-lg leading-relaxed">
+          <p className="text-foreground-muted max-w-lg text-lg leading-relaxed">
             Únete a StudySync y organiza tus cursos, salas de estudio,
             actividades y progreso desde una sola plataforma.
           </p>

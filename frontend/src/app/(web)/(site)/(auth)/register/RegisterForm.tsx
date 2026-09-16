@@ -108,9 +108,9 @@ export default function RegisterForm() {
 
   return (
     <section className="bg-background grid place-items-center p-6 lg:p-8">
-      <div className="border-border/20 bg-card/50 w-full max-w-122.5 rounded-3xl border p-7 shadow-xl backdrop-blur-sm lg:p-[30px_34px]">
+      <div className="border-border bg-surface w-full max-w-122.5 rounded-3xl border p-7 shadow-xl lg:p-[30px_34px]">
         <div className="mb-7 flex items-center gap-3 lg:hidden">
-          <span className="border-primary/40 from-primary to-primary/70 text-primary-foreground grid h-10 w-10 place-items-center rounded-xl border bg-linear-to-br">
+          <span className="border-primary from-primary to-primary-hover text-primary-foreground grid h-10 w-10 place-items-center rounded-xl border bg-linear-to-br">
             <GraduationCap size={24} />
           </span>
           <strong className="text-foreground text-lg">StudySync</strong>
@@ -123,7 +123,7 @@ export default function RegisterForm() {
           <h2 className="text-foreground my-2.5 text-4xl tracking-[-0.045em]">
             Regístrate
           </h2>
-          <p className="text-muted-foreground m-0 text-sm leading-relaxed">
+          <p className="text-foreground-muted m-0 text-sm leading-relaxed">
             Completa tus datos para empezar a utilizar StudySync.
           </p>
         </header>
@@ -222,7 +222,7 @@ export default function RegisterForm() {
                     aria-label={
                       showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'
                     }
-                    className="text-muted-foreground hover:text-primary grid cursor-pointer place-items-center border-0 bg-transparent p-1 transition-colors"
+                    className="text-foreground-muted hover:text-primary-hover grid cursor-pointer place-items-center border-0 bg-transparent p-1 transition-colors"
                   >
                     {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                   </button>
@@ -259,7 +259,7 @@ export default function RegisterForm() {
                         ? 'Ocultar contraseña'
                         : 'Mostrar contraseña'
                     }
-                    className="text-muted-foreground hover:text-primary grid cursor-pointer place-items-center border-0 bg-transparent p-1 transition-colors"
+                    className="text-foreground-muted hover:text-primary-hover grid cursor-pointer place-items-center border-0 bg-transparent p-1 transition-colors"
                   >
                     {showConfirmPassword ? (
                       <EyeOff size={18} />
@@ -277,7 +277,7 @@ export default function RegisterForm() {
             name="acceptedTerms"
             control={control}
             render={({ field }) => (
-              <label className="text-muted-foreground inline-flex cursor-pointer items-start gap-2 text-xs leading-relaxed">
+              <label className="text-foreground-muted inline-flex cursor-pointer items-start gap-2 text-xs leading-relaxed">
                 <input
                   type="checkbox"
                   checked={field.value}
@@ -327,11 +327,11 @@ export default function RegisterForm() {
           </Button>
         </form>
 
-        <p className="text-muted-foreground mt-5 text-center text-sm">
+        <p className="text-foreground-muted mt-5 text-center text-sm">
           ¿Ya tienes una cuenta?
           <CustomLink
             href="/login"
-            className="text-primary hover:text-primary/80 ml-1.5 font-semibold no-underline transition-colors"
+            className="text-primary hover:text-primary-hover ml-1.5 font-semibold no-underline transition-colors"
           >
             Iniciar sesión
           </CustomLink>

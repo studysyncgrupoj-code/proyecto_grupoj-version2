@@ -40,7 +40,7 @@ export default function Logo({
       aria-label={ariaLabel}
     >
       <span
-        className="border-accent-foreground text-primary-foreground from-primary grid h-10 w-10 place-items-center rounded-xl border bg-linear-to-br to-blue-900 shadow-lg"
+        className="border-primary from-primary to-primary-hover text-primary-foreground grid h-10 w-10 place-items-center rounded-xl border bg-linear-to-br"
         aria-hidden="true"
       >
         <FaGraduationCap size={iconSize} strokeWidth={2} />
@@ -52,7 +52,7 @@ export default function Logo({
             StudySync
           </span>
           {showTagline && (
-            <span className="text-muted-foreground mt-1 hidden text-[0.6rem] tracking-wide sm:block">
+            <span className="text-foreground-muted mt-1 hidden text-[0.6rem] tracking-wide sm:block">
               Aprende. Conecta. Avanza.
             </span>
           )}

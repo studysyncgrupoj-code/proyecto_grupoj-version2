@@ -62,22 +62,22 @@ export const InputField = ({
     lg: 'min-h-12 text-base px-4 gap-3.5',
   };
 
-  // Mapeo de variantes
+  // Mapeo de variantes actualizado con tokens -hover
   const variantClasses = {
     default: cn(
-      'border-border bg-background/50 text-muted-foreground',
-      'hover:border-primary/50 hover:bg-background/80 hover:text-primary',
-      'focus-within:border-primary/70 focus-within:bg-background/80 focus-within:text-primary',
+      'border-border bg-surface text-foreground-muted',
+      'hover:border-primary-hover hover:bg-surface-hover',
+      'focus-within:border-border-focus focus-within:bg-surface-active',
     ),
     filled: cn(
-      'border-transparent bg-background/80 text-muted-foreground',
-      'hover:bg-background/90 hover:text-primary',
-      'focus-within:bg-background focus-within:text-primary focus-within:border-primary/70',
+      'border-transparent bg-surface text-foreground-muted',
+      'hover:bg-surface-hover',
+      'focus-within:border-border-focus focus-within:bg-surface-active',
     ),
     outlined: cn(
-      'border-2 border-border bg-transparent text-muted-foreground',
-      'hover:border-primary/50 hover:text-primary',
-      'focus-within:border-primary focus-within:text-primary',
+      'border-border bg-transparent text-foreground-muted border-2',
+      'hover:border-primary-hover',
+      'focus-within:border-border-focus',
     ),
   };
 
@@ -91,9 +91,9 @@ export const InputField = ({
 
   const baseInputClasses = cn(
     'text-foreground',
-    'placeholder:text-muted-foreground/60',
+    'placeholder:text-foreground-subtle',
     'w-full min-w-0 border-0 bg-transparent outline-0',
-    disabled && 'cursor-not-allowed opacity-50',
+    disabled && 'cursor-not-allowed text-disabled-text',
     className,
   );
 
@@ -104,10 +104,9 @@ export const InputField = ({
     'hover:-translate-y-0.5',
     sizeClasses[size],
     variantClasses[variant],
-    error &&
-      'border-danger/50 focus-within:border-danger focus-within:shadow-danger/20',
+    error && 'border-danger focus-within:border-danger',
     disabled &&
-      'cursor-not-allowed opacity-50 hover:border-border hover:bg-background/50 hover:shadow-none hover:translate-y-0',
+      'bg-disabled text-disabled-text cursor-not-allowed hover:border-border hover:bg-disabled hover:shadow-none hover:translate-y-0 focus-within:translate-y-0 focus-within:shadow-none focus-within:border-border',
     containerClassName,
   );
 
@@ -117,9 +116,6 @@ export const InputField = ({
 
     if (isValidElement<IconProps>(iconElement)) {
       const existingProps = iconElement.props;
-
-      // Usamos un approach diferente: envolver en un span con el tamaño
-      // en lugar de clonar el elemento
       const iconSize = iconSizeMap[size];
 
       return (
@@ -141,7 +137,6 @@ export const InputField = ({
     if (isValidElement<RightElementProps>(element)) {
       const existingProps = element.props;
 
-      // Si es un botón o componente personalizado, añadimos las clases
       const isCustomComponent =
         typeof element.type === 'function' ||
         (typeof element.type === 'object' && element.type !== null);
@@ -149,7 +144,7 @@ export const InputField = ({
       if (isCustomComponent) {
         return cloneElement(element, {
           className: cn(
-            'text-muted-foreground hover:text-primary',
+            'text-foreground-muted hover:text-primary-hover',
             'grid cursor-pointer place-items-center',
             'border-0 bg-transparent p-1 transition-colors',
             existingProps.className,
@@ -164,8 +159,8 @@ export const InputField = ({
   // Estilos para opciones del select
   const selectOptionClasses = cn(
     'bg-background text-foreground',
-    'hover:bg-primary/10',
-    'focus:bg-primary/20',
+    'hover:bg-surface-hover',
+    'focus:bg-surface-active',
   );
 
   const errorId = fieldId ? `${fieldId}-error` : undefined;
@@ -176,7 +171,7 @@ export const InputField = ({
         <span
           className={cn(
             'text-sm font-semibold',
-            disabled ? 'text-muted-foreground/60' : 'text-foreground/90',
+            disabled ? 'text-disabled-text' : 'text-foreground',
           )}
         >
           {label}
