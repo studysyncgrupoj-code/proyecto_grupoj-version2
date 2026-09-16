@@ -1,7 +1,8 @@
 package com.studysync.repository;
 
-import com.studysync.model.UserProfile;
 import org.springframework.data.jpa.repository.JpaRepository;
+
+import com.studysync.model.user.UserProfile;
 
 import java.util.UUID;
 
