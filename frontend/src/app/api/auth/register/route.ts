@@ -1,5 +1,5 @@
 import { checkRateLimit } from '@/lib/ratelimit';
-import { registerWithConfirmSchema } from '@/lib/user.schema';
+import { registerSchema } from '@/lib/user.schema';
 import { NextRequest, NextResponse } from 'next/server';
 
 const API_BASE_URL = process.env.API_BASE_URL;
@@ -30,7 +30,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     // 2. Recibir y validar los datos enviados por el formulario
     const body = await request.json();
-    const result = registerWithConfirmSchema.safeParse(body);
+    const result = registerSchema.safeParse(body);
 
     if (!result.success) {
       return NextResponse.json(
