@@ -88,9 +88,11 @@ export default function ThemeToggle({ size = 'md' }: ThemeToggleProps) {
     return (
       <div className="relative inline-block">
         <div
-          className={`relative flex ${currentSize.button} items-center rounded-full bg-gray-200 ${currentSize.padding}`}
+          className={`relative flex ${currentSize.button} bg-disabled items-center rounded-full ${currentSize.padding}`}
         >
-          <div className={`${currentSize.thumb} rounded-full bg-gray-300`} />
+          <div
+            className={`${currentSize.thumb} bg-disabled-text rounded-full`}
+          />
         </div>
       </div>
     );
@@ -142,30 +144,15 @@ export default function ThemeToggle({ size = 'md' }: ThemeToggleProps) {
       <motion.button
         ref={toggleRef}
         onClick={handleToggle}
-        className={`relative flex ${currentSize.button} items-center ${currentSize.padding} overflow-hidden rounded-full transition-all duration-300 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none`}
+        className={`relative flex ${currentSize.button} items-center ${currentSize.padding} border-border bg-surface focus-visible:ring-border-focus focus-visible:ring-offset-background overflow-hidden rounded-full border transition-all duration-300 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none`}
         style={{
-          background: isDark
-            ? 'radial-gradient(ellipse at top left, #1e293b 0%, #0f172a 40%, #020617 100%)'
-            : 'radial-gradient(ellipse at top left, #ffffff 0%, #f1f5f9 40%, #cbd5e1 100%)',
-          boxShadow: isDark
-            ? `
-              inset 3px 3px 8px rgba(0, 0, 0, 0.9),
-              inset -3px -3px 8px rgba(71, 85, 105, 0.4),
-              inset 0 0 15px rgba(0, 0, 0, 0.6),
-              0 2px 4px rgba(0, 0, 0, 0.4),
-              0 8px 16px rgba(0, 0, 0, 0.3)
-            `
-            : `
-              inset 3px 3px 8px rgba(148, 163, 184, 0.5),
-              inset -3px -3px 8px rgba(255, 255, 255, 1),
-              inset 0 0 15px rgba(203, 213, 225, 0.3),
-              0 2px 4px rgba(0, 0, 0, 0.1),
-              0 8px 16px rgba(0, 0, 0, 0.08)
-            `,
-          border: isDark
-            ? '1.5px solid rgba(51, 65, 85, 0.6)'
-            : '1.5px solid rgba(203, 213, 225, 0.6)',
-          borderRadius: '9999px',
+          background:
+            'radial-gradient(ellipse at top left, var(--surface-hover) 0%, var(--surface) 45%, var(--background) 100%)',
+          boxShadow: `
+            inset 3px 3px 8px color-mix(in oklch, var(--foreground) 18%, transparent),
+            inset -3px -3px 8px color-mix(in oklch, var(--background) 55%, transparent),
+            0 8px 16px color-mix(in oklch, var(--foreground) 12%, transparent)
+          `,
         }}
         aria-label={`Cambiar a modo ${isDark ? 'claro' : 'oscuro'}`}
         role="switch"
@@ -180,9 +167,8 @@ export default function ThemeToggle({ size = 'md' }: ThemeToggleProps) {
             right: '3px',
             bottom: '3px',
             left: '3px',
-            boxShadow: isDark
-              ? 'inset 0 1px 4px rgba(0, 0, 0, 0.9), inset 0 -1px 2px rgba(71, 85, 105, 0.3)'
-              : 'inset 0 1px 4px rgba(100, 116, 139, 0.4), inset 0 -1px 2px rgba(255, 255, 255, 0.8)',
+            boxShadow:
+              'inset 0 1px 4px color-mix(in oklch, var(--foreground) 20%, transparent), inset 0 -1px 2px color-mix(in oklch, var(--background) 40%, transparent)',
           }}
         />
 
@@ -190,11 +176,11 @@ export default function ThemeToggle({ size = 'md' }: ThemeToggleProps) {
         <div className="pointer-events-none absolute inset-0 flex items-center justify-between px-3">
           <FaSun
             size={currentSize.icon}
-            className={isDark ? 'text-yellow-100' : 'text-amber-600'}
+            className={isDark ? 'text-warning' : 'text-warning'}
           />
           <BsFillMoonStarsFill
             size={currentSize.icon}
-            className={isDark ? 'text-yellow-100' : 'text-slate-700'}
+            className="text-foreground-muted"
           />
         </div>
 
@@ -203,24 +189,20 @@ export default function ThemeToggle({ size = 'md' }: ThemeToggleProps) {
           className={`relative z-10 flex ${currentSize.thumb} items-center justify-center overflow-hidden rounded-full`}
           style={{
             background: isDark
-              ? 'linear-gradient(145deg, #64748b 0%, #475569 50%, #334155 100%)'
-              : 'linear-gradient(145deg, #ffffff 0%, #fefefe 50%, #f8fafc 100%)',
+              ? 'linear-gradient(145deg, var(--surface-active) 0%, var(--surface) 50%, var(--background) 100%)'
+              : 'linear-gradient(145deg, var(--primary-foreground) 0%, var(--surface-hover) 50%, var(--surface) 100%)',
             boxShadow: isDark
               ? `
-                inset 2px 2px 3px rgba(100, 116, 139, 0.4),
-                inset -2px -2px 3px rgba(0, 0, 0, 0.8),
-                0 4px 16px rgba(0, 0, 0, 0.6),
-                0 2px 8px rgba(0, 0, 0, 0.5)
+                inset 2px 2px 3px color-mix(in oklch, var(--foreground) 18%, transparent),
+                inset -2px -2px 3px color-mix(in oklch, var(--background) 55%, transparent),
+                0 4px 16px color-mix(in oklch, var(--foreground) 18%, transparent)
               `
               : `
-                inset 2px 2px 3px rgba(203, 213, 225, 0.3),
-                inset -2px -2px 3px rgba(255, 255, 255, 1),
-                0 4px 16px rgba(0, 0, 0, 0.18),
-                0 2px 8px rgba(0, 0, 0, 0.12)
+                inset 2px 2px 3px color-mix(in oklch, var(--foreground) 12%, transparent),
+                inset -2px -2px 3px color-mix(in oklch, var(--background) 55%, transparent),
+                0 4px 16px color-mix(in oklch, var(--foreground) 12%, transparent)
               `,
-            border: isDark
-              ? '1.5px solid rgba(148, 163, 184, 0.3)'
-              : '1.5px solid rgba(255, 255, 255, 0.9)',
+            border: '1.5px solid var(--border)',
             borderRadius: '9999px',
           }}
           animate={{
@@ -237,7 +219,7 @@ export default function ThemeToggle({ size = 'md' }: ThemeToggleProps) {
             className="pointer-events-none absolute inset-0 rounded-full"
             style={{
               background:
-                'linear-gradient(to bottom, rgba(255, 255, 255, 0.4) 0%, transparent 40%, rgba(0, 0, 0, 0.1) 100%)',
+                'linear-gradient(to bottom, color-mix(in oklch, var(--primary-foreground) 40%, transparent) 0%, transparent 40%, color-mix(in oklch, var(--foreground) 10%, transparent) 100%)',
               mixBlendMode: 'overlay',
               borderRadius: '9999px',
             }}
@@ -256,8 +238,8 @@ export default function ThemeToggle({ size = 'md' }: ThemeToggleProps) {
                     width: '8px',
                     height: '8px',
                     background: isDark
-                      ? 'radial-gradient(circle, rgba(147, 197, 253, 0.5) 0%, rgba(147, 197, 253, 0) 70%)'
-                      : 'radial-gradient(circle, rgba(251, 191, 36, 0.7) 0%, rgba(251, 191, 36, 0) 70%)',
+                      ? 'radial-gradient(circle, color-mix(in oklch, var(--info) 50%, transparent) 0%, transparent 70%)'
+                      : 'radial-gradient(circle, color-mix(in oklch, var(--warning) 70%, transparent) 0%, transparent 70%)',
                     borderRadius: '9999px',
                   }}
                   initial={{ scale: 0, opacity: 0 }}
@@ -276,10 +258,10 @@ export default function ThemeToggle({ size = 'md' }: ThemeToggleProps) {
             {isDark ? (
               <BsFillMoonStarsFill
                 size={currentSize.icon - 2}
-                className="text-yellow-200"
+                className="text-foreground"
               />
             ) : (
-              <FaSun size={currentSize.icon - 2} className="text-amber-500" />
+              <FaSun size={currentSize.icon - 2} className="text-warning" />
             )}
           </div>
         </motion.div>

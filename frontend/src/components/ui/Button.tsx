@@ -49,31 +49,31 @@ export type ButtonProps = ButtonAsLink | ButtonAsButton;
 
 const BUTTON_VARIANTS: Record<ButtonVariant, string> = {
   primary: cn(
-    'border border-transparent bg-accent text-white shadow-lg shadow-accent/25',
-    'hover:bg-accent/90 hover:shadow-accent/35',
-    'active:bg-accent/80 active:shadow-accent/20',
-    'focus-visible:ring-accent',
+    'border border-transparent bg-primary text-primary-foreground',
+    'hover:bg-primary-hover',
+    'active:bg-primary-hover',
+    'focus-visible:ring-border-focus',
   ),
   secondary: cn(
-    'border border-transparent bg-primary text-white shadow-lg shadow-primary/25',
-    'hover:bg-primary/90 hover:shadow-primary/35',
-    'active:bg-primary/80 active:shadow-primary/20',
-    'focus-visible:ring-primary',
+    'border border-transparent bg-secondary text-secondary-foreground',
+    'hover:bg-secondary-hover',
+    'active:bg-secondary-hover',
+    'focus-visible:ring-border-focus',
   ),
   social: cn(
-    'border border-foreground/10 bg-foreground/5 text-foreground',
-    'hover:border-foreground/20 hover:bg-foreground/10',
-    'active:bg-foreground/15',
-    'focus-visible:ring-primary',
+    'border-border bg-surface text-foreground border',
+    'hover:border-border-focus hover:bg-surface-hover',
+    'active:bg-surface-active',
+    'focus-visible:ring-border-focus',
   ),
   ghost: cn(
-    'border border-transparent bg-transparent text-foreground/70',
-    'hover:bg-foreground/5 hover:text-foreground',
-    'active:bg-foreground/10',
-    'focus-visible:ring-primary',
+    'border border-transparent bg-transparent text-foreground-muted',
+    'hover:bg-surface-hover hover:text-foreground',
+    'active:bg-surface-active',
+    'focus-visible:ring-border-focus',
   ),
   disabled:
-    'border-transparent bg-foreground/10 text-foreground/40 pointer-events-none shadow-none active:scale-100',
+    'border-transparent bg-disabled text-disabled-text pointer-events-none shadow-none active:scale-100',
 };
 
 const BUTTON_SIZES: Record<ButtonSize, { default: string; iconOnly: string }> =
@@ -133,9 +133,7 @@ export const Button = forwardRef<
     BUTTON_VARIANTS[resolvedVariant],
     isIconOnly ? sizeClasses.iconOnly : sizeClasses.default,
     fullWidth && 'w-full',
-    // Usar variables CSS para estados
-    'hover:shadow-md',
-    'disabled:opacity-50 disabled:cursor-not-allowed',
+    'disabled:cursor-not-allowed disabled:bg-disabled disabled:text-disabled-text',
     className,
   );
 
@@ -150,7 +148,6 @@ export const Button = forwardRef<
     </>
   );
 
-  //TODO: Validar alvertencia por variable que asigna pero no se usa nunca al ser desestructurado.
   if (isLinkProps(props)) {
     const {
       href,

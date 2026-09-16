@@ -40,7 +40,7 @@ export default function Footer() {
         <div className="grid grid-cols-1 gap-8 md:grid-cols-4">
           <section className="md:col-span-1">
             <Logo />
-            <p className="text-muted-foreground mt-4 max-w-xs text-sm">
+            <p className="text-foreground-muted mt-4 max-w-xs text-sm">
               Plataforma educativa moderna construida para potenciar el
               aprendizaje y la colaboración en línea.
             </p>
@@ -48,10 +48,10 @@ export default function Footer() {
 
           {FOOTER_LINKS.map((section) => (
             <nav key={section.title} aria-label={section.title}>
-              <h2 className="font-heading text-foreground mb-4 font-semibold">
+              <h2 className="font-serif text-foreground mb-4 font-semibold">
                 {section.title}
               </h2>
-              <ul className="text-muted-foreground space-y-3 text-sm">
+              <ul className="text-foreground-muted space-y-3 text-sm">
                 {section.links.map((link) => (
                   <li key={link.name}>
                     <CustomLink
@@ -68,11 +68,11 @@ export default function Footer() {
         </div>
 
         <div className="border-border mt-12 flex flex-col items-center justify-between gap-4 border-t pt-8 md:flex-row">
-          <p className="text-muted-foreground text-sm">
+          <p className="text-foreground-muted text-sm">
             © 2026 StudySync. Todos los derechos reservados.
           </p>
           <nav aria-label="Legal">
-            <ul className="text-muted-foreground flex space-x-6 text-sm">
+            <ul className="text-foreground-muted flex space-x-6 text-sm">
               {LEGAL_LINKS.map((link) => (
                 <li key={link.name}>
                   <CustomLink

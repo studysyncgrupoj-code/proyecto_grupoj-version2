@@ -48,11 +48,11 @@ export default function SidebarNav({ items, panelTitle }: SidebarNavProps) {
             key={item.path}
             href={item.path}
             title={collapsed ? item.label : undefined}
-            className={`text-muted-foreground hover:border-accent/30 hover:bg-accent/[7.5%] hover:text-foreground flex min-h-11.5 items-center gap-3 overflow-hidden rounded-[13px] border border-transparent px-3.5 text-sm leading-tight font-bold whitespace-nowrap transition-all duration-200 hover:translate-x-0.75 hover:shadow-[inset_3px_0_0_var(--accent),0_10px_24px_rgba(0,0,0,0.22)] ${
+            className={`text-foreground-muted hover:border-border hover:bg-surface-hover hover:text-foreground flex min-h-11.5 items-center gap-3 overflow-hidden rounded-[13px] border border-transparent px-3.5 text-sm leading-tight font-bold whitespace-nowrap transition-all duration-200 ${
               collapsed ? 'justify-center px-0' : ''
             } ${
               isActive
-                ? 'border-accent/40 from-accent/15 to-primary/5 text-foreground bg-linear-to-r shadow-[inset_3px_0_0_var(--accent),0_12px_28px_rgba(0,0,0,0.24),0_0_22px_rgba(14,165,233,0.08)]'
+                ? 'border-border-focus bg-surface-active text-foreground'
                 : ''
             }`}
           >

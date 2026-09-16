@@ -1,3 +1,4 @@
+// src/components/layout/Header.tsx (o tu ruta correspondiente)
 'use client';
 
 import Logo from '@/components/ui/logo';
@@ -13,7 +14,7 @@ export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
 
   return (
-    <header className="border-border fixed top-0 left-0 z-50 flex min-h-20 w-full items-center justify-between border-b bg-black/76 px-6 backdrop-blur-md sm:px-12">
+    <header className="border-border bg-background/76 fixed top-0 left-0 z-50 flex min-h-20 w-full items-center justify-between border-b px-6 backdrop-blur-md sm:px-12">
       {/* Brand / Logo */}
       <Logo />
 
@@ -36,7 +37,7 @@ export default function Header() {
                 className={`relative px-0 py-7 text-xs font-bold transition-colors duration-200 ${
                   isActive
                     ? 'text-foreground'
-                    : 'text-muted-foreground hover:text-foreground'
+                    : 'text-foreground-muted hover:text-foreground'
                 }`}
               >
                 {link.labelKey}
@@ -57,7 +58,7 @@ export default function Header() {
               className={`relative px-0 py-7 text-xs font-bold transition-colors duration-200 ${
                 isActive
                   ? 'text-foreground'
-                  : 'text-muted-foreground hover:text-foreground'
+                  : 'text-foreground-muted hover:text-foreground'
               }`}
             >
               {link.labelKey}
@@ -88,8 +89,8 @@ export default function Header() {
                   rel="noopener noreferrer"
                   className={`relative rounded-lg px-3 py-2 text-xs font-bold transition-colors duration-200 ${
                     isActive
-                      ? 'text-foreground bg-active'
-                      : 'text-muted-foreground hover:text-foreground'
+                      ? 'text-foreground bg-surface-active'
+                      : 'text-foreground-muted hover:bg-surface-hover hover:text-foreground'
                   }`}
                   onClick={() => setMobileMenuOpen(false)}
                 >
@@ -104,8 +105,8 @@ export default function Header() {
                 href={link.href}
                 className={`relative rounded-lg px-3 py-2 text-xs font-bold transition-colors duration-200 ${
                   isActive
-                    ? 'text-foreground bg-active'
-                    : 'text-muted-foreground hover:text-foreground'
+                    ? 'text-foreground bg-surface-active'
+                    : 'text-foreground-muted hover:bg-surface-hover hover:text-foreground'
                 }`}
                 onClick={() => setMobileMenuOpen(false)}
               >
