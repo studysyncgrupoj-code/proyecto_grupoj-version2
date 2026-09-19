@@ -21,7 +21,7 @@ export default async function SideBar() {
     <SidebarShell>
       <div>
         <SidebarBrand />
-        <SidebarNav items={navConfig.menu} />
+        <SidebarNav items={navConfig.menu} panelTitle={navConfig.panelTitle} />
       </div>
 
       <SidebarUserMenu user={userData} />

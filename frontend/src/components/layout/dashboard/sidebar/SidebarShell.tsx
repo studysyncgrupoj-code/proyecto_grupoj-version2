@@ -1,6 +1,7 @@
 'use client';
 
 import { Button } from '@/components/ui/Button';
+import { cn } from '@/utilities/cn';
 import { useEffect, useState } from 'react';
 import { SidebarContext } from './SidebarContext';
 
@@ -25,7 +26,7 @@ export default function SidebarShell({
     localStorage.setItem('studysync-sidebar-collapsed', String(collapsed));
     document.documentElement.style.setProperty(
       '--ss-sidebar-current-width',
-      collapsed ? '82px' : '270px',
+      collapsed ? '80px' : '256px',
     );
   }, [collapsed, hydrated]);
 
@@ -34,7 +35,10 @@ export default function SidebarShell({
   return (
     <SidebarContext.Provider value={{ collapsed, toggleCollapsed }}>
       <aside
-        className={`border-border bg-background text-foreground relative flex h-screen flex-col justify-between border-r shadow-[18px_0_45px_color-mix(in_oklch,var(--foreground)_12%,transparent)] transition-[width] duration-200 ${collapsed ? 'w-20' : 'w-64'}`}
+        className={cn(
+          'border-border bg-background text-foreground relative flex h-screen flex-col justify-between border-r shadow-[18px_0_45px_color-mix(in_oklch,var(--foreground)_12%,transparent)] transition-[width] duration-200',
+          collapsed ? 'w-20' : 'w-64',
+        )}
       >
         <Button
           variant="primary"
