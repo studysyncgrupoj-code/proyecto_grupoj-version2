@@ -1,7 +1,7 @@
 // auth.ts
 import { checkRateLimit } from '@/lib/ratelimit';
 import { loginSchema } from '@/lib/user.schema';
-import type { UserRole } from '@/types/next-auth';
+import type { SubscriptionType, UserRole } from '@/types/next-auth';
 import NextAuth from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
 import { z } from 'zod';
@@ -14,6 +14,9 @@ const API_TIMEOUT_MS = 10000; // 10 segundos
 
 // Esquema para validar el rol devuelto por el backend
 const UserRoleSchema = z.enum(['student', 'teacher', 'admin']);
+
+// Esquema para validar la suscripción devuelta por el backend
+const SubscriptionSchema = z.enum(['free', 'premium', 'enterprise']);
 
 // Tipo para metadatos de logs
 interface LogMeta {
@@ -31,6 +34,7 @@ interface LoginSuccessResponse {
     apellidos: string;
     uuid: string;
     rol: string;
+    suscripcion?: string;
   };
 }
 
@@ -179,7 +183,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           }
 
           // 5. Validar que el rol devuelto sea uno de los permitidos
-          const roleParse = UserRoleSchema.safeParse(data.data.rol.toLowerCase());
+          const roleParse = UserRoleSchema.safeParse(
+            data.data.rol.toLowerCase(),
+          );
           if (!roleParse.success) {
             logger.error('Rol inválido devuelto por el backend', {
               rol: data.data.rol,
@@ -190,10 +196,25 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
           const role: UserRole = roleParse.data;
 
+          // 5.1 Validar la suscripción (solo aplica a estudiantes)
+          let subscription: SubscriptionType | undefined;
+          if (role === 'student') {
+            const subParse = SubscriptionSchema.safeParse(
+              data.data.suscripcion?.toLowerCase(),
+            );
+            if (!subParse.success) {
+              logger.error('Suscripción inválida o ausente, se asigna free', {
+                uuid: data.data.uuid,
+              });
+            }
+            subscription = subParse.success ? subParse.data : 'free';
+          }
+
           logger.info('Autenticación exitosa con backend externo', {
             email,
             uuid: data.data.uuid,
             rol: role,
+            suscripcion: subscription,
           });
 
           // 6. Retornar el objeto usuario limpio que Auth.js mapeará en su sesión
@@ -201,7 +222,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             id: String(data.data.uuid),
             name: `${data.data.nombre} ${data.data.apellidos}`,
             email,
-            role, // ← ahora es UserRole, no string
+            role,
+            subscription,
           };
         } catch (error) {
           logger.error('Error interno crítico en authorize', {
@@ -220,6 +242,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (user) {
         token.id = user.id;
         token.role = user.role;
+        token.subscription = user.subscription;
       }
 
       return token;
@@ -229,7 +252,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         if (typeof token.id === 'string') {
           session.user.id = token.id;
         }
-        session.user.role = token.role;
+        if (token.role) {
+          session.user.role = token.role;
+        }
+        session.user.subscription = token.subscription;
       }
 
       return session;

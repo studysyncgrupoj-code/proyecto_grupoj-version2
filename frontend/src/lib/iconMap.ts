@@ -29,6 +29,8 @@ import {
   HiXMark,
 } from 'react-icons/hi2';
 
+import { LuCrown, LuGem } from 'react-icons/lu';
+
 export const IconMap = {
   ui: {
     arrowRight: HiArrowRight,
@@ -56,6 +58,8 @@ export const IconMap = {
     user: HiUser,
     chevronLeft: HiChevronLeft,
     chevronRight: HiChevronRight,
+    crown: LuCrown,
+    gem: LuGem,
   },
   social: {
     globecheck: HiGlobeAlt, // TODO: temporal para evitar errores de TS en Button
