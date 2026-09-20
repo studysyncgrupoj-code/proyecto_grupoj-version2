@@ -4,6 +4,7 @@ import type { IconType } from 'react-icons';
 import {
   HiAcademicCap,
   HiArrowRight,
+  HiArrowRightOnRectangle,
   HiBars3,
   HiBolt,
   HiBookOpen,
@@ -98,7 +99,8 @@ export const IconMap = {
     chevronRight: HiChevronRight,
     crown: LuCrown,
     gem: LuGem,
-    globe: HiGlobeAlt, // antes `social.globecheck` (parche temporal para Button)
+    globe: HiGlobeAlt,
+    arrowRightOnRectangle: HiArrowRightOnRectangle,
   },
   tech: {
     react: SiReact,

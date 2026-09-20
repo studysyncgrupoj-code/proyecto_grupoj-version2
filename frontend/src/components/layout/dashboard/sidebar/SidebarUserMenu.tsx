@@ -1,11 +1,11 @@
 'use client';
 
+import { Button } from '@/components/ui/Button';
 import ThemeToggle from '@/components/ui/ThemeToggle';
 import { cn } from '@/utilities/cn';
 import { signOut } from 'next-auth/react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { HiArrowRightOnRectangle } from 'react-icons/hi2';
 import { useSidebar } from './SidebarContext';
 
 interface SidebarUserMenuProps {
@@ -84,24 +84,21 @@ export default function SidebarUserMenu({ user }: SidebarUserMenuProps) {
         )}
       >
         <ThemeToggle size="sm" />
-
-        <button
-          type="button"
-          onClick={() => signOut()}
-          title={collapsed ? 'Cerrar sesión' : undefined}
+        <Button
+          variant="ghost"
+          size="md"
+          icon="arrowRightOnRectangle"
           aria-label="Cerrar sesión"
+          title={collapsed ? 'Cerrar sesión' : undefined}
+          fullWidth={!collapsed}
+          onClick={() => signOut()}
           className={cn(
-            'text-foreground-muted hover:border-border hover:bg-surface-hover hover:text-danger focus-visible:ring-border-focus flex min-h-10 items-center justify-center gap-2 rounded-[13px] border border-transparent text-sm font-bold whitespace-nowrap transition-all duration-200 focus-visible:ring-2 focus-visible:outline-none',
-            collapsed ? 'w-10' : 'flex-1 px-3',
+            collapsed ? 'w-10 px-0' : 'flex-1 justify-start px-3',
+            'hover:text-danger',
           )}
         >
-          <HiArrowRightOnRectangle
-            className="text-foreground shrink-0"
-            size={19}
-            aria-hidden="true"
-          />
           {!collapsed && <span>Cerrar sesión</span>}
-        </button>
+        </Button>
       </div>
     </div>
   );

@@ -216,16 +216,15 @@ export default function RegisterForm() {
                 size="md"
                 variant="default"
                 rightElement={
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword((prev) => !prev)}
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    icon={showPassword ? 'eyeOff' : 'eye'}
                     aria-label={
                       showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'
                     }
-                    className="text-foreground-muted hover:text-primary-hover grid cursor-pointer place-items-center border-0 bg-transparent p-1 transition-colors"
-                  >
-                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                  </button>
+                    onClick={() => setShowPassword((prev) => !prev)}
+                  />
                 }
               />
             )}
@@ -251,22 +250,17 @@ export default function RegisterForm() {
                 size="md"
                 variant="default"
                 rightElement={
-                  <button
-                    type="button"
-                    onClick={() => setShowConfirmPassword((prev) => !prev)}
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    icon={showConfirmPassword ? 'eyeOff' : 'eye'}
                     aria-label={
                       showConfirmPassword
                         ? 'Ocultar contraseña'
                         : 'Mostrar contraseña'
                     }
-                    className="text-foreground-muted hover:text-primary-hover grid cursor-pointer place-items-center border-0 bg-transparent p-1 transition-colors"
-                  >
-                    {showConfirmPassword ? (
-                      <EyeOff size={18} />
-                    ) : (
-                      <Eye size={18} />
-                    )}
-                  </button>
+                    onClick={() => setShowConfirmPassword((prev) => !prev)}
+                  />
                 }
               />
             )}
@@ -312,16 +306,13 @@ export default function RegisterForm() {
 
           {/* Botón de envío */}
           <Button
-            variant={isSubmitting ? 'disabled' : 'primary'}
+            variant="primary"
             size="lg"
             fullWidth
             icon="arrowRight"
             iconPosition="right"
             type="submit"
             disabled={isSubmitting || !isValid}
-            aria-label={
-              isSubmitting ? 'Registrando usuario...' : 'Crear cuenta'
-            }
           >
             {isSubmitting ? 'Registrando...' : 'Crear cuenta'}
           </Button>

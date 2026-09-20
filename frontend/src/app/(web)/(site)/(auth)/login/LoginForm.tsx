@@ -6,9 +6,9 @@ import { CustomLink } from '@/components/ui/Link';
 import { IconMap } from '@/lib/iconMap';
 import { loginSchema, type LoginInput } from '@/lib/user.schema';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { signIn } from 'next-auth/react';
 import { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import { signIn } from 'next-auth/react';
 
 type MessageType = 'success' | 'error' | '';
 
@@ -141,16 +141,15 @@ export default function LoginForm() {
                 size="md"
                 variant="default"
                 rightElement={
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword((prev) => !prev)}
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    icon={showPassword ? 'eyeOff' : 'eye'}
                     aria-label={
                       showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'
                     }
-                    className="text-foreground-muted hover:text-primary-hover grid cursor-pointer place-items-center border-0 bg-transparent p-1 transition-colors"
-                  >
-                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                  </button>
+                    onClick={() => setShowPassword((prev) => !prev)}
+                  />
                 }
               />
             )}
@@ -182,18 +181,16 @@ export default function LoginForm() {
 
           {/* Botón de envío */}
           <Button
-            variant={isSubmitting ? 'disabled' : 'primary'}
+            variant="primary"
             size="lg"
             fullWidth
             icon="arrowRight"
             iconPosition="right"
             type="submit"
             disabled={isSubmitting || !isValid}
-            aria-label={isSubmitting ? 'Iniciando sesión...' : 'Iniciar sesión'}
           >
             {isSubmitting ? 'Iniciando sesión...' : 'Iniciar sesión'}
           </Button>
-
         </form>
 
         <p className="text-foreground-muted mt-5 text-center text-sm">
