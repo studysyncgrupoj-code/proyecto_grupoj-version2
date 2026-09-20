@@ -29,7 +29,7 @@ const PLANS: Record<SubscriptionType, PlanConfig> = {
     tile: 'bg-secondary text-secondary-foreground',
     cta: {
       text: 'Mejorar plan',
-      href: '/suscripcion' /* TODO: Ruta sin gestionar */,
+      href: '/dashboard/checkout?plan=premium' /* TODO: Ruta sin gestionar */,
     },
   },
   premium: {
@@ -38,7 +38,10 @@ const PLANS: Record<SubscriptionType, PlanConfig> = {
     icon: 'crown',
     card: 'border-warning/30 bg-warning/10',
     tile: 'bg-warning text-warning-foreground',
-    cta: { text: 'Gestionar plan', href: '/suscripcion' },
+    cta: {
+      text: 'Gestionar plan',
+      href: '/dashboard/billing' /* TODO: Implementar ruta de gestión de facturación/métodos de pago */,
+    },
   },
   enterprise: {
     name: 'Plan Enterprise',
