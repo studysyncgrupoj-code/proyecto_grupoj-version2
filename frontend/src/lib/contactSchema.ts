@@ -19,13 +19,14 @@ export const contactSchema = z.object({
     .max(254, 'El correo no puede superar los 254 caracteres.'),
 
   contactNumber: z
-    .string()
-    .trim()
-    .refine(
-      (val) => val === '' || isValidPhoneNumber(val),
-      'Ingresa un número de teléfono válido.',
-    )
-    .transform((val) => (val === '' ? undefined : val)),
+  .string()
+  .trim()
+  .refine(
+    (val) => val === '' || isValidPhoneNumber(val),
+    'Ingresa un número de teléfono válido.',
+  )
+  .transform((val) => (val === '' ? undefined : val))
+  .optional(),
 
   subject: z
     .string()
