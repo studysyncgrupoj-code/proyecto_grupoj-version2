@@ -4,6 +4,8 @@ import '../globals.css';
 
 import SideBar from '@/components/layout/dashboard/sidebar/SideBar';
 
+import { ThemeProvider } from 'next-themes';
+
 const plusJakartaSans = Plus_Jakarta_Sans({
   variable: '--font-plus-jakarta',
   subsets: ['latin'],
@@ -48,11 +50,22 @@ export default function DashboardLayout({
       suppressHydrationWarning
     >
       <body className="flex min-h-full flex-col font-sans">
+        <ThemeProvider
+          storageKey="theme"
+          defaultTheme="system"
+          enableSystem={true}
+          enableColorScheme={true}
+          themes={['light', 'dark']}
+          attribute="data-theme"
+        >
+          <div className="flex min-h-screen w-full">
+            <SideBar />
+            <main className="bg-background min-h-screen flex-1">
+              {children}
+            </main>
+          </div>
+        </ThemeProvider>
         {/* Contenedor flex para poner el Sidebar al lado del contenido principal */}
-        <div className="flex min-h-screen w-full">
-          <SideBar />
-          <main className="bg-background min-h-screen flex-1">{children}</main>
-        </div>
       </body>
     </html>
   );
