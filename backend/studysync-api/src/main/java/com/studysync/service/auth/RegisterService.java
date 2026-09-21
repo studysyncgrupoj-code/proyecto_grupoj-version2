@@ -11,19 +11,23 @@ import com.studysync.model.auth.AuthAccount;
 import com.studysync.model.auth.Role;
 import com.studysync.model.user.UserProfile;
 import com.studysync.repository.auth.AuthAccountRepository;
+import com.studysync.service.subscription.StudentSubscriptionService;
 
 @Service
 public class RegisterService {
 
     private final AuthAccountRepository authAccountRepository;
     private final PasswordEncoder passwordEncoder;
+    private final StudentSubscriptionService studentSubscriptionService;
 
     public RegisterService(
             AuthAccountRepository authAccountRepository,
-            PasswordEncoder passwordEncoder
+            PasswordEncoder passwordEncoder,
+            StudentSubscriptionService studentSubscriptionService
     ) {
         this.authAccountRepository = authAccountRepository;
         this.passwordEncoder = passwordEncoder;
+        this.studentSubscriptionService = studentSubscriptionService;
     }
 
     @Transactional
@@ -36,18 +40,26 @@ public class RegisterService {
 
         AuthAccount authAccount = new AuthAccount();
         authAccount.setEmail(emailNormalizado);
-        authAccount.setPasswordHash(passwordEncoder.encode(request.contrasena()));
+        authAccount.setPasswordHash(
+                passwordEncoder.encode(request.contrasena())
+        );
         authAccount.setRole(Role.STUDENT);
         authAccount.setActive(true);
 
         UserProfile profile = new UserProfile();
         profile.setNombre(request.nombre().trim());
         profile.setApellidos(request.apellidos().trim());
+
         authAccount.setUserProfile(profile);
 
         try {
-            AuthAccount saved = authAccountRepository.saveAndFlush(authAccount);
+            AuthAccount saved =
+                    authAccountRepository.saveAndFlush(authAccount);
+
+            studentSubscriptionService.createFreeSubscription(saved);
+
             return saved.getUserProfile();
+
         } catch (DataIntegrityViolationException ex) {
             throw new EmailAlreadyRegisteredException();
         }

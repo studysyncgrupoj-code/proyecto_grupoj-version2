@@ -32,6 +32,17 @@ public class UserProfile {
     @Column(nullable = false, length = 100)
     private String apellidos;
 
+    @Column(name = "image", length = 2048)
+    private String image;
+
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
+    }
+
     public UserProfile() {
     }
 

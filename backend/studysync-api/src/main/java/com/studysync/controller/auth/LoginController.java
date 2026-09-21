@@ -24,17 +24,18 @@ public class LoginController {
         this.loginService = loginService;
     }
 
-    // TODO: Reemplazar Map<String, Object> por un objeto DTO fuertemente tipado 
+    // TODO: Reemplazar Map<String, Object> por un objeto DTO fuertemente tipado
     // para mejorar la validación automática con @Valid.
     @PostMapping("/login")
     public ResponseEntity<?> login(
             @RequestBody Map<String, Object> body
     ) {
-        String email = body.get("email") != null 
-                ? body.get("email").toString() 
+        String email = body.get("email") != null
+                ? body.get("email").toString()
                 : null;
 
         String contrasena = null;
+
         if (body.get("contrasena") != null) {
             contrasena = body.get("contrasena").toString();
         } else if (body.get("password") != null) {
@@ -59,11 +60,28 @@ public class LoginController {
             }
 
             Map<String, Object> data = new LinkedHashMap<>();
+
             data.put("nombre", result.profile().getNombre());
             data.put("apellidos", result.profile().getApellidos());
             data.put("uuid", result.authAccount().getId());
-            // Corregido: El rol ahora se obtiene correctamente de AuthAccount
+
+            // El rol se obtiene de AuthAccount
             data.put("rol", result.authAccount().getRole().name());
+
+            // La imagen solo se incluye si existe y contiene una URL
+            String image = result.profile().getImage();
+
+            if (image != null && !image.isBlank()) {
+                data.put("image", image);
+            }
+
+            // La suscripción solo se incluye para usuarios STUDENT
+            if (result.subscription() != null) {
+                data.put(
+                        "subscription",
+                        result.subscription().name().toLowerCase()
+                );
+            }
 
             return ResponseEntity.ok(
                     Map.of(
@@ -74,7 +92,7 @@ public class LoginController {
             );
 
         } catch (LoginService.AccountInactiveException e) {
-            // TODO: Extraer el manejo de excepciones local (try-catch) 
+            // TODO: Extraer el manejo de excepciones local (try-catch)
             // y centralizarlo en un @RestControllerAdvice global.
             return ResponseEntity
                     .status(HttpStatus.FORBIDDEN)
