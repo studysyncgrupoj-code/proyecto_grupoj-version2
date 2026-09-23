@@ -36,7 +36,7 @@ export default function SidebarShell({
     <SidebarContext.Provider value={{ collapsed, toggleCollapsed }}>
       <aside
         className={cn(
-          'border-border bg-background text-foreground relative flex h-screen flex-col justify-between border-r shadow-[18px_0_45px_color-mix(in_oklch,var(--foreground)_12%,transparent)] transition-[width] duration-200',
+          'border-border bg-background text-foreground relative hidden h-screen justify-between border-r shadow-[18px_0_45px_color-mix(in_oklch,var(--foreground)_12%,transparent)] transition-[width] duration-200 lg:flex lg:flex-col',
           collapsed ? 'w-20' : 'w-64',
         )}
       >
