@@ -1,0 +1,151 @@
+# ============================================
+# SECRETOS Y CONFIGURACIÓN LOCAL
+# ============================================
+# Archivos .env con credenciales
+.env
+.env.*
+!.env.example
+
+# Configuración local de Spring Boot (no se sube)
+application-local.properties
+application-*.local.properties
+application-secret.properties
+
+# Archivos con secretos de VS Code
+.vscode/launch.json
+.vscode/*.local.json
+
+# ============================================
+# COMPILACIÓN JAVA / MAVEN / GRADLE
+# ============================================
+target/
+build/
+out/
+bin/
+*.class
+*.jar
+*.war
+*.ear
+*.nar
+
+# Maven
+# NO ignorar .mvn/ completo (contiene config necesaria para mvnw)
+# Solo ignorar el wrapper jar si no quieres versionarlo
+# .mvn/wrapper/maven-wrapper.jar
+
+# Gradle (por si acaso)
+.gradle/
+!gradle/wrapper/gradle-wrapper.jar
+
+# ============================================
+# IDEs
+# ============================================
+# IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# Eclipse
+.classpath
+.project
+.settings/
+.apt_generated/
+.factorypath
+
+# NetBeans
+nbproject/private/
+nbbuild/
+dist/
+nbdist/
+
+# VS Code
+# NO ignorar .vscode/ completo: settings.json y extensions.json se comparten
+.vscode/launch.json
+.vscode/*.local.json
+
+# ============================================
+# LOGS
+# ============================================
+*.log
+logs/
+*.log.*
+
+# ============================================
+# SISTEMAS OPERATIVOS
+# ============================================
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+# Linux
+*~
+.directory
+.Trash-*
+
+# ============================================
+# BASES DE DATOS / DUMPS
+# ============================================
+*.sql
+*.sql.gz
+*.dump
+*.backup
+# Excepto scripts de migración versionados
+!src/main/resources/db/migration/*.sql
+
+# ============================================
+# ARCHIVOS TEMPORALES
+# ============================================
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+.cache/
+
+# ============================================
+# CERTIFICADOS Y LLAVES
+# ============================================
+*.pem
+*.key
+*.crt
+*.p12
+*.jks
+*.keystore
+
+# ============================================
+# NODE (si tienes frontend en el mismo repo)
+# ============================================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+dist/
+.next/
+.nuxt/
+.cache/
+
+# ============================================
+# COBERTURA DE TESTS
+# ============================================
+coverage/
+*.lcov
+.nyc_output/
+
+# ============================================
+# HERRAMIENTAS DE ANÁLISIS
+# ============================================
+.sonar/
+.sonarqube/
+checkstyle-cachefile
+checkstyle-result.xml

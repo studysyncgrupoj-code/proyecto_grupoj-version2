@@ -1,83 +1,108 @@
-import { NextResponse } from "next/server";
-import { Resend } from "resend";
+import { contactSchema } from '@/lib/contactSchema';
+import { checkRateLimit } from '@/lib/ratelimit';
+import { NextRequest, NextResponse } from 'next/server';
 
-import { contactSchema } from "@/lib/contactSchema";
+const API_BASE_URL = process.env.API_BASE_URL;
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-
-export async function POST(request: Request) {
+export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
-    const body = await request.json();
+    // 1. Rate limiting por IP: 5 solicitudes / 15 minutos
+    const clientIp =
+      request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+      request.headers.get('x-real-ip') ||
+      'unknown';
 
+    const ipRateLimitResult = await checkRateLimit(
+      `contact-ip:${clientIp}`,
+      5,
+      '15 m',
+    );
+
+    if (!ipRateLimitResult.success) {
+      return NextResponse.json(
+        {
+          status: 429,
+          message:
+            'Demasiados mensajes enviados. Intenta nuevamente más tarde.',
+        },
+        { status: 429 },
+      );
+    }
+
+    // 2. Recibir y validar los datos enviados por el formulario
+    const body = await request.json();
     const result = contactSchema.safeParse(body);
 
     if (!result.success) {
       return NextResponse.json(
         {
           status: 400,
-          message: "Los datos enviados no son válidos.",
-          errors: result.error.flatten().fieldErrors,
+          message: 'Los datos enviados no son válidos.',
+          details: result.error.issues.map((issue) => ({
+            field: issue.path.join('.'),
+            message: issue.message,
+          })),
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
-    const {
-      name,
-      email,
-      contactNumber,
-      subject,
-      message,
-    } = result.data;
-
-    const { error } = await resend.emails.send({
-      from: "StudySync <onboarding@resend.dev>",
-      to: ["studysync.grupoj@gmail.com"],
-      replyTo: email,
-      subject: `[StudySync Contact] ${subject}`,
-      text: `
-Nuevo mensaje recibido desde StudySync
-
-Nombre: ${name}
-Correo: ${email}
-Teléfono: ${contactNumber ?? "No proporcionado"}
-
-Asunto:
-${subject}
-
-Mensaje:
-${message}
-      `.trim(),
-    });
-
-    if (error) {
-      console.error("[CONTACT RESEND ERROR]", error);
+    // 3. Verificar configuración del backend
+    if (!API_BASE_URL) {
+      console.error('API_BASE_URL no configurada');
 
       return NextResponse.json(
         {
-          status: 502,
-          message: "No fue posible enviar el mensaje.",
+          status: 500,
+          message: 'Error de configuración del servidor.',
         },
-        { status: 502 }
+        { status: 500 },
       );
     }
 
-    return NextResponse.json(
-      {
-        status: 200,
-        message: "Mensaje enviado correctamente.",
+    // 4. Enviar los datos validados al backend de Java
+    const backendPayload = {
+      name: result.data.name,
+      email: result.data.email,
+      contactNumber: result.data.contactNumber,
+      subject: result.data.subject,
+      message: result.data.message,
+    };
+
+    const response = await fetch(`${API_BASE_URL}/api/contact`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
       },
-      { status: 200 }
-    );
+      body: JSON.stringify(backendPayload),
+      cache: 'no-store',
+    });
+
+    // 5. Leer la respuesta de Spring Boot de forma segura
+    let data: unknown;
+
+    try {
+      data = await response.json();
+    } catch {
+      data = {
+        status: response.status,
+        message: 'Respuesta inválida del servidor.',
+      };
+    }
+
+    // 6. Mantener el código HTTP y la respuesta del backend
+    return NextResponse.json(data, {
+      status: response.status,
+    });
   } catch (error) {
-    console.error("[CONTACT ERROR]", error);
+    console.error('[CONTACT PROXY ERROR]', error);
 
     return NextResponse.json(
       {
-        status: 500,
-        message: "No fue posible procesar el mensaje.",
+        status: 503,
+        message: 'No fue posible conectar con el servicio de contacto.',
       },
-      { status: 500 }
+      { status: 503 },
     );
   }
 }
