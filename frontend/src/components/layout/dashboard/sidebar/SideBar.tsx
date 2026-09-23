@@ -1,5 +1,6 @@
 import { auth } from '@/auth';
 import { getRoleNavigation } from '@/config/dashboard-navigation';
+import MobileNav from './Mobilenav';
 import PlanCard from './PlanCard';
 import SidebarBrand from './SidebarBrand';
 import SidebarNav from './SidebarNav';
@@ -21,13 +22,19 @@ export default async function SideBar() {
   };
 
   return (
-    <SidebarShell>
-      <div>
-        <SidebarBrand />
-        <SidebarNav items={navConfig.menu} panelTitle={navConfig.panelTitle} />
-      </div>
-      {subscription && <PlanCard  subscription={subscription}/>}
-      <SidebarUserMenu user={userData} />
-    </SidebarShell>
+    <>
+      <SidebarShell>
+        <div>
+          <SidebarBrand />
+          <SidebarNav
+            items={navConfig.menu}
+            panelTitle={navConfig.panelTitle}
+          />
+        </div>
+        {subscription && <PlanCard subscription={subscription} />}
+        <SidebarUserMenu user={userData} />
+      </SidebarShell>
+      <MobileNav items={navConfig.menu} user={userData} />
+    </>
   );
 }
