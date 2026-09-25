@@ -3,6 +3,7 @@ package com.studysync.service.auth;
 import java.time.Duration;
 import java.util.UUID;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -20,15 +21,19 @@ public class ForgotPasswordService {
     private final AuthAccountRepository authAccountRepository;
     private final StringRedisTemplate redisTemplate;
     private final EmailService emailService;
+    private final String frontendUrl;
 
     public ForgotPasswordService(
             AuthAccountRepository authAccountRepository,
             StringRedisTemplate redisTemplate,
-            EmailService emailService
+            EmailService emailService,
+            @Value("${app.frontend.url:http://localhost:3000}")
+            String frontendUrl
     ) {
         this.authAccountRepository = authAccountRepository;
         this.redisTemplate = redisTemplate;
         this.emailService = emailService;
+        this.frontendUrl = frontendUrl;
     }
 
     public void requestPasswordReset(String email) {
@@ -41,7 +46,7 @@ public class ForgotPasswordService {
                 .findByEmailIgnoreCase(email.trim())
                 .orElse(null);
 
-        // No revelar si el correo está registrado o no.
+        // No revelar si el correo está registrado.
         if (account == null) {
             return;
         }
@@ -49,30 +54,58 @@ public class ForgotPasswordService {
         String token = UUID.randomUUID().toString();
         String redisKey = TOKEN_PREFIX + token;
 
-        /*
-         * Guardamos solamente el ID del usuario.
-         * Redis eliminará automáticamente este dato después de 30 minutos.
-         */
+        // El token permanece disponible durante 30 minutos.
         redisTemplate.opsForValue().set(
                 redisKey,
                 account.getId().toString(),
                 TOKEN_TTL
         );
 
+        // Construimos el enlace utilizando la URL del frontend.
+        String resetLink =
+                frontendUrl.replaceAll("/+$", "")
+                + "/reset-password/"
+                + token;
+
         String text =
-                "Recibimos una solicitud para restablecer tu contraseña de StudySync.\n\n" +
-                "Token de recuperación:\n" +
-                token + "\n\n" +
-                "Este token expirará en 30 minutos.\n\n" +
-                "Si no solicitaste este cambio, puedes ignorar este correo.";
+                "Recibimos una solicitud para restablecer tu contraseña "
+                + "de StudySync.\n\n"
+                + "Accede al siguiente enlace:\n"
+                + resetLink
+                + "\n\n"
+                + "Este enlace expirará en 30 minutos.\n\n"
+                + "Si no solicitaste este cambio, ignora este correo.";
 
         String html =
-                "<h2>Restablecer contraseña</h2>" +
-                "<p>Recibimos una solicitud para restablecer tu contraseña de StudySync.</p>" +
-                "<p>Token de recuperación:</p>" +
-                "<p><strong>" + token + "</strong></p>" +
-                "<p>Este token expirará en 30 minutos.</p>" +
-                "<p>Si no solicitaste este cambio, puedes ignorar este correo.</p>";
+                "<div style='font-family:Arial,sans-serif;"
+                + "max-width:520px;margin:auto;padding:24px;'>"
+
+                + "<h2 style='color:#2563eb;'>StudySync</h2>"
+
+                + "<h3>Restablecer contraseña</h3>"
+
+                + "<p>Recibimos una solicitud para restablecer "
+                + "tu contraseña.</p>"
+
+                + "<p>Haz clic en el siguiente botón:</p>"
+
+                + "<div style='margin:30px 0;'>"
+
+                + "<a href='" + resetLink + "' "
+                + "style='background:#2563eb;color:white;"
+                + "padding:14px 24px;text-decoration:none;"
+                + "border-radius:8px;display:inline-block;'>"
+
+                + "Restablecer contraseña"
+
+                + "</a></div>"
+
+                + "<p>Este enlace expirará en 30 minutos.</p>"
+
+                + "<p>Si no solicitaste este cambio, "
+                + "puedes ignorar este correo.</p>"
+
+                + "</div>";
 
         boolean sent = emailService.send(
                 new EmailMessage(
@@ -84,10 +117,7 @@ public class ForgotPasswordService {
                 )
         );
 
-        /*
-         * Si el correo falla, eliminamos el token para no dejar
-         * información temporal inútil en Redis.
-         */
+        // Eliminar el token si falla el envío.
         if (!sent) {
             redisTemplate.delete(redisKey);
         }

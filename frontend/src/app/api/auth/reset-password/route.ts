@@ -97,7 +97,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     // 5. Traducir el formulario de Next.js al contrato de Spring Boot
     const backendPayload = {
       token,
-      newpassword: password,
+      newPassword: password,
     };
 
     let backendResponse: Response;
