@@ -15,6 +15,17 @@ public class StudyRoom {
     private String descripcion;
     private Boolean privada = false;
     private Long creadorId;
+    @Enumerated(EnumType.STRING)
+    private MeetingProvider meetingProvider;
+
+    @Column(length = 2048)
+    private String meetingUrl;
+
+    public enum MeetingProvider {
+        GOOGLE_MEET,
+        ZOOM,
+        TEAMS
+    }
     private LocalDateTime fechaCreacion = LocalDateTime.now();
 
     public Long getId() {
@@ -64,4 +75,19 @@ public class StudyRoom {
     public void setFechaCreacion(LocalDateTime fechaCreacion) {
         this.fechaCreacion = fechaCreacion;
     }
+    public MeetingProvider getMeetingProvider() {
+    return meetingProvider;
+}
+
+public void setMeetingProvider(MeetingProvider meetingProvider) {
+    this.meetingProvider = meetingProvider;
+}
+
+public String getMeetingUrl() {
+    return meetingUrl;
+}
+
+public void setMeetingUrl(String meetingUrl) {
+    this.meetingUrl = meetingUrl;
+}
 }
