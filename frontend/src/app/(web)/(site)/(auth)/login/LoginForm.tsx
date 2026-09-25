@@ -9,6 +9,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { signIn } from 'next-auth/react';
 import { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
+import ForgotPasswordModal from './ForgotPasswordModal';
 
 type MessageType = 'success' | 'error' | '';
 
@@ -17,10 +18,9 @@ export default function LoginForm() {
   const [message, setMessage] = useState('');
   const [messageType, setMessageType] = useState<MessageType>('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isForgotPasswordOpen, setIsForgotPasswordOpen] = useState(false);
 
   const {
-    eye: Eye,
-    eyeOff: EyeOff,
     lock: LockKeyhole,
     mail: Mail,
     graduationCap: GraduationCap,
@@ -156,12 +156,14 @@ export default function LoginForm() {
           />
 
           <div className="flex justify-end">
-            <CustomLink
-              href="/forgot-password"
+            <Button
+              type="button"
+              variant="ghost"
               className="text-primary hover:text-primary-hover text-xs font-semibold no-underline transition-colors"
+              onClick={() => setIsForgotPasswordOpen(true)}
             >
               ¿Olvidaste tu contraseña?
-            </CustomLink>
+            </Button>
           </div>
 
           {/* Mensaje de estado */}
@@ -203,6 +205,11 @@ export default function LoginForm() {
           </CustomLink>
         </p>
       </div>
+
+      <ForgotPasswordModal
+        isOpen={isForgotPasswordOpen}
+        setIsOpen={setIsForgotPasswordOpen}
+      />
     </section>
   );
 }

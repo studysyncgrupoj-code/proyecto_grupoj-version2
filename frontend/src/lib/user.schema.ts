@@ -100,6 +100,22 @@ export const updateUserSchema = z.object({
   activo: z.boolean().optional(),
 });
 
+// Esquema dedicado para "Olvidé mi contraseña": únicamente exige un correo
+// con formato válido. No reutiliza `emailField` porque este flujo requiere
+// un mensaje de error específico y no debe acoplarse a las reglas de
+// registro/login si estas cambian en el futuro.
+export const forgotPasswordSchema = z.object({
+  email: z
+    .string()
+    .trim()
+    .min(1, 'El correo electrónico es requerido')
+    .max(
+      emailMaxLength,
+      `El correo no puede exceder los ${emailMaxLength} caracteres`,
+    )
+    .email('Ingresa un correo electrónico válido'),
+});
+
 // ============================================
 // TIPOS DERIVADOS
 // ============================================
@@ -110,3 +126,4 @@ export type RegisterWithConfirmInput = z.infer<
 >;
 export type LoginInput = z.infer<typeof loginSchema>;
 export type UpdateUserInput = z.infer<typeof updateUserSchema>;
+export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>;
