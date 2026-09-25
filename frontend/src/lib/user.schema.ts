@@ -116,6 +116,31 @@ export const forgotPasswordSchema = z.object({
     .email('Ingresa un correo electrónico válido'),
 });
 
+// Esquema del formulario de "Restablecer contraseña": lo que captura el
+// usuario en pantalla (contraseña + confirmación). El token NO forma parte
+// de este esquema porque no es un campo editable por el usuario, sino un
+// parámetro de la URL.
+export const resetPasswordSchema = z
+  .object({
+    password: passwordField,
+    confirmPassword: z.string().min(1, 'Debes confirmar tu contraseña'),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: 'Las contraseñas no coinciden',
+    path: ['confirmPassword'],
+  });
+
+// Esquema del payload que viaja al endpoint interno /api/auth/reset-password:
+// el token (de la URL) junto con la nueva contraseña. `confirmPassword`
+// nunca debe llegar aquí ni al backend externo.
+export const resetPasswordRequestSchema = z.object({
+  token: z
+    .string()
+    .trim()
+    .min(1, 'El enlace de restablecimiento no es válido.'),
+  password: passwordField,
+});
+
 // ============================================
 // TIPOS DERIVADOS
 // ============================================
@@ -127,3 +152,7 @@ export type RegisterWithConfirmInput = z.infer<
 export type LoginInput = z.infer<typeof loginSchema>;
 export type UpdateUserInput = z.infer<typeof updateUserSchema>;
 export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>;
+export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>;
+export type ResetPasswordRequestInput = z.infer<
+  typeof resetPasswordRequestSchema
+>;
