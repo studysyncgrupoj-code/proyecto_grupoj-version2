@@ -80,6 +80,12 @@ public class SecurityConfig {
                         )
                         .authenticated()
 
+                        // Perfil del usuario: requiere JWT
+                        .requestMatchers(
+                                "/api/users/me/profile"
+                        )
+                        .authenticated()
+
                         // Endpoints de salud
                         .requestMatchers(
                                 "/health/**",
