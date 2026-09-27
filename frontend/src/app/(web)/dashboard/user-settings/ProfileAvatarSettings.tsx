@@ -65,11 +65,18 @@ export function ProfileAvatarSettings({
     setIsSaving(true);
     setError(null);
     try {
-      // TODO [API]: POST /api/user/avatar (multipart/form-data, requiere sesión
-      // autenticada) — subir y persistir la nueva foto en el backend.
-      // TODO [Needs Work]: se guarda el archivo tal cual se seleccionó; falta
-      // aplicar el recorte (crop) antes de subirlo.
-      setCurrentImage(pendingPreview);
+      const formData = new FormData();
+      formData.append('avatar', pendingFile);
+
+      const res = await fetch('/api/user/avatar', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!res.ok) throw new Error();
+
+      const { data } = await res.json();
+      setCurrentImage(data?.avatarUrl ?? pendingPreview);
       handleCancel();
     } catch {
       setError('No se pudo guardar la foto. Inténtalo de nuevo.');
@@ -82,8 +89,8 @@ export function ProfileAvatarSettings({
     setIsSaving(true);
     setError(null);
     try {
-      // TODO [API]: DELETE /api/user/avatar (requiere sesión autenticada) —
-      // elimina la foto persistida y el usuario vuelve al avatar por defecto.
+      const res = await fetch('/api/user/avatar', { method: 'DELETE' });
+      if (!res.ok) throw new Error();
       setCurrentImage(null);
     } catch {
       setError('No se pudo eliminar la foto.');

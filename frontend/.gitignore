@@ -42,3 +42,7 @@ next-env.d.ts
 
 # Permitir plantilla de variables de entorno
 !.env.example
+
+# repomix
+repomix-output.*
+repomix.*
