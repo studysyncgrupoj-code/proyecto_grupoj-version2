@@ -28,12 +28,26 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .cors(cors -> {})
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.POST, "/auth/register", "/auth/login")
+
+                        .requestMatchers(
+                                HttpMethod.POST,
+                                "/auth/register",
+                                "/auth/login",
+                                "/auth/verify-email",
+                                "/auth/forgot-password",
+                                "/auth/reset-password",
+                                "/auth/validate-reset-token"
+                        )
                         .permitAll()
-                        .requestMatchers("/health/**", "/api/health/**")
+
+                        .requestMatchers(
+                                "/health/**",
+                                "/api/health/**"
+                        )
                         .permitAll()
-                        // TODO: Cambiar .anyRequest().permitAll() por .authenticated()
-                        // una vez que se implemente el sistema de autenticación por tokens (JWT).
+
+                        // TODO: Cambiar .anyRequest().permitAll()
+                        // por .authenticated() cuando se implemente JWT.
                         .anyRequest()
                         .permitAll()
                 );
