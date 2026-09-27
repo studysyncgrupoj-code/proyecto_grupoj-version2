@@ -67,6 +67,19 @@ public class SecurityConfig {
                         )
                         .authenticated()
 
+                        // Idiomas disponibles: acceso público
+                        .requestMatchers(
+                                HttpMethod.GET,
+                                "/api/languages"
+                        )
+                        .permitAll()
+
+                        // Preferencias de idioma: requieren JWT
+                        .requestMatchers(
+                                "/api/users/me/language"
+                        )
+                        .authenticated()
+
                         // Endpoints de salud
                         .requestMatchers(
                                 "/health/**",
