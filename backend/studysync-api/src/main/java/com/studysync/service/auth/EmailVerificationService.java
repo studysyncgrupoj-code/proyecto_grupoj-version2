@@ -155,9 +155,9 @@ public class EmailVerificationService {
         // ========================================
 
         String verificationLink =
-                frontendUrl.replaceAll("/+$", "")
-                + "/verify-email?token="
-                + token;
+        frontendUrl.replaceAll("/+$", "")
+        + "/verify-email/"
+        + token;
 
         // ========================================
         // CORREO EN TEXTO
@@ -238,6 +238,32 @@ public class EmailVerificationService {
     // VERIFICAR CORREO
     // ============================================
 
+
+    // ============================================
+    // VALIDAR TOKEN SIN CONSUMIRLO
+    // ============================================
+
+    public boolean validateVerificationToken(String token) {
+        if (token == null || token.isBlank()) {
+            return false;
+        }
+
+        String redisKey = TOKEN_PREFIX + token.trim();
+
+        String pendingRegistration =
+                redisTemplate.opsForValue().get(redisKey);
+
+        if (pendingRegistration == null
+                || pendingRegistration.isBlank()) {
+            return false;
+        }
+
+        Boolean locked =
+                redisTemplate.hasKey(redisKey + ":lock");
+
+        return !Boolean.TRUE.equals(locked);
+    }
+
     @Transactional
     public UserProfile verifyEmail(String token) {
 
@@ -252,7 +278,11 @@ public class EmailVerificationService {
 
         String lockId = UUID.randomUUID().toString();
 
-        // ========================================
+                // ============================================
+        // VALIDAR TOKEN SIN CONSUMIRLO
+        // ============================================
+
+            // ========================================
         // BLOQUEO TEMPORAL EN REDIS
         // ========================================
 

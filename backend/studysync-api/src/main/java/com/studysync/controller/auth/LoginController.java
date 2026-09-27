@@ -5,81 +5,82 @@ import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import jakarta.validation.Valid;
+
+import com.studysync.dto.auth.LoginRequest;
+import com.studysync.security.jwt.JwtService;
 import com.studysync.service.auth.LoginService;
 
 @RestController
 @RequestMapping("/auth")
-@CrossOrigin(origins = "*")
 public class LoginController {
 
     private final LoginService loginService;
+    private final JwtService jwtService;
 
-    public LoginController(LoginService loginService) {
+    public LoginController(
+            LoginService loginService,
+            JwtService jwtService
+    ) {
         this.loginService = loginService;
+        this.jwtService = jwtService;
     }
 
-    // TODO: Reemplazar Map<String, Object> por un objeto DTO fuertemente tipado
-    // para mejorar la validación automática con @Valid.
     @PostMapping("/login")
     public ResponseEntity<?> login(
-            @RequestBody Map<String, Object> body
+            @Valid @RequestBody LoginRequest request
     ) {
-        String email = body.get("email") != null
-                ? body.get("email").toString()
-                : null;
-
-        String contrasena = null;
-
-        if (body.get("contrasena") != null) {
-            contrasena = body.get("contrasena").toString();
-        } else if (body.get("password") != null) {
-            contrasena = body.get("password").toString();
-        }
-
         try {
-            LoginService.LoginResult result = loginService.login(
-                    email,
-                    contrasena
-            );
+            LoginService.LoginResult result =
+                    loginService.login(
+                            request.email(),
+                            request.password()
+                    );
 
             if (result == null) {
                 return ResponseEntity
                         .status(HttpStatus.UNAUTHORIZED)
-                        .body(
-                                Map.of(
-                                        "status", 401,
-                                        "message", "Credenciales inválidas."
-                                )
-                        );
+                        .body(Map.of(
+                                "status", 401,
+                                "message", "Credenciales inválidas."
+                        ));
             }
 
-            Map<String, Object> data = new LinkedHashMap<>();
+            String token =
+                    jwtService.generateToken(
+                            result.authAccount()
+                    );
+
+            Map<String, Object> data =
+                    new LinkedHashMap<>();
 
             data.put("nombre", result.profile().getNombre());
             data.put("apellidos", result.profile().getApellidos());
             data.put("uuid", result.authAccount().getId());
 
-            // El rol se obtiene de AuthAccount
-            data.put("rol", result.authAccount().getRole().name());
+            data.put(
+                    "rol",
+                    result.authAccount().getRole().name()
+            );
 
-            // La imagen solo se incluye si existe y contiene una URL
+            data.put("token", token);
+            data.put("tokenType", "Bearer");
+            data.put("expiresIn", 3600);
+
             String image = result.profile().getImage();
 
             if (image != null && !image.isBlank()) {
                 data.put("image", image);
             }
 
-            // La suscripción solo se incluye para usuarios STUDENT
             if (result.subscription() != null) {
                 data.put(
                         "subscription",
-                        result.subscription().name().toLowerCase()
+                        result.subscription()
+                                .name()
+                                .toLowerCase()
                 );
             }
 
@@ -92,16 +93,14 @@ public class LoginController {
             );
 
         } catch (LoginService.AccountInactiveException e) {
-            // TODO: Extraer el manejo de excepciones local (try-catch)
-            // y centralizarlo en un @RestControllerAdvice global.
+
             return ResponseEntity
                     .status(HttpStatus.FORBIDDEN)
-                    .body(
-                            Map.of(
-                                    "status", 403,
-                                    "message", "La cuenta se encuentra inactiva."
-                            )
-                    );
+                    .body(Map.of(
+                            "status", 403,
+                            "message",
+                            "La cuenta se encuentra inactiva."
+                    ));
         }
     }
 }

@@ -24,6 +24,54 @@ public class EmailVerificationController {
     public record VerificationRequest(String token) {
     }
 
+    // ============================================
+    // VALIDAR TOKEN SIN CONSUMIRLO
+    // ============================================
+
+    @PostMapping("/validate-verification-token")
+    public ResponseEntity<Map<String, Object>> validateToken(
+            @RequestBody VerificationRequest request
+    ) {
+
+        if (request == null
+                || request.token() == null
+                || request.token().isBlank()) {
+
+            return ResponseEntity.badRequest().body(
+                    Map.of(
+                            "valid", false,
+                            "message", "El token es obligatorio."
+                    )
+            );
+        }
+
+        boolean valid =
+                verificationService.validateVerificationToken(
+                        request.token()
+                );
+
+        if (!valid) {
+            return ResponseEntity.ok(
+                    Map.of(
+                            "valid", false,
+                            "message",
+                            "El token es inválido o ha expirado."
+                    )
+            );
+        }
+
+        return ResponseEntity.ok(
+                Map.of(
+                        "valid", true,
+                        "message", "El token es válido."
+                )
+        );
+    }
+
+    // ============================================
+    // VERIFICACIÓN DEFINITIVA DEL CORREO
+    // ============================================
+
     @PostMapping("/verify-email")
     public ResponseEntity<Map<String, Object>> verifyEmail(
             @RequestBody VerificationRequest request
