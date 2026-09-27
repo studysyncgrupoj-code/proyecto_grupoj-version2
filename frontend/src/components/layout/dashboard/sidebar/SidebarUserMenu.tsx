@@ -2,6 +2,7 @@
 
 import { Button } from '@/components/ui/Button';
 import ThemeToggle from '@/components/ui/ThemeToggle';
+import { getInitials } from '@/utilities/avatar';
 import { cn } from '@/utilities/cn';
 import { signOut } from 'next-auth/react';
 import Image from 'next/image';
@@ -17,15 +18,6 @@ interface SidebarUserMenuProps {
   };
 }
 
-function getInitials(name: string) {
-  return name
-    .trim()
-    .split(/\s+/)
-    .slice(0, 2)
-    .map((part) => part[0]?.toUpperCase())
-    .join('');
-}
-
 export default function SidebarUserMenu({ user }: SidebarUserMenuProps) {
   const { collapsed } = useSidebar();
 
@@ -38,7 +30,7 @@ export default function SidebarUserMenu({ user }: SidebarUserMenuProps) {
     >
       {/* Avatar + datos */}
       <Link
-        href="/settings"
+        href="/dashboard/user-settings"
         className={cn('flex items-center gap-3', collapsed && 'justify-center')}
         title={collapsed ? `${user.name} · ${user.roleLabel}` : undefined}
       >
