@@ -49,6 +49,7 @@ export default async function LocaleLayout({
       lang="es"
       className={`${plusJakartaSans.variable} ${publicSans.variable} h-full antialiased`}
       suppressHydrationWarning
+      data-scroll-behavior="smooth"
     >
       <body className="flex min-h-full flex-col font-sans">
         <ThemeProvider

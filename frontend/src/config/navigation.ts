@@ -9,7 +9,7 @@ export const INTERNAL_ROUTES = [
 export type InternalHref = (typeof INTERNAL_ROUTES)[number];
 
 export type NavigationLabelKey =
-  'Inicio' | 'Suscripción' | 'Contacto' | 'Registrarse' | 'Iniciar sesión';
+  'home' | 'subscription' | 'contact' | 'register' | 'login';
 
 interface BaseNavLink {
   labelKey: NavigationLabelKey;
@@ -23,11 +23,11 @@ export type NavLink = BaseNavLink & {
 };
 
 export const NAVIGATION_MAP = [
-  { href: '/', labelKey: 'Inicio', exact: true },
-  { href: '/subscription', labelKey: 'Suscripción' },
-  { href: '/contact', labelKey: 'Contacto' },
-  { href: '/register', labelKey: 'Registrarse', hideInHeader: true },
-  { href: '/login', labelKey: 'Iniciar sesión', hideInHeader: true },
+  { href: '/', labelKey: 'home', exact: true },
+  { href: '/subscription', labelKey: 'subscription' },
+  { href: '/contact', labelKey: 'contact' },
+  { href: '/register', labelKey: 'register', hideInHeader: true },
+  { href: '/login', labelKey: 'login', hideInHeader: true },
 ] satisfies NavLink[];
 
 export const HEADER_LINKS = NAVIGATION_MAP.filter((link) => !link.hideInHeader);

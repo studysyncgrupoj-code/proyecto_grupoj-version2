@@ -1,0 +1,16 @@
+{
+  "navLabel": "Navegación principal",
+  "links": {
+    "home": "Inicio",
+    "subscription": "Suscripción",
+    "contact": "Contacto",
+    "register": "Registrarse",
+    "login": "Iniciar sesión"
+  },
+  "login": "Iniciar sesión",
+  "register": "Crear cuenta",
+  "language": "Idioma",
+  "theme": "Tema",
+  "openMenu": "Abrir menú de navegación",
+  "closeMenu": "Cerrar menú de navegación"
+}
