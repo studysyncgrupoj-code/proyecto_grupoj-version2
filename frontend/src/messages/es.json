@@ -1,0 +1,70 @@
+{
+  "common": {
+    "loading": "Cargando…",
+    "error": "Algo salió mal",
+    "retry": "Reintentar",
+    "close": "Cerrar"
+  },
+  "header": {
+    "navLabel": "Navegación principal",
+    "links": {
+      "home": "Inicio",
+      "subscription": "Suscripción",
+      "contact": "Contacto",
+      "register": "Registrarse",
+      "login": "Iniciar sesión"
+    },
+    "login": "Iniciar sesión",
+    "register": "Crear cuenta",
+    "language": "Idioma",
+    "theme": "Tema",
+    "openMenu": "Abrir menú de navegación",
+    "closeMenu": "Cerrar menú de navegación"
+  },
+  "footer": {
+    "copyright": "© {year} Acme Inc.",
+    "sections": {
+      "product": "Producto",
+      "company": "Empresa",
+      "legal": "Legal"
+    },
+    "links": {
+      "privacy": "Privacidad",
+      "terms": "Términos",
+      "about": "Sobre nosotros"
+    }
+  },
+  "languageToggle": {
+    "switchTo": "Cambiar idioma a {language}",
+    "es": "español",
+    "en": "inglés"
+  },
+  "logo": {
+    "tagline": "Aprende. Conecta. Avanza."
+  },
+  "themeToggle": {
+    "toLight": "Cambiar a modo claro",
+    "toDark": "Cambiar a modo oscuro"
+  },
+  "pages": {
+    "home": {
+      "title": "Bienvenido",
+      "subtitle": "Aprende. Conecta. Avanza.",
+      "cta": "Comenzar"
+    },
+    "subscription": {
+      "title": "Elige tu plan",
+      "monthly": "Mensual",
+      "yearly": "Anual"
+    },
+    "contact": {
+      "title": "Contáctanos",
+      "form": {
+        "name": "Nombre",
+        "email": "Correo electrónico",
+        "message": "Mensaje",
+        "submit": "Enviar"
+      }
+    }
+  }
+}

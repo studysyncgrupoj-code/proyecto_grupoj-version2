@@ -1,0 +1,70 @@
+{
+  "common": {
+    "loading": "Loading…",
+    "error": "Something went wrong",
+    "retry": "Retry",
+    "close": "Close"
+  },
+  "header": {
+    "navLabel": "Main navigation",
+    "links": {
+      "home": "Home",
+      "subscription": "Subscription",
+      "contact": "Contact",
+      "register": "Sign up",
+      "login": "Log in"
+    },
+    "login": "Log in",
+    "register": "Create account",
+    "language": "Language",
+    "theme": "Theme",
+    "openMenu": "Open navigation menu",
+    "closeMenu": "Close navigation menu"
+  },
+  "footer": {
+    "copyright": "© {year} Acme Inc.",
+    "sections": {
+      "product": "Product",
+      "company": "Company",
+      "legal": "Legal"
+    },
+    "links": {
+      "privacy": "Privacy",
+      "terms": "Terms",
+      "about": "About us"
+    }
+  },
+  "languageToggle": {
+    "switchTo": "Switch language to {language}",
+    "es": "Spanish",
+    "en": "English"
+  },
+  "logo": {
+    "tagline": "Learn. Connect. Advance."
+  },
+  "themeToggle": {
+    "toLight": "Switch to light mode",
+    "toDark": "Switch to dark mode"
+  },
+  "pages": {
+    "home": {
+      "title": "Welcome",
+      "subtitle": "Learn. Connect. Advance.",
+      "cta": "Get started"
+    },
+    "subscription": {
+      "title": "Choose your plan",
+      "monthly": "Monthly",
+      "yearly": "Yearly"
+    },
+    "contact": {
+      "title": "Contact us",
+      "form": {
+        "name": "Name",
+        "email": "Email",
+        "message": "Message",
+        "submit": "Send"
+      }
+    }
+  }
+}
