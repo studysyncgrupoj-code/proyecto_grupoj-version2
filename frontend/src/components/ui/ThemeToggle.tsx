@@ -1,6 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import { useTranslations } from 'next-intl';
 import { useTheme } from 'next-themes';
 import { useEffect, useRef, useState } from 'react';
 import { BsFillMoonStarsFill } from 'react-icons/bs';
@@ -22,6 +23,8 @@ export default function ThemeToggle({ size = 'md' }: ThemeToggleProps) {
   const [particles, setParticles] = useState<Particle[]>([]);
   const [isAnimating, setIsAnimating] = useState(false);
   const toggleRef = useRef<HTMLButtonElement>(null);
+
+  const t = useTranslations('themeToggle');
 
   const isDark = mounted && (theme === 'dark' || resolvedTheme === 'dark');
 
@@ -154,7 +157,7 @@ export default function ThemeToggle({ size = 'md' }: ThemeToggleProps) {
             0 8px 16px color-mix(in oklch, var(--foreground) 12%, transparent)
           `,
         }}
-        aria-label={`Cambiar a modo ${isDark ? 'claro' : 'oscuro'}`}
+        aria-label={isDark ? t('toLight') : t('toDark')}
         role="switch"
         aria-checked={isDark}
         whileTap={{ scale: 0.95 }}

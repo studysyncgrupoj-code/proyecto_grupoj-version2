@@ -1,4 +1,5 @@
 // src/components/Logo.tsx
+import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { FaGraduationCap } from 'react-icons/fa';
 
@@ -33,6 +34,8 @@ export default function Logo({
 }: LogoProps) {
   const isCompact = variant === 'compact';
 
+  const t = useTranslations('logo');
+
   return (
     <Link
       href={href}
@@ -53,7 +56,7 @@ export default function Logo({
           </span>
           {showTagline && (
             <span className="text-foreground-muted mt-1 hidden text-[0.6rem] tracking-wide sm:block">
-              Aprende. Conecta. Avanza.
+              {t('tagline')}
             </span>
           )}
         </span>

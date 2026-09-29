@@ -5,7 +5,7 @@ import { routing } from './routing';
 
 // ---- Tipos ----
 type Locale = (typeof routing.locales)[number];
-type Namespace = 'header' | 'languageToggle';
+type Namespace = 'header' | 'languageToggle' | 'logo' | 'themeToggle';
 
 type MessageModule = { default: Record<string, unknown> };
 type MessageLoader = () => Promise<MessageModule>;
@@ -13,17 +13,26 @@ type MessageLoader = () => Promise<MessageModule>;
 // ---- Configuración ----
 // Cada namespace = un archivo en messages/<locale>/<namespace>.json
 // Al crear un archivo nuevo, agrégalo aquí Y en MESSAGE_LOADERS.
-const NAMESPACES: readonly Namespace[] = ['header', 'languageToggle'];
+const NAMESPACES: readonly Namespace[] = [
+  'header',
+  'languageToggle',
+  'logo',
+  'themeToggle',
+];
 
 // Mapa estático: cada path es un literal, el bundler puede analizarlo.
 const MESSAGE_LOADERS: Record<Locale, Record<Namespace, MessageLoader>> = {
   en: {
     header: () => import('../messages/en/header.json'),
     languageToggle: () => import('../messages/en/languageToggle.json'),
+    logo: () => import('../messages/en/logo.json'),
+    themeToggle: () => import('../messages/en/themeToggle.json'),
   },
   es: {
     header: () => import('../messages/es/header.json'),
     languageToggle: () => import('../messages/es/languageToggle.json'),
+    logo: () => import('../messages/es/logo.json'),
+    themeToggle: () => import('../messages/es/themeToggle.json'),
   },
 };
 
