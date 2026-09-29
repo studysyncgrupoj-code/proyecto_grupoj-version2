@@ -7,7 +7,7 @@ import '../globals.css';
 import Footer from '@/components/layout/web/Footer';
 import Header from '@/components/layout/web/Header';
 
-import { ThemeProvider } from 'next-themes';
+import { ThemeProvider } from '@/components/ui/ThemeProvider';
 
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages } from 'next-intl/server';
@@ -55,8 +55,8 @@ export default async function LocaleLayout({
         <ThemeProvider
           storageKey="theme"
           defaultTheme="system"
-          enableSystem={true}
-          enableColorScheme={true}
+          enableSystem
+          enableColorScheme
           themes={['light', 'dark']}
           attribute="data-theme"
         >
