@@ -1,11 +1,16 @@
 import type { Metadata } from 'next';
+
 import { Plus_Jakarta_Sans, Public_Sans } from 'next/font/google';
+
 import '../globals.css';
 
 import Footer from '@/components/layout/web/Footer';
 import Header from '@/components/layout/web/Header';
 
 import { ThemeProvider } from 'next-themes';
+
+import { NextIntlClientProvider } from 'next-intl';
+import { getMessages } from 'next-intl/server';
 
 const plusJakartaSans = Plus_Jakarta_Sans({
   variable: '--font-plus-jakarta',
@@ -17,7 +22,8 @@ const publicSans = Public_Sans({
   subsets: ['latin'],
 });
 
-// TODO: Crear metadatos para la página de inicio
+// TODO: Generar metadatos dinámicos (generateMetadata) basados en el idioma actual (locale) para SEO e internacionalización.
+
 export const metadata: Metadata = {
   title: 'StudySync',
   description: 'Aprende. Conecta. Avanza.',
@@ -31,11 +37,13 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function LocaleLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const messages = await getMessages();
+
   return (
     <html
       lang="es"
@@ -51,9 +59,13 @@ export default function RootLayout({
           themes={['light', 'dark']}
           attribute="data-theme"
         >
-          <Header />
-          <main className="min-h-screen pt-20">{children}</main>
-          <Footer />
+          <NextIntlClientProvider messages={messages}>
+            <Header />
+
+            <main className="min-h-screen pt-20">{children}</main>
+
+            <Footer />
+          </NextIntlClientProvider>
         </ThemeProvider>
       </body>
     </html>
