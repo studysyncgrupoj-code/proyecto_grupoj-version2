@@ -326,5 +326,70 @@
       }
     },
     "pricingNote": "Todos los precios están expresados en pesos colombianos (COP)."
+  },
+  "contact": {
+    "page": {
+      "eyebrow": "Contacto",
+      "title": {
+        "before": "Hablemos de",
+        "highlight": "tu experiencia de estudio"
+      },
+      "description": "¿Tienes dudas sobre StudySync, sobre nuestros planes o quieres llevarlo a tu institución? Escríbenos y el equipo te acompañará en cada paso.",
+      "channels": {
+        "email": {
+          "title": "Soporte por correo",
+          "description": "soporte@studysync.co"
+        },
+        "hours": {
+          "title": "Horario de atención",
+          "description": "Lunes a viernes, de 8:00 a. m. a 6:00 p. m. (hora de Colombia)"
+        },
+        "location": {
+          "title": "Ubicación",
+          "description": "Colombia · atención en línea para estudiantes e instituciones"
+        }
+      }
+    },
+    "form": {
+      "title": "Envíanos un mensaje",
+      "description": "Completa el formulario y te responderemos lo antes posible.",
+      "legend": "Formulario de contacto",
+      "fields": {
+        "name": {
+          "label": "Nombre completo",
+          "placeholder": "Tu nombre"
+        },
+        "email": {
+          "label": "Correo electrónico",
+          "placeholder": "tucorreo@ejemplo.com"
+        },
+        "contactNumber": {
+          "label": "Teléfono de contacto",
+          "optional": "opcional",
+          "placeholder": "300 123 4567"
+        },
+        "subject": {
+          "label": "Asunto",
+          "placeholder": "¿Sobre qué quieres hablar?"
+        },
+        "message": {
+          "label": "Mensaje",
+          "placeholder": "Cuéntanos en qué podemos ayudarte…"
+        }
+      },
+      "success": {
+        "title": "¡Mensaje enviado!",
+        "description": "Gracias por escribirnos. Revisaremos tu mensaje y te responderemos al correo que nos indicaste.",
+        "sendAnother": "Enviar otro mensaje"
+      },
+      "error": {
+        "unexpected": "Ocurrió un error inesperado. Inténtalo de nuevo.",
+        "sendFailed": "No pudimos enviar tu mensaje. Inténtalo de nuevo en unos minutos."
+      },
+      "actions": {
+        "sending": "Enviando…",
+        "submit": "Enviar mensaje"
+      }
+    }
   }
 }

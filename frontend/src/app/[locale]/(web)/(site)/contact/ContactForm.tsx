@@ -31,6 +31,48 @@ const DEFAULT_VALUES: ContactFormInput = {
 type SubmitStatus = 'idle' | 'success' | 'error';
 type FormControl = Control<ContactFormInput, unknown, ContactFormData>;
 
+interface ContactFormMessages {
+  title: string;
+  description: string;
+  legend: string;
+  fields: {
+    name: {
+      label: string;
+      placeholder: string;
+    };
+    email: {
+      label: string;
+      placeholder: string;
+    };
+    contactNumber: {
+      label: string;
+      optional: string;
+      placeholder: string;
+    };
+    subject: {
+      label: string;
+      placeholder: string;
+    };
+    message: {
+      label: string;
+      placeholder: string;
+    };
+  };
+  success: {
+    title: string;
+    description: string;
+    sendAnother: string;
+  };
+  error: {
+    unexpected: string;
+    sendFailed: string;
+  };
+  actions: {
+    sending: string;
+    submit: string;
+  };
+}
+
 /* ====================================================
    Envío
    ==================================================== */
@@ -44,9 +86,7 @@ async function sendContactMessage(data: ContactFormData): Promise<void> {
   });
 
   if (!response.ok) {
-    throw new Error(
-      'No pudimos enviar tu mensaje. Inténtalo de nuevo en unos minutos.',
-    );
+    throw new Error();
   }
 }
 
@@ -186,7 +226,7 @@ const focusOnMount = (node: HTMLHeadingElement | null) => node?.focus();
    Formulario
    ==================================================== */
 
-export function ContactForm() {
+export function ContactForm({ messages }: { messages: ContactFormMessages }) {
   const shouldReduceMotion = useReducedMotion();
   const [status, setStatus] = useState<SubmitStatus>('idle');
   const [serverError, setServerError] = useState<string | null>(null);
@@ -221,9 +261,7 @@ export function ContactForm() {
       setStatus('success');
     } catch (error) {
       setServerError(
-        error instanceof Error
-          ? error.message
-          : 'Ocurrió un error inesperado. Inténtalo de nuevo.',
+        error instanceof Error ? error.message : messages.error.unexpected,
       );
       setStatus('error');
     }
@@ -249,28 +287,27 @@ export function ContactForm() {
             tabIndex={-1}
             className="text-foreground mt-5 font-serif text-2xl font-semibold focus:outline-none"
           >
-            ¡Mensaje enviado!
+            {messages.success.title}
           </h2>
           <p className="text-foreground-muted mt-2 max-w-sm text-sm">
-            Gracias por escribirnos. Revisaremos tu mensaje y te responderemos
-            al correo que nos indicaste.
+            {messages.success.description}
           </p>
           <Button
             variant="social"
             className="mt-6"
             onClick={() => setStatus('idle')}
           >
-            Enviar otro mensaje
+            {messages.success.sendAnother}
           </Button>
         </motion.div>
       ) : (
         <motion.div key="form" {...motionProps}>
           <header className="mb-6">
             <h2 className="text-foreground font-serif text-2xl font-semibold">
-              Envíanos un mensaje
+              {messages.title}
             </h2>
             <p className="text-foreground-muted mt-1.5 text-sm">
-              Completa el formulario y te responderemos lo antes posible.
+              {messages.description}
             </p>
           </header>
 
@@ -281,14 +318,14 @@ export function ContactForm() {
           >
             {/* fieldset disabled deshabilita todos los campos mientras se envía */}
             <fieldset disabled={isSubmitting} className="min-w-0 space-y-5">
-              <legend className="sr-only">Formulario de contacto</legend>
+              <legend className="sr-only">{messages.legend}</legend>
 
               <ContactTextField
                 control={control}
                 name="name"
-                label="Nombre completo"
+                label={messages.fields.name.label}
                 icon="user"
-                placeholder="Tu nombre"
+                placeholder={messages.fields.name.placeholder}
                 autoComplete="name"
                 disabled={isSubmitting}
               />
@@ -296,19 +333,19 @@ export function ContactForm() {
               <ContactTextField
                 control={control}
                 name="email"
-                label="Correo electrónico"
+                label={messages.fields.email.label}
                 type="email"
                 icon="mail"
-                placeholder="tucorreo@ejemplo.com"
+                placeholder={messages.fields.email.placeholder}
                 autoComplete="email"
                 disabled={isSubmitting}
               />
 
               <div className="grid gap-1.5">
                 <label htmlFor="contactNumber" className={LABEL_CLASSES}>
-                  Teléfono de contacto{' '}
+                  {messages.fields.contactNumber.label}{' '}
                   <span className="text-foreground-muted font-normal">
-                    (opcional)
+                    ({messages.fields.contactNumber.optional})
                   </span>
                 </label>
                 <Controller
@@ -320,7 +357,7 @@ export function ContactForm() {
                       name={field.name}
                       labels={esLabels}
                       defaultCountry="CO"
-                      placeholder="300 123 4567"
+                      placeholder={messages.fields.contactNumber.placeholder}
                       autoComplete="tel"
                       value={field.value || undefined}
                       onChange={(value) => field.onChange(value ?? '')}
@@ -348,15 +385,15 @@ export function ContactForm() {
               <ContactTextField
                 control={control}
                 name="subject"
-                label="Asunto"
+                label={messages.fields.subject.label}
                 icon="tag"
-                placeholder="¿Sobre qué quieres hablar?"
+                placeholder={messages.fields.subject.placeholder}
                 disabled={isSubmitting}
               />
 
               <div className="grid gap-1.5">
                 <label htmlFor="message" className={LABEL_CLASSES}>
-                  Mensaje
+                  {messages.fields.message.label}
                   <RequiredMark />
                 </label>
                 <div
@@ -370,7 +407,7 @@ export function ContactForm() {
                   <textarea
                     id="message"
                     rows={5}
-                    placeholder="Cuéntanos en qué podemos ayudarte…"
+                    placeholder={messages.fields.message.placeholder}
                     aria-invalid={!!errors.message}
                     aria-describedby={
                       errors.message ? 'message-error' : 'message-counter'
@@ -428,10 +465,10 @@ export function ContactForm() {
                 {isSubmitting ? (
                   <>
                     <Spinner />
-                    Enviando…
+                    {messages.actions.sending}
                   </>
                 ) : (
-                  'Enviar mensaje'
+                  messages.actions.submit
                 )}
               </Button>
             </fieldset>

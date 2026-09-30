@@ -301,5 +301,70 @@
       }
     },
     "pricingNote": "All prices are expressed in Colombian pesos (COP)."
+  },
+  "contact": {
+    "page": {
+      "eyebrow": "Contact",
+      "title": {
+        "before": "Let's talk about",
+        "highlight": "your study experience"
+      },
+      "description": "Have questions about StudySync or our plans, or want to bring it to your institution? Get in touch and our team will support you every step of the way.",
+      "channels": {
+        "email": {
+          "title": "Email support",
+          "description": "soporte@studysync.co"
+        },
+        "hours": {
+          "title": "Support hours",
+          "description": "Monday to Friday, 8:00 AM to 6:00 PM (Colombia time)"
+        },
+        "location": {
+          "title": "Location",
+          "description": "Colombia · online support for students and institutions"
+        }
+      }
+    },
+    "form": {
+      "title": "Send us a message",
+      "description": "Fill out the form and we'll get back to you as soon as possible.",
+      "legend": "Contact form",
+      "fields": {
+        "name": {
+          "label": "Full name",
+          "placeholder": "Your name"
+        },
+        "email": {
+          "label": "Email address",
+          "placeholder": "you@example.com"
+        },
+        "contactNumber": {
+          "label": "Contact phone",
+          "optional": "optional",
+          "placeholder": "300 123 4567"
+        },
+        "subject": {
+          "label": "Subject",
+          "placeholder": "What would you like to talk about?"
+        },
+        "message": {
+          "label": "Message",
+          "placeholder": "Tell us how we can help…"
+        }
+      },
+      "success": {
+        "title": "Message sent!",
+        "description": "Thanks for reaching out. We'll review your message and reply to the email address you provided.",
+        "sendAnother": "Send another message"
+      },
+      "error": {
+        "unexpected": "Something went wrong. Please try again.",
+        "sendFailed": "We couldn't send your message. Please try again in a few minutes."
+      },
+      "actions": {
+        "sending": "Sending…",
+        "submit": "Send message"
+      }
+    }
   }
 }
