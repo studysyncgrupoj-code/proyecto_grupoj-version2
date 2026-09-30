@@ -391,5 +391,58 @@
         "submit": "Enviar mensaje"
       }
     }
+  },
+  "Validation": {
+    "name": {
+      "required": "El nombre es requerido",
+      "min": "El nombre debe tener al menos 2 caracteres",
+      "max": "El nombre no puede exceder los 100 caracteres",
+      "invalid": "El nombre solo puede contener letras, espacios, apóstrofes, guiones y puntos"
+    },
+    "lastName": {
+      "required": "El apellido es requerido",
+      "min": "El apellido debe tener al menos 2 caracteres",
+      "max": "El apellido no puede exceder los 100 caracteres",
+      "invalid": "El apellido solo puede contener letras, espacios, apóstrofes, guiones y puntos"
+    },
+    "email": {
+      "required": "El correo electrónico es requerido",
+      "max": "El correo no puede exceder los 254 caracteres",
+      "invalid": "Correo electrónico inválido",
+      "invalidInput": "Ingresa un correo electrónico válido"
+    },
+    "password": {
+      "required": "La contraseña es requerida",
+      "min": "La contraseña debe tener al menos 6 caracteres",
+      "max": "La contraseña no puede exceder los 15 caracteres",
+      "invalid": "La contraseña debe contener al menos una letra minúscula, una mayúscula y un carácter especial"
+    },
+    "confirmPassword": {
+      "required": "Debes confirmar tu contraseña",
+      "mismatch": "Las contraseñas no coinciden"
+    },
+    "resetPassword": {
+      "invalidToken": "El enlace de restablecimiento no es válido"
+    },
+    "contact": {
+      "name": {
+        "min": "El nombre debe tener al menos 2 caracteres",
+        "max": "El nombre no puede exceder los 100 caracteres",
+        "invalid": "El nombre solo puede contener letras, espacios, apóstrofes, guiones y puntos"
+      },
+      "phone": {
+        "invalid": "El número de teléfono no es válido"
+      },
+      "subject": {
+        "min": "El asunto debe tener al menos 5 caracteres",
+        "max": "El asunto no puede exceder los 150 caracteres",
+        "invalid": "El asunto contiene caracteres no permitidos"
+      },
+      "message": {
+        "min": "El mensaje debe tener al menos 20 caracteres",
+        "max": "El mensaje no puede exceder los 2000 caracteres",
+        "invalid": "El mensaje contiene caracteres no permitidos"
+      }
+    }
   }
 }

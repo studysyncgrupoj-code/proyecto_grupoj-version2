@@ -1,5 +1,6 @@
 import { AppIcon, type UiIconName } from '@/lib/iconMap';
-import { getTranslations } from 'next-intl/server';
+import type { ValidationDict } from '@/lib/validation';
+import { getMessages, getTranslations } from 'next-intl/server';
 import { ContactForm } from './ContactForm';
 
 /* ====================================================
@@ -75,6 +76,9 @@ function ContactInfoCard({ channel }: { channel: ContactChannel }) {
 export default async function ContactPage() {
   const t = await getTranslations('contact');
   const contactChannels = getContactChannels(t);
+
+  // Solo se envía al cliente el namespace de validación, no todos los mensajes.
+  const validation = (await getMessages()).Validation as ValidationDict;
 
   const messages = {
     title: t('form.title'),
@@ -185,7 +189,7 @@ export default async function ContactPage() {
       {/* Columna derecha: formulario */}
       <section className="flex items-center justify-center px-4 pb-16 sm:px-8 lg:px-10 lg:py-24">
         <div className="border-border bg-surface w-full max-w-xl rounded-3xl border p-7 shadow-xl">
-          <ContactForm messages={messages} />
+          <ContactForm messages={messages} validation={validation} />
         </div>
       </section>
     </main>

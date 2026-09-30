@@ -366,5 +366,58 @@
         "submit": "Send message"
       }
     }
+  },
+  "Validation": {
+    "name": {
+      "required": "Name is required",
+      "min": "Name must be at least 2 characters long",
+      "max": "Name cannot exceed 100 characters",
+      "invalid": "Name can only contain letters, spaces, apostrophes, hyphens, and periods"
+    },
+    "lastName": {
+      "required": "Last name is required",
+      "min": "Last name must be at least 2 characters long",
+      "max": "Last name cannot exceed 100 characters",
+      "invalid": "Last name can only contain letters, spaces, apostrophes, hyphens, and periods"
+    },
+    "email": {
+      "required": "Email is required",
+      "max": "Email cannot exceed 254 characters",
+      "invalid": "Invalid email address",
+      "invalidInput": "Please enter a valid email address"
+    },
+    "password": {
+      "required": "Password is required",
+      "min": "Password must be at least 6 characters long",
+      "max": "Password cannot exceed 15 characters",
+      "invalid": "Password must contain at least one lowercase letter, one uppercase letter, and one special character"
+    },
+    "confirmPassword": {
+      "required": "You must confirm your password",
+      "mismatch": "Passwords do not match"
+    },
+    "resetPassword": {
+      "invalidToken": "The password reset link is not valid"
+    },
+    "contact": {
+      "name": {
+        "min": "Name must be at least 2 characters long",
+        "max": "Name cannot exceed 100 characters",
+        "invalid": "Name can only contain letters, spaces, apostrophes, hyphens, and periods"
+      },
+      "phone": {
+        "invalid": "The phone number is not valid"
+      },
+      "subject": {
+        "min": "Subject must be at least 5 characters long",
+        "max": "Subject cannot exceed 150 characters",
+        "invalid": "Subject contains invalid characters"
+      },
+      "message": {
+        "min": "Message must be at least 20 characters long",
+        "max": "Message cannot exceed 2000 characters",
+        "invalid": "Message contains invalid characters"
+      }
+    }
   }
 }

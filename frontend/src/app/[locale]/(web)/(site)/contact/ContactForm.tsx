@@ -16,6 +16,7 @@ import {
   type ContactFormInput,
 } from '@/lib/contactSchema';
 import { AppIcon, type UiIconName } from '@/lib/iconMap';
+import { resolveError, type ValidationDict } from '@/lib/validation';
 import { cn } from '@/utilities/cn';
 
 const MESSAGE_MAX_LENGTH = 2000;
@@ -176,6 +177,7 @@ function Spinner() {
  */
 interface ContactTextFieldProps {
   control: FormControl;
+  validation: ValidationDict;
   name: 'name' | 'email' | 'subject';
   label: string;
   icon: UiIconName;
@@ -187,6 +189,7 @@ interface ContactTextFieldProps {
 
 function ContactTextField({
   control,
+  validation,
   name,
   label,
   icon,
@@ -210,7 +213,7 @@ function ContactTextField({
             icon={<AppIcon category="ui" name={icon} />}
             placeholder={placeholder}
             autoComplete={autoComplete}
-            error={fieldState.error?.message}
+            error={resolveError(validation, fieldState.error?.message)}
             disabled={disabled}
           />
         </div>
@@ -226,10 +229,18 @@ const focusOnMount = (node: HTMLHeadingElement | null) => node?.focus();
    Formulario
    ==================================================== */
 
-export function ContactForm({ messages }: { messages: ContactFormMessages }) {
+export function ContactForm({
+  messages,
+  validation,
+}: {
+  messages: ContactFormMessages;
+  validation: ValidationDict;
+}) {
   const shouldReduceMotion = useReducedMotion();
   const [status, setStatus] = useState<SubmitStatus>('idle');
   const [serverError, setServerError] = useState<string | null>(null);
+
+  const err = (key?: string) => resolveError(validation, key);
 
   const {
     register,
@@ -261,7 +272,9 @@ export function ContactForm({ messages }: { messages: ContactFormMessages }) {
       setStatus('success');
     } catch (error) {
       setServerError(
-        error instanceof Error ? error.message : messages.error.unexpected,
+        error instanceof Error && error.message
+          ? error.message
+          : messages.error.sendFailed,
       );
       setStatus('error');
     }
@@ -322,6 +335,7 @@ export function ContactForm({ messages }: { messages: ContactFormMessages }) {
 
               <ContactTextField
                 control={control}
+                validation={validation}
                 name="name"
                 label={messages.fields.name.label}
                 icon="user"
@@ -333,6 +347,7 @@ export function ContactForm({ messages }: { messages: ContactFormMessages }) {
               <ContactTextField
                 control={control}
                 name="email"
+                validation={validation}
                 label={messages.fields.email.label}
                 type="email"
                 icon="mail"
@@ -378,12 +393,13 @@ export function ContactForm({ messages }: { messages: ContactFormMessages }) {
                 />
                 <FieldError
                   id="contactNumber-error"
-                  message={errors.contactNumber?.message}
+                  message={err(errors.contactNumber?.message)}
                 />
               </div>
 
               <ContactTextField
                 control={control}
+                validation={validation}
                 name="subject"
                 label={messages.fields.subject.label}
                 icon="tag"
@@ -420,7 +436,7 @@ export function ContactForm({ messages }: { messages: ContactFormMessages }) {
                   <div className="min-w-0 flex-1">
                     <FieldError
                       id="message-error"
-                      message={errors.message?.message}
+                      message={err(errors.message?.message)}
                     />
                   </div>
                   <span
