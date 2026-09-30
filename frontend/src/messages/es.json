@@ -21,19 +21,6 @@
     "openMenu": "Abrir menú de navegación",
     "closeMenu": "Cerrar menú de navegación"
   },
-  "footer": {
-    "copyright": "© {year} Acme Inc.",
-    "sections": {
-      "product": "Producto",
-      "company": "Empresa",
-      "legal": "Legal"
-    },
-    "links": {
-      "privacy": "Privacidad",
-      "terms": "Términos",
-      "about": "Sobre nosotros"
-    }
-  },
   "languageToggle": {
     "switchTo": "Cambiar idioma a {language}",
     "es": "español",

@@ -3,14 +3,14 @@
 import { usePathname, useRouter } from '@/i18n/navigation';
 import { routing } from '@/i18n/routing';
 import { cn } from '@/utilities/cn';
-import { useLocale, useTranslations } from 'next-intl';
+import { useLocale } from 'next-intl';
 import { useTransition } from 'react';
 
 type Locale = (typeof routing.locales)[number];
 
-/* ====================================================
-   Banderas (SVG en línea, recortadas en círculo)
-   ==================================================== */
+/* ==================================================== 
+Banderas (SVG en línea, recortadas en círculo) 
+==================================================== */
 
 function FlagES() {
   return (
@@ -45,16 +45,21 @@ const FLAGS: Record<Locale, () => React.JSX.Element> = {
   en: FlagEN,
 };
 
-/* ====================================================
-   Toggle
-   ==================================================== */
+/* ==================================================== 
+Toggle 
+==================================================== */
 
-interface LanguageToggleProps {
+interface LanguageToggleClientProps {
   className?: string;
+  switchToSpanish: string;
+  switchToEnglish: string;
 }
 
-export default function LanguageToggle({ className }: LanguageToggleProps) {
-  const t = useTranslations('languageToggle');
+export default function LanguageToggleClient({
+  className,
+  switchToSpanish,
+  switchToEnglish,
+}: LanguageToggleClientProps) {
   const locale = useLocale() as Locale;
   const router = useRouter();
   const pathname = usePathname();
@@ -62,6 +67,7 @@ export default function LanguageToggle({ className }: LanguageToggleProps) {
 
   const nextLocale: Locale = locale === 'es' ? 'en' : 'es';
   const CurrentFlag = FLAGS[locale] ?? FlagES;
+  const label = nextLocale === 'es' ? switchToSpanish : switchToEnglish;
 
   const handleToggle = () => {
     startTransition(() => {
@@ -74,8 +80,8 @@ export default function LanguageToggle({ className }: LanguageToggleProps) {
       type="button"
       onClick={handleToggle}
       disabled={isPending}
-      aria-label={t('switchTo', { language: t(nextLocale) })}
-      title={t('switchTo', { language: t(nextLocale) })}
+      aria-label={label}
+      title={label}
       className={cn(
         'border-border bg-surface grid size-10 shrink-0 place-items-center rounded-full border',
         'transition-[background-color,border-color,transform] duration-200 active:scale-95',

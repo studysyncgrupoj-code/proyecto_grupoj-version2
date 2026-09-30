@@ -48,7 +48,7 @@ export default function Footer() {
 
           {FOOTER_LINKS.map((section) => (
             <nav key={section.title} aria-label={section.title}>
-              <h2 className="font-serif text-foreground mb-4 font-semibold">
+              <h2 className="text-foreground mb-4 font-serif font-semibold">
                 {section.title}
               </h2>
               <ul className="text-foreground-muted space-y-3 text-sm">

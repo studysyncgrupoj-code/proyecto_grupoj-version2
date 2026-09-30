@@ -5,12 +5,13 @@ import { Plus_Jakarta_Sans, Public_Sans } from 'next/font/google';
 import '../globals.css';
 
 import Footer from '@/components/layout/web/Footer';
-import Header from '@/components/layout/web/Header';
+import Header from '@/components/layout/web/header/Header';
 
 import { ThemeProvider } from '@/components/ui/ThemeProvider';
+import { themeScript } from '@/lib/themeScript';
 
 import { NextIntlClientProvider } from 'next-intl';
-import { getMessages } from 'next-intl/server';
+import { getLocale } from 'next-intl/server';
 
 const plusJakartaSans = Plus_Jakarta_Sans({
   variable: '--font-plus-jakarta',
@@ -42,15 +43,19 @@ export default async function LocaleLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const messages = await getMessages();
+  const locale = await getLocale();
 
   return (
     <html
-      lang="es"
+      lang={locale}
       className={`${plusJakartaSans.variable} ${publicSans.variable} h-full antialiased`}
       suppressHydrationWarning
       data-scroll-behavior="smooth"
     >
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+      </head>
+
       <body className="flex min-h-full flex-col font-sans">
         <ThemeProvider
           storageKey="theme"
@@ -60,7 +65,7 @@ export default async function LocaleLayout({
           themes={['light', 'dark']}
           attribute="data-theme"
         >
-          <NextIntlClientProvider messages={messages}>
+          <NextIntlClientProvider>
             <Header />
 
             <main className="min-h-screen pt-20">{children}</main>

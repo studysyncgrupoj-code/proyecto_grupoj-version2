@@ -21,19 +21,6 @@
     "openMenu": "Open navigation menu",
     "closeMenu": "Close navigation menu"
   },
-  "footer": {
-    "copyright": "© {year} Acme Inc.",
-    "sections": {
-      "product": "Product",
-      "company": "Company",
-      "legal": "Legal"
-    },
-    "links": {
-      "privacy": "Privacy",
-      "terms": "Terms",
-      "about": "About us"
-    }
-  },
   "languageToggle": {
     "switchTo": "Switch language to {language}",
     "es": "Spanish",

@@ -1,5 +1,4 @@
-// src/components/Logo.tsx
-import { useTranslations } from 'next-intl';
+import { getTranslations } from 'next-intl/server';
 import Link from 'next/link';
 import { FaGraduationCap } from 'react-icons/fa';
 
@@ -24,7 +23,7 @@ export interface LogoProps {
 
 const DEFAULT_ARIA_LABEL = 'StudySync - Ir al inicio';
 
-export default function Logo({
+export default async function Logo({
   variant = 'full',
   href = '/',
   iconSize = 32,
@@ -34,7 +33,7 @@ export default function Logo({
 }: LogoProps) {
   const isCompact = variant === 'compact';
 
-  const t = useTranslations('logo');
+  const t = await getTranslations('logo');
 
   return (
     <Link

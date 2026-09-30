@@ -1,7 +1,6 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { useTranslations } from 'next-intl';
 import { useTheme } from 'next-themes';
 import { useEffect, useRef, useState } from 'react';
 import { BsFillMoonStarsFill } from 'react-icons/bs';
@@ -13,20 +12,22 @@ interface Particle {
   duration: number;
 }
 
-interface ThemeToggleProps {
+interface ThemeToggleClientProps {
   size?: 'sm' | 'md' | 'lg';
+  toLightLabel: string;
+  toDarkLabel: string;
 }
 
-export default function ThemeToggle({ size = 'md' }: ThemeToggleProps) {
-  const { theme, setTheme, resolvedTheme } = useTheme();
+export default function ThemeToggleClient({
+  size = 'md',
+  toLightLabel,
+  toDarkLabel,
+}: ThemeToggleClientProps) {
+  const { setTheme, resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const [particles, setParticles] = useState<Particle[]>([]);
   const [isAnimating, setIsAnimating] = useState(false);
   const toggleRef = useRef<HTMLButtonElement>(null);
-
-  const t = useTranslations('themeToggle');
-
-  const isDark = mounted && (theme === 'dark' || resolvedTheme === 'dark');
 
   // Definir tamaños
   const sizes = {
@@ -56,10 +57,10 @@ export default function ThemeToggle({ size = 'md' }: ThemeToggleProps) {
   const currentSize = sizes[size] || sizes.md;
 
   useEffect(() => {
-    queueMicrotask(() => {
-      setMounted(true);
-    });
+    setMounted(true);
   }, []);
+
+  const isDark = mounted ? resolvedTheme === 'dark' : false;
 
   const generateParticles = () => {
     const newParticles: Particle[] = [];
@@ -87,20 +88,6 @@ export default function ThemeToggle({ size = 'md' }: ThemeToggleProps) {
     setTheme(isDark ? 'light' : 'dark');
   };
 
-  if (!mounted) {
-    return (
-      <div className="relative inline-block">
-        <div
-          className={`relative flex ${currentSize.button} bg-disabled items-center rounded-full ${currentSize.padding}`}
-        >
-          <div
-            className={`${currentSize.thumb} bg-disabled-text rounded-full`}
-          />
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="relative inline-block">
       <svg className="absolute h-0 w-0" aria-hidden="true">
@@ -123,6 +110,7 @@ export default function ThemeToggle({ size = 'md' }: ThemeToggleProps) {
             </feComponentTransfer>
             <feBlend in="SourceGraphic" in2="lightGrain" mode="overlay" />
           </filter>
+
           <filter id="grain-dark">
             <feTurbulence
               type="fractalNoise"
@@ -157,7 +145,7 @@ export default function ThemeToggle({ size = 'md' }: ThemeToggleProps) {
             0 8px 16px color-mix(in oklch, var(--foreground) 12%, transparent)
           `,
         }}
-        aria-label={isDark ? t('toLight') : t('toDark')}
+        aria-label={isDark ? toLightLabel : toDarkLabel}
         role="switch"
         aria-checked={isDark}
         whileTap={{ scale: 0.95 }}
@@ -177,10 +165,8 @@ export default function ThemeToggle({ size = 'md' }: ThemeToggleProps) {
 
         {/* Iconos de fondo */}
         <div className="pointer-events-none absolute inset-0 flex items-center justify-between px-3">
-          <FaSun
-            size={currentSize.icon}
-            className={isDark ? 'text-warning' : 'text-warning'}
-          />
+          <FaSun size={currentSize.icon} className="text-warning" />
+
           <BsFillMoonStarsFill
             size={currentSize.icon}
             className="text-foreground-muted"
@@ -194,6 +180,7 @@ export default function ThemeToggle({ size = 'md' }: ThemeToggleProps) {
             background: isDark
               ? 'linear-gradient(145deg, var(--surface-active) 0%, var(--surface) 50%, var(--background) 100%)'
               : 'linear-gradient(145deg, var(--primary-foreground) 0%, var(--surface-hover) 50%, var(--surface) 100%)',
+
             boxShadow: isDark
               ? `
                 inset 2px 2px 3px color-mix(in oklch, var(--foreground) 18%, transparent),
@@ -205,6 +192,7 @@ export default function ThemeToggle({ size = 'md' }: ThemeToggleProps) {
                 inset -2px -2px 3px color-mix(in oklch, var(--background) 55%, transparent),
                 0 4px 16px color-mix(in oklch, var(--foreground) 12%, transparent)
               `,
+
             border: '1.5px solid var(--border)',
             borderRadius: '9999px',
           }}
@@ -246,7 +234,10 @@ export default function ThemeToggle({ size = 'md' }: ThemeToggleProps) {
                     borderRadius: '9999px',
                   }}
                   initial={{ scale: 0, opacity: 0 }}
-                  animate={{ scale: isDark ? 5 : 6, opacity: [0, 1, 0] }}
+                  animate={{
+                    scale: isDark ? 5 : 6,
+                    opacity: [0, 1, 0],
+                  }}
                   transition={{
                     duration: isDark ? 0.5 : particle.duration,
                     delay: particle.delay,
