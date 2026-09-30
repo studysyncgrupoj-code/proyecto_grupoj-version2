@@ -3,7 +3,7 @@ import { IconMap } from '@/lib/iconMap';
 import { getTranslations } from 'next-intl/server';
 
 export default async function HomeHero() {
-  const t = await getTranslations('home');
+  const t = await getTranslations('home.hero');
 
   const {
     bot: Bot,
@@ -39,9 +39,9 @@ export default async function HomeHero() {
   const chartHeights = [35, 62, 48, 78, 91, 69, 84];
 
   const benefits = [
-    t('hero.benefits.noCreditCard'),
-    t('hero.benefits.instantAccess'),
-    t('hero.benefits.forEveryone'),
+    t('benefits.noCreditCard'),
+    t('benefits.instantAccess'),
+    t('benefits.forEveryone'),
   ];
 
   const dashboardItems = [1, 2, 3, 4, 5];
@@ -80,18 +80,18 @@ export default async function HomeHero() {
           {/* Eyebrow */}
           <span className="border-accent/25 bg-accent/10 text-accent inline-flex w-fit items-center gap-2 rounded-full border px-2.75 py-1.75 text-xs font-extrabold tracking-[0.09em] uppercase max-[1180px]:mx-auto">
             <Sparkles size={15} />
-            {t('hero.eyebrow')}
+            {t('eyebrow')}
           </span>
 
           <h1 className="text-foreground mt-5.25 max-w-190 font-serif text-[clamp(3.5rem,5.5vw,6rem)] leading-[0.94] font-bold tracking-[-0.075em] max-[1180px]:mx-auto max-[720px]:text-[clamp(2.8rem,13vw,4.2rem)]">
-            {t('hero.title.line1')}
+            {t('title.line1')}
             <span className="from-info to-primary block bg-linear-to-r bg-clip-text text-transparent">
-              {t('hero.title.line2')}
+              {t('title.line2')}
             </span>
           </h1>
 
           <p className="text-foreground-muted mt-6.25 max-w-155 text-sm leading-[1.8] max-[1180px]:mx-auto max-[520px]:text-xs max-[520px]:leading-[1.7]">
-            {t('hero.description')}
+            {t('description')}
           </p>
 
           <div className="mt-7 flex flex-wrap gap-3 max-[1180px]:justify-center max-[520px]:flex-col">
@@ -102,11 +102,11 @@ export default async function HomeHero() {
               icon="arrowRight"
               iconPosition="right"
             >
-              {t('hero.cta.primary')}
+              {t('cta.primary')}
             </Button>
 
             <Button href="/login" variant="ghost" size="lg" icon="play">
-              {t('hero.cta.secondary')}
+              {t('cta.secondary')}
             </Button>
           </div>
 

@@ -3,7 +3,7 @@ import { IconMap } from '@/lib/iconMap';
 import { getTranslations } from 'next-intl/server';
 
 export default async function HomeStudyRooms() {
-  const t = await getTranslations('home');
+  const t = await getTranslations('home.studyRooms');
 
   const {
     video: Video,
@@ -16,27 +16,27 @@ export default async function HomeStudyRooms() {
   const studyRooms = [
     {
       id: 1,
-      title: t('studyRooms.rooms.react.title'),
-      subject: t('studyRooms.rooms.react.subject'),
+      title: t('rooms.react.title'),
+      subject: t('rooms.react.subject'),
       members: 18,
       progress: 82,
-      status: t('studyRooms.status.active'),
+      status: t('status.active'),
     },
     {
       id: 2,
-      title: t('studyRooms.rooms.calculus.title'),
-      subject: t('studyRooms.rooms.calculus.subject'),
+      title: t('rooms.calculus.title'),
+      subject: t('rooms.calculus.subject'),
       members: 12,
       progress: 64,
-      status: t('studyRooms.status.active'),
+      status: t('status.active'),
     },
     {
       id: 3,
-      title: t('studyRooms.rooms.databases.title'),
-      subject: t('studyRooms.rooms.databases.subject'),
+      title: t('rooms.databases.title'),
+      subject: t('rooms.databases.subject'),
       members: 9,
       progress: 46,
-      status: t('studyRooms.status.comingSoon'),
+      status: t('status.comingSoon'),
     },
   ];
 
@@ -48,20 +48,20 @@ export default async function HomeStudyRooms() {
       <div className="max-w-170">
         <span className="border-accent/25 bg-accent/10 text-accent inline-flex w-fit items-center gap-2 rounded-full border px-3 py-1.75 text-xs font-extrabold tracking-[0.09em] uppercase">
           <Video size={15} aria-hidden="true" />
-          {t('studyRooms.eyebrow')}
+          {t('eyebrow')}
         </span>
         <h2 className="text-foreground mt-4 text-[clamp(2.2rem,4vw,4rem)] leading-[1.06] font-bold tracking-[-0.055em] max-[720px]:text-[clamp(1.8rem,8vw,2.5rem)]">
-          {t('studyRooms.title')}
+          {t('title')}
         </h2>
         <p className="text-foreground-muted mt-4 text-sm leading-[1.75] max-[720px]:text-xs">
-          {t('studyRooms.description')}
+          {t('description')}
         </p>
       </div>
       <div className="mt-11 grid grid-cols-[minmax(0,1.25fr)_minmax(290px,0.75fr)] items-stretch gap-4.5 max-[1180px]:grid-cols-1">
         {/* Grid de salas */}
         <div className="grid grid-cols-3 gap-3.25 max-[960px]:grid-cols-2 max-[720px]:grid-cols-1">
           {studyRooms.map((room) => {
-            const isActive = room.status === t('studyRooms.status.active');
+            const isActive = room.status === t('status.active');
             return (
               <article
                 key={room.id}
@@ -98,7 +98,7 @@ export default async function HomeStudyRooms() {
                   {room.title}
                 </h3>
                 <div className="text-foreground-muted mt-7 flex justify-between gap-2.5 text-xs max-[720px]:mt-4 max-[720px]:text-[10px]">
-                  <span>{t('studyRooms.sessionProgress')}</span>
+                  <span>{t('sessionProgress')}</span>
                   <strong className="text-accent">{room.progress}%</strong>
                 </div>
                 <div className="bg-secondary mt-2.25 h-1.5 overflow-hidden rounded-full max-[720px]:mt-1.5">
@@ -114,7 +114,7 @@ export default async function HomeStudyRooms() {
                       aria-hidden="true"
                       className="max-[720px]:size-3.5"
                     />
-                    {room.members} {t('studyRooms.participants')}
+                    {room.members} {t('participants')}
                   </span>
                   <div
                     className="border-accent/20 bg-accent/10 text-accent grid size-8 place-items-center rounded-lg border max-[720px]:size-6"
@@ -139,13 +139,13 @@ export default async function HomeStudyRooms() {
               aria-hidden="true"
               className="max-[720px]:size-3"
             />
-            {t('studyRooms.aside.eyebrow')}
+            {t('aside.eyebrow')}
           </span>
           <h3 className="text-foreground mt-5.5 text-2xl leading-[1.2] font-bold tracking-[-0.04em] max-[720px]:mt-4 max-[720px]:text-xl">
-            {t('studyRooms.aside.title')}
+            {t('aside.title')}
           </h3>
           <p className="text-foreground-muted mt-3.5 text-sm leading-[1.7] max-[720px]:mt-2.5 max-[720px]:text-xs">
-            {t('studyRooms.aside.description')}
+            {t('aside.description')}
           </p>
           <div className="mt-5.5 grid gap-3 max-[720px]:mt-4 max-[720px]:gap-2">
             <span className="text-foreground-muted flex items-center gap-2.25 text-sm max-[720px]:text-xs">
@@ -154,7 +154,7 @@ export default async function HomeStudyRooms() {
                 className="text-accent shrink-0 max-[720px]:size-4"
                 aria-hidden="true"
               />
-              {t('studyRooms.aside.benefits.chat')}
+              {t('aside.benefits.chat')}
             </span>
             <span className="text-foreground-muted flex items-center gap-2.25 text-sm max-[720px]:text-xs">
               <CheckCircle2
@@ -162,7 +162,7 @@ export default async function HomeStudyRooms() {
                 className="text-accent shrink-0 max-[720px]:size-4"
                 aria-hidden="true"
               />
-              {t('studyRooms.aside.benefits.pomodoro')}
+              {t('aside.benefits.pomodoro')}
             </span>
             <span className="text-foreground-muted flex items-center gap-2.25 text-sm max-[720px]:text-xs">
               <CheckCircle2
@@ -170,7 +170,7 @@ export default async function HomeStudyRooms() {
                 className="text-accent shrink-0 max-[720px]:size-4"
                 aria-hidden="true"
               />
-              {t('studyRooms.aside.benefits.resources')}
+              {t('aside.benefits.resources')}
             </span>
           </div>
           <Button
@@ -181,7 +181,7 @@ export default async function HomeStudyRooms() {
             iconPosition="right"
             className="mt-6 max-[720px]:mt-4"
           >
-            {t('studyRooms.aside.cta')}
+            {t('aside.cta')}
           </Button>
         </aside>
       </div>

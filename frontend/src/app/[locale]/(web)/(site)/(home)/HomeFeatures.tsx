@@ -2,27 +2,27 @@ import { IconMap } from '@/lib/iconMap';
 import { getTranslations } from 'next-intl/server';
 
 export default async function HomeFeatures() {
-  const t = await getTranslations('home');
+  const t = await getTranslations('home.features');
 
   const { target: Target, users: Users, brain: BrainCircuit } = IconMap.ui;
 
   const features = [
     {
       id: 1,
-      title: t('features.items.focus.title'),
-      description: t('features.items.focus.description'),
+      title: t('items.focus.title'),
+      description: t('items.focus.description'),
       icon: Target,
     },
     {
       id: 2,
-      title: t('features.items.collaboration.title'),
-      description: t('features.items.collaboration.description'),
+      title: t('items.collaboration.title'),
+      description: t('items.collaboration.description'),
       icon: Users,
     },
     {
       id: 3,
-      title: t('features.items.progress.title'),
-      description: t('features.items.progress.description'),
+      title: t('items.progress.title'),
+      description: t('items.progress.description'),
       icon: BrainCircuit,
     },
   ];
@@ -32,15 +32,15 @@ export default async function HomeFeatures() {
       <header className="mx-auto max-w-170 text-center">
         <span className="border-accent/25 bg-accent/10 text-accent mx-auto inline-flex w-fit items-center gap-2 rounded-full border px-3 py-2 text-xs font-extrabold tracking-[0.09em] uppercase">
           <BrainCircuit size={15} aria-hidden="true" />
-          {t('features.eyebrow')}
+          {t('eyebrow')}
         </span>
 
         <h2 className="text-foreground mt-4 text-[clamp(2.2rem,4vw,4rem)] leading-[1.06] font-bold tracking-[-0.055em]">
-          {t('features.title')}
+          {t('title')}
         </h2>
 
         <p className="text-foreground-muted mx-auto mt-4 max-w-170 text-sm leading-[1.75]">
-          {t('features.description')}
+          {t('description')}
         </p>
       </header>
 

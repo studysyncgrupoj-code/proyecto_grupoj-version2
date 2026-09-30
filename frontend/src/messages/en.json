@@ -92,44 +92,44 @@
         "noCreditCard": "No credit card required",
         "instantAccess": "Instant access",
         "forEveryone": "For students and teachers"
-      }
-    },
-    "dashboardPreview": {
-      "status": "Platform active",
-      "welcome": "Welcome back",
-      "progressTitle": "Your academic progress",
-      "initials": "RV",
-      "stats": {
-        "timeStudied": "Time studied",
-        "weeklyGoal": "Weekly goal",
-        "activeRooms": "Active rooms"
       },
-      "weeklyProgress": {
-        "title": "Weekly progress",
-        "value": "18 hours of 22",
-        "ariaLabel": "Weekly progress bar chart. Bar height represents hours studied per day, totaling 18 hours out of 22."
+      "dashboardPreview": {
+        "status": "Platform active",
+        "welcome": "Welcome back",
+        "progressTitle": "Your academic progress",
+        "initials": "RV",
+        "stats": {
+          "timeStudied": "Time studied",
+          "weeklyGoal": "Weekly goal",
+          "activeRooms": "Active rooms"
+        },
+        "weeklyProgress": {
+          "title": "Weekly progress",
+          "value": "18 hours of 22",
+          "ariaLabel": "Weekly progress bar chart. Bar height represents hours studied per day, totaling 18 hours out of 22."
+        },
+        "nextSession": {
+          "title": "Next session",
+          "course": "Advanced React",
+          "time": "Today · 4:30 PM"
+        },
+        "streak": {
+          "title": "Current streak",
+          "value": "12 days"
+        },
+        "aiCoach": {
+          "title": "AI Coach",
+          "value": "Plan updated"
+        }
       },
-      "nextSession": {
-        "title": "Next session",
-        "course": "Advanced React",
-        "time": "Today · 4:30 PM"
-      },
-      "streak": {
-        "title": "Current streak",
-        "value": "12 days"
-      },
-      "aiCoach": {
-        "title": "AI Coach",
-        "value": "Plan updated"
-      }
-    },
-    "trusted": {
-      "title": "A platform designed to boost",
-      "items": {
-        "focus": "Focus",
-        "collaboration": "Collaboration",
-        "organization": "Organization",
-        "progress": "Progress"
+      "trusted": {
+        "title": "A platform designed to boost",
+        "items": {
+          "focus": "Focus",
+          "collaboration": "Collaboration",
+          "organization": "Organization",
+          "progress": "Progress"
+        }
       }
     },
     "features": {
@@ -186,6 +186,65 @@
         },
         "cta": "Explore rooms"
       }
+    },
+    "benefits": {
+      "eyebrow": "A complete experience",
+      "title": "Fewer tools. More focus.",
+      "description": "StudySync brings together the essential features you need to organize, study, collaborate, and track your progress.",
+      "items": {
+        "academicOrganization": {
+          "title": "Academic organization",
+          "description": "Plan courses, sessions, assignments, and events from a centralized calendar."
+        },
+        "pomodoro": {
+          "title": "Integrated Pomodoro",
+          "description": "Manage focus and break periods with clear metrics."
+        },
+        "aiCoach": {
+          "title": "AI academic coach",
+          "description": "Get recommendations based on your goals, activity, and progress."
+        },
+        "communication": {
+          "title": "Direct communication",
+          "description": "Stay connected with teachers, classmates, and study groups."
+        }
+      },
+      "platform": {
+        "eyebrow": "Trusted platform",
+        "title": "Your information and progress are always protected",
+        "description": "StudySync provides privacy controls, account security, and personalized settings for every user.",
+        "availability": "Availability",
+        "privacy": "Privacy control"
+      }
+    },
+    "testimonials": {
+      "eyebrow": "Progress stories",
+      "title": "People who are already studying differently",
+      "description": "Experiences from students and teachers who found a more organized way to move forward.",
+      "items": {
+        "lucia": {
+          "name": "Lucía Martínez",
+          "role": "Web development student",
+          "quote": "StudySync helped me organize my sessions and make progress on projects I used to leave unfinished."
+        },
+        "andres": {
+          "name": "Andrés Gómez",
+          "role": "University student",
+          "quote": "The collaborative rooms and shared Pomodoro made studying much more consistent for me."
+        },
+        "camila": {
+          "name": "Camila Rodríguez",
+          "role": "Technology teacher",
+          "quote": "Now I can better support my students, organize courses, and review their progress from a single platform."
+        }
+      }
+    },
+    "cta": {
+      "eyebrow": "Your next session starts here",
+      "title": "Build a better way to learn today",
+      "description": "Create your account and start organizing your courses, rooms, focus sessions, and academic goals.",
+      "primary": "Create a free account",
+      "secondary": "I already have an account"
     }
   }
 }

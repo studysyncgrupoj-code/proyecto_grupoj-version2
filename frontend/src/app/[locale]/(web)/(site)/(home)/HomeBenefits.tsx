@@ -1,6 +1,10 @@
 import { IconMap } from '@/lib/iconMap';
 
-export default function HomeBenefits() {
+import { getTranslations } from 'next-intl/server';
+
+export default async function HomeBenefits() {
+  const t = await getTranslations('home.benefits');
+
   const {
     zap: Zap,
     calendar: CalendarDays,
@@ -19,122 +23,94 @@ export default function HomeBenefits() {
         <div className="max-w-170">
           <span className="border-accent/25 bg-accent/10 text-accent inline-flex w-fit items-center gap-2 rounded-full border px-3 py-1.75 text-xs font-extrabold tracking-[0.09em] uppercase">
             <Zap size={15} aria-hidden="true" />
-            Una experiencia completa
+            {t('eyebrow')}
           </span>
-
           <h2 className="text-foreground mt-4 text-[clamp(2.2rem,4vw,4rem)] leading-[1.06] font-bold tracking-[-0.055em]">
-            Menos herramientas. Más concentración.
+            {t('title')}
           </h2>
-
           <p className="text-foreground-muted mt-4 text-sm leading-[1.75]">
-            StudySync reúne las funciones esenciales para que puedas organizar,
-            estudiar, colaborar y medir tu evolución.
+            {t('description')}
           </p>
         </div>
-
         <div className="mt-9.5 grid grid-cols-2 gap-3.25 max-[720px]:grid-cols-1">
           <article className="border-border bg-surface grid grid-cols-[43px_minmax(0,1fr)] gap-3 rounded-2xl border p-4.25">
             <span className="bg-accent/10 text-accent grid size-10.75 place-items-center rounded-xl">
               <CalendarDays size={20} aria-hidden="true" />
             </span>
-
             <div>
               <h3 className="text-foreground m-0 text-sm font-semibold">
-                Organización académica
+                {t('items.academicOrganization.title')}
               </h3>
-
               <p className="text-foreground-muted mt-1.75 text-xs leading-[1.55]">
-                Planifica cursos, sesiones, tareas y eventos desde un calendario
-                centralizado.
+                {t('items.academicOrganization.description')}
               </p>
             </div>
           </article>
-
           <article className="border-border bg-surface grid grid-cols-[43px_minmax(0,1fr)] gap-3 rounded-2xl border p-4.25">
             <span className="bg-accent/10 text-accent grid size-10.75 place-items-center rounded-xl">
               <Clock3 size={20} aria-hidden="true" />
             </span>
-
             <div>
               <h3 className="text-foreground m-0 text-sm font-semibold">
-                Pomodoro integrado
+                {t('items.pomodoro.title')}
               </h3>
-
               <p className="text-foreground-muted mt-1.75 text-xs leading-[1.55]">
-                Gestiona periodos de concentración y descanso con métricas
-                claras.
+                {t('items.pomodoro.description')}
               </p>
             </div>
           </article>
-
           <article className="border-border bg-surface grid grid-cols-[43px_minmax(0,1fr)] gap-3 rounded-2xl border p-4.25">
             <span className="bg-accent/10 text-accent grid size-10.75 place-items-center rounded-xl">
               <Bot size={20} aria-hidden="true" />
             </span>
-
             <div>
               <h3 className="text-foreground m-0 text-sm font-semibold">
-                Coach académico con IA
+                {t('items.aiCoach.title')}
               </h3>
-
               <p className="text-foreground-muted mt-1.75 text-xs leading-[1.55]">
-                Recibe recomendaciones basadas en tus metas, actividad y
-                progreso.
+                {t('items.aiCoach.description')}
               </p>
             </div>
           </article>
-
           <article className="border-border bg-surface grid grid-cols-[43px_minmax(0,1fr)] gap-3 rounded-2xl border p-4.25">
             <span className="bg-accent/10 text-accent grid size-10.75 place-items-center rounded-xl">
               <MessageCircle size={20} aria-hidden="true" />
             </span>
-
             <div>
               <h3 className="text-foreground m-0 text-sm font-semibold">
-                Comunicación directa
+                {t('items.communication.title')}
               </h3>
-
               <p className="text-foreground-muted mt-1.75 text-xs leading-[1.55]">
-                Mantén conversaciones con profesores, compañeros y grupos de
-                estudio.
+                {t('items.communication.description')}
               </p>
             </div>
           </article>
         </div>
       </div>
-
       <div className="border-accent bg-surface relative overflow-hidden rounded-2xl border p-8.75 shadow-xl max-[1180px]:max-w-155 max-[720px]:p-6.25">
         <span className="border-accent/30 bg-accent/10 text-accent grid size-16.25 place-items-center rounded-2xl border">
           <ShieldCheck size={30} aria-hidden="true" />
         </span>
-
         <span className="text-accent mt-7 block text-xs font-extrabold tracking-[0.08em] uppercase">
-          Plataforma confiable
+          {t('platform.eyebrow')}
         </span>
-
         <h3 className="text-foreground mt-2.5 text-2xl leading-[1.2] font-bold tracking-[-0.045em]">
-          Tu información y tu progreso siempre protegidos
+          {t('platform.title')}
         </h3>
-
         <p className="text-foreground-muted mt-3.75 text-sm leading-[1.7]">
-          StudySync integra controles de privacidad, seguridad de cuenta y
-          configuraciones personalizadas para cada usuario.
+          {t('platform.description')}
         </p>
-
         <div className="mt-7 grid grid-cols-2 gap-2.5 max-[720px]:grid-cols-1">
           <article className="border-border bg-background rounded-xl border p-4">
             <strong className="text-foreground block text-2xl">24/7</strong>
-
             <span className="text-foreground-muted mt-1.25 block text-xs">
-              Disponibilidad
+              {t('platform.availability')}
             </span>
           </article>
-
           <article className="border-border bg-background rounded-xl border p-4">
             <strong className="text-foreground block text-2xl">100%</strong>
-
             <span className="text-foreground-muted mt-1.25 block text-xs">
-              Control de privacidad
+              {t('platform.privacy')}
             </span>
           </article>
         </div>

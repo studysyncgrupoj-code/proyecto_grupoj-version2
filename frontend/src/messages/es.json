@@ -78,23 +78,52 @@
   },
   "home": {
     "hero": {
-      "eyebrow": "Tu ecosistema inteligente de estudio",
-      "title": {
-        "line1": "Estudia mejor.",
-        "line2": "Avanza con propósito."
-      },
-      "description": "Organiza tus cursos, participa en salas colaborativas, mejora tu concentración y recibe acompañamiento personalizado desde una sola plataforma.",
+      "eyebrow": "Tu ecosistema de estudio inteligente",
+      "title": { "line1": "Estudia mejor.", "line2": "Avanza con propósito." },
+      "description": "Organiza tus cursos, únete a salas colaborativas, mejora tu concentración y recibe apoyo personalizado desde una sola plataforma.",
       "cta": {
         "primary": "Comenzar gratis",
-        "secondary": "Explorar plataforma"
+        "secondary": "Explorar la plataforma"
       },
       "benefits": {
-        "noCreditCard": "Sin tarjeta de crédito",
+        "noCreditCard": "No requiere tarjeta de crédito",
         "instantAccess": "Acceso inmediato",
         "forEveryone": "Para estudiantes y profesores"
+      },
+      "dashboardPreview": {
+        "status": "Plataforma activa",
+        "welcome": "Bienvenido de nuevo",
+        "progressTitle": "Tu progreso académico",
+        "initials": "RV",
+        "stats": {
+          "timeStudied": "Tiempo estudiado",
+          "weeklyGoal": "Meta semanal",
+          "activeRooms": "Salas activas"
+        },
+        "weeklyProgress": {
+          "title": "Progreso semanal",
+          "value": "18 horas de 22",
+          "ariaLabel": "Gráfico de barras del progreso semanal. La altura de las barras representa las horas estudiadas cada día, totalizando 18 horas de 22."
+        },
+        "nextSession": {
+          "title": "Próxima sesión",
+          "course": "React avanzado",
+          "time": "Hoy · 4:30 p. m."
+        },
+        "streak": { "title": "Racha actual", "value": "12 días" },
+        "aiCoach": { "title": "IA Coach", "value": "Plan actualizado" }
+      },
+      "trusted": {
+        "title": "Una plataforma diseñada para potenciar",
+        "items": {
+          "focus": "Concentración",
+          "collaboration": "Colaboración",
+          "organization": "Organización",
+          "progress": "Progreso"
+        }
       }
     },
-    "dashboardPreview": {
+    "HomeFeatures": {
       "status": "Plataforma activa",
       "welcome": "Bienvenido de nuevo",
       "progressTitle": "Tu progreso académico",
@@ -121,15 +150,6 @@
       "aiCoach": {
         "title": "IA Coach",
         "value": "Plan actualizado"
-      }
-    },
-    "trusted": {
-      "title": "Una plataforma diseñada para potenciar",
-      "items": {
-        "focus": "Concentración",
-        "collaboration": "Colaboración",
-        "organization": "Organización",
-        "progress": "Progreso"
       }
     },
     "features": {
@@ -186,6 +206,65 @@
         },
         "cta": "Explorar salas"
       }
+    },
+    "benefits": {
+      "eyebrow": "Una experiencia completa",
+      "title": "Menos herramientas. Más concentración.",
+      "description": "StudySync reúne las funciones esenciales para que puedas organizar, estudiar, colaborar y medir tu evolución.",
+      "items": {
+        "academicOrganization": {
+          "title": "Organización académica",
+          "description": "Planifica cursos, sesiones, tareas y eventos desde un calendario centralizado."
+        },
+        "pomodoro": {
+          "title": "Pomodoro integrado",
+          "description": "Gestiona periodos de concentración y descanso con métricas claras."
+        },
+        "aiCoach": {
+          "title": "Coach académico con IA",
+          "description": "Recibe recomendaciones basadas en tus metas, actividad y progreso."
+        },
+        "communication": {
+          "title": "Comunicación directa",
+          "description": "Mantén conversaciones con profesores, compañeros y grupos de estudio."
+        }
+      },
+      "platform": {
+        "eyebrow": "Plataforma confiable",
+        "title": "Tu información y tu progreso siempre protegidos",
+        "description": "StudySync integra controles de privacidad, seguridad de cuenta y configuraciones personalizadas para cada usuario.",
+        "availability": "Disponibilidad",
+        "privacy": "Control de privacidad"
+      }
+    },
+    "testimonials": {
+      "eyebrow": "Historias de progreso",
+      "title": "Personas que ya estudian de otra manera",
+      "description": "Experiencias de estudiantes y profesores que encontraron una forma más organizada de avanzar.",
+      "items": {
+        "lucia": {
+          "name": "Lucía Martínez",
+          "role": "Estudiante de desarrollo web",
+          "quote": "StudySync me ayudó a organizar mis sesiones y avanzar en proyectos que antes siempre dejaba incompletos."
+        },
+        "andres": {
+          "name": "Andrés Gómez",
+          "role": "Estudiante universitario",
+          "quote": "Las salas colaborativas y el Pomodoro compartido hicieron que estudiar fuera mucho más constante."
+        },
+        "camila": {
+          "name": "Camila Rodríguez",
+          "role": "Profesora de tecnología",
+          "quote": "Ahora puedo acompañar mejor a mis estudiantes, organizar cursos y revisar su progreso desde una sola plataforma."
+        }
+      }
+    },
+    "cta": {
+      "eyebrow": "Tu siguiente sesión comienza aquí",
+      "title": "Construye hoy una mejor forma de aprender",
+      "description": "Crea tu cuenta y empieza a organizar tus cursos, salas, sesiones de concentración y objetivos académicos.",
+      "primary": "Crear cuenta gratis",
+      "secondary": "Ya tengo una cuenta"
     }
   }
 }
