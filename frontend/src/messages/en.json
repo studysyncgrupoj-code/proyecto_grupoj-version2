@@ -150,6 +150,42 @@
           "description": "Track statistics, goals, activity, and progress from a single space."
         }
       }
+    },
+    "studyRooms": {
+      "eyebrow": "Study rooms",
+      "title": "Learning together changes the results",
+      "description": "Join collaborative sessions, share resources, and stay on track with people who share your goals.",
+      "sessionProgress": "Session progress",
+      "participants": "participants",
+      "status": {
+        "active": "Active",
+        "comingSoon": "Coming soon"
+      },
+      "rooms": {
+        "react": {
+          "title": "React and JavaScript",
+          "subject": "Frontend development"
+        },
+        "calculus": {
+          "title": "Differential calculus",
+          "subject": "Mathematics"
+        },
+        "databases": {
+          "title": "Databases",
+          "subject": "SQL and modeling"
+        }
+      },
+      "aside": {
+        "eyebrow": "Real-time sessions",
+        "title": "Turn studying into a shared experience",
+        "description": "Create public or private rooms, start Pomodoro sessions, chat with your team, and access materials without leaving the session.",
+        "benefits": {
+          "chat": "Live chat and collaboration",
+          "pomodoro": "Shared Pomodoro timer",
+          "resources": "Resource and participant management"
+        },
+        "cta": "Explore rooms"
+      }
     }
   }
 }

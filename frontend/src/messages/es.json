@@ -150,6 +150,42 @@
           "description": "Consulta estadísticas, metas, actividad y evolución desde un mismo espacio."
         }
       }
+    },
+    "studyRooms": {
+      "eyebrow": "Salas de estudio",
+      "title": "Aprender acompañado cambia los resultados",
+      "description": "Únete a sesiones colaborativas, comparte recursos y mantén el ritmo junto a personas con tus mismos objetivos.",
+      "sessionProgress": "Progreso de la sesión",
+      "participants": "participantes",
+      "status": {
+        "active": "Activa",
+        "comingSoon": "Próximamente"
+      },
+      "rooms": {
+        "react": {
+          "title": "React y JavaScript",
+          "subject": "Desarrollo frontend"
+        },
+        "calculus": {
+          "title": "Cálculo diferencial",
+          "subject": "Matemáticas"
+        },
+        "databases": {
+          "title": "Bases de datos",
+          "subject": "SQL y modelado"
+        }
+      },
+      "aside": {
+        "eyebrow": "Sesiones en tiempo real",
+        "title": "Convierte el estudio en una experiencia compartida",
+        "description": "Crea salas públicas o privadas, activa sesiones de Pomodoro, conversa con tu equipo y consulta materiales sin abandonar la sesión.",
+        "benefits": {
+          "chat": "Chat y colaboración en vivo",
+          "pomodoro": "Temporizador Pomodoro compartido",
+          "resources": "Gestión de recursos y participantes"
+        },
+        "cta": "Explorar salas"
+      }
     }
   }
 }
