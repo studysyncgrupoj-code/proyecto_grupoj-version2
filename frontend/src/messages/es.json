@@ -75,5 +75,62 @@
       "terms": "Términos"
     },
     "copyright": "© 2026 StudySync. Todos los derechos reservados."
+  },
+  "home": {
+    "hero": {
+      "eyebrow": "Tu ecosistema inteligente de estudio",
+      "title": {
+        "line1": "Estudia mejor.",
+        "line2": "Avanza con propósito."
+      },
+      "description": "Organiza tus cursos, participa en salas colaborativas, mejora tu concentración y recibe acompañamiento personalizado desde una sola plataforma.",
+      "cta": {
+        "primary": "Comenzar gratis",
+        "secondary": "Explorar plataforma"
+      },
+      "benefits": {
+        "noCreditCard": "Sin tarjeta de crédito",
+        "instantAccess": "Acceso inmediato",
+        "forEveryone": "Para estudiantes y profesores"
+      }
+    },
+    "dashboardPreview": {
+      "status": "Plataforma activa",
+      "welcome": "Bienvenido de nuevo",
+      "progressTitle": "Tu progreso académico",
+      "initials": "RV",
+      "stats": {
+        "timeStudied": "Tiempo estudiado",
+        "weeklyGoal": "Meta semanal",
+        "activeRooms": "Salas activas"
+      },
+      "weeklyProgress": {
+        "title": "Progreso semanal",
+        "value": "18 horas de 22",
+        "ariaLabel": "Gráfico de barras del progreso semanal. La altura de las barras representa las horas estudiadas cada día, totalizando 18 horas de 22."
+      },
+      "nextSession": {
+        "title": "Próxima sesión",
+        "course": "React avanzado",
+        "time": "Hoy · 4:30 p. m."
+      },
+      "streak": {
+        "title": "Racha actual",
+        "value": "12 días"
+      },
+      "aiCoach": {
+        "title": "IA Coach",
+        "value": "Plan actualizado"
+      }
+    },
+    "trusted": {
+      "title": "Una plataforma diseñada para potenciar",
+      "items": {
+        "focus": "Concentración",
+        "collaboration": "Colaboración",
+        "organization": "Organización",
+        "progress": "Progreso"
+      }
+    }
   }
 }

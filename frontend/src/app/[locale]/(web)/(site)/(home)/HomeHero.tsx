@@ -1,7 +1,10 @@
 import { Button } from '@/components/ui/Button';
 import { IconMap } from '@/lib/iconMap';
+import { getTranslations } from 'next-intl/server';
 
-export default function HomeHero() {
+export default async function HomeHero() {
+  const t = await getTranslations('home');
+
   const {
     bot: Bot,
     checkCircle: CheckCircle2,
@@ -18,17 +21,17 @@ export default function HomeHero() {
   const stats = [
     {
       icon: Clock3,
-      title: 'Tiempo estudiado',
+      title: t('dashboardPreview.stats.timeStudied'),
       value: '24.5 h',
     },
     {
       icon: Target,
-      title: 'Meta semanal',
+      title: t('dashboardPreview.stats.weeklyGoal'),
       value: '82%',
     },
     {
       icon: Users,
-      title: 'Salas activas',
+      title: t('dashboardPreview.stats.activeRooms'),
       value: '12',
     },
   ];
@@ -36,12 +39,19 @@ export default function HomeHero() {
   const chartHeights = [35, 62, 48, 78, 91, 69, 84];
 
   const benefits = [
-    'Sin tarjeta de crédito',
-    'Acceso inmediato',
-    'Para estudiantes y profesores',
+    t('hero.benefits.noCreditCard'),
+    t('hero.benefits.instantAccess'),
+    t('hero.benefits.forEveryone'),
   ];
 
   const dashboardItems = [1, 2, 3, 4, 5];
+
+  const trustedItems = [
+    t('trusted.items.focus'),
+    t('trusted.items.collaboration'),
+    t('trusted.items.organization'),
+    t('trusted.items.progress'),
+  ];
 
   return (
     <section className="bg-background relative grid min-h-[calc(100vh-5rem)] content-center overflow-hidden px-[5vw] py-17.5 max-[1180px]:py-15 max-[720px]:min-h-[calc(100vh-5rem)] max-[720px]:px-5 max-[720px]:py-12.5">
@@ -70,20 +80,18 @@ export default function HomeHero() {
           {/* Eyebrow */}
           <span className="border-accent/25 bg-accent/10 text-accent inline-flex w-fit items-center gap-2 rounded-full border px-2.75 py-1.75 text-xs font-extrabold tracking-[0.09em] uppercase max-[1180px]:mx-auto">
             <Sparkles size={15} />
-            Tu ecosistema inteligente de estudio
+            {t('hero.eyebrow')}
           </span>
 
-          <h1 className="font-serif text-foreground mt-5.25 max-w-190 text-[clamp(3.5rem,5.5vw,6rem)] leading-[0.94] font-bold tracking-[-0.075em] max-[1180px]:mx-auto max-[720px]:text-[clamp(2.8rem,13vw,4.2rem)]">
-            Estudia mejor.
+          <h1 className="text-foreground mt-5.25 max-w-190 font-serif text-[clamp(3.5rem,5.5vw,6rem)] leading-[0.94] font-bold tracking-[-0.075em] max-[1180px]:mx-auto max-[720px]:text-[clamp(2.8rem,13vw,4.2rem)]">
+            {t('hero.title.line1')}
             <span className="from-info to-primary block bg-linear-to-r bg-clip-text text-transparent">
-              Avanza con propósito.
+              {t('hero.title.line2')}
             </span>
           </h1>
 
           <p className="text-foreground-muted mt-6.25 max-w-155 text-sm leading-[1.8] max-[1180px]:mx-auto max-[520px]:text-xs max-[520px]:leading-[1.7]">
-            Organiza tus cursos, participa en salas colaborativas, mejora tu
-            concentración y recibe acompañamiento personalizado desde una sola
-            plataforma.
+            {t('hero.description')}
           </p>
 
           <div className="mt-7 flex flex-wrap gap-3 max-[1180px]:justify-center max-[520px]:flex-col">
@@ -94,11 +102,11 @@ export default function HomeHero() {
               icon="arrowRight"
               iconPosition="right"
             >
-              Comenzar gratis
+              {t('hero.cta.primary')}
             </Button>
 
             <Button href="/login" variant="ghost" size="lg" icon="play">
-              Explorar plataforma
+              {t('hero.cta.secondary')}
             </Button>
           </div>
 
@@ -127,7 +135,7 @@ export default function HomeHero() {
 
             <span className="text-foreground-muted flex items-center gap-1.75 text-xs">
               <span className="bg-success h-1.75 w-1.75 rounded-full shadow-[0_0_9px_color-mix(in_oklch,var(--success)_55%,transparent)]" />
-              Plataforma activa
+              {t('dashboardPreview.status')}
             </span>
           </div>
 
@@ -157,16 +165,16 @@ export default function HomeHero() {
               <div className="flex items-center justify-between gap-4">
                 <div className="min-w-0">
                   <small className="text-foreground-muted block text-xs">
-                    Bienvenido de nuevo
+                    {t('dashboardPreview.welcome')}
                   </small>
 
-                  <h2 className="font-serif text-foreground mt-1.25 block text-base">
-                    Tu progreso académico
+                  <h2 className="text-foreground mt-1.25 block font-serif text-base">
+                    {t('dashboardPreview.progressTitle')}
                   </h2>
                 </div>
 
                 <span className="border-accent/30 bg-primary text-primary-foreground grid h-9.25 w-9.25 shrink-0 place-items-center rounded-xl border text-xs font-extrabold">
-                  RV
+                  {t('dashboardPreview.initials')}
                 </span>
               </div>
 
@@ -174,6 +182,7 @@ export default function HomeHero() {
               <div className="mt-5.75 grid grid-cols-3 gap-2.5 max-[720px]:grid-cols-1">
                 {stats.map((stat) => {
                   const StatIcon = stat.icon;
+
                   return (
                     <article
                       key={stat.title}
@@ -203,15 +212,15 @@ export default function HomeHero() {
                 <article
                   className="border-border bg-background/80 min-h-59.5 rounded-2xl border p-4 max-[720px]:min-h-55"
                   role="img"
-                  aria-label="Gráfico de barras del progreso semanal. La altura de las barras representa las horas estudiadas cada día, totalizando 18 horas de 22."
+                  aria-label={t('dashboardPreview.weeklyProgress.ariaLabel')}
                 >
                   <div className="flex justify-between gap-3.75">
                     <h3 className="text-foreground-muted text-xs">
-                      Progreso semanal
+                      {t('dashboardPreview.weeklyProgress.title')}
                     </h3>
 
                     <strong className="text-foreground text-xs">
-                      18 horas de 22
+                      {t('dashboardPreview.weeklyProgress.value')}
                     </strong>
                   </div>
 
@@ -235,13 +244,15 @@ export default function HomeHero() {
 
                   <div className="mt-4.5">
                     <small className="text-foreground-muted block text-xs">
-                      Próxima sesión
+                      {t('dashboardPreview.nextSession.title')}
                     </small>
+
                     <h3 className="text-foreground mt-1.25 block text-sm">
-                      React avanzado
+                      {t('dashboardPreview.nextSession.course')}
                     </h3>
+
                     <span className="text-foreground-muted mt-1.75 block text-xs">
-                      Hoy · 4:30 p. m.
+                      {t('dashboardPreview.nextSession.time')}
                     </span>
                   </div>
 
@@ -265,10 +276,11 @@ export default function HomeHero() {
 
             <div>
               <small className="text-foreground-muted block text-xs">
-                Racha actual
+                {t('dashboardPreview.streak.title')}
               </small>
+
               <strong className="text-foreground mt-0.75 block text-sm">
-                12 días
+                {t('dashboardPreview.streak.value')}
               </strong>
             </div>
           </div>
@@ -281,10 +293,11 @@ export default function HomeHero() {
 
             <div>
               <small className="text-foreground-muted block text-xs">
-                IA Coach
+                {t('dashboardPreview.aiCoach.title')}
               </small>
+
               <strong className="text-foreground mt-0.75 block text-sm">
-                Plan actualizado
+                {t('dashboardPreview.aiCoach.value')}
               </strong>
             </div>
           </div>
@@ -294,20 +307,18 @@ export default function HomeHero() {
       {/* TRUSTED */}
       <div className="border-border relative z-10 mx-auto mt-11.25 flex w-full max-w-355 items-center justify-between gap-6.25 border-t pt-6.25 max-[720px]:flex-col max-[720px]:items-start">
         <span className="text-foreground-muted text-xs tracking-widest uppercase">
-          Una plataforma diseñada para potenciar
+          {t('trusted.title')}
         </span>
 
         <ul className="flex flex-wrap justify-end gap-8.5 max-[720px]:justify-start max-[720px]:gap-4.5">
-          {['Concentración', 'Colaboración', 'Organización', 'Progreso'].map(
-            (item) => (
-              <li
-                key={item}
-                className="text-foreground-muted text-sm font-bold tracking-wider"
-              >
-                {item}
-              </li>
-            ),
-          )}
+          {trustedItems.map((item) => (
+            <li
+              key={item}
+              className="text-foreground-muted text-sm font-bold tracking-wider"
+            >
+              {item}
+            </li>
+          ))}
         </ul>
       </div>
     </section>

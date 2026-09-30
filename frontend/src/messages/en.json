@@ -75,5 +75,62 @@
       "terms": "Terms"
     },
     "copyright": "© 2026 StudySync. All rights reserved."
+  },
+  "home": {
+    "hero": {
+      "eyebrow": "Your smart study ecosystem",
+      "title": {
+        "line1": "Study smarter.",
+        "line2": "Move forward with purpose."
+      },
+      "description": "Organize your courses, join collaborative rooms, improve your focus, and get personalized support from a single platform.",
+      "cta": {
+        "primary": "Start for free",
+        "secondary": "Explore the platform"
+      },
+      "benefits": {
+        "noCreditCard": "No credit card required",
+        "instantAccess": "Instant access",
+        "forEveryone": "For students and teachers"
+      }
+    },
+    "dashboardPreview": {
+      "status": "Platform active",
+      "welcome": "Welcome back",
+      "progressTitle": "Your academic progress",
+      "initials": "RV",
+      "stats": {
+        "timeStudied": "Time studied",
+        "weeklyGoal": "Weekly goal",
+        "activeRooms": "Active rooms"
+      },
+      "weeklyProgress": {
+        "title": "Weekly progress",
+        "value": "18 hours of 22",
+        "ariaLabel": "Weekly progress bar chart. Bar height represents hours studied per day, totaling 18 hours out of 22."
+      },
+      "nextSession": {
+        "title": "Next session",
+        "course": "Advanced React",
+        "time": "Today · 4:30 PM"
+      },
+      "streak": {
+        "title": "Current streak",
+        "value": "12 days"
+      },
+      "aiCoach": {
+        "title": "AI Coach",
+        "value": "Plan updated"
+      }
+    },
+    "trusted": {
+      "title": "A platform designed to boost",
+      "items": {
+        "focus": "Focus",
+        "collaboration": "Collaboration",
+        "organization": "Organization",
+        "progress": "Progress"
+      }
+    }
   }
 }
