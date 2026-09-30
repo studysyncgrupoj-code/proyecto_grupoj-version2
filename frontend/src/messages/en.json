@@ -131,6 +131,25 @@
         "organization": "Organization",
         "progress": "Progress"
       }
+    },
+    "features": {
+      "eyebrow": "Purposeful learning",
+      "title": "Everything you need to study better",
+      "description": "StudySync combines organization, collaboration, and technology to turn every study session into real progress.",
+      "items": {
+        "focus": {
+          "title": "Smart focus",
+          "description": "Organize your sessions, reduce distractions, and build consistent study habits."
+        },
+        "collaboration": {
+          "title": "Collaborative learning",
+          "description": "Study with classmates, teachers, and academic communities in real time."
+        },
+        "progress": {
+          "title": "Measurable progress",
+          "description": "Track statistics, goals, activity, and progress from a single space."
+        }
+      }
     }
   }
 }

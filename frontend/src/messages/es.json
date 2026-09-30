@@ -131,6 +131,25 @@
         "organization": "Organización",
         "progress": "Progreso"
       }
+    },
+    "features": {
+      "eyebrow": "Aprendizaje con propósito",
+      "title": "Todo lo que necesitas para estudiar mejor",
+      "description": "StudySync combina organización, colaboración y tecnología para convertir cada sesión de estudio en progreso real.",
+      "items": {
+        "focus": {
+          "title": "Enfoque inteligente",
+          "description": "Organiza tus sesiones, reduce distracciones y construye hábitos de estudio consistentes."
+        },
+        "collaboration": {
+          "title": "Aprendizaje colaborativo",
+          "description": "Estudia junto a compañeros, profesores y comunidades académicas en tiempo real."
+        },
+        "progress": {
+          "title": "Progreso medible",
+          "description": "Consulta estadísticas, metas, actividad y evolución desde un mismo espacio."
+        }
+      }
     }
   }
 }
