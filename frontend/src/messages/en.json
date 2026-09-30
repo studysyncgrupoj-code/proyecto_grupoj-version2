@@ -10,9 +10,7 @@
     "links": {
       "home": "Home",
       "subscription": "Subscription",
-      "contact": "Contact",
-      "register": "Sign up",
-      "login": "Log in"
+      "contact": "Contact"
     },
     "login": "Log in",
     "register": "Create account",
@@ -53,5 +51,29 @@
         "submit": "Send"
       }
     }
+  },
+  "footer": {
+    "description": "A modern educational platform built to enhance learning and online collaboration.",
+    "sections": {
+      "platform": "Platform",
+      "community": "Community",
+      "support": "Support"
+    },
+    "links": {
+      "courses": "Courses",
+      "learningPaths": "Learning Paths",
+      "pricing": "Pricing",
+      "about": "About",
+      "blog": "Blog",
+      "forum": "Forum",
+      "helpCenter": "Help Center",
+      "contact": "Contact",
+      "status": "Status"
+    },
+    "legal": {
+      "privacy": "Privacy",
+      "terms": "Terms"
+    },
+    "copyright": "© 2026 StudySync. All rights reserved."
   }
 }

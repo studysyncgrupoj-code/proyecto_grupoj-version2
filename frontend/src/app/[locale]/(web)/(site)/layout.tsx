@@ -8,7 +8,6 @@ import Footer from '@/components/layout/web/Footer';
 import Header from '@/components/layout/web/header/Header';
 
 import { ThemeProvider } from '@/components/ui/ThemeProvider';
-import { themeScript } from '@/lib/themeScript';
 
 import { NextIntlClientProvider } from 'next-intl';
 import { getLocale } from 'next-intl/server';
@@ -52,10 +51,6 @@ export default async function LocaleLayout({
       suppressHydrationWarning
       data-scroll-behavior="smooth"
     >
-      <head>
-        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
-      </head>
-
       <body className="flex min-h-full flex-col font-sans">
         <ThemeProvider
           storageKey="theme"
