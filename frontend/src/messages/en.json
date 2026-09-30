@@ -37,11 +37,6 @@
       "subtitle": "Learn. Connect. Advance.",
       "cta": "Get started"
     },
-    "subscription": {
-      "title": "Choose your plan",
-      "monthly": "Monthly",
-      "yearly": "Yearly"
-    },
     "contact": {
       "title": "Contact us",
       "form": {
@@ -246,5 +241,65 @@
       "primary": "Create a free account",
       "secondary": "I already have an account"
     }
+  },
+  "subscription": {
+    "eyebrow": "Plans and pricing",
+    "title": "Choose the plan that powers the way you study",
+    "description": "From your first study sessions to managing an entire institution: StudySync grows with you.",
+    "recommended": "Recommended",
+    "plans": {
+      "free": {
+        "name": "Free",
+        "description": "Ideal for students who want to get started or try StudySync independently.",
+        "price": {
+          "value": "$0",
+          "suffix": "COP / month"
+        },
+        "features": [
+          "Access to community study rooms",
+          "Personal study calendar",
+          "Basic messaging with classmates",
+          "Weekly progress dashboard"
+        ],
+        "cta": "Start for free"
+      },
+      "premium": {
+        "name": "Premium",
+        "description": "For advanced students and independent professionals looking for consistency and results.",
+        "price": {
+          "value": "$49,900",
+          "suffix": "COP / month"
+        },
+        "features": [
+          "Everything included in the Free plan",
+          "Private study rooms and unlimited video calls",
+          "AI study assistant",
+          "Advanced performance statistics",
+          "Smart task planning and reminders",
+          "Priority support"
+        ],
+        "cta": "Start with Premium",
+        "note": "Activate Premium from your dashboard once you have signed in."
+      },
+      "enterprise": {
+        "name": "Enterprise",
+        "description": "Designed for employees and institutions that need to manage learning at scale.",
+        "price": {
+          "value": "Custom",
+          "suffix": "Corporate pricing"
+        },
+        "features": [
+          "Everything included in the Premium plan",
+          "Access to exclusive courses and corporate learning paths",
+          "Management of multiple courses, teachers, and students",
+          "Administrative roles and permissions",
+          "Institutional progress reports",
+          "Customized onboarding and integrations",
+          "Dedicated support with a service-level agreement (SLA)"
+        ],
+        "cta": "Contact the team"
+      }
+    },
+    "pricingNote": "All prices are expressed in Colombian pesos (COP)."
   }
 }

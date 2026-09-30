@@ -266,5 +266,65 @@
       "primary": "Crear cuenta gratis",
       "secondary": "Ya tengo una cuenta"
     }
+  },
+  "subscription": {
+    "eyebrow": "Planes y precios",
+    "title": "Elige el plan que impulsa tu forma de estudiar",
+    "description": "Desde tus primeras sesiones de estudio hasta la gestión de toda una institución: StudySync crece contigo.",
+    "recommended": "Recomendado",
+    "plans": {
+      "free": {
+        "name": "Free",
+        "description": "Ideal para estudiantes que quieren empezar o probar StudySync de forma independiente.",
+        "price": {
+          "value": "$0",
+          "suffix": "COP / mes"
+        },
+        "features": [
+          "Acceso a salas de estudio comunitarias",
+          "Calendario personal de estudio",
+          "Mensajería básica con compañeros",
+          "Panel de progreso semanal"
+        ],
+        "cta": "Comenzar gratis"
+      },
+      "premium": {
+        "name": "Premium",
+        "description": "Para estudiantes avanzados y profesionales independientes que buscan constancia y resultados.",
+        "price": {
+          "value": "$49.900",
+          "suffix": "COP / mes"
+        },
+        "features": [
+          "Todo lo incluido en el plan Free",
+          "Salas de estudio privadas y videollamadas sin límite",
+          "Asistente de estudio con IA",
+          "Estadísticas avanzadas de rendimiento",
+          "Planificación inteligente de tareas y recordatorios",
+          "Soporte prioritario"
+        ],
+        "cta": "Empezar con Premium",
+        "note": "Activa Premium desde tu panel una vez hayas iniciado sesión."
+      },
+      "enterprise": {
+        "name": "Enterprise",
+        "description": "Diseñado para empleados e instituciones que necesitan gestionar el aprendizaje a gran escala.",
+        "price": {
+          "value": "A medida",
+          "suffix": "Precio corporativo"
+        },
+        "features": [
+          "Todo lo incluido en el plan Premium",
+          "Acceso a cursos exclusivos y rutas de aprendizaje corporativas",
+          "Gestión de múltiples cursos, profesores y estudiantes",
+          "Roles y permisos administrativos",
+          "Reportes institucionales de avance",
+          "Onboarding e integración personalizados",
+          "Soporte dedicado con acuerdo de servicio (SLA)"
+        ],
+        "cta": "Contactar al equipo"
+      }
+    },
+    "pricingNote": "Todos los precios están expresados en pesos colombianos (COP)."
   }
 }
