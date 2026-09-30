@@ -1,5 +1,3 @@
-'use client';
-
 import { type InternalHref } from '@/config/navigation';
 import { cn } from '@/utilities/cn';
 import Link from 'next/link';
