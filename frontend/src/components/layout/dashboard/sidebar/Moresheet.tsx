@@ -8,7 +8,7 @@ import { cn } from '@/utilities/cn';
 import { AnimatePresence, motion } from 'framer-motion';
 import { signOut } from 'next-auth/react';
 import Image from 'next/image';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 
 interface MoreSheetProps {
   open: boolean;
@@ -21,6 +21,7 @@ interface MoreSheetProps {
     roleLabel: string;
   };
   isItemActive: (path: string) => boolean;
+  labels: { moreOptions: string; theme: string; signOut: string };
 }
 
 type IconComponentType = React.ComponentType<{
@@ -58,6 +59,7 @@ export default function MoreSheet({
   items,
   user,
   isItemActive,
+  labels,
 }: MoreSheetProps) {
   return (
     <AnimatePresence>
@@ -80,7 +82,7 @@ export default function MoreSheet({
             key="sheet"
             role="dialog"
             aria-modal="true"
-            aria-label="Más opciones"
+            aria-label={labels.moreOptions}
             className="border-border bg-surface fixed inset-x-0 bottom-0 z-50 max-h-[75vh] overflow-y-auto rounded-t-3xl border-t shadow-2xl lg:hidden"
             style={{ paddingBottom: 'env(safe-area-inset-bottom, 16px)' }}
             initial={{ y: '100%' }}
@@ -95,7 +97,7 @@ export default function MoreSheet({
 
             {/* Perfil del usuario */}
             <Link
-              href="/settings"
+              href="/dashboard/user-settings"
               onClick={onClose}
               className="flex items-center gap-3 px-5 py-4"
             >
@@ -167,7 +169,7 @@ export default function MoreSheet({
             <div className="border-border flex items-center justify-between gap-3 border-t px-5 py-4">
               <div className="flex items-center gap-2.5">
                 <span className="text-foreground-muted text-xs font-semibold">
-                  Tema
+                  {labels.theme}
                 </span>
                 <ThemeToggle size="sm" />
               </div>
@@ -179,7 +181,7 @@ export default function MoreSheet({
                 className="hover:text-danger"
                 onClick={() => signOut()}
               >
-                Cerrar sesión
+                {labels.signOut}
               </Button>
             </div>
           </motion.div>

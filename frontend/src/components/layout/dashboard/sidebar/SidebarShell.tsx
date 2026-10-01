@@ -7,8 +7,10 @@ import { SidebarContext } from './SidebarContext';
 
 export default function SidebarShell({
   children,
+  labels,
 }: {
   children: React.ReactNode;
+  labels: { showMenu: string; hideMenu: string };
 }) {
   const [collapsed, setCollapsed] = useState(false);
   const [hydrated, setHydrated] = useState(false);
@@ -44,7 +46,7 @@ export default function SidebarShell({
           variant="primary"
           size="sm"
           icon={collapsed ? 'chevronRight' : 'chevronLeft'}
-          aria-label={collapsed ? 'Mostrar menú' : 'Ocultar menú'}
+          aria-label={collapsed ? labels.showMenu : labels.hideMenu}
           onClick={toggleCollapsed}
           className="absolute top-6 -right-3.5 z-20 h-7 w-7 rounded-full p-0 shadow-md"
         />

@@ -661,5 +661,64 @@
     "acceptedTerms": {
       "required": "Debes aceptar los términos y condiciones"
     }
+  },
+  "dashboard": {
+    "sidebar": {
+      "navigationLabel": "Navegación principal",
+      "showMenu": "Mostrar menú",
+      "hideMenu": "Ocultar menú",
+      "more": "Más",
+      "moreOptions": "Más opciones",
+      "theme": "Tema",
+      "signOut": "Cerrar sesión",
+      "currentPlan": "Plan actual",
+      "plans": {
+        "free": {
+          "name": "Plan Free",
+          "description": "Accede a las funciones básicas de la plataforma."
+        },
+        "premium": {
+          "name": "Plan Premium",
+          "description": "Disfrutas de todas las funciones avanzadas."
+        },
+        "enterprise": {
+          "name": "Plan Enterprise",
+          "description": "Acceso completo con soporte prioritario."
+        }
+      },
+      "actions": {
+        "upgrade": "Mejorar plan",
+        "manage": "Gestionar plan"
+      },
+      "guestName": "Usuario",
+      "guestEmail": "usuario@studysync.com"
+    },
+    "navigation": {
+      "home": "Inicio",
+      "panel": {
+        "admin": "Panel del administrador",
+        "professor": "Panel del profesor",
+        "student": "Panel del estudiante"
+      },
+      "roles": {
+        "admin": "Administrador",
+        "professor": "Profesor",
+        "student": "Estudiante"
+      },
+      "items": {
+        "courses": "Cursos",
+        "studyRooms": "Salas de estudio",
+        "calendar": "Calendario",
+        "messages": "Mensajes",
+        "academicManagement": "Gestión académica",
+        "pomodoro": "Pomodoro",
+        "students": "Estudiantes",
+        "users": "Usuarios",
+        "professors": "Profesores",
+        "academicCenter": "Centro académico",
+        "rooms": "Salas",
+        "reportsAudit": "Informes y auditoría"
+      }
+    }
   }
 }

@@ -3,8 +3,7 @@
 import type { NavItem } from '@/config/dashboard-navigation';
 import { IconMap } from '@/lib/iconMap';
 import { cn } from '@/utilities/cn';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { Link, usePathname } from '@/i18n/navigation';
 import { useEffect, useState } from 'react';
 import { HiEllipsisHorizontal } from 'react-icons/hi2';
 import MoreSheet from './Moresheet';
@@ -17,6 +16,15 @@ interface MobileNavProps {
     image?: string | null;
     roleLabel: string;
   };
+  homePath: string;
+  homeLabel: string;
+  labels: {
+    navigation: string;
+    more: string;
+    moreOptions: string;
+    theme: string;
+    signOut: string;
+  };
 }
 
 // Cantidad total de accesos directos visibles (incluye "Inicio") antes de agrupar en "Más"
@@ -24,12 +32,6 @@ const MAX_PRIMARY_ITEMS = 4;
 
 // En escritorio el logo enlaza a la raíz del dashboard; en mobile no hay logo
 // visible en la barra, así que reservamos el primer slot para ese acceso.
-const HOME_ITEM: NavItem = {
-  label: 'Inicio',
-  path: '/dashboard',
-  icon: 'graduationCap',
-};
-
 type IconComponentType = React.ComponentType<{
   size?: number;
   className?: string;
@@ -51,15 +53,26 @@ function getIconComponent(iconName: NavItem['icon']): IconComponentType | null {
   return null;
 }
 
-export default function MobileNav({ items, user }: MobileNavProps) {
+export default function MobileNav({
+  items,
+  user,
+  homePath,
+  homeLabel,
+  labels,
+}: MobileNavProps) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
 
   // Evita un duplicado si algún día el propio menú del rol define '/dashboard'
-  const roleItems = items.filter((item) => item.path !== HOME_ITEM.path);
+  const homeItem: NavItem = {
+    label: homeLabel,
+    path: homePath,
+    icon: 'graduationCap',
+  };
+  const roleItems = items.filter((item) => item.path !== homeItem.path);
   const maxRoleItems = MAX_PRIMARY_ITEMS - 1; // 1 slot reservado para "Inicio"
 
-  const primaryItems = [HOME_ITEM, ...roleItems.slice(0, maxRoleItems)];
+  const primaryItems = [homeItem, ...roleItems.slice(0, maxRoleItems)];
   const moreItems = roleItems.slice(maxRoleItems);
 
   // Cierra el panel "Más" al navegar
@@ -83,7 +96,7 @@ export default function MobileNav({ items, user }: MobileNavProps) {
   return (
     <>
       <nav
-        aria-label="Navegación principal"
+        aria-label={labels.navigation}
         className="border-border bg-background/95 fixed inset-x-0 bottom-0 z-40 flex items-stretch border-t backdrop-blur-md lg:hidden"
         style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
       >
@@ -142,7 +155,7 @@ export default function MobileNav({ items, user }: MobileNavProps) {
                 open ? 'text-primary' : 'text-foreground-muted',
               )}
             >
-              Más
+              {labels.more}
             </span>
           </button>
         )}
@@ -154,6 +167,7 @@ export default function MobileNav({ items, user }: MobileNavProps) {
         items={moreItems}
         user={user}
         isItemActive={isItemActive}
+        labels={labels}
       />
     </>
   );

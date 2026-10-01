@@ -3,8 +3,10 @@ import { Plus_Jakarta_Sans, Public_Sans } from 'next/font/google';
 import '../globals.css';
 
 import SideBar from '@/components/layout/dashboard/sidebar/SideBar';
+import { ThemeProvider } from '@/components/ui/ThemeProvider';
 
-import { ThemeProvider } from 'next-themes';
+import { NextIntlClientProvider } from 'next-intl';
+import { getLocale } from 'next-intl/server';
 
 const plusJakartaSans = Plus_Jakarta_Sans({
   variable: '--font-plus-jakarta',
@@ -38,14 +40,16 @@ export const metadata: Metadata = {
   },
 };
 
-export default function DashboardLayout({
+export default async function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const locale = await getLocale();
+
   return (
     <html
-      lang="es"
+      lang={locale}
       className={`${plusJakartaSans.variable} ${publicSans.variable} h-full antialiased`}
       suppressHydrationWarning
     >
@@ -58,14 +62,15 @@ export default function DashboardLayout({
           themes={['light', 'dark']}
           attribute="data-theme"
         >
-          <div className="flex min-h-screen w-full">
-            <SideBar />
-            <main className="bg-background min-h-screen flex-1">
-              {children}
-            </main>
-          </div>
+          <NextIntlClientProvider>
+            <div className="flex min-h-screen w-full">
+              <SideBar />
+              <main className="bg-background min-h-screen flex-1">
+                {children}
+              </main>
+            </div>
+          </NextIntlClientProvider>
         </ThemeProvider>
-        {/* Contenedor flex para poner el Sidebar al lado del contenido principal */}
       </body>
     </html>
   );

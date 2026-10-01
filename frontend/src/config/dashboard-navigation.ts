@@ -13,32 +13,32 @@ export interface NavItem {
    ========================================================= */
 export const studentMenu: NavItem[] = [
   {
-    label: 'Courses',
+    label: 'courses',
     path: '/courses',
     icon: 'bookOpen',
   },
   {
-    label: 'Study Rooms',
+    label: 'studyRooms',
     path: '/rooms',
     icon: 'video',
   },
   {
-    label: 'Calendar',
+    label: 'calendar',
     path: '/calendar',
     icon: 'calendar',
   },
   {
-    label: 'Messages',
+    label: 'messages',
     path: '/messages',
     icon: 'message',
   },
   {
-    label: 'Academic Management',
+    label: 'academicManagement',
     path: '/academic-management',
     icon: 'clipboard',
   },
   {
-    label: 'Pomodoro',
+    label: 'pomodoro',
     path: '/pomodoro',
     icon: 'timer',
   },
@@ -49,32 +49,32 @@ export const studentMenu: NavItem[] = [
    ========================================================= */
 export const professorMenu: NavItem[] = [
   {
-    label: 'Courses',
+    label: 'courses',
     path: '/courses',
     icon: 'bookOpen',
   },
   {
-    label: 'Study Rooms',
+    label: 'studyRooms',
     path: '/rooms',
     icon: 'video',
   },
   {
-    label: 'Calendar',
+    label: 'calendar',
     path: '/calendar',
     icon: 'calendar',
   },
   {
-    label: 'Messages',
+    label: 'messages',
     path: '/messages',
     icon: 'message',
   },
   {
-    label: 'Academic Management',
+    label: 'academicManagement',
     path: '/academic-management',
     icon: 'clipboard',
   },
   {
-    label: 'Students',
+    label: 'students',
     path: '/students',
     icon: 'users',
   },
@@ -85,37 +85,37 @@ export const professorMenu: NavItem[] = [
    ========================================================= */
 export const adminMenu: NavItem[] = [
   {
-    label: 'Users',
+    label: 'users',
     path: '/users',
     icon: 'users',
   },
   {
-    label: 'Professors',
+    label: 'professors',
     path: '/professors',
     icon: 'graduationCap',
   },
   {
-    label: 'Students',
+    label: 'students',
     path: '/students-admin',
     icon: 'userCog',
   },
   {
-    label: 'Courses',
+    label: 'courses',
     path: '/courses-admin',
     icon: 'bookOpen',
   },
   {
-    label: 'Academic Center',
+    label: 'academicCenter',
     path: '/academic-center',
     icon: 'clipboard',
   },
   {
-    label: 'Rooms',
+    label: 'rooms',
     path: '/rooms',
     icon: 'video',
   },
   {
-    label: 'Reports & Audit',
+    label: 'reportsAudit',
     path: '/reports',
     icon: 'barChart',
   },
