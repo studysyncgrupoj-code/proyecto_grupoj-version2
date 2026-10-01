@@ -54,6 +54,13 @@ public class SecurityConfig {
                         )
                         .permitAll()
 
+                        // Cerrar sesión requiere JWT válido
+                        .requestMatchers(
+                                HttpMethod.POST,
+                                "/auth/logout"
+                        )
+                        .authenticated()
+
                         // Subir y eliminar avatares requiere JWT
                         .requestMatchers(
                                 HttpMethod.POST,

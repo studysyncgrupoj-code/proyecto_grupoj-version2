@@ -11,6 +11,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.studysync.model.auth.AuthAccount;
 import com.studysync.repository.auth.AuthAccountRepository;
+import com.studysync.service.auth.JwtRevocationService;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -24,13 +25,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
     private final AuthAccountRepository accountRepository;
+    private final JwtRevocationService jwtRevocationService;
 
     public JwtAuthenticationFilter(
             JwtService jwtService,
-            AuthAccountRepository accountRepository
+            AuthAccountRepository accountRepository,
+            JwtRevocationService jwtRevocationService
     ) {
         this.jwtService = jwtService;
         this.accountRepository = accountRepository;
+        this.jwtRevocationService = jwtRevocationService;
     }
 
     @Override
@@ -51,7 +55,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             UUID accountId = jwtService.validateToken(token);
 
-            if (accountId != null) {
+            if (accountId != null
+                    && !jwtRevocationService.isRevoked(token)) {
 
                 AuthAccount account =
                         accountRepository.findById(accountId)

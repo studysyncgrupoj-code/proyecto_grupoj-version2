@@ -80,4 +80,29 @@ public class JwtService {
             return null;
         }
     }
+
+    public long getRemainingValidityMillis(String token) {
+
+        try {
+            Claims claims = Jwts.parserBuilder()
+                    .setSigningKey(signingKey)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+
+            Date expiration = claims.getExpiration();
+
+            if (expiration == null) {
+                return 0;
+            }
+
+            return Math.max(
+                    0,
+                    expiration.getTime() - System.currentTimeMillis()
+            );
+
+        } catch (RuntimeException ex) {
+            return 0;
+        }
+    }
 }
