@@ -1,11 +1,11 @@
 // auth.ts
+import { getClientIp } from '@/lib/clientIp';
 import { checkRateLimit } from '@/lib/ratelimit';
 import { loginSchema } from '@/lib/user.schema';
 import type { SubscriptionType, UserRole } from '@/types/next-auth';
-import NextAuth from 'next-auth';
+import NextAuth, { CredentialsSignin } from 'next-auth'; // CAMBIO: CredentialsSignin
 import Credentials from 'next-auth/providers/credentials';
 import { z } from 'zod';
-import { getClientIp } from './lib/clientIp';
 
 // ============================================================
 // CONSTANTES Y CONFIGURACIÓN
@@ -22,6 +22,20 @@ const SubscriptionSchema = z.enum(['free', 'premium', 'enterprise']);
 // Tipo para metadatos de logs
 interface LogMeta {
   [key: string]: string | number | boolean | object | undefined;
+}
+
+// ============================================================
+// ERRORES DE LOGIN CON CÓDIGO (CAMBIO)
+// Auth.js entrega `code` al cliente en `response.code` cuando se llama
+// a signIn con redirect: false. El formulario lo traduce según el idioma.
+// Cualquier otro fallo sigue siendo "credenciales incorrectas" (return null).
+// ============================================================
+class RateLimitedError extends CredentialsSignin {
+  code = 'rateLimited';
+}
+
+class UnavailableError extends CredentialsSignin {
+  code = 'unavailable';
 }
 
 // ============================================================
@@ -114,7 +128,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
           if (!limitResult.success) {
             logger.error('Rate limit excedido por IP', { ip });
-            return null;
+            throw new RateLimitedError();
           }
 
           // 1. Validación de formato con Zod
@@ -134,12 +148,12 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           );
           if (!emailLimitResult.success) {
             logger.error('Rate limit excedido por email', { email });
-            return null;
+            throw new RateLimitedError();
           }
 
           if (!API_BASE_URL) {
             logger.error('API_BASE_URL no configurada en el entorno');
-            return null;
+            throw new UnavailableError();
           }
 
           // 3. Petición al backend externo con AbortController (Timeout)
@@ -165,7 +179,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
               email,
               error: error instanceof Error ? error.message : 'Desconocido',
             });
-            return null;
+            throw new UnavailableError();
           }
 
           // 4. Procesar respuesta del backend de forma segura
@@ -174,6 +188,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             data = await response.json();
           } catch {
             logger.error('Respuesta JSON inválida del backend externo');
+            if (response.status >= 500) throw new UnavailableError();
             return null;
           }
 
@@ -182,6 +197,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
               status: response.status,
               email,
             });
+            if (response.status >= 500) throw new UnavailableError();
             return null;
           }
 
@@ -229,6 +245,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             subscription,
           };
         } catch (error) {
+          if (error instanceof CredentialsSignin) throw error;
+
           logger.error('Error interno crítico en authorize', {
             error: error instanceof Error ? error.message : 'Desconocido',
           });

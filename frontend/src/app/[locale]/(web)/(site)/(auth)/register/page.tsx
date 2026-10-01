@@ -1,4 +1,6 @@
 import { IconMap } from '@/lib/iconMap';
+import type { ValidationDict } from '@/lib/validation';
+import { getMessages, getTranslations } from 'next-intl/server';
 import RegisterForm from './RegisterForm';
 
 // Componente para las tarjetas de beneficios (Server)
@@ -24,7 +26,56 @@ const BenefitCard = ({
   </article>
 );
 
-export default function RegisterPage() {
+export default async function RegisterPage() {
+  const [t, formT, allMessages] = await Promise.all([
+    getTranslations('auth.register.page'),
+    getTranslations('auth.register.form'),
+    getMessages(),
+  ]);
+  const validation = allMessages.Validation as ValidationDict;
+  const messages = {
+    eyebrow: formT('eyebrow'),
+    title: formT('title'),
+    description: formT('description'),
+    fields: {
+      name: {
+        label: formT('fields.name.label'),
+        placeholder: formT('fields.name.placeholder'),
+      },
+      lastName: {
+        label: formT('fields.lastName.label'),
+        placeholder: formT('fields.lastName.placeholder'),
+      },
+      email: {
+        label: formT('fields.email.label'),
+        placeholder: formT('fields.email.placeholder'),
+      },
+      password: {
+        label: formT('fields.password.label'),
+        placeholder: formT('fields.password.placeholder'),
+        show: formT('fields.password.show'),
+        hide: formT('fields.password.hide'),
+      },
+      confirmPassword: {
+        label: formT('fields.confirmPassword.label'),
+        placeholder: formT('fields.confirmPassword.placeholder'),
+      },
+    },
+    terms: formT('terms'),
+    success: formT('success'),
+    actions: {
+      submit: formT('actions.submit'),
+      submitting: formT('actions.submitting'),
+    },
+    errors: {
+      rateLimited: formT('errors.rateLimited'),
+      invalidData: formT('errors.invalidData'),
+      serverError: formT('errors.serverError'),
+      unavailable: formT('errors.unavailable'),
+      emailTaken: formT('errors.emailTaken'),
+    },
+    footer: { prompt: formT('footer.prompt'), link: formT('footer.link') },
+  };
   const { users: Users, shield: ShieldCheck, sparkles: Sparkles } = IconMap.ui;
 
   return (
@@ -43,41 +94,38 @@ export default function RegisterPage() {
           {/* Badge */}
           <span className="border-primary/25 bg-primary/10 text-primary inline-flex w-fit items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-bold tracking-wider uppercase">
             <Sparkles size={15} />
-            Empieza hoy
+            {t('eyebrow')}
           </span>
 
           {/* Título principal */}
           <h1 className="text-foreground mt-6 mb-4 max-w-xl text-5xl font-extrabold tracking-tight lg:text-7xl">
-            Crea tu espacio.{' '}
-            <span className="text-primary">
-              Aprende sin límites.
-            </span>
+            {t('title.before')}{' '}
+            <span className="text-primary">{t('title.highlight')}</span>
           </h1>
 
           {/* Descripción */}
           <p className="text-foreground-muted max-w-lg text-lg leading-relaxed">
-            Únete a StudySync y organiza tus cursos, salas de estudio,
-            actividades y progreso desde una sola plataforma.
+            {t('description')}
           </p>
 
           {/* Tarjetas */}
           <div className="mt-8 grid max-w-xl grid-cols-1 gap-4 sm:grid-cols-2">
             <BenefitCard
               icon={<Users size={21} />}
-              title="Comunidad activa"
-              description="Conecta con estudiantes y profesores."
+              title={t('cards.community.title')}
+              description={t('cards.community.description')}
             />
             <BenefitCard
               icon={<ShieldCheck size={21} />}
-              title="Cuenta protegida"
-              description="Tus datos y avances permanecen seguros."
+              title={t('cards.security.title')}
+              description={t('cards.security.description')}
             />
           </div>
         </div>
       </section>
 
       {/* Sección del formulario - derecha */}
-      <RegisterForm />
+      <RegisterForm messages={messages} validation={validation} />
     </div>
   );
 }

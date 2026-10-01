@@ -2,11 +2,13 @@
 
 import { Button } from '@/components/ui/Button';
 import { InputField } from '@/components/ui/InputField';
+import { COMMON_ERROR_CODES, readErrorCode } from '@/lib/apiErrors';
 import { IconMap } from '@/lib/iconMap';
 import {
   forgotPasswordSchema,
   type ForgotPasswordInput,
 } from '@/lib/user.schema';
+import { resolveError, type ValidationDict } from '@/lib/validation';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { useEffect, useState } from 'react';
@@ -17,6 +19,24 @@ type SubmitStatus = 'idle' | 'success' | 'error';
 interface ForgotPasswordModalProps {
   isOpen: boolean;
   setIsOpen: (open: boolean) => void;
+  validation: ValidationDict;
+  messages: ForgotPasswordMessages;
+}
+
+export interface ForgotPasswordMessages {
+  title: string;
+  description: string;
+  label: string;
+  placeholder: string;
+  legend: string;
+  successTitle: string;
+  success: string;
+  close: string;
+  submit: string;
+  submitting: string;
+  back: string;
+  unexpected: string;
+  errors: Record<(typeof COMMON_ERROR_CODES)[number], string>;
 }
 
 const DEFAULT_VALUES: ForgotPasswordInput = { email: '' };
@@ -33,22 +53,12 @@ async function requestPasswordReset(email: string): Promise<string> {
   });
 
   const data: unknown = await response.json().catch(() => null);
-  const backendMessage =
-    data && typeof data === 'object' && 'message' in data
-      ? (data as { message?: unknown }).message
-      : null;
 
   if (!response.ok) {
-    throw new Error(
-      typeof backendMessage === 'string'
-        ? backendMessage
-        : 'No pudimos procesar tu solicitud. Inténtalo de nuevo.',
-    );
+    throw new Error(readErrorCode(data, COMMON_ERROR_CODES) ?? 'serverError');
   }
 
-  return typeof backendMessage === 'string'
-    ? backendMessage
-    : 'Si el correo está registrado, recibirás instrucciones para restablecer tu contraseña.';
+  return 'success';
 }
 
 // Ref estable: al mostrar el estado de éxito el foco pasa a su título.
@@ -61,6 +71,8 @@ const focusOnMount = (node: HTMLHeadingElement | null) => node?.focus();
 export default function ForgotPasswordModal({
   isOpen,
   setIsOpen,
+  validation,
+  messages,
 }: ForgotPasswordModalProps) {
   const shouldReduceMotion = useReducedMotion();
   const [status, setStatus] = useState<SubmitStatus>('idle');
@@ -113,14 +125,19 @@ export default function ForgotPasswordModal({
   const onSubmit = async (data: ForgotPasswordInput) => {
     setFeedback(null);
     try {
-      const message = await requestPasswordReset(data.email);
-      setFeedback(message);
+      await requestPasswordReset(data.email);
+      setFeedback(messages.success);
       setStatus('success');
     } catch (error) {
       setFeedback(
-        error instanceof Error
-          ? error.message
-          : 'Ocurrió un error inesperado. Inténtalo de nuevo.',
+        error instanceof Error &&
+          COMMON_ERROR_CODES.includes(
+            error.message as (typeof COMMON_ERROR_CODES)[number],
+          )
+          ? messages.errors[
+              error.message as keyof ForgotPasswordMessages['errors']
+            ]
+          : messages.unexpected,
       );
       setStatus('error');
     }
@@ -162,7 +179,7 @@ export default function ForgotPasswordModal({
               variant="ghost"
               size="sm"
               icon="close"
-              aria-label="Cerrar"
+              aria-label={messages.close}
               onClick={handleClose}
               className="absolute top-4 right-4"
             />
@@ -190,7 +207,7 @@ export default function ForgotPasswordModal({
                     tabIndex={-1}
                     className="text-foreground mt-5 text-2xl font-semibold tracking-[-0.03em] focus:outline-none"
                   >
-                    Revisa tu correo
+                    {messages.successTitle}
                   </h2>
                   <p className="text-foreground-muted mt-2 max-w-sm text-sm leading-relaxed">
                     {feedback}
@@ -201,7 +218,7 @@ export default function ForgotPasswordModal({
                     className="mt-6"
                     onClick={handleClose}
                   >
-                    Volver a inicio de sesión
+                    {messages.back}
                   </Button>
                 </motion.div>
               ) : (
@@ -220,11 +237,10 @@ export default function ForgotPasswordModal({
                       id="forgot-password-title"
                       className="text-foreground mt-4 text-2xl font-semibold tracking-[-0.03em]"
                     >
-                      ¿Olvidaste tu contraseña?
+                      {messages.title}
                     </h2>
                     <p className="text-foreground-muted mt-2 text-sm leading-relaxed">
-                      Ingresa tu correo electrónico y te enviaremos las
-                      instrucciones para restablecerla.
+                      {messages.description}
                     </p>
                   </header>
 
@@ -235,24 +251,25 @@ export default function ForgotPasswordModal({
                     aria-busy={isSubmitting}
                   >
                     <fieldset disabled={isSubmitting} className="grid gap-4">
-                      <legend className="sr-only">
-                        Formulario de recuperación de contraseña
-                      </legend>
+                      <legend className="sr-only">{messages.legend}</legend>
 
                       <Controller
                         name="email"
                         control={control}
                         render={({ field }) => (
                           <InputField
-                            label="Correo electrónico"
+                            label={messages.label}
                             id="forgot-password-email"
                             type="email"
                             value={field.value}
                             onChange={field.onChange}
-                            placeholder="nombre@correo.com"
+                            placeholder={messages.placeholder}
                             autoComplete="email"
                             icon={<Mail />}
-                            error={errors.email?.message}
+                            error={resolveError(
+                              validation,
+                              resolveError(validation, errors.email?.message),
+                            )}
                             required
                             disabled={isSubmitting}
                             size="md"
@@ -280,9 +297,7 @@ export default function ForgotPasswordModal({
                           icon={isSubmitting ? undefined : 'arrowRight'}
                           iconPosition="right"
                         >
-                          {isSubmitting
-                            ? 'Enviando...'
-                            : 'Enviar instrucciones'}
+                          {isSubmitting ? messages.submitting : messages.submit}
                         </Button>
 
                         <Button
@@ -293,7 +308,7 @@ export default function ForgotPasswordModal({
                           disabled={isSubmitting}
                           onClick={handleClose}
                         >
-                          Volver a inicio de sesión
+                          {messages.back}
                         </Button>
                       </div>
                     </fieldset>

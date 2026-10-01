@@ -371,6 +371,207 @@
       }
     }
   },
+  "auth": {
+    "login": {
+      "page": {
+        "eyebrow": "Welcome back",
+        "title": {
+          "before": "Continue your path.",
+          "highlight": "Take back control."
+        },
+        "description": "Access your study rooms, review your pending courses, and keep your performance on track in StudySync.",
+        "cards": {
+          "rooms": {
+            "title": "Active rooms",
+            "description": "Get back to collaborating with your classmates."
+          },
+          "security": {
+            "title": "Secure access",
+            "description": "Your credentials and data are protected."
+          }
+        }
+      },
+      "form": {
+        "eyebrow": "Welcome back",
+        "title": "Log in",
+        "description": "Enter your details to continue to your workspace.",
+        "fields": {
+          "email": {
+            "label": "Email address",
+            "placeholder": "name@email.com"
+          },
+          "password": {
+            "label": "Password",
+            "placeholder": "Enter your password",
+            "show": "Show password",
+            "hide": "Hide password"
+          }
+        },
+        "forgotPassword": "Forgot your password?",
+        "actions": {
+          "submit": "Log in",
+          "submitting": "Logging in..."
+        },
+        "success": "Logged in successfully. Redirecting...",
+        "errors": {
+          "invalidCredentials": "Incorrect email or password.",
+          "unexpected": "We couldn't log you in. Please try again.",
+          "rateLimited": "Too many attempts. Please try again later.",
+          "unavailable": "The sign-in service is unavailable. Please try again later."
+        },
+        "footer": {
+          "prompt": "Don't have an account yet?",
+          "link": "Create account"
+        }
+      }
+    },
+    "register": {
+      "page": {
+        "eyebrow": "Start today",
+        "title": {
+          "before": "Create your space.",
+          "highlight": "Learn without limits."
+        },
+        "description": "Join StudySync to organize your courses, study rooms, activities, and progress in one place.",
+        "cards": {
+          "community": {
+            "title": "An active community",
+            "description": "Connect with students and teachers."
+          },
+          "security": {
+            "title": "A protected account",
+            "description": "Your data and progress stay secure."
+          }
+        }
+      },
+      "form": {
+        "eyebrow": "New account",
+        "title": "Create an account",
+        "description": "Enter your details to get started with StudySync.",
+        "fields": {
+          "name": {
+            "label": "First name",
+            "placeholder": "Enter your first name"
+          },
+          "lastName": {
+            "label": "Last name",
+            "placeholder": "Enter your last name"
+          },
+          "email": {
+            "label": "Email address",
+            "placeholder": "name@email.com"
+          },
+          "password": {
+            "label": "Password",
+            "placeholder": "Create a password",
+            "show": "Show password",
+            "hide": "Hide password"
+          },
+          "confirmPassword": {
+            "label": "Confirm password",
+            "placeholder": "Confirm your password"
+          }
+        },
+        "terms": "I agree to the terms and privacy policy.",
+        "success": "Account created. Redirecting...",
+        "actions": {
+          "submit": "Create account",
+          "submitting": "Creating account..."
+        },
+        "errors": {
+          "rateLimited": "Too many requests. Please try again later.",
+          "invalidData": "Check the form and try again.",
+          "serverError": "We could not create your account. Please try again.",
+          "unavailable": "Could not connect to the service. Please try again later.",
+          "emailTaken": "This email is already registered."
+        },
+        "footer": {
+          "prompt": "Already have an account?",
+          "link": "Log in"
+        }
+      }
+    },
+    "apiErrors": {
+      "rateLimited": "Too many requests. Please try again later.",
+      "invalidData": "Check the submitted information and try again.",
+      "serverError": "A server error occurred. Please try again later.",
+      "unavailable": "The service is unavailable. Please try again later.",
+      "invalidToken": "This link is invalid or has expired. Request a new one."
+    },
+    "resetPassword": {
+      "page": {
+        "eyebrow": "One last step",
+        "title": {
+          "before": "Secure your account.",
+          "highlight": "Choose a new key."
+        },
+        "description": "Set a new password to return to your study rooms, courses, and progress in StudySync.",
+        "cards": {
+          "link": {
+            "title": "One-time link",
+            "description": "This link stops working after you update your password."
+          },
+          "security": {
+            "title": "Secure access",
+            "description": "Your credentials and data are protected."
+          }
+        }
+      },
+      "form": {
+        "successTitle": "Password updated",
+        "success": "Your password was updated. We will take you to log in shortly.",
+        "successButton": "Go to log in",
+        "eyebrow": "New password",
+        "title": "Reset your password",
+        "description": "Create a new secure password for your StudySync account.",
+        "legend": "Password reset form",
+        "fields": {
+          "password": {
+            "label": "New password",
+            "placeholder": "Create a new password",
+            "show": "Show password",
+            "hide": "Hide password"
+          },
+          "confirmPassword": {
+            "label": "Confirm password",
+            "placeholder": "Repeat your new password"
+          }
+        },
+        "requestLink": "Request a new link",
+        "actions": {
+          "submit": "Reset password",
+          "submitting": "Updating..."
+        },
+        "footer": {
+          "prompt": "Remember your password?",
+          "link": "Log in"
+        },
+        "errors": {
+          "unexpected": "Something went wrong. Please try again."
+        }
+      }
+    },
+    "forgotPassword": {
+      "title": "Forgot your password?",
+      "description": "Enter your email and we will send you instructions to reset your password.",
+      "label": "Email address",
+      "placeholder": "name@email.com",
+      "legend": "Password recovery form",
+      "successTitle": "Check your email",
+      "success": "If the email is registered, you will receive instructions to reset your password.",
+      "close": "Close",
+      "submit": "Send instructions",
+      "submitting": "Sending...",
+      "back": "Back to log in",
+      "errors": {
+        "rateLimited": "Too many requests. Please try again later.",
+        "invalidData": "Enter a valid email address.",
+        "serverError": "We could not process your request. Please try again.",
+        "unavailable": "The service is unavailable. Please try again later."
+      },
+      "unexpected": "Something went wrong. Please try again."
+    }
+  },
   "Validation": {
     "name": {
       "required": "Name is required",
@@ -430,6 +631,9 @@
       "invalidData": "Check the form data and try again.",
       "serverError": "There was a problem on our server. Please try again later.",
       "unavailable": "We couldn't reach the contact service. Please try again in a few minutes."
+    },
+    "acceptedTerms": {
+      "required": "You must accept the terms and conditions"
     }
   }
 }

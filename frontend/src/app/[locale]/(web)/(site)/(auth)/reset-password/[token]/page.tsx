@@ -1,12 +1,12 @@
 import { IconMap } from '@/lib/iconMap';
-import type { Metadata } from 'next';
+import type { ValidationDict } from '@/lib/validation';
+import { getMessages, getTranslations } from 'next-intl/server';
 import ResetPasswordForm from './Resetpasswordform';
 
-export const metadata: Metadata = {
-  title: 'Restablecer contraseña',
-  description:
-    'Crea una nueva contraseña para tu cuenta de StudySync a partir del enlace enviado a tu correo.',
-};
+export async function generateMetadata() {
+  const t = await getTranslations('auth.resetPassword.page');
+  return { title: t('title.highlight'), description: t('description') };
+}
 
 interface ResetPasswordPageProps {
   // A partir de Next.js 15, los `params` de una página se entregan como
@@ -41,6 +41,47 @@ export default async function ResetPasswordPage({
   params,
 }: ResetPasswordPageProps) {
   const { token } = await params;
+  const [t, formT, apiT, allMessages] = await Promise.all([
+    getTranslations('auth.resetPassword.page'),
+    getTranslations('auth.resetPassword.form'),
+    getTranslations('auth.apiErrors'),
+    getMessages(),
+  ]);
+  const validation = allMessages.Validation as ValidationDict;
+  const messages = {
+    successTitle: formT('successTitle'),
+    success: formT('success'),
+    successButton: formT('successButton'),
+    eyebrow: formT('eyebrow'),
+    title: formT('title'),
+    description: formT('description'),
+    legend: formT('legend'),
+    fields: {
+      password: {
+        label: formT('fields.password.label'),
+        placeholder: formT('fields.password.placeholder'),
+        show: formT('fields.password.show'),
+        hide: formT('fields.password.hide'),
+      },
+      confirmPassword: {
+        label: formT('fields.confirmPassword.label'),
+        placeholder: formT('fields.confirmPassword.placeholder'),
+      },
+    },
+    requestLink: formT('requestLink'),
+    actions: {
+      submit: formT('actions.submit'),
+      submitting: formT('actions.submitting'),
+    },
+    footer: { prompt: formT('footer.prompt'), link: formT('footer.link') },
+    apiErrors: {
+      rateLimited: apiT('rateLimited'),
+      invalidData: apiT('invalidData'),
+      serverError: apiT('serverError'),
+      unavailable: apiT('unavailable'),
+      invalidToken: apiT('invalidToken'),
+    },
+  };
   const { shield: ShieldCheck, sparkles: Sparkles, lock: Lock } = IconMap.ui;
 
   return (
@@ -59,39 +100,42 @@ export default async function ResetPasswordPage({
           {/* Badge */}
           <span className="border-primary/25 bg-primary/10 text-primary inline-flex w-fit items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-bold tracking-wider uppercase">
             <Sparkles size={15} />
-            Un último paso
+            {t('eyebrow')}
           </span>
 
           {/* Título principal */}
           <h1 className="text-foreground mt-6 mb-4 max-w-xl text-5xl font-extrabold tracking-tight lg:text-7xl">
-            Asegura tu cuenta.{' '}
-            <span className="text-primary">Elige una nueva llave.</span>
+            {t('title.before')}{' '}
+            <span className="text-primary">{t('title.highlight')}</span>
           </h1>
 
           {/* Descripción */}
           <p className="text-foreground-muted max-w-lg text-lg leading-relaxed">
-            Define una contraseña nueva para volver a tus salas de estudio,
-            cursos y progreso en StudySync.
+            {t('description')}
           </p>
 
           {/* Tarjetas */}
           <div className="mt-8 grid max-w-xl grid-cols-1 gap-4 sm:grid-cols-2">
             <BenefitCard
               icon={<Lock size={21} />}
-              title="Enlace de un solo uso"
-              description="Este enlace deja de funcionar una vez que actualices tu contraseña."
+              title={t('cards.link.title')}
+              description={t('cards.link.description')}
             />
             <BenefitCard
               icon={<ShieldCheck size={21} />}
-              title="Acceso seguro"
-              description="Tus credenciales y datos están protegidos."
+              title={t('cards.security.title')}
+              description={t('cards.security.description')}
             />
           </div>
         </div>
       </section>
 
       {/* Sección del formulario - derecha */}
-      <ResetPasswordForm token={token} />
+      <ResetPasswordForm
+        token={token}
+        messages={messages}
+        validation={validation}
+      />
     </div>
   );
 }

@@ -3,19 +3,47 @@
 import { Button } from '@/components/ui/Button';
 import { InputField } from '@/components/ui/InputField';
 import { CustomLink } from '@/components/ui/Link';
+import { useRouter } from '@/i18n/navigation';
+import { readErrorCode } from '@/lib/apiErrors';
+import { RESET_PASSWORD_ERROR_CODES } from '@/lib/authErrors';
 import { IconMap } from '@/lib/iconMap';
 import {
   resetPasswordSchema,
   type ResetPasswordInput,
 } from '@/lib/user.schema';
+import { resolveError, type ValidationDict } from '@/lib/validation';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
-import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 
 interface ResetPasswordFormProps {
   token: string;
+  messages: ResetPasswordMessages;
+  validation: ValidationDict;
+}
+
+interface ResetPasswordMessages {
+  successTitle: string;
+  success: string;
+  successButton: string;
+  eyebrow: string;
+  title: string;
+  description: string;
+  legend: string;
+  requestLink: string;
+  fields: {
+    password: {
+      label: string;
+      placeholder: string;
+      show: string;
+      hide: string;
+    };
+    confirmPassword: { label: string; placeholder: string };
+  };
+  actions: { submit: string; submitting: string };
+  footer: { prompt: string; link: string };
+  apiErrors: Record<(typeof RESET_PASSWORD_ERROR_CODES)[number], string>;
 }
 
 const DEFAULT_VALUES: ResetPasswordInput = {
@@ -38,22 +66,14 @@ async function submitNewPassword(
   });
 
   const data: unknown = await response.json().catch(() => null);
-  const backendMessage =
-    data && typeof data === 'object' && 'message' in data
-      ? (data as { message?: unknown }).message
-      : null;
 
   if (!response.ok) {
     throw new Error(
-      typeof backendMessage === 'string'
-        ? backendMessage
-        : 'No pudimos restablecer tu contraseña. Inténtalo de nuevo.',
+      readErrorCode(data, RESET_PASSWORD_ERROR_CODES) ?? 'serverError',
     );
   }
 
-  return typeof backendMessage === 'string'
-    ? backendMessage
-    : 'Tu contraseña se actualizó correctamente.';
+  return 'success';
 }
 
 // Ref estable: al mostrar el estado de éxito el foco pasa a su título.
@@ -63,7 +83,11 @@ const focusOnMount = (node: HTMLHeadingElement | null) => node?.focus();
    Formulario
    ==================================================== */
 
-export default function ResetPasswordForm({ token }: ResetPasswordFormProps) {
+export default function ResetPasswordForm({
+  token,
+  messages,
+  validation,
+}: ResetPasswordFormProps) {
   const router = useRouter();
   const shouldReduceMotion = useReducedMotion();
   const [showPassword, setShowPassword] = useState(false);
@@ -94,14 +118,19 @@ export default function ResetPasswordForm({ token }: ResetPasswordFormProps) {
     setFeedback(null);
     try {
       const message = await submitNewPassword(token, data.password);
-      setFeedback(message);
+      setFeedback(messages.success);
       setStatus('success');
       setTimeout(() => router.push('/login'), 1600);
     } catch (error) {
-      setFeedback(
-        error instanceof Error
+      const code =
+        error instanceof Error &&
+        RESET_PASSWORD_ERROR_CODES.includes(
+          error.message as (typeof RESET_PASSWORD_ERROR_CODES)[number],
+        )
           ? error.message
-          : 'Ocurrió un error inesperado. Inténtalo de nuevo.',
+          : 'serverError';
+      setFeedback(
+        messages.apiErrors[code as keyof ResetPasswordMessages['apiErrors']],
       );
       setStatus('error');
     }
@@ -110,7 +139,7 @@ export default function ResetPasswordForm({ token }: ResetPasswordFormProps) {
   const isInvalidLink =
     status === 'error' &&
     !!feedback &&
-    /no es válido|expir|no válido/i.test(feedback);
+    feedback === messages.apiErrors.invalidToken;
 
   return (
     <section className="bg-background grid place-items-center p-6 lg:p-8">
@@ -141,10 +170,10 @@ export default function ResetPasswordForm({ token }: ResetPasswordFormProps) {
                 tabIndex={-1}
                 className="text-foreground mt-5 text-2xl font-semibold tracking-[-0.03em] focus:outline-none"
               >
-                Contraseña actualizada
+                {messages.successTitle}
               </h2>
               <p className="text-foreground-muted mt-2 max-w-sm text-sm leading-relaxed">
-                {feedback} Te llevaremos a iniciar sesión en un momento.
+                {messages.success}
               </p>
               <Button
                 variant="primary"
@@ -152,20 +181,20 @@ export default function ResetPasswordForm({ token }: ResetPasswordFormProps) {
                 className="mt-6"
                 onClick={() => router.push('/login')}
               >
-                Ir a iniciar sesión
+                {messages.successButton}
               </Button>
             </motion.div>
           ) : (
             <motion.div key="form" {...motionProps}>
               <header className="mb-6">
                 <span className="text-primary text-xs font-extrabold tracking-[0.13em] uppercase">
-                  Nueva contraseña
+                  {messages.eyebrow}
                 </span>
                 <h2 className="text-foreground my-2.5 text-4xl tracking-[-0.045em]">
-                  Restablece tu contraseña
+                  {messages.title}
                 </h2>
                 <p className="text-foreground-muted m-0 text-sm leading-relaxed">
-                  Crea una nueva contraseña segura para tu cuenta de StudySync.
+                  {messages.description}
                 </p>
               </header>
 
@@ -176,9 +205,7 @@ export default function ResetPasswordForm({ token }: ResetPasswordFormProps) {
                 aria-busy={isSubmitting}
               >
                 <fieldset disabled={isSubmitting} className="grid gap-3.5">
-                  <legend className="sr-only">
-                    Formulario de restablecimiento de contraseña
-                  </legend>
+                  <legend className="sr-only">{messages.legend}</legend>
 
                   {/* Nueva contraseña */}
                   <Controller
@@ -186,15 +213,18 @@ export default function ResetPasswordForm({ token }: ResetPasswordFormProps) {
                     control={control}
                     render={({ field }) => (
                       <InputField
-                        label="Nueva contraseña"
+                        label={messages.fields.password.label}
                         id="password"
                         type={showPassword ? 'text' : 'password'}
                         value={field.value}
                         onChange={field.onChange}
-                        placeholder="Crea una nueva contraseña"
+                        placeholder={messages.fields.password.placeholder}
                         autoComplete="new-password"
                         icon={<LockKeyhole />}
-                        error={errors.password?.message}
+                        error={resolveError(
+                          validation,
+                          errors.password?.message,
+                        )}
                         required
                         disabled={isSubmitting}
                         size="md"
@@ -207,8 +237,8 @@ export default function ResetPasswordForm({ token }: ResetPasswordFormProps) {
                             icon={showPassword ? 'eyeOff' : 'eye'}
                             aria-label={
                               showPassword
-                                ? 'Ocultar contraseña'
-                                : 'Mostrar contraseña'
+                                ? messages.fields.password.hide
+                                : messages.fields.password.show
                             }
                             onClick={() => setShowPassword((prev) => !prev)}
                           />
@@ -223,15 +253,20 @@ export default function ResetPasswordForm({ token }: ResetPasswordFormProps) {
                     control={control}
                     render={({ field }) => (
                       <InputField
-                        label="Confirmar contraseña"
+                        label={messages.fields.confirmPassword.label}
                         id="confirmPassword"
                         type={showConfirmPassword ? 'text' : 'password'}
                         value={field.value}
                         onChange={field.onChange}
-                        placeholder="Repite tu nueva contraseña"
+                        placeholder={
+                          messages.fields.confirmPassword.placeholder
+                        }
                         autoComplete="new-password"
                         icon={<LockKeyhole />}
-                        error={errors.confirmPassword?.message}
+                        error={resolveError(
+                          validation,
+                          errors.confirmPassword?.message,
+                        )}
                         required
                         disabled={isSubmitting}
                         size="md"
@@ -244,8 +279,8 @@ export default function ResetPasswordForm({ token }: ResetPasswordFormProps) {
                             icon={showConfirmPassword ? 'eyeOff' : 'eye'}
                             aria-label={
                               showConfirmPassword
-                                ? 'Ocultar contraseña'
-                                : 'Mostrar contraseña'
+                                ? messages.fields.password.hide
+                                : messages.fields.password.show
                             }
                             onClick={() =>
                               setShowConfirmPassword((prev) => !prev)
@@ -268,7 +303,7 @@ export default function ResetPasswordForm({ token }: ResetPasswordFormProps) {
                           href="/login"
                           className="text-danger font-semibold underline underline-offset-2"
                         >
-                          Solicitar un nuevo enlace
+                          {messages.requestLink}
                         </CustomLink>
                       )}
                     </div>
@@ -285,19 +320,19 @@ export default function ResetPasswordForm({ token }: ResetPasswordFormProps) {
                     disabled={isSubmitting || !isValid}
                   >
                     {isSubmitting
-                      ? 'Actualizando...'
-                      : 'Restablecer contraseña'}
+                      ? messages.actions.submitting
+                      : messages.actions.submit}
                   </Button>
                 </fieldset>
               </form>
 
               <p className="text-foreground-muted mt-5 text-center text-sm">
-                ¿Recordaste tu contraseña?
+                {messages.footer.prompt}
                 <CustomLink
                   href="/login"
                   className="text-primary hover:text-primary-hover ml-1.5 font-semibold no-underline transition-colors"
                 >
-                  Iniciar sesión
+                  {messages.footer.link}
                 </CustomLink>
               </p>
             </motion.div>

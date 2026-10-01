@@ -5,15 +5,55 @@ import { InputField } from '@/components/ui/InputField';
 import { CustomLink } from '@/components/ui/Link';
 import { IconMap } from '@/lib/iconMap';
 import { loginSchema, type LoginInput } from '@/lib/user.schema';
+import { resolveError, type ValidationDict } from '@/lib/validation';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { signIn } from 'next-auth/react';
+import { useLocale } from 'next-intl';
 import { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import ForgotPasswordModal from './ForgotPasswordModal';
+import ForgotPasswordModal, {
+  type ForgotPasswordMessages,
+} from './ForgotPasswordModal';
 
 type MessageType = 'success' | 'error' | '';
 
-export default function LoginForm() {
+export interface LoginFormMessages {
+  eyebrow: string;
+  title: string;
+  description: string;
+  fields: {
+    email: { label: string; placeholder: string };
+    password: {
+      label: string;
+      placeholder: string;
+      show: string;
+      hide: string;
+    };
+  };
+  forgotPassword: string;
+  actions: { submit: string; submitting: string };
+  success: string;
+  errors: {
+    invalidCredentials: string;
+    unexpected: string;
+    rateLimited: string;
+    unavailable: string;
+  };
+  footer: { prompt: string; link: string };
+}
+
+interface LoginFormProps {
+  messages: LoginFormMessages;
+  forgotMessages: ForgotPasswordMessages;
+  validation: ValidationDict;
+}
+
+export default function LoginForm({
+  messages,
+  forgotMessages,
+  validation,
+}: LoginFormProps) {
+  const locale = useLocale();
   const [showPassword, setShowPassword] = useState(false);
   const [message, setMessage] = useState('');
   const [messageType, setMessageType] = useState<MessageType>('');
@@ -33,10 +73,7 @@ export default function LoginForm() {
     reset,
   } = useForm<LoginInput>({
     resolver: zodResolver(loginSchema),
-    defaultValues: {
-      email: '',
-      password: '',
-    },
+    defaultValues: { email: '', password: '' },
     mode: 'onChange',
   });
 
@@ -49,26 +86,30 @@ export default function LoginForm() {
       const response = await signIn('credentials', {
         ...data,
         redirect: false,
-        redirectTo: '/dashboard',
+        redirectTo: `/${locale}/dashboard`,
       });
 
       if (!response || response.error) {
-        throw new Error('Correo electrónico o contraseña incorrectos.');
+        const code = (response as { code?: string } | undefined)?.code;
+        setMessage(
+          code === 'rateLimited'
+            ? messages.errors.rateLimited
+            : code === 'unavailable'
+              ? messages.errors.unavailable
+              : messages.errors.invalidCredentials,
+        );
+        setMessageType('error');
+        return;
       }
 
-      setMessage('Sesión iniciada correctamente. Redirigiendo...');
+      setMessage(messages.success);
       setMessageType('success');
-
-      reset({
-        email: '',
-        password: '',
-      });
+      reset({ email: '', password: '' });
 
       window.location.assign(response.url ?? '/dashboard');
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : 'No se pudo iniciar sesión.';
-      setMessage(errorMessage);
+    } catch {
+      // Fallo de red u otro error no controlado
+      setMessage(messages.errors.unexpected);
       setMessageType('error');
     } finally {
       setIsSubmitting(false);
@@ -87,32 +128,31 @@ export default function LoginForm() {
 
         <header className="mb-6">
           <span className="text-primary text-xs font-extrabold tracking-[0.13em] uppercase">
-            Bienvenido de nuevo
+            {messages.eyebrow}
           </span>
           <h2 className="text-foreground my-2.5 text-4xl tracking-[-0.045em]">
-            Inicia sesión
+            {messages.title}
           </h2>
           <p className="text-foreground-muted m-0 text-sm leading-relaxed">
-            Ingresa tus datos para continuar a tu espacio de trabajo.
+            {messages.description}
           </p>
         </header>
 
         <form className="grid gap-3.5" onSubmit={handleSubmit(onSubmit)}>
-          {/* Campo Email */}
           <Controller
             name="email"
             control={control}
             render={({ field }) => (
               <InputField
-                label="Correo electrónico"
+                label={messages.fields.email.label}
                 id="email"
                 type="email"
                 value={field.value}
                 onChange={field.onChange}
-                placeholder="nombre@correo.com"
+                placeholder={messages.fields.email.placeholder}
                 autoComplete="email"
                 icon={<Mail />}
-                error={errors.email?.message}
+                error={resolveError(validation, errors.email?.message)}
                 required
                 disabled={isSubmitting}
                 size="md"
@@ -121,21 +161,20 @@ export default function LoginForm() {
             )}
           />
 
-          {/* Campo Contraseña */}
           <Controller
             name="password"
             control={control}
             render={({ field }) => (
               <InputField
-                label="Contraseña"
+                label={messages.fields.password.label}
                 id="password"
                 type={showPassword ? 'text' : 'password'}
                 value={field.value}
                 onChange={field.onChange}
-                placeholder="Ingresa tu contraseña"
+                placeholder={messages.fields.password.placeholder}
                 autoComplete="current-password"
                 icon={<LockKeyhole />}
-                error={errors.password?.message}
+                error={resolveError(validation, errors.password?.message)}
                 required
                 disabled={isSubmitting}
                 size="md"
@@ -146,7 +185,9 @@ export default function LoginForm() {
                     size="sm"
                     icon={showPassword ? 'eyeOff' : 'eye'}
                     aria-label={
-                      showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'
+                      showPassword
+                        ? messages.fields.password.hide
+                        : messages.fields.password.show
                     }
                     onClick={() => setShowPassword((prev) => !prev)}
                   />
@@ -162,11 +203,10 @@ export default function LoginForm() {
               className="text-primary hover:text-primary-hover text-xs font-semibold no-underline transition-colors"
               onClick={() => setIsForgotPasswordOpen(true)}
             >
-              ¿Olvidaste tu contraseña?
+              {messages.forgotPassword}
             </Button>
           </div>
 
-          {/* Mensaje de estado */}
           {message && (
             <p
               className={`m-0 rounded-xl border p-2.5 text-sm leading-relaxed ${
@@ -181,7 +221,6 @@ export default function LoginForm() {
             </p>
           )}
 
-          {/* Botón de envío */}
           <Button
             variant="primary"
             size="lg"
@@ -191,17 +230,19 @@ export default function LoginForm() {
             type="submit"
             disabled={isSubmitting || !isValid}
           >
-            {isSubmitting ? 'Iniciando sesión...' : 'Iniciar sesión'}
+            {isSubmitting
+              ? messages.actions.submitting
+              : messages.actions.submit}
           </Button>
         </form>
 
         <p className="text-foreground-muted mt-5 text-center text-sm">
-          ¿Todavía no tienes una cuenta?
+          {messages.footer.prompt}
           <CustomLink
             href="/register"
             className="text-primary hover:text-primary-hover ml-1.5 font-semibold no-underline transition-colors"
           >
-            Crear cuenta
+            {messages.footer.link}
           </CustomLink>
         </p>
       </div>
@@ -209,6 +250,8 @@ export default function LoginForm() {
       <ForgotPasswordModal
         isOpen={isForgotPasswordOpen}
         setIsOpen={setIsForgotPasswordOpen}
+        validation={validation}
+        messages={forgotMessages}
       />
     </section>
   );

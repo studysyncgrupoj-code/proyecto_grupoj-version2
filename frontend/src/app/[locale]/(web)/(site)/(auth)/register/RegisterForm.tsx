@@ -3,10 +3,13 @@
 import { Button } from '@/components/ui/Button';
 import { InputField } from '@/components/ui/InputField';
 import { CustomLink } from '@/components/ui/Link';
+import { useRouter } from '@/i18n/navigation';
+import { readErrorCode } from '@/lib/apiErrors';
+import { REGISTER_ERROR_CODES } from '@/lib/authErrors';
 import { IconMap } from '@/lib/iconMap';
 import { registerWithConfirmSchema } from '@/lib/user.schema';
+import { resolveError, type ValidationDict } from '@/lib/validation';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -16,13 +19,44 @@ type MessageType = 'success' | 'error' | '';
 // Extendemos el schema para incluir acceptedTerms como booleano con validación
 const registerSchema = registerWithConfirmSchema.extend({
   acceptedTerms: z.boolean().refine((val) => val === true, {
-    message: 'Debes aceptar los términos y condiciones',
+    message: 'acceptedTerms.required',
   }),
 });
 
 type RegisterFormInput = z.infer<typeof registerSchema>;
 
-export default function RegisterForm() {
+interface RegisterFormMessages {
+  eyebrow: string;
+  title: string;
+  description: string;
+  terms: string;
+  success: string;
+  fields: {
+    name: { label: string; placeholder: string };
+    lastName: { label: string; placeholder: string };
+    email: { label: string; placeholder: string };
+    password: {
+      label: string;
+      placeholder: string;
+      show: string;
+      hide: string;
+    };
+    confirmPassword: { label: string; placeholder: string };
+  };
+  actions: { submit: string; submitting: string };
+  errors: Record<(typeof REGISTER_ERROR_CODES)[number], string>;
+  footer: { prompt: string; link: string };
+}
+
+interface RegisterFormProps {
+  messages: RegisterFormMessages;
+  validation: ValidationDict;
+}
+
+export default function RegisterForm({
+  messages,
+  validation,
+}: RegisterFormProps) {
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -47,8 +81,8 @@ export default function RegisterForm() {
   } = useForm<RegisterFormInput>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
-      nombre: '',
-      apellido: '',
+      name: '',
+      lastName: '',
       email: '',
       password: '',
       confirmPassword: '',
@@ -73,20 +107,17 @@ export default function RegisterForm() {
       });
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(
-          errorData.message ||
-            errorData.error ||
-            'Error al registrar el usuario.',
-        );
+        const errorData: unknown = await response.json().catch(() => null);
+        const code = readErrorCode(errorData, REGISTER_ERROR_CODES);
+        throw new Error(code ?? 'serverError');
       }
 
-      setMessage('Usuario registrado correctamente. Redirigiendo...');
+      setMessage(messages.success);
       setMessageType('success');
 
       reset({
-        nombre: '',
-        apellido: '',
+        name: '',
+        lastName: '',
         email: '',
         password: '',
         confirmPassword: '',
@@ -95,10 +126,15 @@ export default function RegisterForm() {
 
       setTimeout(() => router.push('/login'), 1200);
     } catch (error) {
-      const errorMessage =
-        error instanceof Error
+      const code =
+        error instanceof Error &&
+        REGISTER_ERROR_CODES.includes(
+          error.message as (typeof REGISTER_ERROR_CODES)[number],
+        )
           ? error.message
-          : 'No se pudo registrar el usuario.';
+          : 'serverError';
+      const errorMessage =
+        messages.errors[code as keyof RegisterFormMessages['errors']];
       setMessage(errorMessage);
       setMessageType('error');
     } finally {
@@ -118,31 +154,31 @@ export default function RegisterForm() {
 
         <header className="mb-6">
           <span className="text-primary text-xs font-extrabold tracking-[0.13em] uppercase">
-            Nueva cuenta
+            {messages.eyebrow}
           </span>
           <h2 className="text-foreground my-2.5 text-4xl tracking-[-0.045em]">
-            Regístrate
+            {messages.title}
           </h2>
           <p className="text-foreground-muted m-0 text-sm leading-relaxed">
-            Completa tus datos para empezar a utilizar StudySync.
+            {messages.description}
           </p>
         </header>
 
         <form className="grid gap-3.5" onSubmit={handleSubmit(onSubmit)}>
           {/* Campo Nombre */}
           <Controller
-            name="nombre"
+            name="name"
             control={control}
             render={({ field }) => (
               <InputField
-                label="Nombre"
-                id="nombre"
+                label={messages.fields.name.label}
+                id="name"
                 value={field.value}
                 onChange={field.onChange}
-                placeholder="Escribe tu nombre"
+                placeholder={messages.fields.name.placeholder}
                 autoComplete="given-name"
                 icon={<User />}
-                error={errors.nombre?.message}
+                error={resolveError(validation, errors.name?.message)}
                 required
                 disabled={isSubmitting}
                 size="md"
@@ -153,18 +189,18 @@ export default function RegisterForm() {
 
           {/* Campo Apellido */}
           <Controller
-            name="apellido"
+            name="lastName"
             control={control}
             render={({ field }) => (
               <InputField
-                label="Apellido"
-                id="apellido"
+                label={messages.fields.lastName.label}
+                id="lastName"
                 value={field.value}
                 onChange={field.onChange}
-                placeholder="Escribe tu apellido"
+                placeholder={messages.fields.lastName.placeholder}
                 autoComplete="family-name"
                 icon={<User />}
-                error={errors.apellido?.message}
+                error={resolveError(validation, errors.lastName?.message)}
                 required
                 disabled={isSubmitting}
                 size="md"
@@ -179,15 +215,15 @@ export default function RegisterForm() {
             control={control}
             render={({ field }) => (
               <InputField
-                label="Correo electrónico"
+                label={messages.fields.email.label}
                 id="email"
                 type="email"
                 value={field.value}
                 onChange={field.onChange}
-                placeholder="nombre@correo.com"
+                placeholder={messages.fields.email.placeholder}
                 autoComplete="email"
                 icon={<Mail />}
-                error={errors.email?.message}
+                error={resolveError(validation, errors.email?.message)}
                 required
                 disabled={isSubmitting}
                 size="md"
@@ -202,15 +238,15 @@ export default function RegisterForm() {
             control={control}
             render={({ field }) => (
               <InputField
-                label="Contraseña"
+                label={messages.fields.password.label}
                 id="password"
                 type={showPassword ? 'text' : 'password'}
                 value={field.value}
                 onChange={field.onChange}
-                placeholder="Crea una contraseña"
+                placeholder={messages.fields.password.placeholder}
                 autoComplete="new-password"
                 icon={<LockKeyhole />}
-                error={errors.password?.message}
+                error={resolveError(validation, errors.password?.message)}
                 required
                 disabled={isSubmitting}
                 size="md"
@@ -221,7 +257,9 @@ export default function RegisterForm() {
                     size="sm"
                     icon={showPassword ? 'eyeOff' : 'eye'}
                     aria-label={
-                      showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'
+                      showPassword
+                        ? messages.fields.password.hide
+                        : messages.fields.password.show
                     }
                     onClick={() => setShowPassword((prev) => !prev)}
                   />
@@ -236,15 +274,18 @@ export default function RegisterForm() {
             control={control}
             render={({ field }) => (
               <InputField
-                label="Confirmar contraseña"
+                label={messages.fields.confirmPassword.label}
                 id="confirmPassword"
                 type={showConfirmPassword ? 'text' : 'password'}
                 value={field.value}
                 onChange={field.onChange}
-                placeholder="Confirma tu contraseña"
+                placeholder={messages.fields.confirmPassword.placeholder}
                 autoComplete="new-password"
                 icon={<LockKeyhole />}
-                error={errors.confirmPassword?.message}
+                error={resolveError(
+                  validation,
+                  errors.confirmPassword?.message,
+                )}
                 required
                 disabled={isSubmitting}
                 size="md"
@@ -256,8 +297,8 @@ export default function RegisterForm() {
                     icon={showConfirmPassword ? 'eyeOff' : 'eye'}
                     aria-label={
                       showConfirmPassword
-                        ? 'Ocultar contraseña'
-                        : 'Mostrar contraseña'
+                        ? messages.fields.password.hide
+                        : messages.fields.password.show
                     }
                     onClick={() => setShowConfirmPassword((prev) => !prev)}
                   />
@@ -279,13 +320,13 @@ export default function RegisterForm() {
                   className="accent-primary mt-0.5"
                   disabled={isSubmitting}
                 />
-                <span>Acepto los términos y la política de privacidad.</span>
+                <span>{messages.terms}</span>
               </label>
             )}
           />
           {errors.acceptedTerms && (
             <p className="text-danger text-xs leading-relaxed">
-              {errors.acceptedTerms.message}
+              {resolveError(validation, errors.acceptedTerms.message)}
             </p>
           )}
 
@@ -314,17 +355,19 @@ export default function RegisterForm() {
             type="submit"
             disabled={isSubmitting || !isValid}
           >
-            {isSubmitting ? 'Registrando...' : 'Crear cuenta'}
+            {isSubmitting
+              ? messages.actions.submitting
+              : messages.actions.submit}
           </Button>
         </form>
 
         <p className="text-foreground-muted mt-5 text-center text-sm">
-          ¿Ya tienes una cuenta?
+          {messages.footer.prompt}
           <CustomLink
             href="/login"
             className="text-primary hover:text-primary-hover ml-1.5 font-semibold no-underline transition-colors"
           >
-            Iniciar sesión
+            {messages.footer.link}
           </CustomLink>
         </p>
       </div>

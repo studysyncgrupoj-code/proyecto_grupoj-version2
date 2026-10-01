@@ -1,6 +1,6 @@
 import { type InternalHref } from '@/config/navigation';
+import { Link } from '@/i18n/navigation';
 import { cn } from '@/utilities/cn';
-import Link from 'next/link';
 import { forwardRef, type ComponentPropsWithoutRef } from 'react';
 
 type AllowedHref = InternalHref | `http${string}` | (string & {});

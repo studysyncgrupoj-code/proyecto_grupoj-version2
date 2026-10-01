@@ -79,7 +79,10 @@
   "home": {
     "hero": {
       "eyebrow": "Tu ecosistema de estudio inteligente",
-      "title": { "line1": "Estudia mejor.", "line2": "Avanza con propósito." },
+      "title": {
+        "line1": "Estudia mejor.",
+        "line2": "Avanza con propósito."
+      },
       "description": "Organiza tus cursos, únete a salas colaborativas, mejora tu concentración y recibe apoyo personalizado desde una sola plataforma.",
       "cta": {
         "primary": "Comenzar gratis",
@@ -110,8 +113,14 @@
           "course": "React avanzado",
           "time": "Hoy · 4:30 p. m."
         },
-        "streak": { "title": "Racha actual", "value": "12 días" },
-        "aiCoach": { "title": "IA Coach", "value": "Plan actualizado" }
+        "streak": {
+          "title": "Racha actual",
+          "value": "12 días"
+        },
+        "aiCoach": {
+          "title": "IA Coach",
+          "value": "Plan actualizado"
+        }
       },
       "trusted": {
         "title": "Una plataforma diseñada para potenciar",
@@ -396,6 +405,207 @@
       }
     }
   },
+  "auth": {
+    "login": {
+      "page": {
+        "eyebrow": "Bienvenido de nuevo",
+        "title": {
+          "before": "Continúa tu ruta.",
+          "highlight": "Retoma el control."
+        },
+        "description": "Accede a tus salas de estudio, revisa tus cursos pendientes y mantén tu rendimiento al día en StudySync.",
+        "cards": {
+          "rooms": {
+            "title": "Salas activas",
+            "description": "Retoma la colaboración con tus compañeros."
+          },
+          "security": {
+            "title": "Acceso seguro",
+            "description": "Tus credenciales y datos están protegidos."
+          }
+        }
+      },
+      "form": {
+        "eyebrow": "Bienvenido de nuevo",
+        "title": "Inicia sesión",
+        "description": "Ingresa tus datos para continuar a tu espacio de trabajo.",
+        "fields": {
+          "email": {
+            "label": "Correo electrónico",
+            "placeholder": "nombre@correo.com"
+          },
+          "password": {
+            "label": "Contraseña",
+            "placeholder": "Ingresa tu contraseña",
+            "show": "Mostrar contraseña",
+            "hide": "Ocultar contraseña"
+          }
+        },
+        "forgotPassword": "¿Olvidaste tu contraseña?",
+        "actions": {
+          "submit": "Iniciar sesión",
+          "submitting": "Iniciando sesión..."
+        },
+        "success": "Sesión iniciada correctamente. Redirigiendo...",
+        "errors": {
+          "invalidCredentials": "Correo electrónico o contraseña incorrectos.",
+          "unexpected": "No se pudo iniciar sesión. Inténtalo de nuevo.",
+          "rateLimited": "Demasiados intentos. Inténtalo de nuevo más tarde.",
+          "unavailable": "El servicio de inicio de sesión no está disponible. Inténtalo más tarde."
+        },
+        "footer": {
+          "prompt": "¿Todavía no tienes una cuenta?",
+          "link": "Crear cuenta"
+        }
+      }
+    },
+    "register": {
+      "page": {
+        "eyebrow": "Empieza hoy",
+        "title": {
+          "before": "Crea tu espacio.",
+          "highlight": "Aprende sin límites."
+        },
+        "description": "Únete a StudySync y organiza tus cursos, salas de estudio, actividades y progreso desde una sola plataforma.",
+        "cards": {
+          "community": {
+            "title": "Comunidad activa",
+            "description": "Conecta con estudiantes y profesores."
+          },
+          "security": {
+            "title": "Cuenta protegida",
+            "description": "Tus datos y avances permanecen seguros."
+          }
+        }
+      },
+      "form": {
+        "eyebrow": "Nueva cuenta",
+        "title": "Regístrate",
+        "description": "Completa tus datos para empezar a utilizar StudySync.",
+        "fields": {
+          "name": {
+            "label": "Nombre",
+            "placeholder": "Escribe tu nombre"
+          },
+          "lastName": {
+            "label": "Apellido",
+            "placeholder": "Escribe tu apellido"
+          },
+          "email": {
+            "label": "Correo electrónico",
+            "placeholder": "nombre@correo.com"
+          },
+          "password": {
+            "label": "Contraseña",
+            "placeholder": "Crea una contraseña",
+            "show": "Mostrar contraseña",
+            "hide": "Ocultar contraseña"
+          },
+          "confirmPassword": {
+            "label": "Confirmar contraseña",
+            "placeholder": "Confirma tu contraseña"
+          }
+        },
+        "terms": "Acepto los términos y la política de privacidad.",
+        "success": "Usuario registrado correctamente. Redirigiendo...",
+        "actions": {
+          "submit": "Crear cuenta",
+          "submitting": "Registrando..."
+        },
+        "errors": {
+          "rateLimited": "Demasiadas solicitudes. Inténtalo de nuevo más tarde.",
+          "invalidData": "Revisa los datos del formulario e inténtalo de nuevo.",
+          "serverError": "No se pudo registrar el usuario. Inténtalo de nuevo.",
+          "unavailable": "No fue posible conectar con el servicio. Inténtalo de nuevo más tarde.",
+          "emailTaken": "Este correo ya está registrado."
+        },
+        "footer": {
+          "prompt": "¿Ya tienes una cuenta?",
+          "link": "Iniciar sesión"
+        }
+      }
+    },
+    "apiErrors": {
+      "rateLimited": "Demasiadas solicitudes. Inténtalo de nuevo más tarde.",
+      "invalidData": "Revisa los datos e inténtalo de nuevo.",
+      "serverError": "Ocurrió un problema en el servidor. Inténtalo más tarde.",
+      "unavailable": "No fue posible conectar con el servicio. Inténtalo más tarde.",
+      "invalidToken": "Este enlace no es válido o ya expiró. Solicita uno nuevo."
+    },
+    "resetPassword": {
+      "page": {
+        "eyebrow": "Un último paso",
+        "title": {
+          "before": "Asegura tu cuenta.",
+          "highlight": "Elige una nueva llave."
+        },
+        "description": "Define una contraseña nueva para volver a tus salas de estudio, cursos y progreso en StudySync.",
+        "cards": {
+          "link": {
+            "title": "Enlace de un solo uso",
+            "description": "Este enlace deja de funcionar una vez que actualices tu contraseña."
+          },
+          "security": {
+            "title": "Acceso seguro",
+            "description": "Tus credenciales y datos están protegidos."
+          }
+        }
+      },
+      "form": {
+        "successTitle": "Contraseña actualizada",
+        "success": "Tu contraseña se actualizó correctamente. Te llevaremos a iniciar sesión en un momento.",
+        "successButton": "Ir a iniciar sesión",
+        "eyebrow": "Nueva contraseña",
+        "title": "Restablece tu contraseña",
+        "description": "Crea una nueva contraseña segura para tu cuenta de StudySync.",
+        "legend": "Formulario de restablecimiento de contraseña",
+        "fields": {
+          "password": {
+            "label": "Nueva contraseña",
+            "placeholder": "Crea una nueva contraseña",
+            "show": "Mostrar contraseña",
+            "hide": "Ocultar contraseña"
+          },
+          "confirmPassword": {
+            "label": "Confirmar contraseña",
+            "placeholder": "Repite tu nueva contraseña"
+          }
+        },
+        "requestLink": "Solicitar un nuevo enlace",
+        "actions": {
+          "submit": "Restablecer contraseña",
+          "submitting": "Actualizando..."
+        },
+        "footer": {
+          "prompt": "¿Recordaste tu contraseña?",
+          "link": "Iniciar sesión"
+        },
+        "errors": {
+          "unexpected": "Ocurrió un error inesperado. Inténtalo de nuevo."
+        }
+      }
+    },
+    "forgotPassword": {
+      "title": "¿Olvidaste tu contraseña?",
+      "description": "Ingresa tu correo electrónico y te enviaremos las instrucciones para restablecerla.",
+      "label": "Correo electrónico",
+      "placeholder": "nombre@correo.com",
+      "legend": "Formulario de recuperación de contraseña",
+      "successTitle": "Revisa tu correo",
+      "success": "Si el correo está registrado, recibirás instrucciones para restablecer tu contraseña.",
+      "close": "Cerrar",
+      "submit": "Enviar instrucciones",
+      "submitting": "Enviando...",
+      "back": "Volver a inicio de sesión",
+      "errors": {
+        "rateLimited": "Demasiadas solicitudes. Inténtalo de nuevo más tarde.",
+        "invalidData": "Ingresa un correo electrónico válido.",
+        "serverError": "No pudimos procesar la solicitud. Inténtalo de nuevo.",
+        "unavailable": "El servicio no está disponible. Inténtalo más tarde."
+      },
+      "unexpected": "Ocurrió un error inesperado. Inténtalo de nuevo."
+    }
+  },
   "Validation": {
     "name": {
       "required": "El nombre es requerido",
@@ -447,6 +657,9 @@
         "max": "El mensaje no puede exceder los 2000 caracteres",
         "invalid": "El mensaje contiene caracteres no permitidos"
       }
+    },
+    "acceptedTerms": {
+      "required": "Debes aceptar los términos y condiciones"
     }
   }
 }
