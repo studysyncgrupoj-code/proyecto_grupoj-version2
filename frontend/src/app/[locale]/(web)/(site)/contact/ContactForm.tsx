@@ -10,6 +10,11 @@ import 'react-phone-number-input/style.css';
 
 import { Button } from '@/components/ui/Button';
 import { InputField } from '@/components/ui/InputField';
+import { readErrorCode } from '@/lib/apiErrors';
+import {
+  CONTACT_ERROR_CODES,
+  type ContactErrorCode,
+} from '@/lib/contactErrors';
 import {
   contactSchema,
   type ContactFormData,
@@ -36,6 +41,7 @@ interface ContactFormMessages {
   title: string;
   description: string;
   legend: string;
+
   fields: {
     name: {
       label: string;
@@ -64,10 +70,7 @@ interface ContactFormMessages {
     description: string;
     sendAnother: string;
   };
-  error: {
-    unexpected: string;
-    sendFailed: string;
-  };
+  error: Record<ContactErrorCode | 'unexpected', string>;
   actions: {
     sending: string;
     submit: string;
@@ -78,17 +81,26 @@ interface ContactFormMessages {
    Envío
    ==================================================== */
 
+class ContactSendError extends Error {
+  constructor(public readonly code: ContactErrorCode) {
+    super(code);
+  }
+}
+
 async function sendContactMessage(data: ContactFormData): Promise<void> {
-  // TODO: implementar el route handler POST /api/contact. Debe volver a validar
   const response = await fetch('/api/contact', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
   });
 
-  if (!response.ok) {
-    throw new Error();
-  }
+  if (response.ok) return;
+
+  const body: unknown = await response.json().catch(() => null);
+
+  throw new ContactSendError(
+    readErrorCode(body, CONTACT_ERROR_CODES) ?? 'sendFailed',
+  );
 }
 
 /* ====================================================
@@ -272,9 +284,9 @@ export function ContactForm({
       setStatus('success');
     } catch (error) {
       setServerError(
-        error instanceof Error && error.message
-          ? error.message
-          : messages.error.sendFailed,
+        error instanceof ContactSendError
+          ? messages.error[error.code]
+          : messages.error.unexpected, // fallo de red u otro error no controlado
       );
       setStatus('error');
     }

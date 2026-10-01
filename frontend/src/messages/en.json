@@ -359,7 +359,11 @@
       },
       "error": {
         "unexpected": "Something went wrong. Please try again.",
-        "sendFailed": "We couldn't send your message. Please try again in a few minutes."
+        "sendFailed": "We couldn't send your message. Please try again in a few minutes.",
+        "rateLimited": "You've sent too many messages. Please try again later.",
+        "invalidData": "Check the form data and try again.",
+        "serverError": "There was a problem on our server. Please try again later.",
+        "unavailable": "We couldn't reach the contact service. Please try again in a few minutes."
       },
       "actions": {
         "sending": "Sending…",
@@ -418,6 +422,14 @@
         "max": "Message cannot exceed 2000 characters",
         "invalid": "Message contains invalid characters"
       }
+    },
+    "error": {
+      "unexpected": "Something went wrong. Please try again.",
+      "sendFailed": "We couldn't send your message. Please try again in a few minutes.",
+      "rateLimited": "You've sent too many messages. Please try again later.",
+      "invalidData": "Check the form data and try again.",
+      "serverError": "There was a problem on our server. Please try again later.",
+      "unavailable": "We couldn't reach the contact service. Please try again in a few minutes."
     }
   }
 }

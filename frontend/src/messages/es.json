@@ -384,7 +384,11 @@
       },
       "error": {
         "unexpected": "Ocurrió un error inesperado. Inténtalo de nuevo.",
-        "sendFailed": "No pudimos enviar tu mensaje. Inténtalo de nuevo en unos minutos."
+        "sendFailed": "No pudimos enviar tu mensaje. Inténtalo de nuevo en unos minutos.",
+        "rateLimited": "Has enviado demasiados mensajes. Inténtalo de nuevo más tarde.",
+        "invalidData": "Revisa los datos del formulario e inténtalo de nuevo.",
+        "serverError": "Hubo un problema en nuestro servidor. Inténtalo más tarde.",
+        "unavailable": "No pudimos conectar con el servicio de contacto. Inténtalo en unos minutos."
       },
       "actions": {
         "sending": "Enviando…",

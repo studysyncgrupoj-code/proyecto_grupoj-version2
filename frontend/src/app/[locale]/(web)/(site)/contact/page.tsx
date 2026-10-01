@@ -118,6 +118,10 @@ export default async function ContactPage() {
     error: {
       unexpected: t('form.error.unexpected'),
       sendFailed: t('form.error.sendFailed'),
+      rateLimited: t('form.error.rateLimited'),
+      invalidData: t('form.error.invalidData'),
+      serverError: t('form.error.serverError'),
+      unavailable: t('form.error.unavailable'),
     },
 
     actions: {

@@ -5,6 +5,7 @@ import type { SubscriptionType, UserRole } from '@/types/next-auth';
 import NextAuth from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
 import { z } from 'zod';
+import { getClientIp } from './lib/clientIp';
 
 // ============================================================
 // CONSTANTES Y CONFIGURACIÓN
@@ -103,12 +104,14 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       async authorize(credentials, request) {
         try {
           // 0. Control de Rate Limiting por IP
-          const ip =
-            request.headers.get('x-forwarded-for')?.split(',')[0].trim() ??
-            request.headers.get('x-real-ip') ??
-            '127.0.0.1';
+          const ip = getClientIp(request);
 
-          const limitResult = await checkRateLimit(ip, 10, '10 m');
+          const limitResult = await checkRateLimit(
+            `login-ip:${ip}`,
+            10,
+            '10 m',
+          );
+
           if (!limitResult.success) {
             logger.error('Rate limit excedido por IP', { ip });
             return null;
