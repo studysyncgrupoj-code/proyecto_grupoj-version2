@@ -693,6 +693,57 @@
         "rooms": "Rooms",
         "reportsAudit": "Reports & audit"
       }
+    },
+    "userSettings": {
+      "metadata": {
+        "title": "My profile | StudySync",
+        "description": "Manage your profile, photo, and certificate requirements."
+      },
+      "page": {
+        "title": "Account settings",
+        "description": "Manage your profile, security, and preferences.",
+        "fallbackName": "User",
+        "fallbackEmail": "Not provided"
+      },
+      "avatar": {
+        "title": "Profile photo",
+        "description": "Shown in your study rooms, messages, and sidebar.",
+        "changeAria": "Change profile photo",
+        "uploadAria": "Upload profile photo",
+        "save": "Save photo",
+        "saving": "Saving...",
+        "cancel": "Cancel",
+        "change": "Change photo",
+        "upload": "Upload photo",
+        "remove": "Remove",
+        "limit": "JPG, PNG, or WEBP · max 4 MB",
+        "previewTitle": "Preview in StudySync",
+        "visibility": "Only visible to users signed in to StudySync.",
+        "errors": {
+          "unsupportedType": "Unsupported format. Use JPG, PNG, or WEBP.",
+          "fileTooLarge": "The image cannot exceed 4 MB.",
+          "unauthenticated": "Your session expired. Please sign in again.",
+          "serverError": "Could not save the photo. Please try again.",
+          "invalidRequest": "Could not read the uploaded file.",
+          "missingFile": "Select an image to continue.",
+          "serviceUnavailable": "The image service is unavailable. Please try again later.",
+          "uploadFailed": "Could not save the photo. Please try again.",
+          "removeFailed": "Could not remove the photo. Please try again."
+        },
+        "saved": "Profile photo updated.",
+        "removed": "Profile photo removed.",
+        "sidebarPreview": "Sidebar preview"
+      },
+      "certificates": {
+        "title": "Certificate requirements",
+        "description": "Complete these profile requirements to generate certificates.",
+        "eligible": "Eligible",
+        "pending": "Pending",
+        "avatar": "Profile photo added",
+        "personalData": "Personal details complete",
+        "verified": "Account verified",
+        "comingSoon": "Coming soon"
+      }
     }
   }
 }

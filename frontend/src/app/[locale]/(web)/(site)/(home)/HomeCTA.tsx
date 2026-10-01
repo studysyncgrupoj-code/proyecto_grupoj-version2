@@ -1,8 +1,10 @@
 import { Button } from '@/components/ui/Button';
 import { IconMap } from '@/lib/iconMap';
+import { getTranslations } from 'next-intl/server';
 
-export default function HomeCTA() {
+export default async function HomeCTA() {
   const { sparkles: Sparkles } = IconMap.ui;
+  const t = await getTranslations('home.cta');
 
   return (
     <section
@@ -17,16 +19,15 @@ export default function HomeCTA() {
       <div className="relative z-2 mx-auto max-w-187.5">
         <span className="border-accent/25 bg-accent/10 text-accent mx-auto inline-flex w-fit items-center gap-2 rounded-full border px-3 py-1.75 text-xs font-extrabold tracking-[0.09em] uppercase">
           <Sparkles size={15} aria-hidden="true" />
-          Tu siguiente sesión comienza aquí
+          {t('eyebrow')}
         </span>
 
         <h2 className="text-foreground mt-4.75 text-[clamp(2.4rem,4vw,4.2rem)] leading-[1.05] font-bold tracking-[-0.06em]">
-          Construye hoy una mejor forma de aprender
+          {t('title')}
         </h2>
 
         <p className="text-foreground-muted mx-auto mt-4.75 max-w-155 text-sm leading-[1.7]">
-          Crea tu cuenta y empieza a organizar tus cursos, salas, sesiones de
-          concentración y objetivos académicos.
+          {t('description')}
         </p>
 
         <div className="mt-7.25 flex flex-wrap justify-center gap-3 max-[520px]:flex-col">
@@ -36,11 +37,11 @@ export default function HomeCTA() {
             icon="arrowRight"
             iconPosition="right"
           >
-            Crear cuenta gratis
+            {t('primary')}
           </Button>
 
           <Button href="/login" variant="ghost">
-            Ya tengo una cuenta
+            {t('secondary')}
           </Button>
         </div>
       </div>

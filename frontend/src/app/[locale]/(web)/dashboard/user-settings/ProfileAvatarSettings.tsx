@@ -1,18 +1,46 @@
 'use client';
 
 import { Button } from '@/components/ui/Button';
+import { useRouter } from '@/i18n/navigation';
+import { readErrorCode } from '@/lib/apiErrors';
+import { AVATAR_ERROR_CODES } from '@/lib/avatarErrors';
 import { AppIcon } from '@/lib/iconMap';
 import { getInitials } from '@/utilities/avatar';
-import { useRef, useState, type ChangeEvent } from 'react';
+import { useEffect, useRef, useState, type ChangeEvent } from 'react';
 
 const MAX_FILE_SIZE = 4 * 1024 * 1024; // 4 MB
 const ACCEPTED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
+
+function getAvatarUrl(body: unknown): string | null {
+  if (!body || typeof body !== 'object') return null;
+  const data = 'data' in body ? body.data : body;
+  if (!data || typeof data !== 'object' || !('avatarUrl' in data)) return null;
+  return typeof data.avatarUrl === 'string' ? data.avatarUrl : null;
+}
 
 interface ProfileAvatarSettingsProps {
   name: string;
   email: string;
   roleLabel: string;
   image?: string | null;
+  messages: {
+    title: string;
+    description: string;
+    changeAria: string;
+    uploadAria: string;
+    save: string;
+    saving: string;
+    cancel: string;
+    change: string;
+    upload: string;
+    remove: string;
+    limit: string;
+    previewTitle: string;
+    visibility: string;
+    saved: string;
+    removed: string;
+    errors: Record<(typeof AVATAR_ERROR_CODES)[number], string>;
+  };
 }
 
 export function ProfileAvatarSettings({
@@ -20,17 +48,33 @@ export function ProfileAvatarSettings({
   email,
   roleLabel,
   image,
+  messages,
 }: ProfileAvatarSettingsProps) {
+  const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
+  const pendingPreviewRef = useRef<string | null>(null);
+  const retainedPreviewRef = useRef<string | null>(null);
   const [currentImage, setCurrentImage] = useState(image ?? null);
   const [pendingPreview, setPendingPreview] = useState<string | null>(null);
   const [pendingFile, setPendingFile] = useState<File | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [feedback, setFeedback] = useState<string | null>(null);
 
   const initials = getInitials(name);
   const displayImage = pendingPreview ?? currentImage;
   const hasPendingChange = !!pendingFile;
+
+  useEffect(
+    () => () => {
+      const urls = new Set([
+        pendingPreviewRef.current,
+        retainedPreviewRef.current,
+      ]);
+      urls.forEach((url) => url && URL.revokeObjectURL(url));
+    },
+    [],
+  );
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -38,26 +82,44 @@ export function ProfileAvatarSettings({
     if (!file) return;
 
     if (!ACCEPTED_TYPES.includes(file.type)) {
-      setError('Formato no soportado. Usa JPG, PNG o WEBP.');
+      if (pendingPreview) URL.revokeObjectURL(pendingPreview);
+      pendingPreviewRef.current = null;
+      setPendingPreview(null);
+      setPendingFile(null);
+      setFeedback(null);
+      setError(messages.errors.unsupportedType);
       return;
     }
     if (file.size > MAX_FILE_SIZE) {
-      setError('La imagen no puede superar los 4 MB.');
+      if (pendingPreview) URL.revokeObjectURL(pendingPreview);
+      pendingPreviewRef.current = null;
+      setPendingPreview(null);
+      setPendingFile(null);
+      setFeedback(null);
+      setError(messages.errors.fileTooLarge);
       return;
     }
 
     setError(null);
+    setFeedback(null);
+    if (pendingPreview) URL.revokeObjectURL(pendingPreview);
     setPendingFile(file);
-    setPendingPreview(URL.createObjectURL(file));
+    const preview = URL.createObjectURL(file);
+    pendingPreviewRef.current = preview;
+    setPendingPreview(preview);
     // TODO [Needs Work]: recorte de imagen (crop) sin implementar todavía.
     // Acá debería abrirse el editor antes de habilitar "Guardar".
   };
 
   const handleCancel = () => {
-    if (pendingPreview) URL.revokeObjectURL(pendingPreview);
+    if (pendingPreview && pendingPreview !== currentImage) {
+      URL.revokeObjectURL(pendingPreview);
+    }
+    pendingPreviewRef.current = null;
     setPendingPreview(null);
     setPendingFile(null);
     setError(null);
+    setFeedback(null);
   };
 
   const handleSave = async () => {
@@ -73,13 +135,44 @@ export function ProfileAvatarSettings({
         body: formData,
       });
 
-      if (!res.ok) throw new Error();
+      const body: unknown = await res.json().catch(() => null);
+      if (!res.ok) {
+        const code = readErrorCode(body, AVATAR_ERROR_CODES) ?? 'uploadFailed';
+        throw new Error(code);
+      }
 
-      const { data } = await res.json();
-      setCurrentImage(data?.avatarUrl ?? pendingPreview);
-      handleCancel();
-    } catch {
-      setError('No se pudo guardar la foto. Inténtalo de nuevo.');
+      const avatarUrl = getAvatarUrl(body);
+      if (avatarUrl) {
+        setCurrentImage(avatarUrl);
+        if (retainedPreviewRef.current) {
+          URL.revokeObjectURL(retainedPreviewRef.current);
+          retainedPreviewRef.current = null;
+        }
+        handleCancel();
+      } else {
+        if (
+          retainedPreviewRef.current &&
+          retainedPreviewRef.current !== pendingPreview
+        ) {
+          URL.revokeObjectURL(retainedPreviewRef.current);
+        }
+        setCurrentImage(pendingPreview);
+        retainedPreviewRef.current = pendingPreview;
+        pendingPreviewRef.current = null;
+        setPendingPreview(null);
+        setPendingFile(null);
+      }
+      setFeedback(messages.saved);
+      router.refresh();
+    } catch (error) {
+      const code =
+        error instanceof Error &&
+        AVATAR_ERROR_CODES.includes(
+          error.message as (typeof AVATAR_ERROR_CODES)[number],
+        )
+          ? error.message
+          : 'uploadFailed';
+      setError(messages.errors[code as keyof typeof messages.errors]);
     } finally {
       setIsSaving(false);
     }
@@ -90,10 +183,27 @@ export function ProfileAvatarSettings({
     setError(null);
     try {
       const res = await fetch('/api/user/avatar', { method: 'DELETE' });
-      if (!res.ok) throw new Error();
+      const body: unknown = await res.json().catch(() => null);
+      if (!res.ok) {
+        const code = readErrorCode(body, AVATAR_ERROR_CODES) ?? 'removeFailed';
+        throw new Error(code);
+      }
       setCurrentImage(null);
-    } catch {
-      setError('No se pudo eliminar la foto.');
+      if (retainedPreviewRef.current) {
+        URL.revokeObjectURL(retainedPreviewRef.current);
+        retainedPreviewRef.current = null;
+      }
+      setFeedback(messages.removed);
+      router.refresh();
+    } catch (error) {
+      const code =
+        error instanceof Error &&
+        AVATAR_ERROR_CODES.includes(
+          error.message as (typeof AVATAR_ERROR_CODES)[number],
+        )
+          ? error.message
+          : 'removeFailed';
+      setError(messages.errors[code as keyof typeof messages.errors]);
     } finally {
       setIsSaving(false);
     }
@@ -103,10 +213,10 @@ export function ProfileAvatarSettings({
     <section className="border-border bg-surface rounded-3xl border p-6 sm:p-8">
       <header className="mb-6">
         <h2 className="text-foreground text-lg font-semibold">
-          Foto de perfil
+          {messages.title}
         </h2>
         <p className="text-foreground-muted mt-1 text-sm">
-          Se muestra en tus salas de estudio, tus mensajes y el menú lateral.
+          {messages.description}
         </p>
       </header>
 
@@ -118,7 +228,7 @@ export function ProfileAvatarSettings({
               type="button"
               onClick={() => inputRef.current?.click()}
               aria-label={
-                currentImage ? 'Cambiar foto de perfil' : 'Subir foto de perfil'
+                currentImage ? messages.changeAria : messages.uploadAria
               }
               className="group border-border bg-background focus-visible:ring-primary relative size-32 overflow-hidden rounded-full border focus-visible:ring-2 focus-visible:outline-none"
             >
@@ -176,7 +286,7 @@ export function ProfileAvatarSettings({
                 onClick={handleSave}
                 disabled={isSaving}
               >
-                {isSaving ? 'Guardando...' : 'Guardar foto'}
+                {isSaving ? messages.saving : messages.save}
               </Button>
               <Button
                 variant="ghost"
@@ -184,7 +294,7 @@ export function ProfileAvatarSettings({
                 onClick={handleCancel}
                 disabled={isSaving}
               >
-                Cancelar
+                {messages.cancel}
               </Button>
             </div>
           ) : (
@@ -195,7 +305,7 @@ export function ProfileAvatarSettings({
                 icon="upload"
                 onClick={() => inputRef.current?.click()}
               >
-                {currentImage ? 'Cambiar foto' : 'Subir foto'}
+                {currentImage ? messages.change : messages.upload}
               </Button>
               {currentImage && (
                 <Button
@@ -206,7 +316,7 @@ export function ProfileAvatarSettings({
                   disabled={isSaving}
                   className="hover:bg-danger/10 hover:text-danger"
                 >
-                  Eliminar
+                  {messages.remove}
                 </Button>
               )}
             </div>
@@ -221,15 +331,21 @@ export function ProfileAvatarSettings({
             </p>
           )}
 
+          {feedback && !error && (
+            <p role="status" className="text-success text-center text-xs">
+              {feedback}
+            </p>
+          )}
+
           <p className="text-foreground-subtle text-center text-xs sm:text-left">
-            JPG, PNG o WEBP · máx. 4 MB
+            {messages.limit}
           </p>
         </div>
 
         {/* Columna 2: vista previa, igual al bloque real del sidebar */}
         <div className="border-border flex flex-col gap-3 border-t pt-6 sm:border-t-0 sm:border-l sm:pt-0 sm:pl-8">
           <span className="text-foreground-muted text-xs font-semibold">
-            Así se ve en StudySync
+            {messages.previewTitle}
           </span>
 
           <div className="border-border bg-background flex items-center gap-3 rounded-xl border p-3">
@@ -265,7 +381,7 @@ export function ProfileAvatarSettings({
               name="lockOpen"
               className="size-3.5 shrink-0"
             />
-            Solo visible para usuarios con sesión iniciada en StudySync.
+            {messages.visibility}
           </p>
         </div>
       </div>

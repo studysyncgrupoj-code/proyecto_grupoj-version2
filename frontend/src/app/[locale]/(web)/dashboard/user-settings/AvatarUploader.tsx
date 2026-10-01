@@ -1,6 +1,7 @@
 'use client';
 
 import { Button } from '@/components/ui/Button';
+import { AVATAR_ERROR_CODES } from '@/lib/avatarErrors';
 import { getInitials } from '@/utilities/avatar';
 import { useRef, useState, type ChangeEvent } from 'react';
 
@@ -10,9 +11,20 @@ const ACCEPTED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 interface AvatarUploaderProps {
   name: string;
   image?: string | null;
+  messages: {
+    sidebarPreview: string;
+    save: string;
+    saving: string;
+    cancel: string;
+    change: string;
+    upload: string;
+    remove: string;
+    limit: string;
+    errors: Record<(typeof AVATAR_ERROR_CODES)[number], string>;
+  };
 }
 
-export function AvatarUploader({ name, image }: AvatarUploaderProps) {
+export function AvatarUploader({ name, image, messages }: AvatarUploaderProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [currentImage, setCurrentImage] = useState(image ?? null);
   const [pendingPreview, setPendingPreview] = useState<string | null>(null);
@@ -30,11 +42,11 @@ export function AvatarUploader({ name, image }: AvatarUploaderProps) {
     if (!file) return;
 
     if (!ACCEPTED_TYPES.includes(file.type)) {
-      setError('Formato no soportado. Usa JPG, PNG o WEBP.');
+      setError(messages.errors.unsupportedType);
       return;
     }
     if (file.size > MAX_FILE_SIZE) {
-      setError('La imagen no puede superar los 4 MB.');
+      setError(messages.errors.fileTooLarge);
       return;
     }
 
@@ -66,7 +78,7 @@ export function AvatarUploader({ name, image }: AvatarUploaderProps) {
       setCurrentImage(pendingPreview);
       handleCancel();
     } catch {
-      setError('No se pudo guardar la foto. Inténtalo de nuevo.');
+      setError(messages.errors.uploadFailed);
     } finally {
       setIsSaving(false);
     }
@@ -79,7 +91,7 @@ export function AvatarUploader({ name, image }: AvatarUploaderProps) {
       // TODO: DELETE /api/user/avatar
       setCurrentImage(null);
     } catch {
-      setError('No se pudo eliminar la foto.');
+      setError(messages.errors.removeFailed);
     } finally {
       setIsSaving(false);
     }
@@ -93,7 +105,7 @@ export function AvatarUploader({ name, image }: AvatarUploaderProps) {
         {/* Vista previa: cómo se ve en el menú lateral */}
         <div className="text-foreground-muted flex items-center gap-2 text-xs">
           <Avatar image={displayImage} initials={initials} size={32} />
-          Así se ve en el menú lateral
+          {messages.sidebarPreview}
         </div>
       </div>
 
@@ -114,7 +126,7 @@ export function AvatarUploader({ name, image }: AvatarUploaderProps) {
               onClick={handleSave}
               disabled={isSaving}
             >
-              {isSaving ? 'Guardando...' : 'Guardar foto'}
+              {isSaving ? messages.saving : messages.save}
             </Button>
             <Button
               variant="ghost"
@@ -122,7 +134,7 @@ export function AvatarUploader({ name, image }: AvatarUploaderProps) {
               onClick={handleCancel}
               disabled={isSaving}
             >
-              Cancelar
+              {messages.cancel}
             </Button>
           </div>
         ) : (
@@ -133,7 +145,7 @@ export function AvatarUploader({ name, image }: AvatarUploaderProps) {
               icon="camera"
               onClick={() => inputRef.current?.click()}
             >
-              {currentImage ? 'Cambiar foto' : 'Subir foto'}
+              {currentImage ? messages.change : messages.upload}
             </Button>
             {currentImage && (
               <Button
@@ -144,7 +156,7 @@ export function AvatarUploader({ name, image }: AvatarUploaderProps) {
                 disabled={isSaving}
                 className="hover:text-danger"
               >
-                Eliminar
+                {messages.remove}
               </Button>
             )}
           </div>
@@ -156,9 +168,7 @@ export function AvatarUploader({ name, image }: AvatarUploaderProps) {
           </p>
         )}
 
-        <p className="text-foreground-subtle text-xs">
-          JPG, PNG o WEBP. Máximo 4 MB.
-        </p>
+        <p className="text-foreground-subtle text-xs">{messages.limit}</p>
       </div>
     </div>
   );

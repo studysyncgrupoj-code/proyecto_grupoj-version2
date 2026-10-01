@@ -1,4 +1,5 @@
 import { auth } from '@/auth';
+import { apiError } from '@/lib/apiResponse';
 import { NextRequest, NextResponse } from 'next/server';
 
 const API_BASE_URL = process.env.API_BASE_URL;
@@ -9,53 +10,35 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   const session = await auth();
 
   if (!session?.user?.id) {
-    return NextResponse.json(
-      { status: 401, message: 'No autenticado.' },
-      { status: 401 },
-    );
+    return apiError(401, 'unauthenticated');
   }
 
   if (!API_BASE_URL) {
     console.error('API_BASE_URL no configurada');
-    return NextResponse.json(
-      { status: 500, message: 'Error de configuración del servidor.' },
-      { status: 500 },
-    );
+    return apiError(500, 'serverError');
   }
 
   let formData: FormData;
   try {
     formData = await request.formData();
   } catch {
-    return NextResponse.json(
-      { status: 400, message: 'No se pudo leer el archivo enviado.' },
-      { status: 400 },
-    );
+    return apiError(400, 'invalidRequest');
   }
 
   const file = formData.get('avatar');
 
   if (!(file instanceof File)) {
-    return NextResponse.json(
-      { status: 400, message: 'No se recibió ninguna imagen.' },
-      { status: 400 },
-    );
+    return apiError(400, 'missingFile');
   }
 
   // Revalidamos en el servidor lo que ya se valida en el cliente:
   // el input del navegador se puede manipular.
   if (!ACCEPTED_TYPES.includes(file.type)) {
-    return NextResponse.json(
-      { status: 400, message: 'Formato no soportado. Usa JPG, PNG o WEBP.' },
-      { status: 400 },
-    );
+    return apiError(415, 'unsupportedType');
   }
 
   if (file.size > MAX_FILE_SIZE) {
-    return NextResponse.json(
-      { status: 400, message: 'La imagen no puede superar los 4 MB.' },
-      { status: 400 },
-    );
+    return apiError(413, 'fileTooLarge');
   }
 
   const backendFormData = new FormData();
@@ -65,14 +48,17 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   // ante Spring Boot (token en `Authorization` capturado en el login, o un
   // secreto de servidor a servidor). Sin esto, cualquiera podría llamar a esta
   // ruta y el backend no tiene forma de confirmar que session.user.id es real.
-  const response = await fetch(
-    `${API_BASE_URL}/users/${session.user.id}/avatar`,
-    {
+  let response: Response;
+  try {
+    response = await fetch(`${API_BASE_URL}/users/${session.user.id}/avatar`, {
       method: 'POST',
       body: backendFormData,
       cache: 'no-store',
-    },
-  );
+    });
+  } catch (error) {
+    console.error('Error de conexión al subir el avatar:', error);
+    return apiError(503, 'serviceUnavailable');
+  }
 
   let data: unknown;
   try {
@@ -84,6 +70,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     };
   }
 
+  if (!response.ok) return apiError(502, 'uploadFailed');
   return NextResponse.json(data, { status: response.status });
 }
 
@@ -91,25 +78,25 @@ export async function DELETE(): Promise<NextResponse> {
   const session = await auth();
 
   if (!session?.user?.id) {
-    return NextResponse.json(
-      { status: 401, message: 'No autenticado.' },
-      { status: 401 },
-    );
+    return apiError(401, 'unauthenticated');
   }
 
   if (!API_BASE_URL) {
     console.error('API_BASE_URL no configurada');
-    return NextResponse.json(
-      { status: 500, message: 'Error de configuración del servidor.' },
-      { status: 500 },
-    );
+    return apiError(500, 'serverError');
   }
 
   // TODO [Backend – bloqueante]: mismo tema de autenticación que en POST.
-  const response = await fetch(
-    `${API_BASE_URL}/users/${session.user.id}/avatar`,
-    { method: 'DELETE', cache: 'no-store' },
-  );
+  let response: Response;
+  try {
+    response = await fetch(`${API_BASE_URL}/users/${session.user.id}/avatar`, {
+      method: 'DELETE',
+      cache: 'no-store',
+    });
+  } catch (error) {
+    console.error('Error de conexión al eliminar el avatar:', error);
+    return apiError(503, 'serviceUnavailable');
+  }
 
   let data: unknown;
   try {
@@ -121,5 +108,6 @@ export async function DELETE(): Promise<NextResponse> {
     };
   }
 
+  if (!response.ok) return apiError(502, 'removeFailed');
   return NextResponse.json(data, { status: response.status });
 }

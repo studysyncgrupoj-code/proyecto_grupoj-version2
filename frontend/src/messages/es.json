@@ -719,6 +719,57 @@
         "rooms": "Salas",
         "reportsAudit": "Informes y auditoría"
       }
+    },
+    "userSettings": {
+      "metadata": {
+        "title": "Mi perfil | StudySync",
+        "description": "Gestiona tu perfil, foto y requisitos para certificados."
+      },
+      "page": {
+        "title": "Configuración de la cuenta",
+        "description": "Gestiona tu perfil, seguridad y preferencias.",
+        "fallbackName": "Usuario",
+        "fallbackEmail": "No disponible"
+      },
+      "avatar": {
+        "title": "Foto de perfil",
+        "description": "Se muestra en tus salas de estudio, tus mensajes y el menú lateral.",
+        "changeAria": "Cambiar foto de perfil",
+        "uploadAria": "Subir foto de perfil",
+        "save": "Guardar foto",
+        "saving": "Guardando...",
+        "cancel": "Cancelar",
+        "change": "Cambiar foto",
+        "upload": "Subir foto",
+        "remove": "Eliminar",
+        "limit": "JPG, PNG o WEBP · máx. 4 MB",
+        "previewTitle": "Así se ve en StudySync",
+        "visibility": "Solo visible para usuarios con sesión iniciada en StudySync.",
+        "errors": {
+          "unsupportedType": "Formato no soportado. Usa JPG, PNG o WEBP.",
+          "fileTooLarge": "La imagen no puede superar los 4 MB.",
+          "unauthenticated": "Tu sesión expiró. Inicia sesión de nuevo.",
+          "serverError": "No se pudo guardar la foto. Inténtalo de nuevo.",
+          "invalidRequest": "No se pudo leer el archivo enviado.",
+          "missingFile": "Selecciona una imagen para continuar.",
+          "serviceUnavailable": "El servicio de imágenes no está disponible. Inténtalo más tarde.",
+          "uploadFailed": "No se pudo guardar la foto. Inténtalo de nuevo.",
+          "removeFailed": "No se pudo eliminar la foto. Inténtalo de nuevo."
+        },
+        "saved": "Foto de perfil actualizada.",
+        "removed": "Foto de perfil eliminada.",
+        "sidebarPreview": "Así se ve en el menú lateral"
+      },
+      "certificates": {
+        "title": "Requisitos para certificados",
+        "description": "Debes completar estos puntos de tu perfil para poder generar certificados.",
+        "eligible": "Cumples",
+        "pending": "Pendiente",
+        "avatar": "Foto de perfil cargada",
+        "personalData": "Datos personales completos",
+        "verified": "Cuenta verificada",
+        "comingSoon": "Próximamente"
+      }
     }
   }
 }

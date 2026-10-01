@@ -9,17 +9,28 @@ interface Requirement {
 
 interface CertificateEligibilityProps {
   hasAvatar: boolean;
+  messages: {
+    title: string;
+    description: string;
+    eligible: string;
+    pending: string;
+    avatar: string;
+    personalData: string;
+    verified: string;
+    comingSoon: string;
+  };
 }
 
 export function CertificateEligibility({
   hasAvatar,
+  messages,
 }: CertificateEligibilityProps) {
   // TODO: sumar acá los requisitos reales de "Personal Data" y "Security"
   // en cuanto existan (ej: datos completos, cuenta verificada).
   const requirements: Requirement[] = [
-    { label: 'Foto de perfil cargada', met: hasAvatar },
-    { label: 'Datos personales completos', met: false, comingSoon: true },
-    { label: 'Cuenta verificada', met: false, comingSoon: true },
+    { label: messages.avatar, met: hasAvatar },
+    { label: messages.personalData, met: false, comingSoon: true },
+    { label: messages.verified, met: false, comingSoon: true },
   ];
 
   const enforced = requirements.filter((r) => !r.comingSoon);
@@ -30,11 +41,10 @@ export function CertificateEligibility({
       <header className="mb-5 flex items-start justify-between gap-4">
         <div>
           <h2 className="text-foreground text-lg font-semibold">
-            Requisitos para certificados
+            {messages.title}
           </h2>
           <p className="text-foreground-muted mt-1 text-sm">
-            Debes completar estos puntos de tu perfil para poder generar
-            certificados.
+            {messages.description}
           </p>
         </div>
         <span
@@ -49,7 +59,7 @@ export function CertificateEligibility({
             name={isEligible ? 'checkCircle' : 'alert'}
             className="size-3.5"
           />
-          {isEligible ? 'Cumples' : 'Pendiente'}
+          {isEligible ? messages.eligible : messages.pending}
         </span>
       </header>
 
@@ -71,7 +81,7 @@ export function CertificateEligibility({
             </span>
             {req.comingSoon && (
               <span className="text-foreground-subtle ml-auto text-xs">
-                Próximamente
+                {messages.comingSoon}
               </span>
             )}
           </li>
