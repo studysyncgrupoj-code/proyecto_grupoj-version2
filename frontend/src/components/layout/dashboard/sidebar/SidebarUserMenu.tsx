@@ -1,7 +1,7 @@
 'use client';
 
 import { Button } from '@/components/ui/Button';
-import ThemeToggle from '@/components/ui/ThemeToggle';
+import ThemeToggle from '@/components/ui/ThemeToggle/ThemeToggle';
 import { getInitials } from '@/utilities/avatar';
 import { cn } from '@/utilities/cn';
 import { signOut } from 'next-auth/react';

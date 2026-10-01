@@ -1,7 +1,7 @@
 'use client';
 
 import { Button } from '@/components/ui/Button';
-import ThemeToggle from '@/components/ui/ThemeToggle';
+import ThemeToggle from '@/components/ui/ThemeToggle/ThemeToggle';
 import type { NavItem } from '@/config/dashboard-navigation';
 import { IconMap } from '@/lib/iconMap';
 import { cn } from '@/utilities/cn';
