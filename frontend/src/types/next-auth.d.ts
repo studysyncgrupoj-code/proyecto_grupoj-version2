@@ -13,11 +13,24 @@ interface UserProfile {
 declare module 'next-auth' {
   interface Session {
     user: DefaultSession['user'] & UserProfile;
+    accessToken?: string;
+    error?: 'RefreshTokenExpired' | 'RefreshTokenError';
   }
 
-  interface User extends DefaultUser, UserProfile {}
+  interface User extends DefaultUser, UserProfile {
+    accessToken?: string;
+    refreshToken?: string;
+    accessTokenExpires?: number;
+    refreshTokenExpires?: number;
+  }
 }
 
 declare module 'next-auth/jwt' {
-  interface JWT extends DefaultJWT, Partial<UserProfile> {}
+  interface JWT extends DefaultJWT, Partial<UserProfile> {
+    accessToken?: string;
+    refreshToken?: string;
+    accessTokenExpires?: number;
+    refreshTokenExpires?: number;
+    error?: 'RefreshTokenExpired' | 'RefreshTokenError';
+  }
 }
