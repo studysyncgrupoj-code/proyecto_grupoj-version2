@@ -54,6 +54,8 @@ export default async function Header() {
         themeLabel={t('theme')}
         loginLabel={t('login')}
         registerLabel={t('register')}
+        languageSlot={<LanguageToggle />}
+        themeSlot={<ThemeToggle size="sm" />}
       />
     </header>
   );

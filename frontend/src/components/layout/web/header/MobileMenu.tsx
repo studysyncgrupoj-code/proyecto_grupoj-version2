@@ -1,10 +1,8 @@
 'use client';
 
-import LanguageToggle from '@/components/ui/LanguageToggle/LanguageToggle';
-import ThemeToggle from '@/components/ui/ThemeToggle/ThemeToggle';
 import { HEADER_LINKS, isNavLinkActive } from '@/config/navigation';
 import { Link, usePathname } from '@/i18n/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { Button } from '../../../ui/Button';
 
 const MOBILE_MENU_ID = 'mobile-menu';
@@ -21,6 +19,8 @@ interface MobileMenuProps {
   themeLabel: string;
   loginLabel: string;
   registerLabel: string;
+  languageSlot: ReactNode;
+  themeSlot: ReactNode;
 }
 
 export default function MobileMenu({
@@ -31,6 +31,8 @@ export default function MobileMenu({
   themeLabel,
   loginLabel,
   registerLabel,
+  languageSlot,
+  themeSlot,
 }: MobileMenuProps) {
   const pathname = usePathname();
 
@@ -112,14 +114,14 @@ export default function MobileMenu({
 
           <hr className="border-border my-3" />
 
-          {/* Preferencias: idioma y tema */}
+          {/* Preferencias: idioma y tema (slots del servidor) */}
           <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 px-3">
             <div className="flex items-center gap-2.5">
               <span className="text-foreground-muted text-xs font-semibold">
                 {languageLabel}
               </span>
 
-              <LanguageToggle />
+              {languageSlot}
             </div>
 
             <div className="flex items-center gap-2.5">
@@ -127,7 +129,7 @@ export default function MobileMenu({
                 {themeLabel}
               </span>
 
-              <ThemeToggle size="sm" />
+              {themeSlot}
             </div>
           </div>
 
