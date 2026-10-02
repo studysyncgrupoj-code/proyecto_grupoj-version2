@@ -1,12 +1,11 @@
 'use client';
 
 import { Button } from '@/components/ui/Button';
-import ThemeToggle from '@/components/ui/ThemeToggle';
+import { Link } from '@/i18n/navigation';
 import { getInitials } from '@/utilities/avatar';
 import { cn } from '@/utilities/cn';
 import { signOut } from 'next-auth/react';
 import Image from 'next/image';
-import Link from 'next/link';
 import { useSidebar } from './SidebarContext';
 
 interface SidebarUserMenuProps {
@@ -16,9 +15,13 @@ interface SidebarUserMenuProps {
     image?: string | null;
     roleLabel: string;
   };
+  signOutLabel: string;
 }
 
-export default function SidebarUserMenu({ user }: SidebarUserMenuProps) {
+export default function SidebarUserMenu({
+  user,
+  signOutLabel,
+}: SidebarUserMenuProps) {
   const { collapsed } = useSidebar();
 
   return (
@@ -75,13 +78,12 @@ export default function SidebarUserMenu({ user }: SidebarUserMenuProps) {
           collapsed ? 'flex-col' : 'justify-between',
         )}
       >
-        <ThemeToggle size="sm" />
         <Button
           variant="ghost"
           size="md"
           icon="arrowRightOnRectangle"
-          aria-label="Cerrar sesión"
-          title={collapsed ? 'Cerrar sesión' : undefined}
+          aria-label={signOutLabel}
+          title={collapsed ? signOutLabel : undefined}
           fullWidth={!collapsed}
           onClick={() => signOut()}
           className={cn(
@@ -89,7 +91,7 @@ export default function SidebarUserMenu({ user }: SidebarUserMenuProps) {
             'hover:text-danger',
           )}
         >
-          {!collapsed && <span>Cerrar sesión</span>}
+          {!collapsed && <span>{signOutLabel}</span>}
         </Button>
       </div>
     </div>

@@ -15,89 +15,69 @@ const passwordRegex =
 // ESQUEMAS BASE
 // ============================================
 
-const nombreField = z
+const nameField = z
   .string()
   .trim()
-  .min(1, 'El nombre es requerido')
-  .min(2, 'El nombre debe tener al menos 2 caracteres')
-  .max(100, 'El nombre no puede exceder los 100 caracteres')
-  .refine((val) => nameRegex.test(val), {
-    message:
-      'El nombre solo puede contener letras, espacios, apóstrofes, guiones y puntos',
-  });
+  .min(1, 'name.required')
+  .min(2, 'name.min')
+  .max(100, 'name.max')
+  .refine((val) => nameRegex.test(val), { message: 'name.invalid' });
 
-const apellidoField = z
+const lastNameField = z
   .string()
   .trim()
-  .min(1, 'El apellido es requerido')
-  .min(2, 'El apellido debe tener al menos 2 caracteres')
-  .max(100, 'El apellido no puede exceder los 100 caracteres')
-  .refine((val) => nameRegex.test(val), {
-    message:
-      'El apellido solo puede contener letras, espacios, apóstrofes, guiones y puntos',
-  });
+  .min(1, 'lastName.required')
+  .min(2, 'lastName.min')
+  .max(100, 'lastName.max')
+  .refine((val) => nameRegex.test(val), { message: 'lastName.invalid' });
 
-// Validación de email moderna usando z.email() a nivel superior
 const emailField = z
   .string()
   .trim()
-  .min(1, 'El correo electrónico es requerido')
-  .max(
-    emailMaxLength,
-    `El correo no puede exceder los ${emailMaxLength} caracteres`,
-  )
-  .email('Correo electrónico inválido')
-  .refine((val) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val), {
-    message: 'Correo electrónico inválido',
-  });
+  .min(1, 'email.required')
+  .max(emailMaxLength, 'email.max')
+  .email('email.invalid');
 
 const passwordField = z
   .string()
-  .min(1, 'La contraseña es requerida')
-  .min(
-    passwordMinLength,
-    `La contraseña debe tener al menos ${passwordMinLength} caracteres`,
-  )
-  .max(
-    passwordMaxLength,
-    `La contraseña no puede exceder los ${passwordMaxLength} caracteres`,
-  )
-  .refine((val) => passwordRegex.test(val), {
-    message:
-      'La contraseña debe contener al menos una letra minúscula, una mayúscula y un caracter especial',
-  });
+  .min(1, 'password.required')
+  .min(passwordMinLength, 'password.min')
+  .max(passwordMaxLength, 'password.max')
+  .refine((val) => passwordRegex.test(val), { message: 'password.invalid' });
+
+const confirmPasswordField = z.string().min(1, 'confirmPassword.required');
 
 // ============================================
 // SCHEMAS PRINCIPALES
 // ============================================
 
 export const registerSchema = z.object({
-  nombre: nombreField,
-  apellido: apellidoField,
+  name: nameField,
+  lastName: lastNameField,
   email: emailField,
   password: passwordField,
 });
 
 export const registerWithConfirmSchema = registerSchema
   .extend({
-    confirmPassword: z.string().min(1, 'Debes confirmar tu contraseña'),
+    confirmPassword: confirmPasswordField,
   })
   .refine((data) => data.password === data.confirmPassword, {
-    message: 'Las contraseñas no coinciden',
+    message: 'confirmPassword.mismatch',
     path: ['confirmPassword'],
   });
 
 export const loginSchema = z.object({
   email: emailField,
-  password: z.string().min(1, 'La contraseña es requerida'),
+  password: z.string().min(1, 'password.required'),
 });
 
 export const updateUserSchema = z.object({
-  nombre: nombreField.optional(),
-  apellido: apellidoField.optional(),
+  name: nameField.optional(),
+  lastName: lastNameField.optional(),
   email: emailField.optional(),
   password: passwordField.optional(),
-  activo: z.boolean().optional(),
+  active: z.boolean().optional(),
 });
 
 // Esquema dedicado para "Olvidé mi contraseña": únicamente exige un correo
@@ -108,12 +88,9 @@ export const forgotPasswordSchema = z.object({
   email: z
     .string()
     .trim()
-    .min(1, 'El correo electrónico es requerido')
-    .max(
-      emailMaxLength,
-      `El correo no puede exceder los ${emailMaxLength} caracteres`,
-    )
-    .email('Ingresa un correo electrónico válido'),
+    .min(1, 'email.required')
+    .max(emailMaxLength, 'email.max')
+    .email('email.invalidInput'),
 });
 
 // Esquema del formulario de "Restablecer contraseña": lo que captura el
@@ -123,10 +100,10 @@ export const forgotPasswordSchema = z.object({
 export const resetPasswordSchema = z
   .object({
     password: passwordField,
-    confirmPassword: z.string().min(1, 'Debes confirmar tu contraseña'),
+    confirmPassword: confirmPasswordField,
   })
   .refine((data) => data.password === data.confirmPassword, {
-    message: 'Las contraseñas no coinciden',
+    message: 'confirmPassword.mismatch',
     path: ['confirmPassword'],
   });
 
@@ -134,10 +111,7 @@ export const resetPasswordSchema = z
 // el token (de la URL) junto con la nueva contraseña. `confirmPassword`
 // nunca debe llegar aquí ni al backend externo.
 export const resetPasswordRequestSchema = z.object({
-  token: z
-    .string()
-    .trim()
-    .min(1, 'El enlace de restablecimiento no es válido.'),
+  token: z.string().trim().min(1, 'resetPassword.invalidToken'),
   password: passwordField,
 });
 

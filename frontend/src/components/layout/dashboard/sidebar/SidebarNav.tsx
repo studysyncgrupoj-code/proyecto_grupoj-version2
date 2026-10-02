@@ -3,8 +3,7 @@
 import type { NavItem } from '@/config/dashboard-navigation';
 import { IconMap } from '@/lib/iconMap';
 import { cn } from '@/utilities/cn';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { Link, usePathname } from '@/i18n/navigation';
 import { useSidebar } from './SidebarContext';
 
 interface SidebarNavProps {
@@ -60,7 +59,7 @@ export default function SidebarNav({ items, panelTitle }: SidebarNavProps) {
             )}
           >
             {IconComponent && (
-              <IconComponent className="shrink-0 text-foreground" size={19}/>
+              <IconComponent className="text-foreground shrink-0" size={19} />
             )}
             {!collapsed && <span>{item.label}</span>}
           </Link>
