@@ -1,4 +1,4 @@
-import { getTranslations } from 'next-intl/server';
+'use client';
 
 import ThemeToggleClient from './ThemeToggleClient';
 
@@ -6,14 +6,14 @@ interface ThemeToggleProps {
   size?: 'sm' | 'md' | 'lg';
 }
 
-export default async function ThemeToggle({ size = 'md' }: ThemeToggleProps) {
-  const t = await getTranslations('themeToggle');
-
+export default function ThemeToggle({
+  size = 'md',
+}: ThemeToggleProps) {
   return (
     <ThemeToggleClient
       size={size}
-      toLightLabel={t('toLight')}
-      toDarkLabel={t('toDark')}
+      toLightLabel="Cambiar a modo claro"
+      toDarkLabel="Cambiar a modo oscuro"
     />
   );
 }
