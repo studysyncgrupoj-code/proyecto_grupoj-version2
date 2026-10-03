@@ -4,10 +4,7 @@ import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.studysync.security.jwt.JwtService;
 import com.studysync.service.auth.JwtRevocationService;
@@ -29,40 +26,49 @@ public class LogoutController {
 
     @PostMapping("/logout")
     public ResponseEntity<Map<String, Object>> logout(
-            @RequestHeader(
-                    value = "Authorization",
-                    required = false
-            ) String authorizationHeader
+            @RequestBody Map<String, String> request
     ) {
 
-        if (authorizationHeader == null
-                || !authorizationHeader.startsWith("Bearer ")) {
+        String refreshToken = request.get("refreshToken");
 
+        if (refreshToken == null || refreshToken.isBlank()) {
             return ResponseEntity
                     .status(HttpStatus.UNAUTHORIZED)
                     .body(Map.of(
                             "status", 401,
-                            "message", "Token de autenticación requerido."
+                            "message", "Refresh token requerido."
                     ));
         }
 
-        String token = authorizationHeader.substring(7).trim();
+        refreshToken = refreshToken.trim();
 
-        if (token.isBlank() || jwtService.validateToken(token) == null) {
+        if (jwtRevocationService.isRevoked(refreshToken)) {
             return ResponseEntity
                     .status(HttpStatus.UNAUTHORIZED)
                     .body(Map.of(
                             "status", 401,
-                            "message", "Token inválido o expirado."
+                            "message", "Refresh token ya revocado."
+                    ));
+        }
+
+        if (jwtService.validateRefreshToken(refreshToken) == null) {
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of(
+                            "status", 401,
+                            "message",
+                            "Refresh token inválido o expirado."
                     ));
         }
 
         long remainingMillis =
-                jwtService.getRemainingValidityMillis(token);
+                jwtService.getRemainingRefreshValidityMillis(
+                        refreshToken
+                );
 
         if (remainingMillis > 0) {
             jwtRevocationService.revoke(
-                    token,
+                    refreshToken,
                     remainingMillis
             );
         }
@@ -70,7 +76,8 @@ public class LogoutController {
         return ResponseEntity.ok(
                 Map.of(
                         "status", 200,
-                        "message", "Sesión cerrada correctamente."
+                        "message",
+                        "Sesión cerrada correctamente."
                 )
         );
     }
