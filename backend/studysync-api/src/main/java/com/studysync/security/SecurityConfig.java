@@ -50,11 +50,16 @@ public class SecurityConfig {
                                 "/auth/validate-verification-token",
                                 "/auth/forgot-password",
                                 "/auth/reset-password",
-                                "/auth/validate-reset-token",
-                                "/auth/refresh",
-                                "/auth/logout"
+                                "/auth/validate-reset-token"
                         )
                         .permitAll()
+
+                        // Cerrar sesión requiere JWT válido
+                        .requestMatchers(
+                                HttpMethod.POST,
+                                "/auth/logout"
+                        )
+                        .authenticated()
 
                         // Subir y eliminar avatares requiere JWT
                         .requestMatchers(

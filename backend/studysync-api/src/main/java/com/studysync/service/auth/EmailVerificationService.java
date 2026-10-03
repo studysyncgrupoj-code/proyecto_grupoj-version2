@@ -54,9 +54,6 @@ public class EmailVerificationService {
     private final EmailService emailService;
     private final String frontendUrl;
 
-    @Value("${resend.to}")
-    private String testRecipient;
-
     // ============================================
     // CONSTRUCTOR
     // ============================================
@@ -217,7 +214,7 @@ public class EmailVerificationService {
 
         boolean sent = emailService.send(
                 new EmailMessage(
-                        testRecipient,
+                        email,
                         null,
                         "Verifica tu cuenta - StudySync",
                         text,

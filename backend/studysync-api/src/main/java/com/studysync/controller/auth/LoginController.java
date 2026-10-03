@@ -53,29 +53,12 @@ public class LoginController {
                             result.authAccount()
                     );
 
-            String refreshToken =
-                    jwtService.generateRefreshToken(
-                            result.authAccount()
-                    );
-
             Map<String, Object> data =
                     new LinkedHashMap<>();
 
-            data.put(
-                    "nombre",
-                    result.profile().getNombre()
-            );
-
-            data.put(
-                    "apellidos",
-                    result.profile().getApellidos()
-            );
-
-            // UUID siempre como String
-            data.put(
-                    "uuid",
-                    result.authAccount().getId().toString()
-            );
+            data.put("nombre", result.profile().getNombre());
+            data.put("apellidos", result.profile().getApellidos());
+            data.put("uuid", result.authAccount().getId());
 
             data.put(
                     "rol",
@@ -84,52 +67,32 @@ public class LoginController {
 
             data.put("token", token);
             data.put("tokenType", "Bearer");
-            data.put(
-                    "expiresIn",
-                    jwtService.getExpirationSeconds()
-            );
+            data.put("expiresIn", 3600);
 
-            data.put("refreshToken", refreshToken);
-            data.put(
-                    "refreshExpiresIn",
-                    jwtService.getRefreshExpirationSeconds()
-            );
-
-            // Siempre enviar image
             String image = result.profile().getImage();
 
-            data.put(
-                    "image",
-                    image != null ? image : ""
-            );
-
-            // Siempre enviar subscription
-            String subscription = "";
-
-            if (result.subscription() != null) {
-                subscription =
-                        result.subscription()
-                                .name()
-                                .toLowerCase();
+            if (image != null && !image.isBlank()) {
+                data.put("image", image);
             }
 
-            data.put(
-                    "subscription",
-                    subscription
-            );
+            if (result.subscription() != null) {
+                data.put(
+                        "subscription",
+                        result.subscription()
+                                .name()
+                                .toLowerCase()
+                );
+            }
 
             return ResponseEntity.ok(
                     Map.of(
                             "status", 200,
-                            "message",
-                            "Credenciales válidas.",
+                            "message", "Credenciales válidas.",
                             "data", data
                     )
             );
 
-        } catch (
-                LoginService.AccountInactiveException e
-        ) {
+        } catch (LoginService.AccountInactiveException e) {
 
             return ResponseEntity
                     .status(HttpStatus.FORBIDDEN)
@@ -141,4 +104,3 @@ public class LoginController {
         }
     }
 }
-                  
