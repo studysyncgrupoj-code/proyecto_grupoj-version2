@@ -1,0 +1,11 @@
+query MyPersonalData {
+  myPersonalData {
+    firstName
+    lastName
+    documentId
+    phone
+    country
+    address
+    identityLocked
+  }
+}

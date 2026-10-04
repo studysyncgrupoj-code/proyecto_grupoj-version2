@@ -1,0 +1,11 @@
+mutation UpdatePersonalData($input: UpdatePersonalDataInput!) {
+  updatePersonalData(input: $input) {
+    firstName
+    lastName
+    documentId
+    phone
+    country
+    address
+    identityLocked
+  }
+}
