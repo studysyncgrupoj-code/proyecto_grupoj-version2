@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "graphql:validate": "tsx scripts/validate-graphql-schema.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "5.9.1",
@@ -37,6 +38,8 @@
     "@graphql-codegen/client-preset": "6.2.0",
     "@graphql-codegen/typescript": "6.1.0",
     "@graphql-codegen/typescript-resolvers": "6.1.0",
+    "@graphql-tools/load-files": "7.0.1",
+    "@graphql-tools/schema": "10.1.3",
     "@tailwindcss/postcss": "4",
     "@types/node": "26.6.4",
     "@types/react": "19",
@@ -46,6 +49,7 @@
     "prettier": "3.9.9",
     "prettier-plugin-tailwindcss": "0.8.1",
     "tailwindcss": "4",
+    "tsx": "^4.23.15",
     "typescript": "7.0.2"
   },
   "packageManager": "pnpm@12.9.1"
