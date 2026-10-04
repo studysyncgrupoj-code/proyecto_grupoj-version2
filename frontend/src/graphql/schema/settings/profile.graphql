@@ -1,0 +1,14 @@
+type Profile {
+  bio: Bio
+  interests: [String!]!
+}
+
+input UpdateBioInput {
+  title: String!
+  description: String!
+}
+
+input UpdateProfileInput {
+  bio: UpdateBioInput
+  interests: [String!]
+}
