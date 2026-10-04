@@ -1,13 +1,12 @@
 import type { DefaultSession, DefaultUser } from 'next-auth';
 import type { DefaultJWT } from 'next-auth/jwt';
-
-export type UserRole = 'student' | 'teacher' | 'admin';
-export type SubscriptionType = 'free' | 'premium' | 'enterprise';
+import type { SubscriptionType, UserRole } from './user';
+export type { SubscriptionType, UserRole } from './user';
 
 interface UserProfile {
   id: string;
   role: UserRole;
-  subscription?: SubscriptionType; // solo aplica a 'student'
+  subscription?: SubscriptionType;
 }
 
 declare module 'next-auth' {
