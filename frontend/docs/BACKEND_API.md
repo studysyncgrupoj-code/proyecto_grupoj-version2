@@ -1,1255 +1,85 @@
-# Backend API Contract
+# Contrato de API del backend
 
 **Versión:** `v1`
-**Estado:** Approved for implementation
-**Formato:** JSON
-**Autenticación:** Bearer Access Token
-**Endpoints:** 28
+
+Este documento es el contrato formal de integración entre el frontend/BFF y el backend, y explica en español lo que el backend debe implementar.
+
+Es el **único documento del contrato**. Cualquier cambio en el contrato debe reflejarse primero aquí y después en el código del frontend (`src/lib/backend/types.ts`, el schema GraphQL y `RestBackendClient`).
 
 ---
 
-## 1. Propósito
-
-Este documento define el contrato HTTP entre el **GraphQL BFF** y el **backend principal**.
+# 1. Cómo funciona la arquitectura
 
 ```text
-Frontend
-   │
-   │ GraphQL
-   ▼
-GraphQL Yoga / BFF
-   │
-   │ BackendClient
-   ▼
-REST Backend API
-   │
-   ▼
-Business Logic / Database
+Dashboard (React)  →  GraphQL (BFF)  →  API REST del backend
+
+Sitio público (login, registro, recuperar contraseña, contacto)
+        → API REST del backend
 ```
 
-El backend principal debe implementar los endpoints definidos en este documento.
+- Dentro del dashboard el frontend habla solo con GraphQL. El BFF traduce cada operación GraphQL a una llamada REST al backend.
+- Fuera del dashboard, el servidor de Next.js llama al REST directamente para login, registro, recuperar contraseña y contacto.
+- El backend **no debe confiar** en que la petición venga del BFF. Siempre debe validar el token y los permisos.
 
-El BFF no debe depender de detalles internos del backend.
+La URL base del backend es `API_BASE_URL`. Todas las rutas de este documento son relativas a ella.
 
 ---
 
-# 2. Base URL
+# 2. Autenticación
 
-El BFF utiliza:
+Hay dos tokens:
 
-```env
-API_BASE_URL=https://api.example.com
-```
+- **Access Token:** autentica las peticiones. Se envía como `Authorization: Bearer <token>`.
+- **Refresh Token:** sirve únicamente para pedir un nuevo par de tokens en `POST /auth/refresh`. Nunca se usa en endpoints de negocio.
 
-Todas las rutas de este documento son relativas a `API_BASE_URL`.
+Niveles de autenticación que se usan en la tabla de endpoints:
 
-Ejemplo:
-
-```http
-GET https://api.example.com/users/me
-```
-
----
-
-# 3. Autenticación
-
-Los endpoints privados utilizan un Access Token:
-
-```http
-Authorization: Bearer <access_token>
-```
-
-Ejemplo:
-
-```http
-Authorization: Bearer eyJhbGciOi...
-```
-
-El backend es responsable de:
-
-- validar el token;
-- determinar el usuario autenticado;
-- comprobar permisos;
-- rechazar tokens inválidos o expirados.
-
-El backend **no debe confiar únicamente en que la petición provenga del BFF**.
+| Nivel      | Qué significa                                                                              |
+| ---------- | ------------------------------------------------------------------------------------------ |
+| `None`     | No se lee el header `Authorization`.                                                       |
+| `Optional` | Si llega un Bearer válido, el backend lo usa. Si no llega, trata la petición como anónima. |
+| `Required` | El Bearer es obligatorio. Si falta o no es válido, responder `401`.                        |
 
 ---
 
-# 4. Headers
+# 3. Cambios que el backend debe implementar
 
-Las peticiones JSON deben utilizar:
+Esta sección define el comportamiento requerido por el contrato `v1`.
 
-```http
-Content-Type: application/json
-Accept: application/json
-```
+Los cambios respecto al backend actual (nombres de campos y rutas) están resumidos en la sección 14.
 
-Las peticiones autenticadas deben incluir:
+## 3.1 Nombres de campos
 
-```http
-Authorization: Bearer <access_token>
-```
+Los campos del contrato `v1` utilizan nombres en inglés.
 
----
+### Respuesta de `POST /auth/login`
 
-# 5. Formato de errores
+Dentro de `data`:
 
-Los errores deben utilizar una estructura consistente:
+| Campo              | Tipo             | Descripción                            |
+| ------------------ | ---------------- | -------------------------------------- |
+| `firstName`        | `string`         | Nombre del usuario                     |
+| `lastName`         | `string`         | Apellidos del usuario                  |
+| `id`               | `string`         | Identificador único del usuario        |
+| `role`             | `string`         | Rol del usuario                        |
+| `subscription`     | `string \| null` | Suscripción, cuando corresponda        |
+| `image`            | `string \| null` | Imagen del usuario                     |
+| `token`            | `string`         | Access Token                           |
+| `refreshToken`     | `string`         | Refresh Token                          |
+| `expiresIn`        | `number`         | Duración del Access Token en segundos  |
+| `refreshExpiresIn` | `number`         | Duración del Refresh Token en segundos |
 
-```json
-{
-  "error": {
-    "code": "ERROR_CODE",
-    "message": "Human readable message",
-    "details": null
-  }
-}
-```
+`id` debe ser **el mismo valor** que devuelve `GET /users/me` en su campo `id`.
 
-Cuando existan detalles de validación:
-
-```json
-{
-  "error": {
-    "code": "VALIDATION_ERROR",
-    "message": "Request validation failed",
-    "details": {
-      "field": "email",
-      "reason": "Invalid email format"
-    }
-  }
-}
-```
-
-## 5.1 Códigos HTTP
-
-|  HTTP | Código                | Uso                                         |
-| ----: | --------------------- | ------------------------------------------- |
-| `400` | `BAD_REQUEST`         | Request malformado                          |
-| `401` | `UNAUTHENTICATED`     | Token ausente, inválido o expirado          |
-| `403` | `FORBIDDEN`           | Usuario autenticado sin permisos            |
-| `404` | `NOT_FOUND`           | Recurso inexistente                         |
-| `409` | `CONFLICT`            | Operación incompatible con el estado actual |
-| `422` | `VALIDATION_ERROR`    | Datos inválidos                             |
-| `429` | `RATE_LIMITED`        | Límite de peticiones excedido               |
-| `500` | `INTERNAL_ERROR`      | Error interno                               |
-| `502` | `UPSTREAM_ERROR`      | Error en dependencia externa                |
-| `503` | `SERVICE_UNAVAILABLE` | Servicio temporalmente no disponible        |
-
----
-
-# 6. Convenciones de datos
-
-## 6.1 IDs
-
-Los IDs se representan como `string`.
-
-```json
-{
-  "id": "usr_123"
-}
-```
-
----
-
-## 6.2 Fechas
-
-Todas las fechas deben utilizar ISO 8601.
-
-Ejemplo:
+Los valores permitidos para `role` son:
 
 ```text
-2026-10-04T18:30:00Z
+student
+teacher
+admin
 ```
 
----
-
-## 6.3 Valores nulos
-
-Cuando un campo puede no tener valor, debe devolverse explícitamente como `null`.
-
-Ejemplo:
-
-```json
-{
-  "image": null,
-  "phone": null
-}
-```
-
-No se debe cambiar arbitrariamente entre:
-
-```json
-null
-```
-
-y:
-
-```json
-""
-```
-
----
-
-# 7. Users
-
-## 7.1 GET `/users/me`
-
-Obtiene el usuario autenticado.
-
-### Authentication
-
-Required.
-
-### Request
-
-```http
-GET /users/me
-Authorization: Bearer <access_token>
-```
-
-### Response `200 OK`
-
-```json
-{
-  "id": "usr_123",
-  "name": "John Doe",
-  "email": "john@example.com",
-  "image": "https://example.com/avatar.jpg",
-  "role": "student",
-  "profile": {
-    "bio": {
-      "title": "Software Developer",
-      "description": "Developer interested in technology."
-    },
-    "interests": ["programming", "technology"]
-  }
-}
-```
-
-### Response type
-
-```ts
-BackendUser;
-```
-
-### Errores
-
-```text
-401 UNAUTHENTICATED
-500 INTERNAL_ERROR
-```
-
----
-
-# 8. Public Profile
-
-## 8.1 GET `/users/:userId/profile`
-
-Obtiene el perfil público de un usuario.
-
-### Authentication
-
-No requerida.
-
-### Request
-
-```http
-GET /users/usr_123/profile
-```
-
-### Response `200 OK`
-
-```json
-{
-  "id": "usr_123",
-  "name": "John Doe",
-  "image": "https://example.com/avatar.jpg",
-  "bio": {
-    "title": "Software Developer",
-    "description": "Developer interested in technology."
-  },
-  "interests": ["programming", "technology"],
-  "email": null,
-  "phone": null
-}
-```
-
-### Response type
-
-```ts
-BackendPublicProfile | null;
-```
-
-Si el usuario no existe o no puede exponerse públicamente:
-
-```http
-404 Not Found
-```
-
-### Errores
-
-```text
-404 NOT_FOUND
-```
-
----
-
-# 9. Profile
-
-## 9.1 PATCH `/users/me/profile`
-
-Actualiza el perfil del usuario autenticado.
-
-### Authentication
-
-Required.
-
-### Request
-
-```http
-PATCH /users/me/profile
-Authorization: Bearer <access_token>
-Content-Type: application/json
-```
-
-### Body
-
-```json
-{
-  "bio": {
-    "title": "Software Developer",
-    "description": "Updated description"
-  },
-  "interests": ["programming", "technology"]
-}
-```
-
-### Request type
-
-```ts
-BackendUpdateProfileInput;
-```
-
-Definición:
-
-```ts
-interface BackendUpdateProfileInput {
-  bio?: BackendBio | null;
-  interests?: string[] | null;
-}
-```
-
-Todos los campos son opcionales.
-
-### Response `200 OK`
-
-```json
-{
-  "id": "usr_123",
-  "name": "John Doe",
-  "email": "john@example.com",
-  "image": null,
-  "role": "student",
-  "profile": {
-    "bio": {
-      "title": "Software Developer",
-      "description": "Updated description"
-    },
-    "interests": ["programming", "technology"]
-  }
-}
-```
-
-### Response type
-
-```ts
-BackendUser;
-```
-
-### Errores
-
-```text
-401 UNAUTHENTICATED
-422 VALIDATION_ERROR
-```
-
----
-
-# 10. Personal Data
-
-## 10.1 GET `/users/me/personal-data`
-
-Obtiene los datos personales del usuario.
-
-### Authentication
-
-Required.
-
-### Request
-
-```http
-GET /users/me/personal-data
-Authorization: Bearer <access_token>
-```
-
-### Response `200 OK`
-
-```json
-{
-  "firstName": "John",
-  "lastName": "Doe",
-  "documentId": "123456789",
-  "phone": "+573001234567",
-  "country": "CO",
-  "address": "Example address",
-  "identityLocked": false
-}
-```
-
-### Response type
-
-```ts
-BackendPersonalData;
-```
-
-### Errores
-
-```text
-401 UNAUTHENTICATED
-500 INTERNAL_ERROR
-```
-
----
-
-## 10.2 PATCH `/users/me/personal-data`
-
-Actualiza datos personales.
-
-### Authentication
-
-Required.
-
-### Request
-
-```http
-PATCH /users/me/personal-data
-Authorization: Bearer <access_token>
-Content-Type: application/json
-```
-
-### Body
-
-```json
-{
-  "firstName": "John",
-  "lastName": "Doe",
-  "documentId": "123456789",
-  "phone": "+573001234567",
-  "country": "CO",
-  "address": "New address"
-}
-```
-
-### Request type
-
-```ts
-BackendUpdatePersonalDataInput;
-```
-
-Definición:
-
-```ts
-type BackendUpdatePersonalDataInput = Partial<
-  Omit<BackendPersonalData, 'identityLocked'>
->;
-```
-
-Por tanto, `identityLocked` **nunca se recibe desde el cliente**.
-
-### Response `200 OK`
-
-```json
-{
-  "firstName": "John",
-  "lastName": "Doe",
-  "documentId": "123456789",
-  "phone": "+573001234567",
-  "country": "CO",
-  "address": "New address",
-  "identityLocked": false
-}
-```
-
-### Errores
-
-```text
-401 UNAUTHENTICATED
-403 FORBIDDEN
-409 CONFLICT
-422 VALIDATION_ERROR
-```
-
----
-
-# 11. Privacy
-
-## 11.1 GET `/users/me/privacy`
-
-Obtiene la configuración de privacidad.
-
-### Authentication
-
-Required.
-
-### Response `200 OK`
-
-```json
-{
-  "profileVisibility": "everyone",
-  "emailVisibility": "authenticated",
-  "phoneVisibility": "nobody",
-  "allowDirectMessages": true
-}
-```
-
-### Response type
-
-```ts
-BackendPrivacySettings;
-```
-
-### Valores
-
-```text
-everyone
-authenticated
-nobody
-```
-
-### Errores
-
-```text
-401 UNAUTHENTICATED
-500 INTERNAL_ERROR
-```
-
----
-
-## 11.2 PATCH `/users/me/privacy`
-
-Actualiza la configuración de privacidad.
-
-### Request
-
-```http
-PATCH /users/me/privacy
-Authorization: Bearer <access_token>
-Content-Type: application/json
-```
-
-### Body
-
-```json
-{
-  "profileVisibility": "authenticated",
-  "emailVisibility": "nobody",
-  "phoneVisibility": "nobody",
-  "allowDirectMessages": false
-}
-```
-
-### Request type
-
-```ts
-BackendUpdatePrivacySettingsInput;
-```
-
-Definición:
-
-```ts
-type BackendUpdatePrivacySettingsInput = Partial<BackendPrivacySettings>;
-```
-
-Todos los campos son opcionales.
-
-### Response `200 OK`
-
-```json
-{
-  "profileVisibility": "authenticated",
-  "emailVisibility": "nobody",
-  "phoneVisibility": "nobody",
-  "allowDirectMessages": false
-}
-```
-
-### Errores
-
-```text
-401 UNAUTHENTICATED
-422 VALIDATION_ERROR
-```
-
----
-
-# 12. Security
-
-## 12.1 GET `/users/me/security`
-
-Obtiene información de seguridad.
-
-### Authentication
-
-Required.
-
-### Response `200 OK`
-
-```json
-{
-  "email": "john@example.com",
-  "emailVerified": true,
-  "twoFactorEnabled": false,
-  "twoFactorRequired": false,
-  "sessions": [
-    {
-      "id": "session_123",
-      "deviceName": "Windows PC",
-      "browser": "Chrome",
-      "ipAddress": "192.168.1.1",
-      "lastActiveAt": "2026-10-04T18:30:00Z",
-      "current": true
-    }
-  ]
-}
-```
-
-### Response type
-
-```ts
-BackendSecuritySettings;
-```
-
----
-
-## 12.2 POST `/users/me/security/email-change`
-
-Solicita un cambio de email.
-
-### Request
-
-```http
-POST /users/me/security/email-change
-Authorization: Bearer <access_token>
-Content-Type: application/json
-```
-
-### Body
-
-```json
-{
-  "newEmail": "new@example.com"
-}
-```
-
-### Request type
-
-```ts
-BackendRequestEmailChangeInput;
-```
-
-### Response `200 OK`
-
-```json
-{
-  "success": true,
-  "message": "Email change request sent"
-}
-```
-
-### Response type
-
-```ts
-BackendSecurityOperationResult;
-```
-
-### Errores
-
-```text
-401 UNAUTHENTICATED
-409 CONFLICT
-422 VALIDATION_ERROR
-```
-
----
-
-## 12.3 PUT `/users/me/security/password`
-
-Cambia la contraseña.
-
-### Request
-
-```http
-PUT /users/me/security/password
-Authorization: Bearer <access_token>
-Content-Type: application/json
-```
-
-### Body
-
-```json
-{
-  "currentPassword": "current-password",
-  "newPassword": "new-password"
-}
-```
-
-### Request type
-
-```ts
-BackendChangePasswordInput;
-```
-
-### Response `200 OK`
-
-```json
-{
-  "success": true,
-  "message": "Password changed successfully"
-}
-```
-
-### Errores
-
-```text
-401 UNAUTHENTICATED
-422 VALIDATION_ERROR
-409 CONFLICT
-```
-
----
-
-## 12.4 POST `/users/me/security/two-factor/setup`
-
-Inicia la configuración de 2FA.
-
-### Request
-
-```http
-POST /users/me/security/two-factor/setup
-Authorization: Bearer <access_token>
-```
-
-### Response `200 OK`
-
-```json
-{
-  "secret": "BASE32_SECRET",
-  "qrCode": "data:image/png;base64,..."
-}
-```
-
-### Response type
-
-```ts
-BackendTwoFactorSetup;
-```
-
-### Seguridad
-
-`secret` es información sensible.
-
-No debe:
-
-- almacenarse en logs;
-- enviarse a servicios de analytics;
-- exponerse innecesariamente;
-- incluirse en respuestas distintas de este endpoint.
-
----
-
-## 12.5 POST `/users/me/security/two-factor/verify`
-
-Verifica el código de configuración 2FA.
-
-### Request
-
-```http
-POST /users/me/security/two-factor/verify
-Authorization: Bearer <access_token>
-Content-Type: application/json
-```
-
-### Body
-
-```json
-{
-  "code": "123456"
-}
-```
-
-### Response `200 OK`
-
-```json
-{
-  "success": true,
-  "message": "Two-factor authentication enabled"
-}
-```
-
-### Errores
-
-```text
-401 UNAUTHENTICATED
-422 VALIDATION_ERROR
-409 CONFLICT
-```
-
----
-
-## 12.6 POST `/users/me/security/two-factor/disable`
-
-Desactiva 2FA.
-
-### Request
-
-```http
-POST /users/me/security/two-factor/disable
-Authorization: Bearer <access_token>
-Content-Type: application/json
-```
-
-### Body
-
-```json
-{
-  "code": "123456"
-}
-```
-
-### Response `200 OK`
-
-```json
-{
-  "success": true,
-  "message": "Two-factor authentication disabled"
-}
-```
-
-### Errores
-
-```text
-401 UNAUTHENTICATED
-403 FORBIDDEN
-422 VALIDATION_ERROR
-```
-
----
-
-## 12.7 DELETE `/users/me/security/sessions/:sessionId`
-
-Revoca una sesión.
-
-### Request
-
-```http
-DELETE /users/me/security/sessions/session_123
-Authorization: Bearer <access_token>
-```
-
-### Response `200 OK`
-
-```json
-{
-  "success": true,
-  "message": "Session revoked"
-}
-```
-
-### Errores
-
-```text
-401 UNAUTHENTICATED
-404 NOT_FOUND
-```
-
----
-
-## 12.8 DELETE `/users/me/security/sessions/others`
-
-Revoca todas las sesiones excepto la actual.
-
-### Request
-
-```http
-DELETE /users/me/security/sessions/others
-Authorization: Bearer <access_token>
-```
-
-### Response `200 OK`
-
-```json
-{
-  "success": true,
-  "message": "Other sessions revoked"
-}
-```
-
-### Errores
-
-```text
-401 UNAUTHENTICATED
-```
-
----
-
-# 13. Preferences
-
-## 13.1 GET `/users/me/preferences`
-
-Obtiene las preferencias.
-
-### Response `200 OK`
-
-```json
-{
-  "language": "es",
-  "theme": "dark",
-  "timezone": "America/Bogota",
-  "notifications": {
-    "email": true,
-    "push": true,
-    "inApp": true
-  },
-  "accessibility": {
-    "reducedMotion": false,
-    "highContrast": false
-  }
-}
-```
-
-### Response type
-
-```ts
-BackendPreferences;
-```
-
----
-
-## 13.2 PATCH `/users/me/preferences`
-
-Actualiza parcialmente las preferencias.
-
-### Request
-
-```http
-PATCH /users/me/preferences
-Authorization: Bearer <access_token>
-Content-Type: application/json
-```
-
-### Body
-
-```json
-{
-  "language": "es",
-  "theme": "dark",
-  "timezone": "America/Bogota",
-  "notifications": {
-    "email": true,
-    "push": false
-  },
-  "accessibility": {
-    "highContrast": true
-  }
-}
-```
-
-### Request type
-
-```ts
-BackendUpdatePreferencesInput;
-```
-
-Definición:
-
-```ts
-interface BackendUpdatePreferencesInput {
-  language?: string | null;
-  theme?: BackendTheme | null;
-  timezone?: string | null;
-  notifications?: Partial<BackendPreferences['notifications']> | null;
-  accessibility?: Partial<BackendPreferences['accessibility']> | null;
-}
-```
-
-El backend debe realizar un **merge parcial**.
-
-Por ejemplo:
-
-```json
-{
-  "notifications": {
-    "push": false
-  }
-}
-```
-
-no debe eliminar ni modificar:
-
-```text
-notifications.email
-notifications.inApp
-```
-
-### Response `200 OK`
-
-Debe devolver el objeto completo:
-
-```json
-{
-  "language": "es",
-  "theme": "dark",
-  "timezone": "America/Bogota",
-  "notifications": {
-    "email": true,
-    "push": false,
-    "inApp": true
-  },
-  "accessibility": {
-    "reducedMotion": false,
-    "highContrast": true
-  }
-}
-```
-
-### Errores
-
-```text
-401 UNAUTHENTICATED
-422 VALIDATION_ERROR
-```
-
----
-
-# 14. Account
-
-## 14.1 GET `/users/me/account`
-
-Obtiene el estado de la cuenta.
-
-### Response `200 OK`
-
-```json
-{
-  "status": "active",
-  "createdAt": "2026-01-01T12:00:00Z"
-}
-```
-
-### Response type
-
-```ts
-BackendAccount;
-```
-
-### Valores de status
-
-```text
-active
-suspended
-inactive
-```
-
----
-
-## 14.2 POST `/users/me/account/deactivation`
-
-Solicita la desactivación de la cuenta.
-
-### Request
-
-```http
-POST /users/me/account/deactivation
-Authorization: Bearer <access_token>
-```
-
-### Response `200 OK`
-
-```json
-{
-  "status": "inactive",
-  "createdAt": "2026-01-01T12:00:00Z"
-}
-```
-
-### Errores
-
-```text
-401 UNAUTHENTICATED
-409 CONFLICT
-```
-
----
-
-## 14.3 DELETE `/users/me/account/deactivation`
-
-Cancela la desactivación.
-
-### Request
-
-```http
-DELETE /users/me/account/deactivation
-Authorization: Bearer <access_token>
-```
-
-### Response `200 OK`
-
-```json
-{
-  "status": "active",
-  "createdAt": "2026-01-01T12:00:00Z"
-}
-```
-
-### Errores
-
-```text
-401 UNAUTHENTICATED
-409 CONFLICT
-```
-
----
-
-# 15. Courses
-
-## 15.1 GET `/users/me/courses`
-
-Obtiene los cursos del usuario.
-
-### Request
-
-```http
-GET /users/me/courses
-Authorization: Bearer <access_token>
-```
-
-### Response `200 OK`
-
-```json
-[
-  {
-    "courseId": "course_123",
-    "title": "Introduction to Programming",
-    "progress": 0.75,
-    "status": "active",
-    "enrolledAt": "2026-01-10T12:00:00Z",
-    "completedAt": null
-  }
-]
-```
-
-### Response type
-
-```ts
-BackendCourseEnrollment[]
-```
-
-### Valores de status
-
-```text
-active
-completed
-paused
-```
-
-`progress` debe representar un valor entre `0` y `1`.
-
-### Errores
-
-```text
-401 UNAUTHENTICATED
-```
-
----
-
-# 16. Certificates
-
-## 16.1 GET `/users/me/certificates`
-
-Obtiene los certificados del usuario.
-
-### Request
-
-```http
-GET /users/me/certificates
-Authorization: Bearer <access_token>
-```
-
-### Response `200 OK`
-
-```json
-[
-  {
-    "id": "cert_123",
-    "courseId": "course_123",
-    "courseTitle": "Introduction to Programming",
-    "certificateNumber": "CERT-2026-001",
-    "issuedAt": "2026-05-10T12:00:00Z",
-    "downloadUrl": "https://example.com/certificates/cert_123.pdf"
-  }
-]
-```
-
-### Response type
-
-```ts
-BackendCertificate[]
-```
-
-### Errores
-
-```text
-401 UNAUTHENTICATED
-```
-
----
-
-# 17. Subscription
-
-## 17.1 GET `/users/me/subscription`
-
-Obtiene la suscripción actual.
-
-### Response `200 OK`
-
-Cuando existe:
-
-```json
-{
-  "id": "sub_123",
-  "plan": "premium",
-  "status": "active",
-  "startedAt": "2026-01-01T12:00:00Z",
-  "currentPeriodEnd": "2026-11-01T12:00:00Z",
-  "cancelAtPeriodEnd": false
-}
-```
-
-Cuando no existe:
-
-```json
-null
-```
-
-### Response type
-
-```ts
-BackendSubscription | null;
-```
-
-### Planes
+Los valores permitidos para `subscription` son:
 
 ```text
 free
@@ -1257,37 +87,353 @@ premium
 enterprise
 ```
 
-### Estados
+`subscription` solo se envía cuando `role` es `student`. Para otros roles se omite.
 
-```text
-trialing
-active
-past_due
-canceled
-expired
+`image` siempre se envía. Si el usuario no tiene imagen, su valor es `null`.
+
+### Cuerpo de `POST /auth/register`
+
+```json
+{
+  "firstName": "Juan",
+  "lastName": "Pérez",
+  "email": "user@example.com",
+  "password": "Password1!"
+}
 ```
 
-### Errores
+`email` no cambia respecto al backend actual (ver sección 14).
+
+---
+
+## 3.2 Login
+
+`POST /auth/login`
+
+El backend debe:
+
+- devolver `firstName`, `lastName`, `id` y `role`;
+- utilizar el mismo `id` que devuelve posteriormente `GET /users/me`;
+- enviar `subscription` únicamente cuando corresponda;
+- enviar `image`, pudiendo ser `null`;
+- devolver un Access Token y un Refresh Token;
+- devolver `expiresIn` y `refreshExpiresIn`.
+
+Usuario o contraseña incorrectos:
 
 ```text
-401 UNAUTHENTICATED
+HTTP 401
+```
+
+Demasiados intentos:
+
+```text
+HTTP 429
+error.code = RATE_LIMITED
 ```
 
 ---
 
-## 17.2 PUT `/users/me/subscription/plan`
+## 3.3 Refresh Token
 
-Cambia el plan.
+`POST /auth/refresh`
 
-### Request
+Debe existir **rotación de Refresh Token**:
+
+1. El cliente envía el Refresh Token actual.
+2. El backend valida el token.
+3. El backend devuelve un nuevo Access Token.
+4. El backend devuelve un nuevo Refresh Token.
+5. El Refresh Token anterior deja de ser válido.
+
+Un Refresh Token vencido, inválido o revocado debe responder:
+
+```text
+401 o 403
+```
+
+El frontend interpreta ambos códigos como finalización de sesión.
+
+`400` se utiliza únicamente cuando el cuerpo de la petición está mal formado.
+
+Los errores `5xx` se consideran errores temporales del servicio y no significan automáticamente que la sesión haya terminado.
+
+---
+
+## 3.4 Endpoints públicos del contrato
+
+El contrato incluye:
+
+| Endpoint                     | Para qué sirve                          | Cuerpo                                              |
+| ---------------------------- | --------------------------------------- | --------------------------------------------------- |
+| `POST /auth/register`        | Crear cuenta                            | `{ firstName, lastName, email, password }`          |
+| `POST /auth/forgot-password` | Pedir correo de recuperación            | `{ email }`                                         |
+| `POST /auth/reset-password`  | Poner una contraseña nueva con el token | `{ token, newPassword }`                            |
+| `POST /contact`              | Formulario de contacto                  | `{ name, email, contactNumber?, subject, message }` |
+
+### Registro
+
+Responde:
+
+```text
+201
+```
+
+Email repetido:
+
+```text
+409
+```
+
+Datos inválidos:
+
+```text
+400 o 422
+```
+
+Reglas de validación del cuerpo:
+
+| Campo       | Regla                                                                                                     |
+| ----------- | --------------------------------------------------------------------------------------------------------- |
+| `firstName` | De 2 a 100 caracteres. Solo letras, espacios, apóstrofes, guiones y puntos.                               |
+| `lastName`  | De 2 a 100 caracteres. Solo letras, espacios, apóstrofes, guiones y puntos.                               |
+| `email`     | Formato de correo válido, hasta 254 caracteres. Se envía en minúsculas.                                   |
+| `password`  | De 6 a 15 caracteres, con al menos una minúscula, una mayúscula y un carácter especial (por ejemplo `!`). |
+
+La confirmación de la contraseña la valida el cliente y **nunca** se envía al backend.
+
+### Recuperación de contraseña
+
+Para evitar enumeración de usuarios, el backend debe responder `200` aunque el correo no exista.
+
+### Restablecimiento de contraseña
+
+El token:
+
+- es de un solo uso;
+- caduca;
+- no puede reutilizarse.
+
+Token inválido, vencido o ya utilizado:
+
+```text
+400
+```
+
+Contraseña que no cumple las reglas:
+
+```text
+422
+```
+
+`newPassword` debe cumplir las mismas reglas que `password` en el registro (de 6 a 15 caracteres, con al menos una minúscula, una mayúscula y un carácter especial).
+
+### Contacto
+
+La ruta es:
+
+```text
+POST /contact
+```
+
+`contactNumber` es opcional.
+
+Cuando se proporciona, debe utilizar formato internacional E.164.
+
+Reglas de validación del cuerpo:
+
+| Campo           | Regla                                                                              |
+| --------------- | ---------------------------------------------------------------------------------- |
+| `name`          | De 2 a 100 caracteres. Solo letras, espacios, apóstrofes, guiones y puntos.        |
+| `email`         | Formato de correo válido, hasta 254 caracteres.                                    |
+| `contactNumber` | Opcional. Formato E.164 (por ejemplo `+573001234567`). Se omite cuando está vacío. |
+| `subject`       | De 5 a 150 caracteres. No admite los caracteres `<`, `>`, `{` ni `}`.              |
+| `message`       | De 20 a 2000 caracteres. No admite los caracteres `<` ni `>`.                      |
+
+---
+
+## 3.5 Rutas especiales
+
+### Revocar una sesión específica
+
+La ruta para revocar una sesión concreta es:
+
+```http
+DELETE /users/me/security/sessions/:sessionId
+```
+
+El parámetro `sessionId` identifica la sesión que debe revocarse.
+
+Esta operación requiere autenticación mediante Access Token.
+
+Si la sesión indicada no existe o no pertenece al usuario autenticado, el backend debe responder:
+
+```text
+404 NOT_FOUND
+```
+
+### Revocar las demás sesiones
+
+La ruta para revocar todas las sesiones del usuario autenticado, excepto la sesión actual, es:
+
+```http
+DELETE /users/me/security/sessions/others
+```
+
+Esta operación requiere autenticación mediante Access Token.
+
+El backend debe identificar al usuario a partir del Access Token y revocar las demás sesiones activas asociadas a ese usuario.
+
+La sesión utilizada para realizar la petición no debe revocarse.
+
+La operación debe devolver:
+
+```text
+200
+```
+
+con la respuesta `BackendSecurityOperationResult`.
+
+### Perfil público
+
+La ruta para consultar el perfil público de un usuario es:
+
+```http
+GET /users/:userId/profile
+```
+
+La autenticación es **opcional**.
+
+Si llega un Bearer válido, el backend puede utilizar la identidad autenticada para aplicar las reglas de privacidad:
+
+- `profileVisibility`
+- `emailVisibility`
+- `phoneVisibility`
+
+Si el usuario no existe o su perfil no puede mostrarse al solicitante, el backend debe responder:
+
+```text
+404
+```
+
+El backend **no debe responder `200` con `null`** en este caso.
+
+El BFF es responsable de traducir ese `404` al comportamiento GraphQL correspondiente, que en este caso es devolver `null`.
+
+# 4. Errores
+
+Todos los errores deben utilizar el siguiente formato:
+
+```json
+{
+  "error": {
+    "code": "ERROR_CODE",
+    "message": "Mensaje legible",
+    "details": null
+  }
+}
+```
+
+El campo `error.code` forma parte del contrato y debe ser estable.
+
+El mensaje puede ser legible para diagnóstico, pero el frontend no debe depender del texto de `message`.
+
+## 4.1 Códigos HTTP generales
+
+|  HTTP | Código                | Cuándo                                                               |
+| ----: | --------------------- | -------------------------------------------------------------------- |
+| `400` | `BAD_REQUEST`         | Petición mal formada                                                 |
+| `401` | `UNAUTHENTICATED`     | Token ausente, inválido o vencido; credenciales de login incorrectas |
+| `403` | `FORBIDDEN`           | Usuario autenticado sin permiso                                      |
+| `404` | `NOT_FOUND`           | El recurso no existe o no puede mostrarse al solicitante             |
+| `409` | `CONFLICT`            | La operación no es compatible con el estado actual                   |
+| `422` | `VALIDATION_ERROR`    | Datos inválidos                                                      |
+| `429` | `RATE_LIMITED`        | Se superó el límite de peticiones                                    |
+| `500` | `INTERNAL_ERROR`      | Error interno                                                        |
+| `502` | `UPSTREAM_ERROR`      | Falló una dependencia externa                                        |
+| `503` | `SERVICE_UNAVAILABLE` | Servicio no disponible temporalmente                                 |
+
+## 4.2 Códigos de dominio
+
+|  HTTP | Código                     | Endpoint                          |
+| ----: | -------------------------- | --------------------------------- |
+| `422` | `INVALID_CURRENT_PASSWORD` | `PUT /users/me/security/password` |
+| `422` | `INVALID_CODE`             | 2FA `verify` y `disable`          |
+| `409` | `PAYMENT_METHOD_REQUIRED`  | `PUT /users/me/subscription/plan` |
+
+### Regla importante sobre `401`
+
+`401` se reserva para:
+
+- problemas con el Access Token;
+- credenciales incorrectas en `/auth/login`;
+- Refresh Token inválido, vencido o revocado cuando corresponda.
+
+Una contraseña actual incorrecta durante un cambio de contraseña **no debe responder `401`**.
+
+Debe utilizar:
+
+```text
+422 INVALID_CURRENT_PASSWORD
+```
+
+Un código 2FA incorrecto tampoco debe responder `401`.
+
+Debe utilizar:
+
+```text
+422 INVALID_CODE
+```
+
+Esto es importante porque el BFF interpreta `401` como un problema de autenticación/sesión.
+
+---
+
+# 5. Cuenta
+
+Estados posibles:
+
+```text
+active
+pending_deactivation
+suspended
+inactive
+```
+
+La cuenta puede incluir:
+
+```text
+deactivationScheduledAt
+```
+
+Este campo es una fecha ISO 8601 o `null`.
+
+`POST /users/me/account/deactivation`:
+
+- cambia la cuenta a `pending_deactivation`;
+- devuelve `deactivationScheduledAt`;
+- si la cuenta no está `active`, responde `409`.
+
+`DELETE /users/me/account/deactivation`:
+
+- cancela la desactivación;
+- devuelve la cuenta a `active`;
+- solo funciona mientras la cuenta esté en `pending_deactivation`;
+- en cualquier otro estado responde `409`.
+
+La duración del periodo de gracia la determina el backend.
+
+---
+
+# 6. Suscripción
+
+El cuerpo de:
 
 ```http
 PUT /users/me/subscription/plan
-Authorization: Bearer <access_token>
-Content-Type: application/json
 ```
 
-### Body
+es:
 
 ```json
 {
@@ -1295,460 +441,369 @@ Content-Type: application/json
 }
 ```
 
-### Request type
+Transiciones permitidas:
 
-```ts
-BackendSubscriptionPlan;
-```
+| Desde        | Hacia        | Resultado                                                                                     |
+| ------------ | ------------ | --------------------------------------------------------------------------------------------- |
+| `free`       | `premium`    | Permitido. Exige al menos un método de pago; si no, `409 PAYMENT_METHOD_REQUIRED`.            |
+| `premium`    | `free`       | Permitido.                                                                                    |
+| cualquiera   | `enterprise` | No se permite por API. Responder `403`. Enterprise se contrata por el formulario de contacto. |
+| `enterprise` | cualquiera   | No se permite por API. Responder `403`.                                                       |
+| cualquiera   | mismo plan   | Responder `409`.                                                                              |
 
-### Response `200 OK`
+---
 
-```json
-{
-  "id": "sub_123",
-  "plan": "premium",
-  "status": "active",
-  "startedAt": "2026-01-01T12:00:00Z",
-  "currentPeriodEnd": "2026-11-01T12:00:00Z",
-  "cancelAtPeriodEnd": false
-}
-```
+# 7. Facturas y dinero
 
-### Errores
+`amount` es un entero expresado en la unidad menor de la moneda.
+
+Ejemplo:
 
 ```text
-401 UNAUTHENTICATED
-409 CONFLICT
+COP 49.900,00 → 4990000
+```
+
+El backend no debe devolver cantidades monetarias como valores de punto flotante si el contrato define el campo como entero.
+
+El schema GraphQL expone `amount` como `Int!`, igual que el contrato.
+
+---
+
+# 8. Preferencias
+
+Valores válidos:
+
+| Campo      | Valores                                                   |
+| ---------- | --------------------------------------------------------- |
+| `language` | `es`, `en`                                                |
+| `theme`    | `system`, `light`, `dark`                                 |
+| `timezone` | Cualquier zona horaria IANA, por ejemplo `America/Bogota` |
+
+Un valor no soportado responde:
+
+```text
 422 VALIDATION_ERROR
 ```
 
 ---
 
-## 17.3 POST `/users/me/subscription/cancellation`
+# 9. Reglas que aplican a todo el contrato
 
-Solicita la cancelación de la suscripción.
+1. **`/users/me` depende del token.** El backend identifica al usuario por el Access Token. Nunca debe aceptar un `userId` para decidir quién es el usuario actual.
 
-### Request
+2. **Autorización en el backend.** El BFF puede bloquear operaciones antes, pero el backend debe validar nuevamente autenticación y autorización.
 
-```http
-POST /users/me/subscription/cancellation
-Authorization: Bearer <access_token>
-```
+3. **`PATCH` es una actualización parcial.** Lo que no se envía no se modifica.
 
-### Response `200 OK`
+   Por ejemplo:
 
-```json
-{
-  "id": "sub_123",
-  "plan": "premium",
-  "status": "active",
-  "startedAt": "2026-01-01T12:00:00Z",
-  "currentPeriodEnd": "2026-11-01T12:00:00Z",
-  "cancelAtPeriodEnd": true
-}
-```
+   ```json
+   {
+     "notifications": {
+       "push": false
+     }
+   }
+   ```
 
-### Errores
+   no debe modificar:
 
-```text
-401 UNAUTHENTICATED
-404 NOT_FOUND
-409 CONFLICT
-```
+   ```text
+   notifications.email
+   notifications.inApp
+   ```
 
----
+   La respuesta debe devolver el objeto completo.
 
-# 18. Payment Methods
+4. **`identityLocked` nunca lo envía el cliente.** Es únicamente un campo de respuesta.
 
-## 18.1 GET `/users/me/payment-methods`
+5. **Datos de pago.** Solo se exponen:
 
-Obtiene los métodos de pago.
+   ```text
+   id
+   brand
+   last4
+   expirationMonth
+   expirationYear
+   ```
 
-### Request
+   Nunca se devuelven número completo de tarjeta, CVV ni equivalentes.
 
-```http
-GET /users/me/payment-methods
-Authorization: Bearer <access_token>
-```
+6. **Secreto de 2FA.** El `secret` de `two-factor/setup` es sensible:
 
-### Response `200 OK`
+   - no se guarda en logs;
+   - no se envía a analítica;
+   - no se incluye en otras respuestas.
 
-```json
-[
-  {
-    "id": "pm_123",
-    "brand": "visa",
-    "last4": "4242",
-    "expirationMonth": 12,
-    "expirationYear": 2028
-  }
-]
-```
+7. **Formatos.**
 
-### Response type
+   Los IDs son `string`.
 
-```ts
-BackendPaymentMethod[]
-```
+   Las fechas utilizan ISO 8601:
 
-### Seguridad
+   ```text
+   2026-10-04T18:30:00Z
+   ```
 
-Nunca devolver:
+   Si un campo puede no tener valor, se devuelve explícitamente como `null`, nunca alternando entre `null` y `""`.
 
-```text
-cardNumber
-pan
-cvv
-cvc
-securityCode
-```
+8. **Headers.**
 
-La API únicamente expone:
+   Las peticiones JSON utilizan:
 
-- `brand`
-- `last4`
-- `expirationMonth`
-- `expirationYear`
-
-### Errores
-
-```text
-401 UNAUTHENTICATED
-```
+   ```http
+   Content-Type: application/json
+   Accept: application/json
+   ```
 
 ---
 
-## 18.2 DELETE `/users/me/payment-methods/:paymentMethodId`
+# 10. Resumen de los 35 endpoints
 
-Elimina un método de pago.
+|   # | Método | Ruta                                         | Auth     | Cuerpo                                     | Respuesta                        |
+| --: | ------ | -------------------------------------------- | -------- | ------------------------------------------ | -------------------------------- |
+|   1 | POST   | `/auth/login`                                | None     | `{ email, password }`                      | `LoginResponse`                  |
+|   2 | POST   | `/auth/refresh`                              | None     | `{ refreshToken }`                         | `TokenPair`                      |
+|   3 | POST   | `/auth/logout`                               | None     | `{ refreshToken }`                         | `LogoutResponse`                 |
+|   4 | POST   | `/auth/register`                             | None     | `{ firstName, lastName, email, password }` | `RegisterResponse`               |
+|   5 | POST   | `/auth/forgot-password`                      | None     | `{ email }`                                | `MessageResponse`                |
+|   6 | POST   | `/auth/reset-password`                       | None     | `{ token, newPassword }`                   | `MessageResponse`                |
+|   7 | POST   | `/contact`                                   | None     | `ContactInput`                             | `MessageResponse`                |
+|   8 | GET    | `/users/me`                                  | Required | —                                          | `BackendUser`                    |
+|   9 | GET    | `/users/:userId/profile`                     | Optional | —                                          | `BackendPublicProfile`           |
+|  10 | PATCH  | `/users/me/profile`                          | Required | `BackendUpdateProfileInput`                | `BackendUser`                    |
+|  11 | GET    | `/users/me/personal-data`                    | Required | —                                          | `BackendPersonalData`            |
+|  12 | PATCH  | `/users/me/personal-data`                    | Required | `BackendUpdatePersonalDataInput`           | `BackendPersonalData`            |
+|  13 | GET    | `/users/me/privacy`                          | Required | —                                          | `BackendPrivacySettings`         |
+|  14 | PATCH  | `/users/me/privacy`                          | Required | `BackendUpdatePrivacySettingsInput`        | `BackendPrivacySettings`         |
+|  15 | GET    | `/users/me/security`                         | Required | —                                          | `BackendSecuritySettings`        |
+|  16 | POST   | `/users/me/security/email-change`            | Required | `BackendRequestEmailChangeInput`           | `BackendSecurityOperationResult` |
+|  17 | PUT    | `/users/me/security/password`                | Required | `BackendChangePasswordInput`               | `BackendSecurityOperationResult` |
+|  18 | POST   | `/users/me/security/two-factor/setup`        | Required | —                                          | `BackendTwoFactorSetup`          |
+|  19 | POST   | `/users/me/security/two-factor/verify`       | Required | `{ code }`                                 | `BackendSecurityOperationResult` |
+|  20 | POST   | `/users/me/security/two-factor/disable`      | Required | `{ code }`                                 | `BackendSecurityOperationResult` |
+|  21 | DELETE | `/users/me/security/sessions/:sessionId`     | Required | —                                          | `BackendSecurityOperationResult` |
+|  22 | DELETE | `/users/me/security/sessions`                | Required | —                                          | `BackendSecurityOperationResult` |
+|  23 | GET    | `/users/me/preferences`                      | Required | —                                          | `BackendPreferences`             |
+|  24 | PATCH  | `/users/me/preferences`                      | Required | `BackendUpdatePreferencesInput`            | `BackendPreferences`             |
+|  25 | GET    | `/users/me/account`                          | Required | —                                          | `BackendAccount`                 |
+|  26 | POST   | `/users/me/account/deactivation`             | Required | —                                          | `BackendAccount`                 |
+|  27 | DELETE | `/users/me/account/deactivation`             | Required | —                                          | `BackendAccount`                 |
+|  28 | GET    | `/users/me/courses`                          | Required | —                                          | `BackendCourseEnrollment[]`      |
+|  29 | GET    | `/users/me/certificates`                     | Required | —                                          | `BackendCertificate[]`           |
+|  30 | GET    | `/users/me/subscription`                     | Required | —                                          | `BackendSubscription \| null`    |
+|  31 | PUT    | `/users/me/subscription/plan`                | Required | `{ plan }`                                 | `BackendSubscription`            |
+|  32 | POST   | `/users/me/subscription/cancellation`        | Required | —                                          | `BackendSubscription`            |
+|  33 | GET    | `/users/me/payment-methods`                  | Required | —                                          | `BackendPaymentMethod[]`         |
+|  34 | DELETE | `/users/me/payment-methods/:paymentMethodId` | Required | —                                          | `boolean`                        |
+|  35 | GET    | `/users/me/invoices`                         | Required | —                                          | `BackendInvoice[]`               |
 
-### Request
+### Relación con el frontend
 
-```http
-DELETE /users/me/payment-methods/pm_123
-Authorization: Bearer <access_token>
-```
+La fuente de verdad es el **contrato de API `v1`**.
 
-### Response `200 OK`
-
-```json
-true
-```
-
-### Response type
-
-```ts
-boolean;
-```
-
-### Errores
-
-```text
-401 UNAUTHENTICATED
-404 NOT_FOUND
-409 CONFLICT
-```
-
----
-
-# 19. Invoices
-
-## 19.1 GET `/users/me/invoices`
-
-Obtiene las facturas del usuario.
-
-### Request
-
-```http
-GET /users/me/invoices
-Authorization: Bearer <access_token>
-```
-
-### Response `200 OK`
-
-```json
-[
-  {
-    "id": "inv_123",
-    "number": "INV-2026-001",
-    "amount": 29900,
-    "currency": "COP",
-    "status": "paid",
-    "issuedAt": "2026-09-01T12:00:00Z",
-    "downloadUrl": "https://example.com/invoices/inv_123.pdf"
-  }
-]
-```
-
-### Response type
-
-```ts
-BackendInvoice[]
-```
-
-### Estados
+La relación es:
 
 ```text
-draft
-open
-paid
-void
-uncollectible
-```
-
-### Errores
-
-```text
-401 UNAUTHENTICATED
-```
-
----
-
-# 20. Resumen de endpoints
-
-|   # | Método | Endpoint                                     | Auth | Request                             | Response                         |
-| --: | ------ | -------------------------------------------- | :--: | ----------------------------------- | -------------------------------- |
-|   1 | GET    | `/users/me`                                  |  ✓   | —                                   | `BackendUser`                    |
-|   2 | GET    | `/users/:userId/profile`                     |  —   | —                                   | `BackendPublicProfile \| null`   |
-|   3 | PATCH  | `/users/me/profile`                          |  ✓   | `BackendUpdateProfileInput`         | `BackendUser`                    |
-|   4 | GET    | `/users/me/personal-data`                    |  ✓   | —                                   | `BackendPersonalData`            |
-|   5 | PATCH  | `/users/me/personal-data`                    |  ✓   | `BackendUpdatePersonalDataInput`    | `BackendPersonalData`            |
-|   6 | GET    | `/users/me/privacy`                          |  ✓   | —                                   | `BackendPrivacySettings`         |
-|   7 | PATCH  | `/users/me/privacy`                          |  ✓   | `BackendUpdatePrivacySettingsInput` | `BackendPrivacySettings`         |
-|   8 | GET    | `/users/me/security`                         |  ✓   | —                                   | `BackendSecuritySettings`        |
-|   9 | POST   | `/users/me/security/email-change`            |  ✓   | `BackendRequestEmailChangeInput`    | `BackendSecurityOperationResult` |
-|  10 | PUT    | `/users/me/security/password`                |  ✓   | `BackendChangePasswordInput`        | `BackendSecurityOperationResult` |
-|  11 | POST   | `/users/me/security/two-factor/setup`        |  ✓   | —                                   | `BackendTwoFactorSetup`          |
-|  12 | POST   | `/users/me/security/two-factor/verify`       |  ✓   | `{ code }`                          | `BackendSecurityOperationResult` |
-|  13 | POST   | `/users/me/security/two-factor/disable`      |  ✓   | `{ code }`                          | `BackendSecurityOperationResult` |
-|  14 | DELETE | `/users/me/security/sessions/:sessionId`     |  ✓   | —                                   | `BackendSecurityOperationResult` |
-|  15 | DELETE | `/users/me/security/sessions/others`         |  ✓   | —                                   | `BackendSecurityOperationResult` |
-|  16 | GET    | `/users/me/preferences`                      |  ✓   | —                                   | `BackendPreferences`             |
-|  17 | PATCH  | `/users/me/preferences`                      |  ✓   | `BackendUpdatePreferencesInput`     | `BackendPreferences`             |
-|  18 | GET    | `/users/me/account`                          |  ✓   | —                                   | `BackendAccount`                 |
-|  19 | POST   | `/users/me/account/deactivation`             |  ✓   | —                                   | `BackendAccount`                 |
-|  20 | DELETE | `/users/me/account/deactivation`             |  ✓   | —                                   | `BackendAccount`                 |
-|  21 | GET    | `/users/me/courses`                          |  ✓   | —                                   | `BackendCourseEnrollment[]`      |
-|  22 | GET    | `/users/me/certificates`                     |  ✓   | —                                   | `BackendCertificate[]`           |
-|  23 | GET    | `/users/me/subscription`                     |  ✓   | —                                   | `BackendSubscription \| null`    |
-|  24 | PUT    | `/users/me/subscription/plan`                |  ✓   | `{ plan }`                          | `BackendSubscription`            |
-|  25 | POST   | `/users/me/subscription/cancellation`        |  ✓   | —                                   | `BackendSubscription`            |
-|  26 | GET    | `/users/me/payment-methods`                  |  ✓   | —                                   | `BackendPaymentMethod[]`         |
-|  27 | GET    | `/users/me/invoices`                         |  ✓   | —                                   | `BackendInvoice[]`               |
-|  28 | DELETE | `/users/me/payment-methods/:paymentMethodId` |  ✓   | —                                   | `boolean`                        |
-
----
-
-# 21. Responsabilidad de cada capa
-
-## Frontend
-
-Consume únicamente GraphQL.
-
-```text
-React
-  ↓
-GraphQL
-```
-
-No debe llamar directamente al REST Backend.
-
----
-
-## GraphQL BFF
-
-Expone el contrato GraphQL y transforma las operaciones en llamadas al `BackendClient`.
-
-```text
-GraphQL Resolver
+BACKEND_API.md (este documento)
       ↓
-BackendClient
-```
-
-Los resolvers no deben utilizar `fetch()` directamente.
-
----
-
-## BackendClient
-
-Define la abstracción entre GraphQL y el backend.
-
-Actualmente:
-
-```text
-BackendClient
-     ↓
+Contrato REST
+      ↓
+src/lib/backend/types.ts
+      ↓
+Representación TypeScript del contrato
+      ↓
 RestBackendClient
-     ↓
-REST API
 ```
 
-En el futuro podría ser:
+Por tanto:
 
-```text
-BackendClient
-     ↓
-GrpcBackendClient
-     ↓
-gRPC
-```
+- Este documento (`BACKEND_API.md`) define el contrato.
+- `src/lib/backend/types.ts` representa ese contrato en TypeScript.
+- `RestBackendClient` implementa las llamadas al contrato.
+- Los resolvers GraphQL consumen `BackendClient`, no conocen directamente los detalles de REST.
 
-Los resolvers no deberían necesitar cambios.
+Los tipos `Backend*` **no son la fuente de verdad del contrato**.
 
 ---
 
-## Backend principal
+# 11. Errores por endpoint
 
-Es responsable de:
+Todos los endpoints con `Required` pueden responder:
+
+```text
+401 UNAUTHENTICATED
+```
+
+cuando existe un problema con el Access Token.
+
+Además:
+
+| Endpoint                                   | Errores adicionales                                                                            |
+| ------------------------------------------ | ---------------------------------------------------------------------------------------------- |
+| `POST /auth/login`                         | `400`, `401` (credenciales), `422`, `429`, `500`, `503`                                        |
+| `POST /auth/refresh`                       | `400` (solo mal formado), `401`/`403` (token inválido), `429`, `500`, `503`                    |
+| `POST /auth/logout`                        | `400`, `401`, `500`. Debe ser idempotente cuando sea posible.                                  |
+| `POST /auth/register`                      | `400`, `409` (email repetido), `422`, `429`, `500`, `503`                                      |
+| `POST /auth/forgot-password`               | `400`, `422`, `429`, `500`, `503`                                                              |
+| `POST /auth/reset-password`                | `400` (token inválido), `422`, `429`, `500`, `503`                                             |
+| `POST /contact`                            | `400`, `422`, `429`, `500`, `503`                                                              |
+| `GET /users/:userId/profile`               | `404`                                                                                          |
+| `PATCH /users/me/profile`                  | `422`                                                                                          |
+| `PATCH /users/me/personal-data`            | `403` (identidad bloqueada), `409`, `422`                                                      |
+| `PATCH /users/me/privacy`                  | `422`                                                                                          |
+| `POST .../email-change`                    | `409` (correo ya en uso), `422`                                                                |
+| `PUT .../security/password`                | `409` (la nueva es igual a la actual), `422` (`VALIDATION_ERROR` o `INVALID_CURRENT_PASSWORD`) |
+| `POST .../two-factor/setup`                | `409` (2FA ya activo)                                                                          |
+| `POST .../two-factor/verify`               | `409` (setup no iniciado o 2FA ya activo), `422` (`VALIDATION_ERROR` o `INVALID_CODE`)         |
+| `POST .../two-factor/disable`              | `403` (2FA obligatorio para este usuario), `422` (`VALIDATION_ERROR` o `INVALID_CODE`)         |
+| `DELETE .../sessions/:sessionId`           | `404`                                                                                          |
+| `PATCH /users/me/preferences`              | `422` (idioma, tema o zona horaria no soportados)                                              |
+| `POST /users/me/account/deactivation`      | `409` (la cuenta no está `active`)                                                             |
+| `DELETE /users/me/account/deactivation`    | `409` (la cuenta no está `pending_deactivation`)                                               |
+| `PUT /users/me/subscription/plan`          | `403`, `409` (incluye `PAYMENT_METHOD_REQUIRED`), `422`                                        |
+| `POST /users/me/subscription/cancellation` | `404`, `409`                                                                                   |
+| `DELETE /users/me/payment-methods/:id`     | `404`, `409` (por ejemplo, último método de una suscripción de pago activa)                    |
+
+---
+
+# 12. Qué hace cada capa
+
+### Dashboard
+
+El dashboard utiliza únicamente GraphQL.
+
+```text
+React → GraphQL → BFF → Backend
+```
+
+No llama al REST directamente.
+
+### Sitio público
+
+Auth.js utiliza:
+
+```text
+POST /auth/login
+POST /auth/refresh
+POST /auth/logout
+```
+
+Los route handlers de Next.js utilizan:
+
+```text
+POST /auth/register
+POST /auth/forgot-password
+POST /auth/reset-password
+POST /contact
+```
+
+Estos handlers deben aplicar la validación correspondiente antes de reenviar las peticiones.
+
+### BFF GraphQL
+
+El BFF:
+
+- expone el contrato GraphQL;
+- valida autenticación cuando corresponde;
+- utiliza `BackendClient`;
+- no debe acoplar los resolvers directamente a REST;
+- debe interpretar los errores del backend mediante `error.code`;
+- puede transformar errores REST a errores GraphQL;
+- puede convertir comportamientos específicos como `404` de perfil público a `null`, según el contrato GraphQL.
+
+### Backend principal
+
+El backend es responsable de:
 
 - autenticación;
 - autorización;
 - validación;
 - reglas de negocio;
 - persistencia;
-- integración con servicios externos;
+- integraciones externas;
 - seguridad;
 - consistencia de datos.
 
----
+El backend **no debe depender del BFF para aplicar seguridad**.
 
-# 22. Reglas importantes
-
-## 22.1 `/users/me` depende del token
-
-El backend determina el usuario mediante el Access Token.
-
-No debe aceptarse un `userId` para decidir quién es el usuario actual.
-
-Incorrecto:
-
-```http
-GET /users/me?userId=123
-```
-
-Correcto:
-
-```http
-GET /users/me
-Authorization: Bearer <access_token>
-```
+Cualquier cambio incompatible en este contrato debe coordinarse entre ambos lados antes de implementarse.
 
 ---
 
-## 22.2 Autorización en el backend
+# 13. Historial de cambios
 
-El BFF puede impedir operaciones antes de enviarlas al backend, pero el backend debe volver a validar autorización.
+## v1
 
-La seguridad no debe depender del BFF.
+Contrato inicial formalizado para la integración entre el frontend/BFF y el backend.
 
----
+Incluye:
 
-## 22.3 Updates parciales
+- nombres de campos en inglés;
+- autenticación mediante Access Token y Refresh Token;
+- rotación de Refresh Token;
+- endpoints de autenticación;
+- endpoints de usuario;
+- perfil público con autenticación opcional;
+- configuración de privacidad;
+- seguridad y 2FA;
+- sesiones;
+- preferencias;
+- cuenta y desactivación;
+- cursos;
+- certificados;
+- suscripción;
+- métodos de pago;
+- facturas;
+- contrato estándar de errores;
+- códigos de dominio;
+- reglas de actualización parcial;
+- reglas de seguridad y autorización.
 
-Los endpoints `PATCH` deben mantener los valores no enviados.
+El contrato `v1` debe considerarse compartido entre frontend/BFF y backend.
 
-Ejemplo:
-
-```json
-{
-  "language": "es"
-}
-```
-
-no debe borrar:
-
-```text
-theme
-timezone
-notifications
-accessibility
-```
-
----
-
-## 22.4 `identityLocked`
-
-`identityLocked` es un campo de respuesta.
-
-No puede ser modificado mediante:
-
-```http
-PATCH /users/me/personal-data
-```
-
-El cliente nunca debe poder establecer:
-
-```json
-{
-  "identityLocked": false
-}
-```
+Los cambios incompatibles deben generar una nueva versión del contrato.
 
 ---
 
-## 22.5 Datos de pago
+# 14. Migración desde el backend actual
 
-El backend no debe almacenar ni devolver información sensible de tarjetas si la arquitectura de pagos utiliza un proveedor especializado.
+El backend actual todavía usa nombres de campos en español y algunas rutas distintas a las del contrato `v1`. Esta sección resume lo que cambia.
 
-La API solamente expone:
+## 14.1 Nombres de campos
 
-```text
-id
-brand
-last4
-expirationMonth
-expirationYear
-```
+### Respuesta de `POST /auth/login` (dentro de `data`)
 
----
+| Antes       | Ahora       |
+| ----------- | ----------- |
+| `nombre`    | `firstName` |
+| `apellidos` | `lastName`  |
+| `uuid`      | `id`        |
+| `rol`       | `role`      |
 
-# 23. GraphQL → REST mapping
+Los demás campos no cambian: `subscription`, `image`, `token`, `refreshToken`, `expiresIn` y `refreshExpiresIn`.
 
-| GraphQL                      | REST                                                |
-| ---------------------------- | --------------------------------------------------- |
-| `me`                         | `GET /users/me`                                     |
-| `publicProfile`              | `GET /users/:userId/profile`                        |
-| `updateProfile`              | `PATCH /users/me/profile`                           |
-| `myPersonalData`             | `GET /users/me/personal-data`                       |
-| `updatePersonalData`         | `PATCH /users/me/personal-data`                     |
-| `myPrivacySettings`          | `GET /users/me/privacy`                             |
-| `updatePrivacySettings`      | `PATCH /users/me/privacy`                           |
-| `mySecuritySettings`         | `GET /users/me/security`                            |
-| `requestEmailChange`         | `POST /users/me/security/email-change`              |
-| `changePassword`             | `PUT /users/me/security/password`                   |
-| `beginTwoFactorSetup`        | `POST /users/me/security/two-factor/setup`          |
-| `verifyTwoFactorSetup`       | `POST /users/me/security/two-factor/verify`         |
-| `disableTwoFactor`           | `POST /users/me/security/two-factor/disable`        |
-| `revokeSession`              | `DELETE /users/me/security/sessions/:sessionId`     |
-| `revokeOtherSessions`        | `DELETE /users/me/security/sessions/others`         |
-| `myPreferences`              | `GET /users/me/preferences`                         |
-| `updatePreferences`          | `PATCH /users/me/preferences`                       |
-| `myAccount`                  | `GET /users/me/account`                             |
-| `requestAccountDeactivation` | `POST /users/me/account/deactivation`               |
-| `cancelAccountDeactivation`  | `DELETE /users/me/account/deactivation`             |
-| `myCourses`                  | `GET /users/me/courses`                             |
-| `myCertificates`             | `GET /users/me/certificates`                        |
-| `mySubscription`             | `GET /users/me/subscription`                        |
-| `changeSubscriptionPlan`     | `PUT /users/me/subscription/plan`                   |
-| `cancelSubscription`         | `POST /users/me/subscription/cancellation`          |
-| `myPaymentMethods`           | `GET /users/me/payment-methods`                     |
-| `myInvoices`                 | `GET /users/me/invoices`                            |
-| `removePaymentMethod`        | `DELETE /users/me/payment-methods/:paymentMethodId` |
+### Cuerpo de `POST /auth/register`
 
----
+| Antes        | Ahora       |
+| ------------ | ----------- |
+| `nombre`     | `firstName` |
+| `apellidos`  | `lastName`  |
+| `contrasena` | `password`  |
 
-# 24. Estado del contrato
+`email` no cambia.
 
-Este documento constituye el contrato inicial entre el BFF y el backend principal.
+## 14.2 Rutas
 
-El backend debe implementar estas interfaces sin requerir cambios en los resolvers GraphQL.
+| Antes                                           | Ahora                                |
+| :---------------------------------------------- | :----------------------------------- |
+| `POST /api/contact`                             | `POST /contact`                      |
+| `DELETE /users/me/security/sessions/others`     | `DELETE /users/me/security/sessions` |
+| `DELETE /users/me/security/sessions/:sessionId` | _Sin cambios_                        |
 
-Cualquier modificación incompatible debe coordinarse entre ambos lados antes de implementarse.
+- **`DELETE /users/me/security/sessions`**: Revoca todas las sesiones del usuario excepto la actual. Se simplificó eliminando el sufijo `others` para evitar conflictos de enrutamiento con el parámetro dinámico `:sessionId`.
 
-```text
-Contract version: v1
-REST endpoints: 28
-GraphQL operations: 28
-Authentication: Bearer Access Token
-Content-Type: application/json
-```
+## 14.3 Despliegue
+
+Estos cambios **no son compatibles hacia atrás**.
+
+El frontend y el backend deben desplegarse a la vez. El frontend rechaza una respuesta de login que no use los nombres nuevos, así que si solo se despliega uno de los dos nadie podrá iniciar sesión ni registrarse.

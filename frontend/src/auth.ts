@@ -70,9 +70,9 @@ interface LoginSuccessResponse {
   status: 200;
   message: string;
   data: {
-    nombre: string;
-    apellidos: string;
-    uuid: string;
+    firstName: string;
+    lastName: string;
+    id: string;
     rol: string;
     subscription?: string;
     image?: string;
@@ -128,9 +128,9 @@ const isLoginSuccessResponse = (
   return (
     response.status === 200 &&
     !!data &&
-    typeof data.nombre === 'string' &&
-    typeof data.apellidos === 'string' &&
-    typeof data.uuid === 'string' &&
+    typeof data.firstName === 'string' &&
+    typeof data.lastName === 'string' &&
+    typeof data.id === 'string' &&
     typeof data.rol === 'string' &&
     typeof data.token === 'string' &&
     typeof data.refreshToken === 'string' &&
@@ -384,7 +384,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           if (!roleParse.success) {
             logger.error('Rol inválido devuelto por el backend', {
               rol: data.data.rol,
-              uuid: data.data.uuid,
+              id: data.data.id,
             });
             return null;
           }
@@ -401,7 +401,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             );
             if (!subParse.success) {
               logger.error('Suscripción inválida o ausente, se asigna free', {
-                uuid: data.data.uuid,
+                id: data.data.id,
               });
             }
             subscription = subParse.success ? subParse.data : 'free';
@@ -412,7 +412,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
           if (!tokens.success) {
             logger.error('El backend no devolvió el par de tokens esperado', {
-              uuid: data.data.uuid,
+              id: data.data.id,
             });
 
             throw new UnavailableError();
@@ -420,14 +420,14 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
           logger.info('Autenticación exitosa con backend externo', {
             email,
-            uuid: data.data.uuid,
+            id: data.data.id,
             rol: role,
             suscripcion: subscription,
           });
 
           if (!tokens.success) {
             logger.error('El backend no devolvió el par de tokens esperado', {
-              uuid: data.data.uuid,
+              id: data.data.id,
             });
             throw new UnavailableError();
           }
@@ -435,8 +435,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           // 6. Objeto usuario que Auth.js guardará en el JWT
           const now = Date.now();
           return {
-            id: String(data.data.uuid),
-            name: `${data.data.nombre} ${data.data.apellidos}`,
+            id: String(data.data.id),
+            name: `${data.data.firstName} ${data.data.lastName}`,
             email,
             image: data.data.image,
             role,

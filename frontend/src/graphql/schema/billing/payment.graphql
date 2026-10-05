@@ -17,7 +17,7 @@ type PaymentMethod {
 type Invoice {
   id: ID!
   number: String!
-  amount: Float!
+  amount: Int!
   currency: String!
   status: InvoiceStatus!
   issuedAt: DateTime!
