@@ -6,13 +6,17 @@ export interface BackendUser {
   email: string;
   image: string | null;
   role: UserRole;
-  profile: {
-    bio: {
-      title: string;
-      description: string;
-    } | null;
-    interests: string[];
-  };
+  profile: BackendProfile;
+}
+
+export interface BackendBio {
+  title: string;
+  description: string;
+}
+
+export interface BackendProfile {
+  bio: BackendBio | null;
+  interests: string[];
 }
 
 export interface BackendPersonalData {
@@ -23,4 +27,129 @@ export interface BackendPersonalData {
   country: string | null;
   address: string | null;
   identityLocked: boolean;
+}
+
+export type ProfileVisibility = 'everyone' | 'authenticated' | 'nobody';
+export interface BackendPrivacySettings {
+  profileVisibility: ProfileVisibility;
+  emailVisibility: ProfileVisibility;
+  phoneVisibility: ProfileVisibility;
+  allowDirectMessages: boolean;
+}
+export type BackendUpdatePrivacySettingsInput = Partial<BackendPrivacySettings>;
+export type BackendUpdatePersonalDataInput = Partial<
+  Omit<BackendPersonalData, 'identityLocked'>
+>;
+
+export interface BackendSecuritySession {
+  id: string;
+  deviceName: string | null;
+  browser: string | null;
+  ipAddress: string | null;
+  lastActiveAt: string;
+  current: boolean;
+}
+export interface BackendSecuritySettings {
+  email: string;
+  emailVerified: boolean;
+  twoFactorEnabled: boolean;
+  twoFactorRequired: boolean;
+  sessions: BackendSecuritySession[];
+}
+export interface BackendSecurityOperationResult {
+  success: boolean;
+  message: string | null;
+}
+export interface BackendTwoFactorSetup {
+  secret: string;
+  qrCode: string;
+}
+export interface BackendChangePasswordInput {
+  currentPassword: string;
+  newPassword: string;
+}
+export interface BackendRequestEmailChangeInput {
+  newEmail: string;
+}
+
+export type BackendTheme = 'system' | 'light' | 'dark';
+export interface BackendPreferences {
+  language: string;
+  theme: BackendTheme;
+  timezone: string;
+  notifications: { email: boolean; push: boolean; inApp: boolean };
+  accessibility: { reducedMotion: boolean; highContrast: boolean };
+}
+export interface BackendUpdatePreferencesInput {
+  language?: string | null;
+  theme?: BackendTheme | null;
+  timezone?: string | null;
+  notifications?: Partial<BackendPreferences['notifications']> | null;
+  accessibility?: Partial<BackendPreferences['accessibility']> | null;
+}
+
+export type BackendAccountStatus = 'active' | 'suspended' | 'inactive';
+export interface BackendAccount {
+  status: BackendAccountStatus;
+  createdAt: string;
+}
+export type BackendCourseStatus = 'active' | 'completed' | 'paused';
+export interface BackendCourseEnrollment {
+  courseId: string;
+  title: string;
+  progress: number;
+  status: BackendCourseStatus;
+  enrolledAt: string;
+  completedAt: string | null;
+}
+export interface BackendCertificate {
+  id: string;
+  courseId: string;
+  courseTitle: string;
+  certificateNumber: string;
+  issuedAt: string;
+  downloadUrl: string;
+}
+
+export type BackendSubscriptionPlan = 'free' | 'premium' | 'enterprise';
+export type BackendSubscriptionStatus =
+  'trialing' | 'active' | 'past_due' | 'canceled' | 'expired';
+export interface BackendSubscription {
+  id: string;
+  plan: BackendSubscriptionPlan;
+  status: BackendSubscriptionStatus;
+  startedAt: string;
+  currentPeriodEnd: string | null;
+  cancelAtPeriodEnd: boolean;
+}
+export interface BackendPaymentMethod {
+  id: string;
+  brand: string | null;
+  last4: string | null;
+  expirationMonth: number | null;
+  expirationYear: number | null;
+}
+export type BackendInvoiceStatus =
+  'draft' | 'open' | 'paid' | 'void' | 'uncollectible';
+export interface BackendInvoice {
+  id: string;
+  number: string;
+  amount: number;
+  currency: string;
+  status: BackendInvoiceStatus;
+  issuedAt: string;
+  downloadUrl: string | null;
+}
+export interface BackendPublicProfile {
+  id: string;
+  name: string;
+  image: string | null;
+  bio: BackendBio | null;
+  interests: string[];
+  email: string | null;
+  phone: string | null;
+}
+export interface BackendUpdateProfileInput {
+  bio?: BackendBio | null;
+  interests?: string[] | null;
 }

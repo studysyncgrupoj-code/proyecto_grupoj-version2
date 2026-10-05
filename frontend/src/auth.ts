@@ -16,7 +16,8 @@ const API_TIMEOUT_MS = 10_000; // 10 s
 // Rol permitido tal como lo devuelve el backend
 const UserRoleSchema = z.enum(['student', 'teacher', 'admin']);
 
-// Suscripción permitida (solo relevante para rol 'student')
+// Suscripción permitida.
+// Solo aplica actualmente al rol student.
 const SubscriptionSchema = z.enum(['free', 'premium', 'enterprise']);
 
 // Metadatos aceptados por el logger estructurado
@@ -29,12 +30,25 @@ const SESSION_MAX_AGE = 60 * 60 * 24 * 7; // 7 días = 604 800 s
 // Renovar el access token un poco antes de que caduque
 const REFRESH_MARGIN_MS = 30_000; // 30 s
 
-// Forma de la respuesta de /auth/login y /auth/refresh
+// Par de tokens devuelto por /auth/login y /auth/refresh.
+//
+// token:
+//   Access token utilizado para autenticarse contra el backend.
+//
+// refreshToken:
+//   Credencial utilizada exclusivamente por Next.js/Auth.js
+//   para solicitar nuevos access tokens.
+//
+// expiresIn:
+//   Vida útil del access token en segundos.
+//
+// refreshExpiresIn:
+//   Vida útil del refresh token en segundos.
 const TokenPairSchema = z.object({
   token: z.string().min(1),
   refreshToken: z.string().min(1),
-  expiresIn: z.number().positive(), // segundos
-  refreshExpiresIn: z.number().positive(), // segundos
+  expiresIn: z.number().positive(),
+  refreshExpiresIn: z.number().positive(),
 });
 
 // ============================================================
@@ -52,13 +66,8 @@ class UnavailableError extends CredentialsSignin {
   code = 'unavailable';
 }
 
-// ============================================================
-// RESPUESTA ESPERADA DE /auth/login
-// Se aceptan ambas claves de suscripción ('subscription' y
-// 'suscripcion') porque el backend ha variado entre versiones.
-// ============================================================
 interface LoginSuccessResponse {
-  status: number;
+  status: 200;
   message: string;
   data: {
     nombre: string;
@@ -66,8 +75,13 @@ interface LoginSuccessResponse {
     uuid: string;
     rol: string;
     subscription?: string;
-    suscripcion?: string;
     image?: string;
+
+    // Tokens emitidos por el backend
+    token: string;
+    refreshToken: string;
+    expiresIn: number;
+    refreshExpiresIn: number;
   };
 }
 
@@ -117,7 +131,13 @@ const isLoginSuccessResponse = (
     typeof data.nombre === 'string' &&
     typeof data.apellidos === 'string' &&
     typeof data.uuid === 'string' &&
-    typeof data.rol === 'string'
+    typeof data.rol === 'string' &&
+    typeof data.token === 'string' &&
+    typeof data.refreshToken === 'string' &&
+    typeof data.expiresIn === 'number' &&
+    data.expiresIn > 0 &&
+    typeof data.refreshExpiresIn === 'number' &&
+    data.refreshExpiresIn > 0
   );
 };
 
@@ -136,59 +156,91 @@ const refreshInFlight = new Map<string, Promise<JWT>>();
 //   token actual y se reintentará en la próxima petición.
 async function requestRefresh(token: JWT): Promise<JWT> {
   if (!token.refreshToken || !API_BASE_URL) {
-    return { ...token, error: 'RefreshTokenError' };
+    return {
+      ...token,
+      error: 'RefreshTokenError',
+    };
   }
+
   if (token.refreshTokenExpires && Date.now() >= token.refreshTokenExpires) {
-    return { ...token, error: 'RefreshTokenExpired' };
+    return {
+      ...token,
+      error: 'RefreshTokenExpired',
+    };
   }
 
   const controller = new AbortController();
+
   const timeoutId = setTimeout(() => controller.abort(), API_TIMEOUT_MS);
 
   try {
     const res = await fetch(`${API_BASE_URL}/auth/refresh`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ refreshToken: token.refreshToken }),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        refreshToken: token.refreshToken,
+      }),
       signal: controller.signal,
     });
 
-    // El backend rechazó el refresh: la sesión terminó.
+    // Refresh token inválido, expirado o revocado.
+    // La sesión ya no puede continuar.
     if (res.status === 401 || res.status === 403) {
       logger.info('Refresh token rechazado por el backend');
-      return { ...token, error: 'RefreshTokenExpired' };
+
+      return {
+        ...token,
+        error: 'RefreshTokenExpired',
+      };
     }
 
-    // Fallo transitorio: se conserva la sesión y se reintenta luego.
+    // Error temporal del backend.
+    // Conservamos el token para poder reintentar.
     if (!res.ok) {
       logger.error('Fallo temporal al renovar el token', {
         status: res.status,
       });
+
       return token;
     }
 
     const body: unknown = await res.json();
+
     const parsed = TokenPairSchema.safeParse(
       (body as { data?: unknown } | null)?.data,
     );
+
     if (!parsed.success) {
       logger.error('Respuesta de refresh con formato inesperado');
+
       return token;
     }
 
     const now = Date.now();
+
     return {
       ...token,
+
+      // Nuevo access token
       accessToken: parsed.data.token,
+
+      // Importante:
+      // el backend puede rotar el refresh token.
       refreshToken: parsed.data.refreshToken,
+
       accessTokenExpires: now + parsed.data.expiresIn * 1000,
+
       refreshTokenExpires: now + parsed.data.refreshExpiresIn * 1000,
+
       error: undefined,
     };
   } catch (error) {
     logger.error('Error de red al renovar el token', {
       error: error instanceof Error ? error.message : 'Desconocido',
     });
+
     return token;
   } finally {
     clearTimeout(timeoutId);
@@ -196,7 +248,11 @@ async function requestRefresh(token: JWT): Promise<JWT> {
 }
 
 // Deduplica llamadas concurrentes al refresh usando el refreshToken
-// como clave. Si ya hay una en curso, devuelve la misma promesa.
+// como clave.
+//
+// Esto es especialmente importante si el backend utiliza refresh-token
+// rotation: dos refresh simultáneos podrían intentar consumir el mismo
+// refresh token y provocar que uno de ellos sea rechazado.
 function refreshAccessToken(token: JWT): Promise<JWT> {
   const key = token.refreshToken ?? '';
   const pending = refreshInFlight.get(key);
@@ -337,8 +393,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
           // 5.1. Suscripción: solo aplica a estudiantes. Si falta o es
           //      inválida se asigna 'free' por defecto.
-          const rawSubscription =
-            data.data.subscription ?? data.data.suscripcion;
+          const rawSubscription = data.data.subscription;
           let subscription: SubscriptionType | undefined;
           if (role === 'student') {
             const subParse = SubscriptionSchema.safeParse(
@@ -352,6 +407,17 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             subscription = subParse.success ? subParse.data : 'free';
           }
 
+          // 5.2. Sin par de tokens no hay sesión válida.
+          const tokens = TokenPairSchema.safeParse(data.data);
+
+          if (!tokens.success) {
+            logger.error('El backend no devolvió el par de tokens esperado', {
+              uuid: data.data.uuid,
+            });
+
+            throw new UnavailableError();
+          }
+
           logger.info('Autenticación exitosa con backend externo', {
             email,
             uuid: data.data.uuid,
@@ -359,8 +425,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             suscripcion: subscription,
           });
 
-          // 5.2. Sin par de tokens no hay sesión válida
-          const tokens = TokenPairSchema.safeParse(data.data);
           if (!tokens.success) {
             logger.error('El backend no devolvió el par de tokens esperado', {
               uuid: data.data.uuid,
@@ -436,6 +500,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         if (token.role) session.user.role = token.role;
         session.user.subscription = token.subscription;
       }
+      // TODO: Si eliminamos session.accessToken, hay que cambiar la forma en que el endpoint
+      // /api/graphql obtiene el access token. Merece una modificación separada para decidir
+      // definitivamente cómo hacer que el access token sea server-side y no quede expuesto al cliente.
       session.accessToken = token.accessToken;
       session.error = token.error;
       return session;
