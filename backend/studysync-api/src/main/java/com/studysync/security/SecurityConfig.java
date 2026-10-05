@@ -50,7 +50,9 @@ public class SecurityConfig {
                                 "/auth/validate-verification-token",
                                 "/auth/forgot-password",
                                 "/auth/reset-password",
-                                "/auth/validate-reset-token"
+                                "/auth/validate-reset-token",
+                                "/auth/refresh",
+                                "/auth/logout"
                         )
                         .permitAll()
 
