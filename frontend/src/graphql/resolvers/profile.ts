@@ -1,4 +1,5 @@
 import type { GraphQLContext } from '../context';
+import { requireAuth } from '../auth';
 
 export const profileResolvers = {
   Query: {
@@ -14,6 +15,9 @@ export const profileResolvers = {
         >[0];
       },
       c: GraphQLContext,
-    ) => c.backend.users.updateProfile(a.input),
+    ) => {
+      requireAuth(c);
+      return c.backend.users.updateProfile(a.input);
+    },
   },
 };

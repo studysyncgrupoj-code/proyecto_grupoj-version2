@@ -1,14 +1,21 @@
 import type { GraphQLContext } from '../context';
+import { requireAuth } from '../auth';
 
 export const accountResolvers = {
   Query: {
-    myAccount: (_: unknown, __: unknown, c: GraphQLContext) =>
-      c.backend.account.getMe(),
+    myAccount: (_: unknown, __: unknown, c: GraphQLContext) => {
+      requireAuth(c);
+      return c.backend.account.getMe();
+    },
   },
   Mutation: {
-    requestAccountDeactivation: (_: unknown, __: unknown, c: GraphQLContext) =>
-      c.backend.account.requestDeactivation(),
-    cancelAccountDeactivation: (_: unknown, __: unknown, c: GraphQLContext) =>
-      c.backend.account.cancelDeactivation(),
+    requestAccountDeactivation: (_: unknown, __: unknown, c: GraphQLContext) => {
+      requireAuth(c);
+      return c.backend.account.requestDeactivation();
+    },
+    cancelAccountDeactivation: (_: unknown, __: unknown, c: GraphQLContext) => {
+      requireAuth(c);
+      return c.backend.account.cancelDeactivation();
+    },
   },
 };

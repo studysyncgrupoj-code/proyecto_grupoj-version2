@@ -1,29 +1,17 @@
-import { createYoga } from 'graphql-yoga';
-
+import { auth } from '@/auth';
 import { createBackendClient } from '@/lib/backend';
+import { createYoga } from 'graphql-yoga';
 import { schema } from '../../../graphql';
 
 const yoga = createYoga({
   schema,
 
   context: async () => {
-    // TODO(auth): Cuando el login esté terminado,
-    // recuperar la sesión mediante Auth.js.
-    //
-    // const session = await auth();
-    //
-    // if (!session?.user) {
-    //   throw new Error('Unauthorized');
-    // }
-    //
-    // return {
-    //   session,
-    //   backend: createBackendClient(session.accessToken),
-    // };
+    const session = await auth();
 
     return {
-      session: null,
-      backend: createBackendClient(),
+      session,
+      backend: createBackendClient(session?.accessToken),
     };
   },
 

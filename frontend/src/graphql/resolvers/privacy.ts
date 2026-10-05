@@ -1,4 +1,5 @@
 import type { GraphQLContext } from '../context';
+import { requireAuth } from '../auth';
 
 export const privacyResolvers = {
   Query: {
@@ -7,6 +8,7 @@ export const privacyResolvers = {
       _args: unknown,
       context: GraphQLContext,
     ) => {
+      requireAuth(context);
       return context.backend.privacy.getMe();
     },
   },
@@ -17,6 +19,9 @@ export const privacyResolvers = {
         input: Parameters<GraphQLContext['backend']['privacy']['update']>[0];
       },
       context: GraphQLContext,
-    ) => context.backend.privacy.update(args.input),
+    ) => {
+      requireAuth(context);
+      return context.backend.privacy.update(args.input);
+    },
   },
 };

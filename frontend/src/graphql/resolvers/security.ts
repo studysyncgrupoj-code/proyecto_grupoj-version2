@@ -1,33 +1,69 @@
+import { requireAuth } from '../auth';
 import type { GraphQLContext } from '../context';
 
 export const securityResolvers = {
   Query: {
-    mySecuritySettings: (_: unknown, __: unknown, c: GraphQLContext) =>
-      c.backend.security.getMe(),
+    mySecuritySettings: (_: unknown, __: unknown, context: GraphQLContext) => {
+      requireAuth(context);
+      return context.backend.security.getMe();
+    },
   },
   Mutation: {
     requestEmailChange: (
       _: unknown,
-      a: { input: { newEmail: string } },
-      c: GraphQLContext,
-    ) => c.backend.security.requestEmailChange(a.input),
+      args: { input: { newEmail: string } },
+      context: GraphQLContext,
+    ) => {
+      requireAuth(context);
+      return context.backend.security.requestEmailChange(args.input);
+    },
     changePassword: (
       _: unknown,
-      a: { input: { currentPassword: string; newPassword: string } },
-      c: GraphQLContext,
-    ) => c.backend.security.changePassword(a.input),
-    beginTwoFactorSetup: (_: unknown, __: unknown, c: GraphQLContext) =>
-      c.backend.security.beginTwoFactorSetup(),
+      args: { input: { currentPassword: string; newPassword: string } },
+      context: GraphQLContext,
+    ) => {
+      requireAuth(context);
+      return context.backend.security.changePassword(args.input);
+    },
+    beginTwoFactorSetup: (
+      _: unknown,
+      __: unknown,
+      context: GraphQLContext,
+    ) => {
+      requireAuth(context);
+      return context.backend.security.beginTwoFactorSetup();
+    },
     verifyTwoFactorSetup: (
       _: unknown,
-      a: { code: string },
-      c: GraphQLContext,
-    ) => c.backend.security.verifyTwoFactorSetup(a.code),
-    disableTwoFactor: (_: unknown, a: { code: string }, c: GraphQLContext) =>
-      c.backend.security.disableTwoFactor(a.code),
-    revokeSession: (_: unknown, a: { sessionId: string }, c: GraphQLContext) =>
-      c.backend.security.revokeSession(a.sessionId),
-    revokeOtherSessions: (_: unknown, __: unknown, c: GraphQLContext) =>
-      c.backend.security.revokeOtherSessions(),
+      args: { code: string },
+      context: GraphQLContext,
+    ) => {
+      requireAuth(context);
+      return context.backend.security.verifyTwoFactorSetup(args.code);
+    },
+    disableTwoFactor: (
+      _: unknown,
+      args: { code: string },
+      context: GraphQLContext,
+    ) => {
+      requireAuth(context);
+      return context.backend.security.disableTwoFactor(args.code);
+    },
+    revokeSession: (
+      _: unknown,
+      args: { sessionId: string },
+      context: GraphQLContext,
+    ) => {
+      requireAuth(context);
+      return context.backend.security.revokeSession(args.sessionId);
+    },
+    revokeOtherSessions: (
+      _: unknown,
+      __: unknown,
+      context: GraphQLContext,
+    ) => {
+      requireAuth(context);
+      return context.backend.security.revokeOtherSessions();
+    },
   },
 };

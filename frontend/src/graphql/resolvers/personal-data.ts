@@ -1,4 +1,5 @@
 import type { GraphQLContext } from '../context';
+import { requireAuth } from '../auth';
 
 export const personalDataResolvers = {
   Query: {
@@ -7,6 +8,7 @@ export const personalDataResolvers = {
       _args: unknown,
       context: GraphQLContext,
     ) => {
+      requireAuth(context);
       return context.backend.personalData.getMe();
     },
   },
@@ -19,6 +21,9 @@ export const personalDataResolvers = {
         >[0];
       },
       context: GraphQLContext,
-    ) => context.backend.personalData.update(args.input),
+    ) => {
+      requireAuth(context);
+      return context.backend.personalData.update(args.input);
+    },
   },
 };

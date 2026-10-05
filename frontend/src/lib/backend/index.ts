@@ -3,20 +3,13 @@ import type { BackendClient } from './client';
 import { RestBackendClient } from './rest/client';
 
 export function createBackendClient(accessToken?: string): BackendClient {
-  const useMock = process.env.BACKEND_CLIENT === 'mock';
+  const baseUrl = process.env.API_BASE_URL;
 
-  // TODO(backend): eliminar el mock cuando
-  // el backend principal esté disponible.
-
-  if (useMock) {
+  // Si no existe API_BASE_URL, usamos el mock automáticamente.
+  if (!baseUrl) {
     return new MockBackendClient();
   }
 
-  const baseUrl = process.env.API_BASE_URL;
-
-  if (!baseUrl) {
-    throw new Error('API_BASE_URL is not configured');
-  }
-
+  // Si existe API_BASE_URL, usamos el backend real.
   return new RestBackendClient(baseUrl, accessToken);
 }

@@ -1,9 +1,12 @@
 import type { GraphQLContext } from '../context';
+import { requireAuth } from '../auth';
 
 export const preferencesResolvers = {
   Query: {
-    myPreferences: (_: unknown, __: unknown, c: GraphQLContext) =>
-      c.backend.preferences.getMe(),
+    myPreferences: (_: unknown, __: unknown, c: GraphQLContext) => {
+      requireAuth(c);
+      return c.backend.preferences.getMe();
+    },
   },
   Mutation: {
     updatePreferences: (
@@ -14,6 +17,9 @@ export const preferencesResolvers = {
         >[0];
       },
       c: GraphQLContext,
-    ) => c.backend.preferences.update(a.input),
+    ) => {
+      requireAuth(c);
+      return c.backend.preferences.update(a.input);
+    },
   },
 };
