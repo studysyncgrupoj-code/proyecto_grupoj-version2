@@ -1,5 +1,5 @@
 import type { BackendClient } from '../client';
-import type { BackendUser } from '../types';
+import type { BackendPersonalData, BackendUser } from '../types';
 
 export class RestBackendClient implements BackendClient {
   constructor(
@@ -22,6 +22,24 @@ export class RestBackendClient implements BackendClient {
       }
 
       return response.json() as Promise<BackendUser>;
+    },
+  };
+
+  personalData = {
+    getMe: async (): Promise<BackendPersonalData> => {
+      const response = await fetch(`${this.baseUrl}/users/me/personal-data`, {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${this.accessToken}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`Backend request failed: ${response.status}`);
+      }
+
+      return response.json() as Promise<BackendPersonalData>;
     },
   };
 }

@@ -3,7 +3,7 @@ import { makeExecutableSchema } from '@graphql-tools/schema';
 
 import { resolvers } from './resolvers';
 
-const typeDefs = loadFilesSync('src/app/api/graphql/schema/**/*.graphql', {
+const typeDefs = loadFilesSync('src/graphql/schema/**/*.graphql', {
   extensions: ['graphql'],
 });
 

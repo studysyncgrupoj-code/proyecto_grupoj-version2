@@ -1,16 +1,14 @@
 import { createYoga } from 'graphql-yoga';
 
-// import { auth } from '@/auth';
 import { createBackendClient } from '@/lib/backend';
-import { schema } from '@/app/api/graphql';
+import { schema } from '../../../graphql';
 
 const yoga = createYoga({
   schema,
 
   context: async () => {
-    // TODO(auth): Cuando el sistema de login esté terminado,
-    // descomentar la validación de sesión y pasar el accessToken
-    // al BackendClient.
+    // TODO(auth): Cuando el login esté terminado,
+    // recuperar la sesión mediante Auth.js.
     //
     // const session = await auth();
     //
@@ -29,7 +27,7 @@ const yoga = createYoga({
     };
   },
 
-  graphqlEndpoint: '/graphql',
+  graphqlEndpoint: '/api/graphql',
 });
 
 export { yoga as GET, yoga as POST };

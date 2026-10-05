@@ -5,8 +5,8 @@ import { RestBackendClient } from './rest/client';
 export function createBackendClient(accessToken?: string): BackendClient {
   const useMock = process.env.BACKEND_CLIENT === 'mock';
 
-  // TODO(backend): Eliminar el modo mock cuando el backend
-  // principal esté disponible para integración.
+  // TODO(backend): eliminar el mock cuando
+  // el backend principal esté disponible.
 
   if (useMock) {
     return new MockBackendClient();

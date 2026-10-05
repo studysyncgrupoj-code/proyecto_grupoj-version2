@@ -17,4 +17,16 @@ export class MockBackendClient implements BackendClient {
       },
     }),
   };
+
+  personalData = {
+    getMe: async () => ({
+      firstName: 'Test',
+      lastName: 'User',
+      documentId: '123456789',
+      phone: '+57 300 000 0000',
+      country: 'CO',
+      address: 'Test address',
+      identityLocked: false,
+    }),
+  };
 }

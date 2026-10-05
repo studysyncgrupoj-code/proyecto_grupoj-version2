@@ -14,3 +14,13 @@ export interface BackendUser {
     interests: string[];
   };
 }
+
+export interface BackendPersonalData {
+  firstName: string;
+  lastName: string;
+  documentId: string | null;
+  phone: string | null;
+  country: string | null;
+  address: string | null;
+  identityLocked: boolean;
+}
