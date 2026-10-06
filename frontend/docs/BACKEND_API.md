@@ -164,12 +164,13 @@ Los errores `5xx` se consideran errores temporales del servicio y no significan 
 
 El contrato incluye:
 
-| Endpoint                     | Para qué sirve                          | Cuerpo                                              |
-| ---------------------------- | --------------------------------------- | --------------------------------------------------- |
-| `POST /auth/register`        | Crear cuenta                            | `{ firstName, lastName, email, password }`          |
-| `POST /auth/forgot-password` | Pedir correo de recuperación            | `{ email }`                                         |
-| `POST /auth/reset-password`  | Poner una contraseña nueva con el token | `{ token, newPassword }`                            |
-| `POST /contact`              | Formulario de contacto                  | `{ name, email, contactNumber?, subject, message }` |
+| Endpoint                          | Para qué sirve                                               | Cuerpo                                              |
+| --------------------------------- | ------------------------------------------------------------ | --------------------------------------------------- |
+| `POST /auth/register`             | Crear cuenta                                                 | `{ firstName, lastName, email, password }`          |
+| `POST /auth/forgot-password`      | Pedir correo de recuperación                                 | `{ email }`                                         |
+| `POST /auth/validate-reset-token` | Validar token de recuperación antes de mostrar el formulario | `{ token }`                                         |
+| `POST /auth/reset-password`       | Poner una contraseña nueva con el token                      | `{ token, newPassword }`                            |
+| `POST /contact`                   | Formulario de contacto                                       | `{ name, email, contactNumber?, subject, message }` |
 
 ### Registro
 
@@ -205,6 +206,70 @@ La confirmación de la contraseña la valida el cliente y **nunca** se envía al
 ### Recuperación de contraseña
 
 Para evitar enumeración de usuarios, el backend debe responder `200` aunque el correo no exista.
+
+### Validación del token de recuperación
+
+La ruta para validar un token de recuperación antes de mostrar la página de restablecimiento es:
+
+```http
+POST /auth/validate-reset-token
+```
+
+Cuerpo:
+
+```json
+{
+  "token": "reset-token"
+}
+```
+
+El endpoint únicamente valida el token. No cambia la contraseña ni consume el token.
+
+Si el token es válido, responde:
+
+```text
+200
+```
+
+con la respuesta `ResetTokenValidationResponse`:
+
+```json
+{
+  "valid": true
+}
+```
+
+La respuesta no debe incluir información del usuario (correo, nombre, etc.).
+
+Si el token es inválido, vencido o ya fue utilizado, responde:
+
+```text
+400
+```
+
+con el código:
+
+```text
+INVALID_RESET_TOKEN
+```
+
+```json
+{
+  "error": {
+    "code": "INVALID_RESET_TOKEN",
+    "message": "El token de recuperación no es válido o ha expirado.",
+    "details": null
+  }
+}
+```
+
+El frontend debe utilizar este endpoint para determinar si puede mostrar la página de restablecimiento de contraseña.
+
+La validación del token no debe consumirlo. El token únicamente se consume cuando se ejecuta correctamente:
+
+```text
+POST /auth/reset-password
+```
 
 ### Restablecimiento de contraseña
 
@@ -557,7 +622,7 @@ Un valor no soportado responde:
 
 ---
 
-# 10. Resumen de los 35 endpoints
+# 10. Resumen de los 36 endpoints
 
 |   # | Método | Ruta                                         | Auth     | Cuerpo                                     | Respuesta                        |
 | --: | ------ | -------------------------------------------- | -------- | ------------------------------------------ | -------------------------------- |
@@ -566,36 +631,37 @@ Un valor no soportado responde:
 |   3 | POST   | `/auth/logout`                               | None     | `{ refreshToken }`                         | `LogoutResponse`                 |
 |   4 | POST   | `/auth/register`                             | None     | `{ firstName, lastName, email, password }` | `RegisterResponse`               |
 |   5 | POST   | `/auth/forgot-password`                      | None     | `{ email }`                                | `MessageResponse`                |
-|   6 | POST   | `/auth/reset-password`                       | None     | `{ token, newPassword }`                   | `MessageResponse`                |
-|   7 | POST   | `/contact`                                   | None     | `ContactInput`                             | `MessageResponse`                |
-|   8 | GET    | `/users/me`                                  | Required | —                                          | `BackendUser`                    |
-|   9 | GET    | `/users/:userId/profile`                     | Optional | —                                          | `BackendPublicProfile`           |
-|  10 | PATCH  | `/users/me/profile`                          | Required | `BackendUpdateProfileInput`                | `BackendUser`                    |
-|  11 | GET    | `/users/me/personal-data`                    | Required | —                                          | `BackendPersonalData`            |
-|  12 | PATCH  | `/users/me/personal-data`                    | Required | `BackendUpdatePersonalDataInput`           | `BackendPersonalData`            |
-|  13 | GET    | `/users/me/privacy`                          | Required | —                                          | `BackendPrivacySettings`         |
-|  14 | PATCH  | `/users/me/privacy`                          | Required | `BackendUpdatePrivacySettingsInput`        | `BackendPrivacySettings`         |
-|  15 | GET    | `/users/me/security`                         | Required | —                                          | `BackendSecuritySettings`        |
-|  16 | POST   | `/users/me/security/email-change`            | Required | `BackendRequestEmailChangeInput`           | `BackendSecurityOperationResult` |
-|  17 | PUT    | `/users/me/security/password`                | Required | `BackendChangePasswordInput`               | `BackendSecurityOperationResult` |
-|  18 | POST   | `/users/me/security/two-factor/setup`        | Required | —                                          | `BackendTwoFactorSetup`          |
-|  19 | POST   | `/users/me/security/two-factor/verify`       | Required | `{ code }`                                 | `BackendSecurityOperationResult` |
-|  20 | POST   | `/users/me/security/two-factor/disable`      | Required | `{ code }`                                 | `BackendSecurityOperationResult` |
-|  21 | DELETE | `/users/me/security/sessions/:sessionId`     | Required | —                                          | `BackendSecurityOperationResult` |
-|  22 | DELETE | `/users/me/security/sessions`                | Required | —                                          | `BackendSecurityOperationResult` |
-|  23 | GET    | `/users/me/preferences`                      | Required | —                                          | `BackendPreferences`             |
-|  24 | PATCH  | `/users/me/preferences`                      | Required | `BackendUpdatePreferencesInput`            | `BackendPreferences`             |
-|  25 | GET    | `/users/me/account`                          | Required | —                                          | `BackendAccount`                 |
-|  26 | POST   | `/users/me/account/deactivation`             | Required | —                                          | `BackendAccount`                 |
-|  27 | DELETE | `/users/me/account/deactivation`             | Required | —                                          | `BackendAccount`                 |
-|  28 | GET    | `/users/me/courses`                          | Required | —                                          | `BackendCourseEnrollment[]`      |
-|  29 | GET    | `/users/me/certificates`                     | Required | —                                          | `BackendCertificate[]`           |
-|  30 | GET    | `/users/me/subscription`                     | Required | —                                          | `BackendSubscription \| null`    |
-|  31 | PUT    | `/users/me/subscription/plan`                | Required | `{ plan }`                                 | `BackendSubscription`            |
-|  32 | POST   | `/users/me/subscription/cancellation`        | Required | —                                          | `BackendSubscription`            |
-|  33 | GET    | `/users/me/payment-methods`                  | Required | —                                          | `BackendPaymentMethod[]`         |
-|  34 | DELETE | `/users/me/payment-methods/:paymentMethodId` | Required | —                                          | `boolean`                        |
-|  35 | GET    | `/users/me/invoices`                         | Required | —                                          | `BackendInvoice[]`               |
+|   6 | POST   | `/auth/validate-reset-token`                 | None     | `{ token }`                                | `ResetTokenValidationResponse`   |
+|   7 | POST   | `/auth/reset-password`                       | None     | `{ token, newPassword }`                   | `MessageResponse`                |
+|   8 | POST   | `/contact`                                   | None     | `ContactInput`                             | `MessageResponse`                |
+|   9 | GET    | `/users/me`                                  | Required | —                                          | `BackendUser`                    |
+|  10 | GET    | `/users/:userId/profile`                     | Optional | —                                          | `BackendPublicProfile`           |
+|  11 | PATCH  | `/users/me/profile`                          | Required | `BackendUpdateProfileInput`                | `BackendUser`                    |
+|  12 | GET    | `/users/me/personal-data`                    | Required | —                                          | `BackendPersonalData`            |
+|  13 | PATCH  | `/users/me/personal-data`                    | Required | `BackendUpdatePersonalDataInput`           | `BackendPersonalData`            |
+|  14 | GET    | `/users/me/privacy`                          | Required | —                                          | `BackendPrivacySettings`         |
+|  15 | PATCH  | `/users/me/privacy`                          | Required | `BackendUpdatePrivacySettingsInput`        | `BackendPrivacySettings`         |
+|  16 | GET    | `/users/me/security`                         | Required | —                                          | `BackendSecuritySettings`        |
+|  17 | POST   | `/users/me/security/email-change`            | Required | `BackendRequestEmailChangeInput`           | `BackendSecurityOperationResult` |
+|  18 | PUT    | `/users/me/security/password`                | Required | `BackendChangePasswordInput`               | `BackendSecurityOperationResult` |
+|  19 | POST   | `/users/me/security/two-factor/setup`        | Required | —                                          | `BackendTwoFactorSetup`          |
+|  20 | POST   | `/users/me/security/two-factor/verify`       | Required | `{ code }`                                 | `BackendSecurityOperationResult` |
+|  21 | POST   | `/users/me/security/two-factor/disable`      | Required | `{ code }`                                 | `BackendSecurityOperationResult` |
+|  22 | DELETE | `/users/me/security/sessions/:sessionId`     | Required | —                                          | `BackendSecurityOperationResult` |
+|  23 | DELETE | `/users/me/security/sessions`                | Required | —                                          | `BackendSecurityOperationResult` |
+|  24 | GET    | `/users/me/preferences`                      | Required | —                                          | `BackendPreferences`             |
+|  25 | PATCH  | `/users/me/preferences`                      | Required | `BackendUpdatePreferencesInput`            | `BackendPreferences`             |
+|  26 | GET    | `/users/me/account`                          | Required | —                                          | `BackendAccount`                 |
+|  27 | POST   | `/users/me/account/deactivation`             | Required | —                                          | `BackendAccount`                 |
+|  28 | DELETE | `/users/me/account/deactivation`             | Required | —                                          | `BackendAccount`                 |
+|  29 | GET    | `/users/me/courses`                          | Required | —                                          | `BackendCourseEnrollment[]`      |
+|  30 | GET    | `/users/me/certificates`                     | Required | —                                          | `BackendCertificate[]`           |
+|  31 | GET    | `/users/me/subscription`                     | Required | —                                          | `BackendSubscription \| null`    |
+|  32 | PUT    | `/users/me/subscription/plan`                | Required | `{ plan }`                                 | `BackendSubscription`            |
+|  33 | POST   | `/users/me/subscription/cancellation`        | Required | —                                          | `BackendSubscription`            |
+|  34 | GET    | `/users/me/payment-methods`                  | Required | —                                          | `BackendPaymentMethod[]`         |
+|  35 | DELETE | `/users/me/payment-methods/:paymentMethodId` | Required | —                                          | `boolean`                        |
+|  36 | GET    | `/users/me/invoices`                         | Required | —                                          | `BackendInvoice[]`               |
 
 ### Relación con el frontend
 
@@ -645,6 +711,7 @@ Además:
 | `POST /auth/logout`                        | `400`, `401`, `500`. Debe ser idempotente cuando sea posible.                                  |
 | `POST /auth/register`                      | `400`, `409` (email repetido), `422`, `429`, `500`, `503`                                      |
 | `POST /auth/forgot-password`               | `400`, `422`, `429`, `500`, `503`                                                              |
+| `POST /auth/validate-reset-token`          | `400` (`INVALID_RESET_TOKEN`), `429`, `500`, `503`                                             |
 | `POST /auth/reset-password`                | `400` (token inválido), `422`, `429`, `500`, `503`                                             |
 | `POST /contact`                            | `400`, `422`, `429`, `500`, `503`                                                              |
 | `GET /users/:userId/profile`               | `404`                                                                                          |
