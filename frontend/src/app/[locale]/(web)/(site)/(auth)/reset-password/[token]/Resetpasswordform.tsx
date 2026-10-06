@@ -14,7 +14,7 @@ import {
 import { resolveError, type ValidationDict } from '@/lib/validation';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 
 interface ResetPasswordFormProps {
@@ -43,6 +43,9 @@ interface ResetPasswordMessages {
   };
   actions: { submit: string; submitting: string };
   footer: { prompt: string; link: string };
+  validating: string;
+  validationError: string;
+  retryValidation: string;
   apiErrors: Record<(typeof RESET_PASSWORD_ERROR_CODES)[number], string>;
 }
 
@@ -76,6 +79,30 @@ async function submitNewPassword(
   return 'success';
 }
 
+async function validateResetToken(token: string): Promise<void> {
+  const response = await fetch('/api/auth/validate-reset-token', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ token }),
+  });
+
+  const data: unknown = await response.json().catch(() => null);
+  if (!response.ok) {
+    throw new Error(
+      readErrorCode(data, RESET_PASSWORD_ERROR_CODES) ?? 'serverError',
+    );
+  }
+
+  if (
+    !data ||
+    typeof data !== 'object' ||
+    !('valid' in data) ||
+    data.valid !== true
+  ) {
+    throw new Error('serverError');
+  }
+}
+
 // Ref estable: al mostrar el estado de éxito el foco pasa a su título.
 const focusOnMount = (node: HTMLHeadingElement | null) => node?.focus();
 
@@ -93,7 +120,37 @@ export default function ResetPasswordForm({
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [status, setStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [tokenStatus, setTokenStatus] = useState<
+    'validating' | 'valid' | 'invalid' | 'error'
+  >('validating');
+  const [validationAttempt, setValidationAttempt] = useState(0);
   const [feedback, setFeedback] = useState<string | null>(null);
+
+  useEffect(() => {
+    let isCurrent = true;
+    setTokenStatus('validating');
+
+    validateResetToken(token)
+      .then(() => {
+        if (isCurrent) setTokenStatus('valid');
+      })
+      .catch((error: unknown) => {
+        if (!isCurrent) return;
+
+        const code =
+          error instanceof Error &&
+          RESET_PASSWORD_ERROR_CODES.includes(
+            error.message as (typeof RESET_PASSWORD_ERROR_CODES)[number],
+          )
+            ? error.message
+            : 'serverError';
+        setTokenStatus(code === 'invalidToken' ? 'invalid' : 'error');
+      });
+
+    return () => {
+      isCurrent = false;
+    };
+  }, [token, validationAttempt]);
 
   const { lock: LockKeyhole, graduationCap: GraduationCap } = IconMap.ui;
 
@@ -152,7 +209,47 @@ export default function ResetPasswordForm({
         </div>
 
         <AnimatePresence mode="wait" initial={false}>
-          {status === 'success' ? (
+          {tokenStatus === 'validating' ? (
+            <motion.div
+              key="validating"
+              role="status"
+              className="py-8 text-center"
+              {...motionProps}
+            >
+              <p className="text-foreground-muted text-sm">
+                {messages.validating}
+              </p>
+            </motion.div>
+          ) : tokenStatus === 'invalid' || tokenStatus === 'error' ? (
+            <motion.div
+              key="validation-error"
+              role="alert"
+              className="grid gap-4 py-6 text-center"
+              {...motionProps}
+            >
+              <p className="text-danger m-0 text-sm leading-relaxed">
+                {tokenStatus === 'invalid'
+                  ? messages.apiErrors.invalidToken
+                  : messages.validationError}
+              </p>
+              {tokenStatus === 'invalid' ? (
+                <CustomLink
+                  href="/login"
+                  className="text-danger font-semibold underline underline-offset-2"
+                >
+                  {messages.requestLink}
+                </CustomLink>
+              ) : (
+                <Button
+                  variant="primary"
+                  fullWidth
+                  onClick={() => setValidationAttempt((attempt) => attempt + 1)}
+                >
+                  {messages.retryValidation}
+                </Button>
+              )}
+            </motion.div>
+          ) : status === 'success' ? (
             <motion.div
               key="success"
               role="status"

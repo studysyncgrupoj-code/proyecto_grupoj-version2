@@ -69,6 +69,9 @@ export default async function ResetPasswordPage({
       },
     },
     requestLink: formT('requestLink'),
+    validating: formT('validating'),
+    validationError: formT('validationError'),
+    retryValidation: formT('retryValidation'),
     actions: {
       submit: formT('actions.submit'),
       submitting: formT('actions.submitting'),
@@ -132,6 +135,7 @@ export default async function ResetPasswordPage({
 
       {/* Sección del formulario - derecha */}
       <ResetPasswordForm
+        key={token}
         token={token}
         messages={messages}
         validation={validation}

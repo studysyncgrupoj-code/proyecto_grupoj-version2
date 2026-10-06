@@ -115,6 +115,10 @@ export const resetPasswordRequestSchema = z.object({
   password: passwordField,
 });
 
+export const resetPasswordTokenSchema = z.object({
+  token: z.string().trim().min(1, 'resetPassword.invalidToken'),
+});
+
 // ============================================
 // TIPOS DERIVADOS
 // ============================================
@@ -130,3 +134,4 @@ export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>;
 export type ResetPasswordRequestInput = z.infer<
   typeof resetPasswordRequestSchema
 >;
+export type ResetPasswordTokenInput = z.infer<typeof resetPasswordTokenSchema>;

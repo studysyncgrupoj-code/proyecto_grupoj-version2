@@ -538,6 +538,9 @@
           }
         },
         "requestLink": "Request a new link",
+        "validating": "Checking your password reset link...",
+        "validationError": "We could not validate the link. Please try again.",
+        "retryValidation": "Retry validation",
         "actions": {
           "submit": "Reset password",
           "submitting": "Updating..."

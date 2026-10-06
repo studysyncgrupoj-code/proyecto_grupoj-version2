@@ -572,6 +572,9 @@
           }
         },
         "requestLink": "Solicitar un nuevo enlace",
+        "validating": "Validando el enlace de recuperación...",
+        "validationError": "No pudimos validar el enlace. Inténtalo de nuevo.",
+        "retryValidation": "Reintentar validación",
         "actions": {
           "submit": "Restablecer contraseña",
           "submitting": "Actualizando..."
