@@ -16,7 +16,7 @@ import java.util.Map;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/users/me/profile")
+@RequestMapping("/users/me/profile")
 public class ProfileController {
 
     private final ProfileService profileService;
@@ -48,7 +48,7 @@ public class ProfileController {
         );
     }
 
-    @PutMapping
+    @PatchMapping
     public ResponseEntity<ProfileResponse> updateProfile(
             Authentication authentication,
             @Valid @RequestBody UpdateProfileRequest request
