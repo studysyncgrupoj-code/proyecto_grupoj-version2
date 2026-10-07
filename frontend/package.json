@@ -11,9 +11,8 @@
     "graphql:validate": "tsx scripts/validate-graphql-schema.ts",
     "graphql:codegen": "graphql-codegen --config codegen.ts",
     "graphql:codegen:watch": "graphql-codegen --config codegen.ts --watch",
-    "graphql:test": "tsx scripts/test-graphql.ts",
     "backend:test": "tsx scripts/test-backend.ts",
-    "graphql:test:real": "tsx scripts/test-graphql-real.ts"
+    "mock:test": "tsx scripts/test-mock.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "5.9.1",
