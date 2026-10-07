@@ -1,4 +1,4 @@
-import { createRestBackendClient } from '@/lib/backend/rest/client';
+import { createPublicBackendClient } from '@/lib/backend';
 import { getClientIp } from '@/lib/clientIp';
 import { checkRateLimit } from '@/lib/ratelimit';
 import { loginSchema } from '@/lib/user.schema';
@@ -11,7 +11,6 @@ import { z } from 'zod';
 // ============================================================
 // CONSTANTES Y CONFIGURACIÓN
 // ============================================================
-const API_BASE_URL = process.env.API_BASE_URL;
 
 // Rol permitido tal como lo devuelve el backend
 const UserRoleSchema = z.enum(['student', 'teacher', 'admin']);
@@ -73,8 +72,8 @@ interface LoginSuccessResponse {
     firstName: string;
     lastName: string;
     id: string;
-    role: string;
-    subscription?: string | null;
+    role: UserRole;
+    subscription?: SubscriptionType | null;
     image: string | null;
 
     // Tokens emitidos por el backend
@@ -125,13 +124,23 @@ const isLoginSuccessResponse = (
   const response = value as Partial<LoginSuccessResponse>;
   const data = response.data;
 
+  if (response.status !== 200 || !data) return false;
+
+  const role = UserRoleSchema.safeParse(data.role);
+  const subscriptionIsValid =
+    role.success &&
+    (role.data === 'student'
+      ? 'subscription' in data &&
+        (data.subscription === null ||
+          SubscriptionSchema.safeParse(data.subscription).success)
+      : !('subscription' in data));
+
   return (
-    response.status === 200 &&
-    !!data &&
     typeof data.firstName === 'string' &&
     typeof data.lastName === 'string' &&
     typeof data.id === 'string' &&
-    typeof data.role === 'string' &&
+    role.success &&
+    subscriptionIsValid &&
     (typeof data.image === 'string' || data.image === null) &&
     typeof data.token === 'string' &&
     typeof data.refreshToken === 'string' &&
@@ -151,12 +160,12 @@ const isLoginSuccessResponse = (
 const refreshInFlight = new Map<string, Promise<JWT>>();
 
 // Llama a /auth/refresh y devuelve un JWT actualizado.
-// - Si no hay refreshToken o falta API_BASE_URL → error de configuración.
+// - Si no hay refreshToken → error de configuración.
 // - Si el refresh ya caducó o el backend responde 401/403 → sesión terminada.
 // - Si el fallo es transitorio (red, 5xx, formato raro) → se conserva el
 //   token actual y se reintentará en la próxima petición.
 async function requestRefresh(token: JWT): Promise<JWT> {
-  if (!token.refreshToken || !API_BASE_URL) {
+  if (!token.refreshToken) {
     return {
       ...token,
       error: 'RefreshTokenError',
@@ -171,7 +180,7 @@ async function requestRefresh(token: JWT): Promise<JWT> {
   }
 
   try {
-    const res = await createRestBackendClient().auth.refresh(
+    const res = await createPublicBackendClient().auth.refresh(
       token.refreshToken,
     );
 
@@ -312,19 +321,14 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             throw new RateLimitedError();
           }
 
-          if (!API_BASE_URL) {
-            logger.error('API_BASE_URL no configurada en el entorno');
-            throw new UnavailableError();
-          }
-
           // 3. Llamada al backend a través del cliente REST compartido.
           let response: Awaited<
             ReturnType<
-              ReturnType<typeof createRestBackendClient>['auth']['login']
+              ReturnType<typeof createPublicBackendClient>['auth']['login']
             >
           >;
           try {
-            response = await createRestBackendClient().auth.login({
+            response = await createPublicBackendClient().auth.login({
               email,
               password,
             });
@@ -350,9 +354,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           }
 
           // 5. Validar que el rol devuelto esté entre los permitidos
-          const roleParse = UserRoleSchema.safeParse(
-            data.data.role.toLowerCase(),
-          );
+          const roleParse = UserRoleSchema.safeParse(data.data.role);
           if (!roleParse.success) {
             logger.error('Rol inválido devuelto por el backend', {
               role: data.data.role,
@@ -368,15 +370,13 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           const rawSubscription = data.data.subscription;
           let subscription: SubscriptionType | undefined;
           if (role === 'student') {
-            const subParse = SubscriptionSchema.safeParse(
-              rawSubscription?.toLowerCase(),
-            );
-            if (!subParse.success) {
-              logger.error('Suscripción inválida o ausente, se asigna free', {
-                id: data.data.id,
-              });
+            if (rawSubscription === null) {
+              subscription = undefined;
+            } else {
+              const subParse = SubscriptionSchema.safeParse(rawSubscription);
+              if (!subParse.success) return null;
+              subscription = subParse.data;
             }
-            subscription = subParse.success ? subParse.data : 'free';
           }
 
           // 5.2. Sin par de tokens no hay sesión válida.
@@ -485,14 +485,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     // no pueda reutilizarse. Si falla, solo se registra: la sesión local
     // ya se destruyó de todas formas.
     async signOut(message) {
-      if (
-        !('token' in message) ||
-        !message.token?.refreshToken ||
-        !API_BASE_URL
-      )
-        return;
+      if (!('token' in message) || !message.token?.refreshToken) return;
       try {
-        await createRestBackendClient().auth.logout(message.token.refreshToken);
+        await createPublicBackendClient().auth.logout(
+          message.token.refreshToken,
+        );
       } catch {
         logger.error('No se pudo revocar el refresh token en el backend');
       }

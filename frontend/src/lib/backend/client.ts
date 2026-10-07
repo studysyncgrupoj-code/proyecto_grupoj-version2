@@ -1,25 +1,35 @@
+import type { RestBackendResponse } from './http';
 import type {
   BackendAccount,
   BackendCertificate,
   BackendChangePasswordInput,
+  BackendContactInput,
   BackendCourseEnrollment,
+  BackendForgotPasswordInput,
   BackendInvoice,
+  BackendLoginInput,
+  BackendLoginResponse,
   BackendPaymentMethod,
   BackendPersonalData,
   BackendPreferences,
   BackendPrivacySettings,
   BackendPublicProfile,
+  BackendRegisterInput,
   BackendRequestEmailChangeInput,
+  BackendResetPasswordInput,
+  BackendResetTokenValidationResponse,
   BackendSecurityOperationResult,
   BackendSecuritySettings,
   BackendSubscription,
   BackendSubscriptionPlan,
+  BackendTokenPairResponse,
   BackendTwoFactorSetup,
   BackendUpdatePersonalDataInput,
   BackendUpdatePreferencesInput,
   BackendUpdatePrivacySettingsInput,
   BackendUpdateProfileInput,
   BackendUser,
+  BackendValidateResetTokenInput,
 } from './types';
 
 export interface BackendClient {
@@ -72,5 +82,30 @@ export interface BackendClient {
     getPaymentMethods(): Promise<BackendPaymentMethod[]>;
     getInvoices(): Promise<BackendInvoice[]>;
     removePaymentMethod(paymentMethodId: string): Promise<boolean>;
+  };
+}
+
+export interface PublicBackendClient {
+  auth: {
+    login(
+      input: BackendLoginInput,
+    ): Promise<RestBackendResponse<BackendLoginResponse>>;
+    refresh(
+      refreshToken: string,
+    ): Promise<RestBackendResponse<BackendTokenPairResponse>>;
+    logout(refreshToken: string): Promise<RestBackendResponse>;
+    register(input: BackendRegisterInput): Promise<RestBackendResponse>;
+    forgotPassword(
+      input: BackendForgotPasswordInput,
+    ): Promise<RestBackendResponse>;
+    validateResetToken(
+      input: BackendValidateResetTokenInput,
+    ): Promise<RestBackendResponse<BackendResetTokenValidationResponse>>;
+    resetPassword(
+      input: BackendResetPasswordInput,
+    ): Promise<RestBackendResponse>;
+  };
+  contact: {
+    submit(input: BackendContactInput): Promise<RestBackendResponse>;
   };
 }

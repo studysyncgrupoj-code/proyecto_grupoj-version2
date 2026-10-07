@@ -1,5 +1,5 @@
-import { MockBackendClient } from '../mock/client';
-import type { BackendClient } from './client';
+import { MockBackendClient, MockPublicBackendClient } from '../mock/client';
+import type { BackendClient, PublicBackendClient } from './client';
 import {
   createRestBackendClient,
   readBackendErrorCode,
@@ -17,14 +17,22 @@ export {
   RestBackendUnavailableError,
 };
 
-export function createBackendClient(accessToken?: string): BackendClient {
-  const baseUrl = process.env.API_BASE_URL;
+function isMockMode(): boolean {
+  return process.env.BACKEND_MODE === 'mock';
+}
 
-  // Si no existe API_BASE_URL, usamos el mock automáticamente.
-  if (!baseUrl) {
+export function createBackendClient(accessToken?: string): BackendClient {
+  if (isMockMode()) {
     return new MockBackendClient();
   }
 
-  // Si existe API_BASE_URL, usamos el backend real.
-  return new RestBackendClient(baseUrl, accessToken);
+  return createRestBackendClient(accessToken);
+}
+
+export function createPublicBackendClient(): PublicBackendClient {
+  if (isMockMode()) {
+    return new MockPublicBackendClient();
+  }
+
+  return createRestBackendClient();
 }

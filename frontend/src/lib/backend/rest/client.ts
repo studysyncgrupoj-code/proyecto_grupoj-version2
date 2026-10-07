@@ -1,5 +1,6 @@
 import type { BackendClient } from '../client';
-import type { RestBackendResponse } from '../http';
+import { readBackendErrorCode, type RestBackendResponse } from '../http';
+import { BackendOperationError } from '../errors';
 import type {
   BackendAccount,
   BackendCertificate,
@@ -73,6 +74,7 @@ export class RestBackendClient implements BackendClient {
       typeof FormData !== 'undefined' && init.body instanceof FormData;
     const headers = new Headers();
 
+    headers.set('Accept', 'application/json');
     if (!isFormData) headers.set('Content-Type', 'application/json');
     if (this.accessToken) {
       headers.set('Authorization', `Bearer ${this.accessToken}`);
@@ -128,11 +130,19 @@ export class RestBackendClient implements BackendClient {
     return { status: response.status, ok: response.ok, body };
   }
 
-  private async request<T>(path: string, init: RequestInit = {}): Promise<T> {
+  private async request<T>(
+    path: string,
+    init: RequestInit = {},
+    notFoundAsNull = false,
+  ): Promise<T> {
     // Contract between the GraphQL BFF and the principal backend.
     // The principal backend must implement these endpoints.
     const { ok, status, body } = await this.send<T>(path, init);
-    if (!ok) throw new Error(`Backend request failed: ${status}`);
+    if (notFoundAsNull && status === 404) return null as T;
+    if (!ok) {
+      const code = readBackendErrorCode(body) ?? 'UPSTREAM_ERROR';
+      throw new BackendOperationError(status, code);
+    }
     if (status === 204) return undefined as T;
     return body as T;
   }
@@ -175,6 +185,8 @@ export class RestBackendClient implements BackendClient {
     getPublicProfile: (userId: string) =>
       this.request<BackendPublicProfile | null>(
         `/users/${encodeURIComponent(userId)}/profile`,
+        {},
+        true,
       ),
     updateProfile: (
       input: Parameters<BackendClient['users']['updateProfile']>[0],
@@ -238,7 +250,7 @@ export class RestBackendClient implements BackendClient {
       ),
     revokeOtherSessions: () =>
       this.request<BackendSecurityOperationResult>(
-        '/users/me/security/sessions/others',
+        '/users/me/security/sessions',
         { method: 'DELETE' },
       ),
   };

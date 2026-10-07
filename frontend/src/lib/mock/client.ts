@@ -163,15 +163,15 @@ export class MockBackendClient implements BackendClient {
   account = {
     getMe: async () => ({
       status: 'active' as const,
-      createdAt: '2024-01-01T00:00:00.000Z',
+      deactivationScheduledAt: null,
     }),
     requestDeactivation: async () => ({
-      status: 'inactive' as const,
-      createdAt: '2024-01-01T00:00:00.000Z',
+      status: 'pending_deactivation' as const,
+      deactivationScheduledAt: '2026-10-13T00:00:00.000Z',
     }),
     cancelDeactivation: async () => ({
       status: 'active' as const,
-      createdAt: '2024-01-01T00:00:00.000Z',
+      deactivationScheduledAt: null,
     }),
   };
   courses = {

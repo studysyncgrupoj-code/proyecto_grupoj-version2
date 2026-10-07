@@ -1,6 +1,6 @@
 mutation CancelAccountDeactivation {
   cancelAccountDeactivation {
     status
-    createdAt
+    deactivationScheduledAt
   }
 }

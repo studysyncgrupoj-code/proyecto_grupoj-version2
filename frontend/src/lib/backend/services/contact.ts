@@ -1,4 +1,4 @@
-import { createRestBackendClient } from '@/lib/backend/rest/client';
+import { createPublicBackendClient } from '@/lib/backend';
 import type { ContactErrorCode } from '@/lib/contactErrors';
 import { BackendOperationError } from '../errors';
 import type { BackendContactInput } from '../types';
@@ -17,7 +17,7 @@ export async function submitContact(input: BackendContactInput): Promise<void> {
     ...(input.contactNumber ? { contactNumber: input.contactNumber } : {}),
   };
 
-  const client = createRestBackendClient();
+  const client = createPublicBackendClient();
   const response = await callBackend(() => client.contact.submit(payload));
 
   assertNotRateLimited(response);

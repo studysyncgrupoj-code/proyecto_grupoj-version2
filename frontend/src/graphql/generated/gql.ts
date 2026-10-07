@@ -14,9 +14,9 @@ import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/
  * Learn more about it here: https://the-guild.dev/graphql/codegen/plugins/presets/preset-client#reducing-bundle-size
  */
 type Documents = {
-    "mutation CancelAccountDeactivation {\n  cancelAccountDeactivation {\n    status\n    createdAt\n  }\n}": typeof types.CancelAccountDeactivationDocument,
-    "query MyAccount {\n  myAccount {\n    status\n    createdAt\n  }\n}": typeof types.MyAccountDocument,
-    "mutation RequestAccountDeactivation {\n  requestAccountDeactivation {\n    status\n    createdAt\n  }\n}": typeof types.RequestAccountDeactivationDocument,
+    "mutation CancelAccountDeactivation {\n  cancelAccountDeactivation {\n    status\n    deactivationScheduledAt\n  }\n}": typeof types.CancelAccountDeactivationDocument,
+    "query MyAccount {\n  myAccount {\n    status\n    deactivationScheduledAt\n  }\n}": typeof types.MyAccountDocument,
+    "mutation RequestAccountDeactivation {\n  requestAccountDeactivation {\n    status\n    deactivationScheduledAt\n  }\n}": typeof types.RequestAccountDeactivationDocument,
     "mutation CancelSubscription {\n  cancelSubscription {\n    id\n    plan\n    status\n    startedAt\n    currentPeriodEnd\n    cancelAtPeriodEnd\n  }\n}": typeof types.CancelSubscriptionDocument,
     "mutation ChangeSubscriptionPlan($plan: SubscriptionPlan!) {\n  changeSubscriptionPlan(plan: $plan) {\n    id\n    plan\n    status\n    startedAt\n    currentPeriodEnd\n    cancelAtPeriodEnd\n  }\n}": typeof types.ChangeSubscriptionPlanDocument,
     "query MyInvoices {\n  myInvoices {\n    id\n    number\n    amount\n    currency\n    status\n    issuedAt\n    downloadUrl\n  }\n}": typeof types.MyInvoicesDocument,
@@ -44,9 +44,9 @@ type Documents = {
     "mutation UpdatePersonalData($input: UpdatePersonalDataInput!) {\n  updatePersonalData(input: $input) {\n    firstName\n    lastName\n    documentId\n    phone\n    country\n    address\n    identityLocked\n  }\n}": typeof types.UpdatePersonalDataDocument,
 };
 const documents: Documents = {
-    "mutation CancelAccountDeactivation {\n  cancelAccountDeactivation {\n    status\n    createdAt\n  }\n}": types.CancelAccountDeactivationDocument,
-    "query MyAccount {\n  myAccount {\n    status\n    createdAt\n  }\n}": types.MyAccountDocument,
-    "mutation RequestAccountDeactivation {\n  requestAccountDeactivation {\n    status\n    createdAt\n  }\n}": types.RequestAccountDeactivationDocument,
+    "mutation CancelAccountDeactivation {\n  cancelAccountDeactivation {\n    status\n    deactivationScheduledAt\n  }\n}": types.CancelAccountDeactivationDocument,
+    "query MyAccount {\n  myAccount {\n    status\n    deactivationScheduledAt\n  }\n}": types.MyAccountDocument,
+    "mutation RequestAccountDeactivation {\n  requestAccountDeactivation {\n    status\n    deactivationScheduledAt\n  }\n}": types.RequestAccountDeactivationDocument,
     "mutation CancelSubscription {\n  cancelSubscription {\n    id\n    plan\n    status\n    startedAt\n    currentPeriodEnd\n    cancelAtPeriodEnd\n  }\n}": types.CancelSubscriptionDocument,
     "mutation ChangeSubscriptionPlan($plan: SubscriptionPlan!) {\n  changeSubscriptionPlan(plan: $plan) {\n    id\n    plan\n    status\n    startedAt\n    currentPeriodEnd\n    cancelAtPeriodEnd\n  }\n}": types.ChangeSubscriptionPlanDocument,
     "query MyInvoices {\n  myInvoices {\n    id\n    number\n    amount\n    currency\n    status\n    issuedAt\n    downloadUrl\n  }\n}": types.MyInvoicesDocument,
@@ -91,15 +91,15 @@ export function graphql(source: string): unknown;
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function graphql(source: "mutation CancelAccountDeactivation {\n  cancelAccountDeactivation {\n    status\n    createdAt\n  }\n}"): (typeof documents)["mutation CancelAccountDeactivation {\n  cancelAccountDeactivation {\n    status\n    createdAt\n  }\n}"];
+export function graphql(source: "mutation CancelAccountDeactivation {\n  cancelAccountDeactivation {\n    status\n    deactivationScheduledAt\n  }\n}"): (typeof documents)["mutation CancelAccountDeactivation {\n  cancelAccountDeactivation {\n    status\n    deactivationScheduledAt\n  }\n}"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function graphql(source: "query MyAccount {\n  myAccount {\n    status\n    createdAt\n  }\n}"): (typeof documents)["query MyAccount {\n  myAccount {\n    status\n    createdAt\n  }\n}"];
+export function graphql(source: "query MyAccount {\n  myAccount {\n    status\n    deactivationScheduledAt\n  }\n}"): (typeof documents)["query MyAccount {\n  myAccount {\n    status\n    deactivationScheduledAt\n  }\n}"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function graphql(source: "mutation RequestAccountDeactivation {\n  requestAccountDeactivation {\n    status\n    createdAt\n  }\n}"): (typeof documents)["mutation RequestAccountDeactivation {\n  requestAccountDeactivation {\n    status\n    createdAt\n  }\n}"];
+export function graphql(source: "mutation RequestAccountDeactivation {\n  requestAccountDeactivation {\n    status\n    deactivationScheduledAt\n  }\n}"): (typeof documents)["mutation RequestAccountDeactivation {\n  requestAccountDeactivation {\n    status\n    deactivationScheduledAt\n  }\n}"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

@@ -88,10 +88,11 @@ export interface BackendUpdatePreferencesInput {
   accessibility?: Partial<BackendPreferences['accessibility']> | null;
 }
 
-export type BackendAccountStatus = 'active' | 'suspended' | 'inactive';
+export type BackendAccountStatus =
+  'active' | 'pending_deactivation' | 'suspended' | 'inactive';
 export interface BackendAccount {
   status: BackendAccountStatus;
-  createdAt: string;
+  deactivationScheduledAt: string | null;
 }
 export type BackendCourseStatus = 'active' | 'completed' | 'paused';
 export interface BackendCourseEnrollment {
@@ -198,8 +199,8 @@ export interface BackendLoginData extends BackendTokenPair {
   firstName: string;
   lastName: string;
   id: string;
-  role: string;
-  subscription?: string | null;
+  role: 'student' | 'teacher' | 'admin';
+  subscription?: 'free' | 'premium' | 'enterprise' | null;
   image: string | null;
 }
 
