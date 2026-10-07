@@ -1,5 +1,5 @@
 import { loadEnvConfig } from '@next/env';
-import { RestBackendClient } from '../src/lib/backend/rest/client';
+import { createRestBackendClient } from '../src/lib/backend/rest/client';
 
 loadEnvConfig(process.cwd());
 
@@ -32,41 +32,7 @@ function skip(name: string) {
   results.push({ name, status: 'SKIP' });
 }
 
-async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
-  if (!API_BASE_URL) {
-    throw new Error('API_BASE_URL is not configured');
-  }
-
-  const response = await fetch(`${API_BASE_URL}${path}`, {
-    ...init,
-    headers: {
-      'Content-Type': 'application/json',
-      ...init.headers,
-    },
-  });
-
-  const text = await response.text();
-
-  let body: unknown = null;
-
-  if (text) {
-    try {
-      body = JSON.parse(text);
-    } catch {
-      body = text;
-    }
-  }
-
-  if (!response.ok) {
-    throw new Error(
-      `HTTP ${response.status}: ${
-        typeof body === 'string' ? body : JSON.stringify(body)
-      }`,
-    );
-  }
-
-  return body as T;
-}
+const client = API_BASE_URL ? createRestBackendClient() : null;
 
 interface LoginResponse {
   status: number;
@@ -97,53 +63,48 @@ interface RefreshResponse {
 }
 
 async function login(): Promise<LoginResponse['data']> {
-  const response = await request<LoginResponse>('/auth/login', {
-    method: 'POST',
-    body: JSON.stringify({
-      email: TEST_EMAIL,
-      password: TEST_PASSWORD,
-    }),
+  if (!client) throw new Error('API_BASE_URL is not configured');
+  const response = await client.auth.login({
+    email: TEST_EMAIL!,
+    password: TEST_PASSWORD!,
   });
+  const body = response.body as LoginResponse | null;
 
   if (
-    response.status !== 200 ||
-    !response.data?.token ||
-    !response.data?.refreshToken
+    !response.ok ||
+    body?.status !== 200 ||
+    !body.data?.token ||
+    !body.data?.refreshToken
   ) {
-    throw new Error('Invalid login response');
+    throw new Error(`Invalid login response (HTTP ${response.status})`);
   }
 
-  return response.data;
+  return body.data;
 }
 
 async function refreshToken(
   refreshTokenValue: string,
 ): Promise<RefreshResponse['data']> {
-  const response = await request<RefreshResponse>('/auth/refresh', {
-    method: 'POST',
-    body: JSON.stringify({
-      refreshToken: refreshTokenValue,
-    }),
-  });
+  if (!client) throw new Error('API_BASE_URL is not configured');
+  const response = await client.auth.refresh(refreshTokenValue);
+  const body = response.body as RefreshResponse | null;
 
   if (
-    response.status !== 200 ||
-    !response.data?.token ||
-    !response.data?.refreshToken
+    !response.ok ||
+    body?.status !== 200 ||
+    !body.data?.token ||
+    !body.data?.refreshToken
   ) {
-    throw new Error('Invalid refresh response');
+    throw new Error(`Invalid refresh response (HTTP ${response.status})`);
   }
 
-  return response.data;
+  return body.data;
 }
 
 async function logout(refreshTokenValue: string) {
-  await request('/auth/logout', {
-    method: 'POST',
-    body: JSON.stringify({
-      refreshToken: refreshTokenValue,
-    }),
-  });
+  if (!client) throw new Error('API_BASE_URL is not configured');
+  const response = await client.auth.logout(refreshTokenValue);
+  if (!response.ok) throw new Error(`HTTP ${response.status}`);
 }
 
 async function run() {
@@ -199,7 +160,7 @@ async function run() {
    * ---------------------------------------------------------
    */
 
-  const client = new RestBackendClient(API_BASE_URL, accessToken);
+  const authenticatedClient = createRestBackendClient(accessToken);
 
   const tests: Array<{
     name: string;
@@ -207,47 +168,47 @@ async function run() {
   }> = [
     {
       name: 'GET /users/me',
-      run: () => client.users.getMe(),
+      run: () => authenticatedClient.users.getMe(),
     },
     {
       name: 'GET /users/me/personal-data',
-      run: () => client.personalData.getMe(),
+      run: () => authenticatedClient.personalData.getMe(),
     },
     {
       name: 'GET /users/me/privacy',
-      run: () => client.privacy.getMe(),
+      run: () => authenticatedClient.privacy.getMe(),
     },
     {
       name: 'GET /users/me/security',
-      run: () => client.security.getMe(),
+      run: () => authenticatedClient.security.getMe(),
     },
     {
       name: 'GET /users/me/preferences',
-      run: () => client.preferences.getMe(),
+      run: () => authenticatedClient.preferences.getMe(),
     },
     {
       name: 'GET /users/me/account',
-      run: () => client.account.getMe(),
+      run: () => authenticatedClient.account.getMe(),
     },
     {
       name: 'GET /users/me/courses',
-      run: () => client.courses.getMe(),
+      run: () => authenticatedClient.courses.getMe(),
     },
     {
       name: 'GET /users/me/certificates',
-      run: () => client.certificates.getMe(),
+      run: () => authenticatedClient.certificates.getMe(),
     },
     {
       name: 'GET /users/me/subscription',
-      run: () => client.subscription.getMe(),
+      run: () => authenticatedClient.subscription.getMe(),
     },
     {
       name: 'GET /users/me/payment-methods',
-      run: () => client.billing.getPaymentMethods(),
+      run: () => authenticatedClient.billing.getPaymentMethods(),
     },
     {
       name: 'GET /users/me/invoices',
-      run: () => client.billing.getInvoices(),
+      run: () => authenticatedClient.billing.getInvoices(),
     },
   ];
 
@@ -268,7 +229,7 @@ async function run() {
 
   if (TEST_USER_ID) {
     try {
-      await client.users.getPublicProfile(TEST_USER_ID);
+      await authenticatedClient.users.getPublicProfile(TEST_USER_ID);
       pass('GET /users/:userId/profile');
     } catch (error) {
       fail('GET /users/:userId/profile', error);

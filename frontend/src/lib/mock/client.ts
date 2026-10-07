@@ -1,5 +1,21 @@
 import type { BackendClient } from '../backend/client';
+import { type RestBackendResponse } from '../backend/http';
 import type { BackendPreferences } from '../backend/types';
+
+const MOCK_USER_ID = 'test-user-001';
+
+function mockResponse<T>(body: T, status = 200): RestBackendResponse<T> {
+  return { status, ok: status >= 200 && status < 300, body };
+}
+
+function mockTokenPair() {
+  return {
+    token: 'mock-access-token',
+    refreshToken: 'mock-refresh-token',
+    expiresIn: 3600,
+    refreshExpiresIn: 60 * 60 * 24 * 7,
+  };
+}
 
 const preferences: BackendPreferences = {
   language: 'es',

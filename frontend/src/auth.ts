@@ -1,3 +1,4 @@
+import { createRestBackendClient } from '@/lib/backend/rest/client';
 import { getClientIp } from '@/lib/clientIp';
 import { checkRateLimit } from '@/lib/ratelimit';
 import { loginSchema } from '@/lib/user.schema';
@@ -11,7 +12,6 @@ import { z } from 'zod';
 // CONSTANTES Y CONFIGURACIÓN
 // ============================================================
 const API_BASE_URL = process.env.API_BASE_URL;
-const API_TIMEOUT_MS = 10_000; // 10 s
 
 // Rol permitido tal como lo devuelve el backend
 const UserRoleSchema = z.enum(['student', 'teacher', 'admin']);
@@ -73,9 +73,9 @@ interface LoginSuccessResponse {
     firstName: string;
     lastName: string;
     id: string;
-    rol: string;
-    subscription?: string;
-    image?: string;
+    role: string;
+    subscription?: string | null;
+    image: string | null;
 
     // Tokens emitidos por el backend
     token: string;
@@ -131,7 +131,8 @@ const isLoginSuccessResponse = (
     typeof data.firstName === 'string' &&
     typeof data.lastName === 'string' &&
     typeof data.id === 'string' &&
-    typeof data.rol === 'string' &&
+    typeof data.role === 'string' &&
+    (typeof data.image === 'string' || data.image === null) &&
     typeof data.token === 'string' &&
     typeof data.refreshToken === 'string' &&
     typeof data.expiresIn === 'number' &&
@@ -169,21 +170,10 @@ async function requestRefresh(token: JWT): Promise<JWT> {
     };
   }
 
-  const controller = new AbortController();
-
-  const timeoutId = setTimeout(() => controller.abort(), API_TIMEOUT_MS);
-
   try {
-    const res = await fetch(`${API_BASE_URL}/auth/refresh`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        refreshToken: token.refreshToken,
-      }),
-      signal: controller.signal,
-    });
+    const res = await createRestBackendClient().auth.refresh(
+      token.refreshToken,
+    );
 
     // Refresh token inválido, expirado o revocado.
     // La sesión ya no puede continuar.
@@ -206,10 +196,8 @@ async function requestRefresh(token: JWT): Promise<JWT> {
       return token;
     }
 
-    const body: unknown = await res.json();
-
     const parsed = TokenPairSchema.safeParse(
-      (body as { data?: unknown } | null)?.data,
+      (res.body as { data?: unknown } | null)?.data,
     );
 
     if (!parsed.success) {
@@ -242,8 +230,6 @@ async function requestRefresh(token: JWT): Promise<JWT> {
     });
 
     return token;
-  } finally {
-    clearTimeout(timeoutId);
   }
 }
 
@@ -285,7 +271,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       //   0) rate limit por IP
       //   1) validación del payload con Zod
       //   2) rate limit por email
-      //   3) POST a {API_BASE_URL}/auth/login con timeout
+      //   3) POST /auth/login a través de RestBackendClient
       //   4) parseo y validación de la respuesta
       //   5) validación de rol y (si aplica) de suscripción
       //   5.2) validación del par de tokens
@@ -331,25 +317,18 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             throw new UnavailableError();
           }
 
-          // 3. Llamada al backend con AbortController para aplicar timeout
-          const EXTERNAL_API_URL = `${API_BASE_URL}/auth/login`;
-          const controller = new AbortController();
-          const timeoutId = setTimeout(
-            () => controller.abort(),
-            API_TIMEOUT_MS,
-          );
-
-          let response: Response;
+          // 3. Llamada al backend a través del cliente REST compartido.
+          let response: Awaited<
+            ReturnType<
+              ReturnType<typeof createRestBackendClient>['auth']['login']
+            >
+          >;
           try {
-            response = await fetch(EXTERNAL_API_URL, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ email, password }),
-              signal: controller.signal,
+            response = await createRestBackendClient().auth.login({
+              email,
+              password,
             });
-            clearTimeout(timeoutId);
           } catch (error) {
-            clearTimeout(timeoutId);
             logger.error('Error de conexión o timeout con el backend externo', {
               email,
               error: error instanceof Error ? error.message : 'Desconocido',
@@ -359,14 +338,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
           // 4. Parseo defensivo: si el cuerpo no es JSON válido se decide
           //    entre credenciales inválidas (4xx) o backend caído (5xx).
-          let data: unknown;
-          try {
-            data = await response.json();
-          } catch {
-            logger.error('Respuesta JSON inválida del backend externo');
-            if (response.status >= 500) throw new UnavailableError();
-            return null;
-          }
+          const data: unknown = response.body;
 
           if (!response.ok || !isLoginSuccessResponse(data)) {
             logger.error('Credenciales rechazadas por el backend externo', {
@@ -379,11 +351,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
           // 5. Validar que el rol devuelto esté entre los permitidos
           const roleParse = UserRoleSchema.safeParse(
-            data.data.rol.toLowerCase(),
+            data.data.role.toLowerCase(),
           );
           if (!roleParse.success) {
             logger.error('Rol inválido devuelto por el backend', {
-              rol: data.data.rol,
+              role: data.data.role,
               id: data.data.id,
             });
             return null;
@@ -520,11 +492,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       )
         return;
       try {
-        await fetch(`${API_BASE_URL}/auth/logout`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ refreshToken: message.token.refreshToken }),
-        });
+        await createRestBackendClient().auth.logout(message.token.refreshToken);
       } catch {
         logger.error('No se pudo revocar el refresh token en el backend');
       }

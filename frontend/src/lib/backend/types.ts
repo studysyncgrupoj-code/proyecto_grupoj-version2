@@ -153,3 +153,75 @@ export interface BackendUpdateProfileInput {
   bio?: BackendBio | null;
   interests?: string[] | null;
 }
+
+export interface BackendLoginInput {
+  email: string;
+  password: string;
+}
+
+export interface BackendRegisterInput {
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
+}
+
+export interface BackendForgotPasswordInput {
+  email: string;
+}
+
+export interface BackendValidateResetTokenInput {
+  token: string;
+}
+
+export interface BackendResetPasswordInput {
+  token: string;
+  newPassword: string;
+}
+
+export interface BackendContactInput {
+  name: string;
+  email: string;
+  contactNumber?: string;
+  subject: string;
+  message: string;
+}
+
+export interface BackendTokenPair {
+  token: string;
+  refreshToken: string;
+  expiresIn: number;
+  refreshExpiresIn: number;
+}
+
+export interface BackendLoginData extends BackendTokenPair {
+  firstName: string;
+  lastName: string;
+  id: string;
+  role: string;
+  subscription?: string | null;
+  image: string | null;
+}
+
+export interface BackendDataResponse<T> {
+  status: number;
+  message: string;
+  data: T;
+}
+
+export type BackendLoginResponse = BackendDataResponse<BackendLoginData>;
+export type BackendTokenPairResponse = BackendDataResponse<BackendTokenPair>;
+
+export interface BackendResetTokenValidationResponse {
+  valid: true;
+}
+
+export interface BackendContractError {
+  code: string;
+  message: string;
+  details: unknown;
+}
+
+export interface BackendContractErrorBody {
+  error: BackendContractError;
+}

@@ -1,21 +1,60 @@
 import type { BackendClient } from '../client';
+import type { RestBackendResponse } from '../http';
 import type {
   BackendAccount,
   BackendCertificate,
+  BackendContactInput,
   BackendCourseEnrollment,
+  BackendForgotPasswordInput,
   BackendInvoice,
+  BackendLoginInput,
+  BackendLoginResponse,
   BackendPaymentMethod,
   BackendPersonalData,
   BackendPreferences,
   BackendPrivacySettings,
   BackendPublicProfile,
+  BackendRegisterInput,
+  BackendResetPasswordInput,
+  BackendResetTokenValidationResponse,
   BackendSecurityOperationResult,
   BackendSecuritySettings,
   BackendSubscription,
   BackendSubscriptionPlan,
+  BackendTokenPairResponse,
   BackendTwoFactorSetup,
   BackendUser,
+  BackendValidateResetTokenInput,
 } from '../types';
+
+export type { RestBackendResponse } from '../http';
+export { readBackendErrorCode } from '../http';
+
+export const REST_BACKEND_TIMEOUT_MS = 10_000;
+
+export class RestBackendNotConfiguredError extends Error {
+  constructor() {
+    super('API_BASE_URL is not configured');
+    this.name = 'RestBackendNotConfiguredError';
+  }
+}
+
+export class RestBackendUnavailableError extends Error {
+  constructor(cause?: unknown) {
+    super('Backend request failed due to network or timeout', { cause });
+    this.name = 'RestBackendUnavailableError';
+  }
+}
+
+export function createRestBackendClient(
+  accessToken?: string,
+): RestBackendClient {
+  const baseUrl = process.env.API_BASE_URL?.replace(/\/+$/, '');
+  if (!baseUrl) {
+    throw new RestBackendNotConfiguredError();
+  }
+  return new RestBackendClient(baseUrl, accessToken);
+}
 
 export class RestBackendClient implements BackendClient {
   constructor(
@@ -23,24 +62,113 @@ export class RestBackendClient implements BackendClient {
     private readonly accessToken?: string,
   ) {}
 
+  private url(path: string): string {
+    const base = this.baseUrl.replace(/\/+$/, '');
+    const normalizedPath = path.startsWith('/') ? path : `/${path}`;
+    return `${base}${normalizedPath}`;
+  }
+
+  private headers(init: RequestInit): HeadersInit {
+    const isFormData =
+      typeof FormData !== 'undefined' && init.body instanceof FormData;
+    const headers = new Headers();
+
+    if (!isFormData) headers.set('Content-Type', 'application/json');
+    if (this.accessToken) {
+      headers.set('Authorization', `Bearer ${this.accessToken}`);
+    }
+
+    new Headers(init.headers).forEach((value, key) => {
+      headers.set(key, value);
+    });
+
+    return headers;
+  }
+
+  private signal(existing?: AbortSignal | null): AbortSignal {
+    const timeout = AbortSignal.timeout(REST_BACKEND_TIMEOUT_MS);
+    if (!existing) return timeout;
+    if (typeof AbortSignal.any === 'function') {
+      return AbortSignal.any([existing, timeout]);
+    }
+    return existing;
+  }
+
+  private async parseBody<T>(response: Response): Promise<T | null> {
+    if (response.status === 204) return null;
+
+    const text = await response.text();
+    if (!text) return null;
+
+    try {
+      return JSON.parse(text) as T;
+    } catch {
+      return null;
+    }
+  }
+
+  async send<T = unknown>(
+    path: string,
+    init: RequestInit = {},
+  ): Promise<RestBackendResponse<T>> {
+    let response: Response;
+
+    try {
+      response = await fetch(this.url(path), {
+        ...init,
+        cache: init.cache ?? 'no-store',
+        headers: this.headers(init),
+        signal: this.signal(init.signal),
+      });
+    } catch (error) {
+      throw new RestBackendUnavailableError(error);
+    }
+
+    const body = await this.parseBody<T>(response);
+    return { status: response.status, ok: response.ok, body };
+  }
+
   private async request<T>(path: string, init: RequestInit = {}): Promise<T> {
     // Contract between the GraphQL BFF and the principal backend.
     // The principal backend must implement these endpoints.
-    const response = await fetch(`${this.baseUrl}${path}`, {
-      ...init,
-      headers: {
-        'Content-Type': 'application/json',
-        ...(this.accessToken
-          ? { Authorization: `Bearer ${this.accessToken}` }
-          : {}),
-        ...init.headers,
-      },
-    });
-    if (!response.ok)
-      throw new Error(`Backend request failed: ${response.status}`);
-    if (response.status === 204) return undefined as T;
-    return response.json() as Promise<T>;
+    const { ok, status, body } = await this.send<T>(path, init);
+    if (!ok) throw new Error(`Backend request failed: ${status}`);
+    if (status === 204) return undefined as T;
+    return body as T;
   }
+
+  private postJson<T>(path: string, payload: unknown) {
+    return this.send<T>(path, {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  }
+
+  auth = {
+    login: (input: BackendLoginInput) =>
+      this.postJson<BackendLoginResponse>('/auth/login', input),
+    refresh: (refreshToken: string) =>
+      this.postJson<BackendTokenPairResponse>('/auth/refresh', {
+        refreshToken,
+      }),
+    logout: (refreshToken: string) =>
+      this.postJson('/auth/logout', { refreshToken }),
+    register: (input: BackendRegisterInput) =>
+      this.postJson('/auth/register', input),
+    forgotPassword: (input: BackendForgotPasswordInput) =>
+      this.postJson('/auth/forgot-password', input),
+    validateResetToken: (input: BackendValidateResetTokenInput) =>
+      this.postJson<BackendResetTokenValidationResponse>(
+        '/auth/validate-reset-token',
+        input,
+      ),
+    resetPassword: (input: BackendResetPasswordInput) =>
+      this.postJson('/auth/reset-password', input),
+  };
+
+  contact = {
+    submit: (input: BackendContactInput) => this.postJson('/contact', input),
+  };
 
   users = {
     getMe: () => this.request<BackendUser>('/users/me'),
