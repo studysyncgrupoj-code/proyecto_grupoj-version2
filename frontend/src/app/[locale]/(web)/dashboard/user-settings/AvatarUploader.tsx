@@ -1,8 +1,6 @@
 'use client';
 
 import { Button } from '@/components/ui/Button';
-import { AVATAR_ERROR_CODES } from '@/lib/avatarErrors';
-import { getInitials } from '@/utilities/avatar';
 import { useRef, useState, type ChangeEvent } from 'react';
 
 const MAX_FILE_SIZE = 4 * 1024 * 1024; // 4 MB
@@ -10,6 +8,7 @@ const ACCEPTED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 
 interface AvatarUploaderProps {
   name: string;
+  initials: string;
   image?: string | null;
   messages: {
     sidebarPreview: string;
@@ -20,11 +19,21 @@ interface AvatarUploaderProps {
     upload: string;
     remove: string;
     limit: string;
-    errors: Record<(typeof AVATAR_ERROR_CODES)[number], string>;
+    errors: {
+      unsupportedType: string;
+      fileTooLarge: string;
+      uploadFailed: string;
+      removeFailed: string;
+    };
   };
 }
 
-export function AvatarUploader({ name, image, messages }: AvatarUploaderProps) {
+export function AvatarUploader({
+  name,
+  initials,
+  image,
+  messages,
+}: AvatarUploaderProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [currentImage, setCurrentImage] = useState(image ?? null);
   const [pendingPreview, setPendingPreview] = useState<string | null>(null);
@@ -32,7 +41,6 @@ export function AvatarUploader({ name, image, messages }: AvatarUploaderProps) {
   const [error, setError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
 
-  const initials = getInitials(name);
   const displayImage = pendingPreview ?? currentImage;
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -68,13 +76,7 @@ export function AvatarUploader({ name, image, messages }: AvatarUploaderProps) {
     setIsSaving(true);
     setError(null);
     try {
-      // TODO: reemplazar por la llamada real cuando exista el endpoint
-      // const formData = new FormData();
-      // formData.append('avatar', pendingFile);
-      // const res = await fetch('/api/user/avatar', { method: 'POST', body: formData });
-      // if (!res.ok) throw new Error();
-      // const { url } = await res.json();
-      // setCurrentImage(url);
+      // TODO: reemplazar por la mutación de URQL cuando esté lista
       setCurrentImage(pendingPreview);
       handleCancel();
     } catch {
@@ -88,7 +90,7 @@ export function AvatarUploader({ name, image, messages }: AvatarUploaderProps) {
     setIsSaving(true);
     setError(null);
     try {
-      // TODO: DELETE /api/user/avatar
+      // TODO: reemplazar por la mutación de URQL para remover avatar
       setCurrentImage(null);
     } catch {
       setError(messages.errors.removeFailed);

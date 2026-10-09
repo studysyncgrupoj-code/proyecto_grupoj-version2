@@ -2,7 +2,6 @@
 
 import { Button } from '@/components/ui/Button';
 import { Link } from '@/i18n/navigation';
-import { getInitials } from '@/utilities/avatar';
 import { cn } from '@/utilities/cn';
 import { signOut } from 'next-auth/react';
 import Image from 'next/image';
@@ -51,9 +50,7 @@ export default function SidebarUserMenu({
           <span
             aria-hidden="true"
             className="bg-primary text-primary-foreground flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-bold"
-          >
-            {getInitials(user.name)}
-          </span>
+          ></span>
         )}
 
         {!collapsed && (

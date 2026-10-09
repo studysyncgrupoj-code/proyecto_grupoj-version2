@@ -465,17 +465,13 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       return refreshAccessToken(token);
     },
 
-    // session expone al cliente solo lo necesario: nunca el refreshToken.
+    // session expone al cliente solo lo necesario.
     session({ session, token }) {
       if (session.user) {
         if (typeof token.id === 'string') session.user.id = token.id;
         if (token.role) session.user.role = token.role;
         session.user.subscription = token.subscription;
       }
-      // TODO: Si eliminamos session.accessToken, hay que cambiar la forma en que el endpoint
-      // /api/graphql obtiene el access token. Merece una modificación separada para decidir
-      // definitivamente cómo hacer que el access token sea server-side y no quede expuesto al cliente.
-      session.accessToken = token.accessToken;
       session.error = token.error;
       return session;
     },

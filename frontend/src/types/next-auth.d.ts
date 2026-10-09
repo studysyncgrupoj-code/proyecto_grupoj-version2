@@ -12,7 +12,6 @@ interface UserProfile {
 declare module 'next-auth' {
   interface Session {
     user: DefaultSession['user'] & UserProfile;
-    accessToken?: string;
     error?: 'RefreshTokenExpired' | 'RefreshTokenError';
   }
 

@@ -1,4 +1,3 @@
-import { AVATAR_ERROR_CODES } from '@/lib/avatarErrors';
 import { getTranslations } from 'next-intl/server';
 import { ProfileAvatarSettings } from './ProfileAvatarSettings';
 
@@ -16,13 +15,16 @@ export async function ProfileSection({ user }: ProfileSectionProps) {
     getTranslations('dashboard.navigation.roles'),
     getTranslations('dashboard.userSettings.avatar'),
   ]);
+
   const roleKey =
     user.role === 'admin'
       ? 'admin'
       : user.role === 'teacher'
         ? 'professor'
         : 'student';
+
   const roleLabel = rolesT(roleKey);
+
   const messages = {
     title: t('title'),
     description: t('description'),
@@ -39,9 +41,12 @@ export async function ProfileSection({ user }: ProfileSectionProps) {
     visibility: t('visibility'),
     saved: t('saved'),
     removed: t('removed'),
-    errors: Object.fromEntries(
-      AVATAR_ERROR_CODES.map((code) => [code, t(`errors.${code}`)]),
-    ) as Record<(typeof AVATAR_ERROR_CODES)[number], string>,
+    errors: {
+      unsupportedType: t('errors.unsupportedType'),
+      fileTooLarge: t('errors.fileTooLarge'),
+      uploadFailed: t('errors.uploadFailed'),
+      removeFailed: t('errors.removeFailed'),
+    },
   };
 
   return (

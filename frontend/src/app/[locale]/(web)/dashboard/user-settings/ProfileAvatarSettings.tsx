@@ -2,21 +2,11 @@
 
 import { Button } from '@/components/ui/Button';
 import { useRouter } from '@/i18n/navigation';
-import { readErrorCode } from '@/lib/apiErrors';
-import { AVATAR_ERROR_CODES } from '@/lib/avatarErrors';
 import { AppIcon } from '@/lib/iconMap';
-import { getInitials } from '@/utilities/avatar';
 import { useEffect, useRef, useState, type ChangeEvent } from 'react';
 
 const MAX_FILE_SIZE = 4 * 1024 * 1024; // 4 MB
 const ACCEPTED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
-
-function getAvatarUrl(body: unknown): string | null {
-  if (!body || typeof body !== 'object') return null;
-  const data = 'data' in body ? body.data : body;
-  if (!data || typeof data !== 'object' || !('avatarUrl' in data)) return null;
-  return typeof data.avatarUrl === 'string' ? data.avatarUrl : null;
-}
 
 interface ProfileAvatarSettingsProps {
   name: string;
@@ -39,7 +29,12 @@ interface ProfileAvatarSettingsProps {
     visibility: string;
     saved: string;
     removed: string;
-    errors: Record<(typeof AVATAR_ERROR_CODES)[number], string>;
+    errors: {
+      unsupportedType: string;
+      fileTooLarge: string;
+      uploadFailed: string;
+      removeFailed: string;
+    };
   };
 }
 
@@ -61,7 +56,6 @@ export function ProfileAvatarSettings({
   const [isSaving, setIsSaving] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
 
-  const initials = getInitials(name);
   const displayImage = pendingPreview ?? currentImage;
   const hasPendingChange = !!pendingFile;
 
@@ -107,8 +101,6 @@ export function ProfileAvatarSettings({
     const preview = URL.createObjectURL(file);
     pendingPreviewRef.current = preview;
     setPendingPreview(preview);
-    // TODO [Needs Work]: recorte de imagen (crop) sin implementar todavía.
-    // Acá debería abrirse el editor antes de habilitar "Guardar".
   };
 
   const handleCancel = () => {
@@ -127,52 +119,17 @@ export function ProfileAvatarSettings({
     setIsSaving(true);
     setError(null);
     try {
-      const formData = new FormData();
-      formData.append('avatar', pendingFile);
-
-      const res = await fetch('/api/user/avatar', {
-        method: 'POST',
-        body: formData,
-      });
-
-      const body: unknown = await res.json().catch(() => null);
-      if (!res.ok) {
-        const code = readErrorCode(body, AVATAR_ERROR_CODES) ?? 'uploadFailed';
-        throw new Error(code);
+      // TODO: Reemplazar por la mutación de URQL para actualizar el avatar/perfil
+      setCurrentImage(pendingPreview);
+      if (retainedPreviewRef.current) {
+        URL.revokeObjectURL(retainedPreviewRef.current);
+        retainedPreviewRef.current = null;
       }
-
-      const avatarUrl = getAvatarUrl(body);
-      if (avatarUrl) {
-        setCurrentImage(avatarUrl);
-        if (retainedPreviewRef.current) {
-          URL.revokeObjectURL(retainedPreviewRef.current);
-          retainedPreviewRef.current = null;
-        }
-        handleCancel();
-      } else {
-        if (
-          retainedPreviewRef.current &&
-          retainedPreviewRef.current !== pendingPreview
-        ) {
-          URL.revokeObjectURL(retainedPreviewRef.current);
-        }
-        setCurrentImage(pendingPreview);
-        retainedPreviewRef.current = pendingPreview;
-        pendingPreviewRef.current = null;
-        setPendingPreview(null);
-        setPendingFile(null);
-      }
+      handleCancel();
       setFeedback(messages.saved);
       router.refresh();
-    } catch (error) {
-      const code =
-        error instanceof Error &&
-        AVATAR_ERROR_CODES.includes(
-          error.message as (typeof AVATAR_ERROR_CODES)[number],
-        )
-          ? error.message
-          : 'uploadFailed';
-      setError(messages.errors[code as keyof typeof messages.errors]);
+    } catch {
+      setError(messages.errors.uploadFailed);
     } finally {
       setIsSaving(false);
     }
@@ -182,12 +139,7 @@ export function ProfileAvatarSettings({
     setIsSaving(true);
     setError(null);
     try {
-      const res = await fetch('/api/user/avatar', { method: 'DELETE' });
-      const body: unknown = await res.json().catch(() => null);
-      if (!res.ok) {
-        const code = readErrorCode(body, AVATAR_ERROR_CODES) ?? 'removeFailed';
-        throw new Error(code);
-      }
+      // TODO: Reemplazar por la mutación de URQL para remover el avatar
       setCurrentImage(null);
       if (retainedPreviewRef.current) {
         URL.revokeObjectURL(retainedPreviewRef.current);
@@ -195,15 +147,8 @@ export function ProfileAvatarSettings({
       }
       setFeedback(messages.removed);
       router.refresh();
-    } catch (error) {
-      const code =
-        error instanceof Error &&
-        AVATAR_ERROR_CODES.includes(
-          error.message as (typeof AVATAR_ERROR_CODES)[number],
-        )
-          ? error.message
-          : 'removeFailed';
-      setError(messages.errors[code as keyof typeof messages.errors]);
+    } catch {
+      setError(messages.errors.removeFailed);
     } finally {
       setIsSaving(false);
     }
@@ -221,7 +166,6 @@ export function ProfileAvatarSettings({
       </header>
 
       <div className="grid gap-8 sm:grid-cols-[auto_1fr]">
-        {/* Columna 1: avatar y acciones */}
         <div className="flex flex-col items-center gap-4 sm:items-start">
           <div className="relative shrink-0">
             <button
@@ -233,7 +177,7 @@ export function ProfileAvatarSettings({
               className="group border-border bg-background focus-visible:ring-primary relative size-32 overflow-hidden rounded-full border focus-visible:ring-2 focus-visible:outline-none"
             >
               {displayImage ? (
-                // eslint-disable-next-line @next/next/no-img-element -- preview local (blob) o URL persistida
+                // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={displayImage}
                   alt=""
@@ -243,9 +187,7 @@ export function ProfileAvatarSettings({
                 <span
                   aria-hidden="true"
                   className="bg-primary text-primary-foreground flex size-full items-center justify-center text-4xl font-bold"
-                >
-                  {initials}
-                </span>
+                ></span>
               )}
               <span className="bg-foreground/40 absolute inset-0 flex items-center justify-center opacity-0 transition-opacity group-hover:opacity-100">
                 <AppIcon
@@ -342,7 +284,6 @@ export function ProfileAvatarSettings({
           </p>
         </div>
 
-        {/* Columna 2: vista previa, igual al bloque real del sidebar */}
         <div className="border-border flex flex-col gap-3 border-t pt-6 sm:border-t-0 sm:border-l sm:pt-0 sm:pl-8">
           <span className="text-foreground-muted text-xs font-semibold">
             {messages.previewTitle}
@@ -360,9 +301,7 @@ export function ProfileAvatarSettings({
               <span
                 aria-hidden="true"
                 className="bg-primary text-primary-foreground flex size-10 shrink-0 items-center justify-center rounded-full text-sm font-bold"
-              >
-                {initials}
-              </span>
+              ></span>
             )}
             <div className="min-w-0">
               <p className="text-foreground truncate text-sm leading-tight font-bold">
