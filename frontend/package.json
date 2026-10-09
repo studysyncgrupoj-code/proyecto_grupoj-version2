@@ -19,6 +19,7 @@
     "@hookform/resolvers": "5.9.1",
     "@upstash/ratelimit": "2.2.0",
     "@upstash/redis": "1.39.0",
+    "@urql/core": "^6.0.3",
     "clsx": "2.1.1",
     "framer-motion": "14.0.0",
     "graphql": "17.0.2",

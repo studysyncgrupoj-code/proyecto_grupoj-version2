@@ -3,6 +3,7 @@ import { Plus_Jakarta_Sans, Public_Sans } from 'next/font/google';
 import '../globals.css';
 
 import SideBar from '@/components/layout/dashboard/sidebar/SideBar';
+import { UrqlProvider } from '@/components/providers/UrqlProvider';
 import { ThemeProvider } from '@/components/ui/ThemeProvider';
 
 import { NextIntlClientProvider } from 'next-intl';
@@ -63,12 +64,14 @@ export default async function DashboardLayout({
           attribute="data-theme"
         >
           <NextIntlClientProvider>
-            <div className="flex min-h-screen w-full">
-              <SideBar />
-              <main className="bg-background min-h-screen flex-1">
-                {children}
-              </main>
-            </div>
+            <UrqlProvider>
+              <div className="flex min-h-screen w-full">
+                <SideBar />
+                <main className="bg-background min-h-screen flex-1">
+                  {children}
+                </main>
+              </div>
+            </UrqlProvider>
           </NextIntlClientProvider>
         </ThemeProvider>
       </body>
