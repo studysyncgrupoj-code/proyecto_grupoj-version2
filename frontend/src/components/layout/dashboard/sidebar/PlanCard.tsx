@@ -5,19 +5,9 @@ import { IconMap, type UiIconName } from '@/lib/iconMap';
 import type { SubscriptionType } from '@/types/next-auth';
 import { cn } from '@/utilities/cn';
 import { Link } from '@/i18n/navigation';
+import { useTranslations } from 'next-intl';
 import { useSidebar } from './SidebarContext';
-
-interface PlanCardProps {
-  subscription: SubscriptionType;
-  messages: {
-    current: string;
-    free: { name: string; description: string };
-    premium: { name: string; description: string };
-    enterprise: { name: string; description: string };
-    upgrade: string;
-    manage: string;
-  };
-}
+import { useSidebarData } from './useSidebarData';
 
 interface PlanConfig {
   icon: UiIconName;
@@ -50,11 +40,20 @@ const PLANS: Record<SubscriptionType, PlanConfig> = {
   },
 };
 
-export default function PlanCard({ subscription, messages }: PlanCardProps) {
+export default function PlanCard() {
   const { collapsed } = useSidebar();
-  const plan = PLANS[subscription] ?? PLANS.free;
-  const planMessages = messages[subscription] ?? messages.free;
-  const ctaLabel = subscription === 'free' ? messages.upgrade : messages.manage;
+  const { isLoading, plan: subscription } = useSidebarData();
+  const t = useTranslations('dashboard.sidebar');
+
+  if (isLoading || subscription === null) return null;
+
+  const plan = PLANS[subscription];
+  const planMessages = {
+    name: t(`plans.${subscription}.name`),
+    description: t(`plans.${subscription}.description`),
+  };
+  const ctaLabel =
+    subscription === 'free' ? t('actions.upgrade') : t('actions.manage');
   const Icon = IconMap.ui[plan.icon];
 
   // Versión colapsada: solo el icono
@@ -108,7 +107,7 @@ export default function PlanCard({ subscription, messages }: PlanCardProps) {
             <Icon className="size-5" aria-hidden />
           </div>
           <div className="min-w-0">
-            <p className="text-foreground-subtle text-xs">{messages.current}</p>
+            <p className="text-foreground-subtle text-xs">{t('currentPlan')}</p>
             <p className="text-foreground truncate text-sm font-semibold">
               {planMessages.name}
             </p>

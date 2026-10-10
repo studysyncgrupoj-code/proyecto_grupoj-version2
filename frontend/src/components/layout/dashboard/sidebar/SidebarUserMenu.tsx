@@ -5,23 +5,26 @@ import { Link } from '@/i18n/navigation';
 import { cn } from '@/utilities/cn';
 import { signOut } from 'next-auth/react';
 import Image from 'next/image';
+import { useTranslations } from 'next-intl';
+import { getRoleTranslationKey } from '@/config/dashboard-navigation';
 import { useSidebar } from './SidebarContext';
+import { useSidebarData } from './useSidebarData';
 
 interface SidebarUserMenuProps {
-  user: {
-    name: string;
-    email: string;
-    image?: string | null;
-    roleLabel: string;
-  };
   signOutLabel: string;
 }
 
 export default function SidebarUserMenu({
-  user,
   signOutLabel,
 }: SidebarUserMenuProps) {
   const { collapsed } = useSidebar();
+  const { isLoading, name, email, image, role } = useSidebarData();
+  const t = useTranslations('dashboard.navigation');
+
+  if (isLoading) return null;
+
+  const userName = name ?? '';
+  const roleLabel = t(`roles.${getRoleTranslationKey(role)}`);
 
   return (
     <div
@@ -34,11 +37,11 @@ export default function SidebarUserMenu({
       <Link
         href="/dashboard/user-settings"
         className={cn('flex items-center gap-3', collapsed && 'justify-center')}
-        title={collapsed ? `${user.name} · ${user.roleLabel}` : undefined}
+        title={collapsed ? `${userName} · ${roleLabel}` : undefined}
       >
-        {user.image ? (
+        {image ? (
           <Image
-            src={user.image}
+            src={image}
             alt=""
             width={40}
             height={40}
@@ -56,13 +59,13 @@ export default function SidebarUserMenu({
         {!collapsed && (
           <div className="min-w-0">
             <p className="text-foreground truncate text-sm leading-tight font-bold">
-              {user.name}
+              {userName}
             </p>
             <p className="text-foreground-subtle truncate text-xs">
-              {user.email}
+              {email ?? ''}
             </p>
             <p className="text-foreground-muted truncate text-xs font-medium">
-              {user.roleLabel}
+              {roleLabel}
             </p>
           </div>
         )}
