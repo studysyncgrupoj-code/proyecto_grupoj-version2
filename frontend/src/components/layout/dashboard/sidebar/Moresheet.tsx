@@ -3,23 +3,22 @@
 import { Button } from '@/components/ui/Button';
 import ThemeToggle from '@/components/ui/ThemeToggle/ThemeToggle';
 import type { NavItem } from '@/config/dashboard-navigation';
+import {
+  getRoleNavigation,
+  getRoleTranslationKey,
+} from '@/config/dashboard-navigation';
 import { IconMap } from '@/lib/iconMap';
 import { cn } from '@/utilities/cn';
 import { AnimatePresence, motion } from 'framer-motion';
 import { signOut } from 'next-auth/react';
 import Image from 'next/image';
 import { Link } from '@/i18n/navigation';
+import { useTranslations } from 'next-intl';
+import { useSidebarData } from './useSidebarData';
 
 interface MoreSheetProps {
   open: boolean;
   onClose: () => void;
-  items: NavItem[];
-  user: {
-    name: string;
-    email: string;
-    image?: string | null;
-    roleLabel: string;
-  };
   isItemActive: (path: string) => boolean;
   labels: { moreOptions: string; theme: string; signOut: string };
 }
@@ -56,11 +55,21 @@ function getInitials(name: string) {
 export default function MoreSheet({
   open,
   onClose,
-  items,
-  user,
   isItemActive,
   labels,
 }: MoreSheetProps) {
+  const { isLoading, name, email, image, role } = useSidebarData();
+  const t = useTranslations('dashboard.navigation');
+  const items = getRoleNavigation(role).menu.map((item) => ({
+    ...item,
+    label: t(`items.${item.label}`),
+  }));
+  const roleLabel = t(`roles.${getRoleTranslationKey(role)}`);
+
+  if (isLoading) return null;
+
+  const userName = name ?? '';
+
   return (
     <AnimatePresence>
       {open && (
@@ -101,9 +110,9 @@ export default function MoreSheet({
               onClick={onClose}
               className="flex items-center gap-3 px-5 py-4"
             >
-              {user.image ? (
+              {image ? (
                 <Image
-                  src={user.image}
+                  src={image}
                   alt=""
                   width={44}
                   height={44}
@@ -116,15 +125,15 @@ export default function MoreSheet({
                   aria-hidden="true"
                   className="bg-primary text-primary-foreground flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-sm font-bold"
                 >
-                  {getInitials(user.name)}
+                  {getInitials(userName)}
                 </span>
               )}
               <div className="min-w-0">
                 <p className="text-foreground truncate text-sm font-bold">
-                  {user.name}
+                  {userName}
                 </p>
                 <p className="text-foreground-muted truncate text-xs">
-                  {user.roleLabel} · {user.email}
+                  {roleLabel} · {email ?? ''}
                 </p>
               </div>
             </Link>

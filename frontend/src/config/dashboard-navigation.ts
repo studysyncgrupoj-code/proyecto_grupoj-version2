@@ -121,6 +121,14 @@ export const adminMenu: NavItem[] = [
   },
 ];
 
+export function getRoleTranslationKey(
+  role: UserRole | null,
+): 'admin' | 'professor' | 'student' {
+  if (role === 'admin') return 'admin';
+  if (role === 'teacher') return 'professor';
+  return 'student';
+}
+
 /* =========================================================
    UTILIDAD DE CONFIGURACIÓN POR ROL
    ========================================================= */
