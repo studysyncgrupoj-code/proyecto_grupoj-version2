@@ -14,6 +14,7 @@ import type {
   BackendRegisterInput,
   BackendResetPasswordInput,
   BackendResetTokenValidationResponse,
+  BackendSecuritySession,
   BackendSubscription,
   BackendTokenPair,
   BackendTokenPairResponse,
@@ -80,6 +81,44 @@ function mockTokenPair(): BackendTokenPair {
   };
 }
 
+/* ============================================================
+ * ESTADO COMPARTIDO
+ *
+ * `createBackendClient()` en ../backend/index.ts crea una instancia
+ * nueva por cada request GraphQL. Si el estado viviera en campos de
+ * instancia, cada request vería un mock "fresco" y los cambios se
+ * perderían entre llamadas.
+ *
+ * Guardamos el estado en `globalThis` para que sobreviva:
+ *   - entre requests (misma instancia de proceso Node), y
+ *   - entre HMR reloads en `pnpm dev` (que re-evalúan el módulo).
+ * ============================================================ */
+
+interface MockStore {
+  profileState: BackendProfile;
+  imageState: string | null;
+  personalDataState: BackendPersonalData;
+  privacyState: BackendPrivacySettings;
+  preferencesState: BackendPreferences;
+  securityState: {
+    email: string;
+    emailVerified: boolean;
+    twoFactorEnabled: boolean;
+    twoFactorRequired: boolean;
+    twoFactorSetupStarted: boolean;
+    sessions: BackendSecuritySession[];
+  };
+  accountState: BackendAccount;
+  subscriptionState: BackendSubscription | null;
+  paymentMethods: Array<{
+    id: string;
+    brand: string | null;
+    last4: string | null;
+    expirationMonth: number | null;
+    expirationYear: number | null;
+  }>;
+}
+
 const initialPreferences: BackendPreferences = {
   language: 'es',
   theme: 'system',
@@ -88,7 +127,7 @@ const initialPreferences: BackendPreferences = {
   accessibility: { reducedMotion: false, highContrast: false },
 };
 
-const initialPersonalData = {
+const initialPersonalData: BackendPersonalData = {
   firstName: 'Test',
   lastName: 'User',
   documentId: '123456789',
@@ -98,73 +137,95 @@ const initialPersonalData = {
   identityLocked: false,
 };
 
-export class MockBackendClient implements BackendClient {
-  private readonly failures: MockFailureMap;
-  private profileState: BackendProfile = {
-    bio: { title: 'Estudiante', description: 'Perfil de prueba' },
-    interests: ['programming', 'technology'],
-  };
-  private personalDataState: BackendPersonalData = { ...initialPersonalData };
-  private privacyState: BackendPrivacySettings = {
-    profileVisibility: 'everyone' as const,
-    emailVisibility: 'authenticated' as const,
-    phoneVisibility: 'nobody' as const,
-    allowDirectMessages: true,
-  };
-  private preferencesState: BackendPreferences = {
-    ...initialPreferences,
-    notifications: { ...initialPreferences.notifications },
-    accessibility: { ...initialPreferences.accessibility },
-  };
-  private securityState = {
-    email: 'test@example.com',
-    emailVerified: true,
-    twoFactorEnabled: false,
-    twoFactorRequired: false,
-    twoFactorSetupStarted: false,
-    sessions: [
+function createInitialStore(): MockStore {
+  return {
+    profileState: {
+      bio: { title: 'Estudiante', description: 'Perfil de prueba' },
+      interests: ['programming', 'technology'],
+    },
+    imageState: null,
+    personalDataState: { ...initialPersonalData },
+    privacyState: {
+      profileVisibility: 'everyone',
+      emailVisibility: 'authenticated',
+      phoneVisibility: 'nobody',
+      allowDirectMessages: true,
+    },
+    preferencesState: {
+      ...initialPreferences,
+      notifications: { ...initialPreferences.notifications },
+      accessibility: { ...initialPreferences.accessibility },
+    },
+    securityState: {
+      email: 'test@example.com',
+      emailVerified: true,
+      twoFactorEnabled: false,
+      twoFactorRequired: false,
+      twoFactorSetupStarted: false,
+      sessions: [
+        {
+          id: 'session-current',
+          deviceName: 'Test device',
+          browser: 'Test browser',
+          ipAddress: '127.0.0.1',
+          lastActiveAt: '2026-10-04T12:00:00.000Z',
+          current: true,
+        },
+        {
+          id: 'session-other',
+          deviceName: 'Other device',
+          browser: 'Test browser',
+          ipAddress: '127.0.0.2',
+          lastActiveAt: '2026-10-03T12:00:00.000Z',
+          current: false,
+        },
+      ],
+    },
+    accountState: {
+      status: 'active',
+      deactivationScheduledAt: null,
+    },
+    subscriptionState: {
+      id: 'subscription-001',
+      plan: 'free',
+      status: 'active',
+      startedAt: '2024-01-01T00:00:00.000Z',
+      currentPeriodEnd: null,
+      cancelAtPeriodEnd: false,
+    },
+    paymentMethods: [
       {
-        id: 'session-current',
-        deviceName: 'Test device',
-        browser: 'Test browser',
-        ipAddress: '127.0.0.1',
-        lastActiveAt: '2026-10-04T12:00:00.000Z',
-        current: true,
-      },
-      {
-        id: 'session-other',
-        deviceName: 'Other device',
-        browser: 'Test browser',
-        ipAddress: '127.0.0.2',
-        lastActiveAt: '2026-10-03T12:00:00.000Z',
-        current: false,
+        id: 'payment-001',
+        brand: 'Visa',
+        last4: '4242',
+        expirationMonth: 12,
+        expirationYear: 2028,
       },
     ],
   };
-  private accountState: BackendAccount = {
-    status: 'active',
-    deactivationScheduledAt: null,
-  };
-  private subscriptionState: BackendSubscription | null = {
-    id: 'subscription-001',
-    plan: 'free' as const,
-    status: 'active' as const,
-    startedAt: '2024-01-01T00:00:00.000Z',
-    currentPeriodEnd: null as string | null,
-    cancelAtPeriodEnd: false,
-  };
-  private readonly paymentMethods = [
-    {
-      id: 'payment-001',
-      brand: 'Visa',
-      last4: '4242',
-      expirationMonth: 12,
-      expirationYear: 2028,
-    },
-  ];
+}
+
+declare global {
+  // eslint-disable-next-line no-var
+  var __mockStore: MockStore | undefined;
+}
+
+function getMockStore(): MockStore {
+  if (!globalThis.__mockStore) {
+    globalThis.__mockStore = createInitialStore();
+  }
+  return globalThis.__mockStore;
+}
+
+export class MockBackendClient implements BackendClient {
+  private readonly failures: MockFailureMap;
 
   constructor(options: { failures?: MockFailureMap } = {}) {
     this.failures = options.failures ?? {};
+  }
+
+  private get store(): MockStore {
+    return getMockStore();
   }
 
   private failIfConfigured(operation: MockOperation): void {
@@ -179,11 +240,13 @@ export class MockBackendClient implements BackendClient {
         id: MOCK_USER_ID,
         name: 'Test User',
         email: 'test@example.com',
-        image: null,
+        image: this.store.imageState,
         role: 'student' as const,
         profile: {
-          bio: this.profileState.bio ? { ...this.profileState.bio } : null,
-          interests: [...this.profileState.interests],
+          bio: this.store.profileState.bio
+            ? { ...this.store.profileState.bio }
+            : null,
+          interests: [...this.store.profileState.interests],
         },
       };
     },
@@ -193,9 +256,11 @@ export class MockBackendClient implements BackendClient {
       return {
         id: MOCK_USER_ID,
         name: 'Test User',
-        image: null,
-        bio: this.profileState.bio ? { ...this.profileState.bio } : null,
-        interests: [...this.profileState.interests],
+        image: this.store.imageState,
+        bio: this.store.profileState.bio
+          ? { ...this.store.profileState.bio }
+          : null,
+        interests: [...this.store.profileState.interests],
         email: null,
         phone: null,
       };
@@ -204,19 +269,25 @@ export class MockBackendClient implements BackendClient {
       input: Parameters<BackendClient['users']['updateProfile']>[0],
     ) => {
       this.failIfConfigured('users.updateProfile');
-      if (input.bio !== undefined) this.profileState.bio = input.bio;
+
+      if (input.bio !== undefined) this.store.profileState.bio = input.bio;
       if (input.interests !== undefined) {
-        this.profileState.interests = input.interests ?? [];
+        this.store.profileState.interests = input.interests ?? [];
       }
+      // PATCH parcial: `undefined` = no tocar, `null` = borrar, string = asignar
+      if (input.image !== undefined) this.store.imageState = input.image;
+
       return {
         id: MOCK_USER_ID,
         name: 'Test User',
         email: 'test@example.com',
-        image: null,
+        image: this.store.imageState,
         role: 'student' as const,
         profile: {
-          bio: this.profileState.bio ? { ...this.profileState.bio } : null,
-          interests: [...this.profileState.interests],
+          bio: this.store.profileState.bio
+            ? { ...this.store.profileState.bio }
+            : null,
+          interests: [...this.store.profileState.interests],
         },
       };
     },
@@ -225,44 +296,45 @@ export class MockBackendClient implements BackendClient {
   personalData = {
     getMe: async () => {
       this.failIfConfigured('personalData.getMe');
-      return { ...this.personalDataState };
+      return { ...this.store.personalDataState };
     },
     update: async (
       input: Parameters<BackendClient['personalData']['update']>[0],
     ) => {
       this.failIfConfigured('personalData.update');
-      if (this.personalDataState.identityLocked) {
+      if (this.store.personalDataState.identityLocked) {
         throw new BackendOperationError(403, 'FORBIDDEN');
       }
-      this.personalDataState = {
-        ...this.personalDataState,
+      this.store.personalDataState = {
+        ...this.store.personalDataState,
         ...Object.fromEntries(
           Object.entries(input).filter(([, value]) => value !== undefined),
         ),
-        identityLocked: this.personalDataState.identityLocked,
+        identityLocked: this.store.personalDataState.identityLocked,
       };
-      return { ...this.personalDataState };
+      return { ...this.store.personalDataState };
     },
   };
 
   privacy = {
     getMe: async () => {
       this.failIfConfigured('privacy.getMe');
-      return { ...this.privacyState };
+      return { ...this.store.privacyState };
     },
     update: async (
       input: Parameters<BackendClient['privacy']['update']>[0],
     ) => {
       this.failIfConfigured('privacy.update');
-      this.privacyState = { ...this.privacyState, ...input };
-      return { ...this.privacyState };
+      this.store.privacyState = { ...this.store.privacyState, ...input };
+      return { ...this.store.privacyState };
     },
   };
 
   security = {
     getMe: async () => {
       this.failIfConfigured('security.getMe');
-      const { twoFactorSetupStarted: _setup, ...settings } = this.securityState;
+      const { twoFactorSetupStarted: _setup, ...settings } =
+        this.store.securityState;
       return {
         ...settings,
         sessions: settings.sessions.map((session) => ({ ...session })),
@@ -272,7 +344,7 @@ export class MockBackendClient implements BackendClient {
       input: Parameters<BackendClient['security']['requestEmailChange']>[0],
     ) => {
       this.failIfConfigured('security.requestEmailChange');
-      if (input.newEmail === this.securityState.email) {
+      if (input.newEmail === this.store.securityState.email) {
         throw new BackendOperationError(409, 'CONFLICT');
       }
       if (input.newEmail === 'taken@example.com') {
@@ -306,10 +378,10 @@ export class MockBackendClient implements BackendClient {
     },
     beginTwoFactorSetup: async () => {
       this.failIfConfigured('security.beginTwoFactorSetup');
-      if (this.securityState.twoFactorEnabled) {
+      if (this.store.securityState.twoFactorEnabled) {
         throw new BackendOperationError(409, 'CONFLICT');
       }
-      this.securityState.twoFactorSetupStarted = true;
+      this.store.securityState.twoFactorSetupStarted = true;
       return {
         secret: 'MOCKSECRET123',
         qrCode: 'data:image/png;base64,bW9jaw==',
@@ -318,43 +390,42 @@ export class MockBackendClient implements BackendClient {
     verifyTwoFactorSetup: async (code: string) => {
       this.failIfConfigured('security.verifyTwoFactorSetup');
       if (
-        !this.securityState.twoFactorSetupStarted ||
-        this.securityState.twoFactorEnabled
+        !this.store.securityState.twoFactorSetupStarted ||
+        this.store.securityState.twoFactorEnabled
       ) {
         throw new BackendOperationError(409, 'CONFLICT');
       }
       if (code !== '123456') {
         throw new BackendOperationError(422, 'INVALID_CODE');
       }
-      this.securityState.twoFactorEnabled = true;
-      this.securityState.twoFactorSetupStarted = false;
+      this.store.securityState.twoFactorEnabled = true;
+      this.store.securityState.twoFactorSetupStarted = false;
       return { success: true, message: 'Two factor enabled' };
     },
     disableTwoFactor: async (code: string) => {
       this.failIfConfigured('security.disableTwoFactor');
-      if (this.securityState.twoFactorRequired) {
+      if (this.store.securityState.twoFactorRequired) {
         throw new BackendOperationError(403, 'FORBIDDEN');
       }
       if (code !== '123456') {
         throw new BackendOperationError(422, 'INVALID_CODE');
       }
-      this.securityState.twoFactorEnabled = false;
+      this.store.securityState.twoFactorEnabled = false;
       return { success: true, message: 'Two factor disabled' };
     },
     revokeSession: async (sessionId: string) => {
       this.failIfConfigured('security.revokeSession');
-      const sessionIndex = this.securityState.sessions.findIndex(
+      const sessionIndex = this.store.securityState.sessions.findIndex(
         (session) => session.id === sessionId,
       );
       if (sessionIndex < 0) throw new BackendOperationError(404, 'NOT_FOUND');
-      this.securityState.sessions.splice(sessionIndex, 1);
+      this.store.securityState.sessions.splice(sessionIndex, 1);
       return { success: true, message: 'Session revoked' };
     },
     revokeOtherSessions: async () => {
       this.failIfConfigured('security.revokeOtherSessions');
-      this.securityState.sessions = this.securityState.sessions.filter(
-        (session) => session.current,
-      );
+      this.store.securityState.sessions =
+        this.store.securityState.sessions.filter((session) => session.current);
       return { success: true, message: 'Other sessions revoked' };
     },
   };
@@ -363,9 +434,9 @@ export class MockBackendClient implements BackendClient {
     getMe: async () => {
       this.failIfConfigured('preferences.getMe');
       return {
-        ...this.preferencesState,
-        notifications: { ...this.preferencesState.notifications },
-        accessibility: { ...this.preferencesState.accessibility },
+        ...this.store.preferencesState,
+        notifications: { ...this.store.preferencesState.notifications },
+        accessibility: { ...this.store.preferencesState.accessibility },
       };
     },
     update: async (
@@ -388,24 +459,24 @@ export class MockBackendClient implements BackendClient {
       }
       const notifications = input.notifications;
       const accessibility = input.accessibility;
-      this.preferencesState = {
-        ...this.preferencesState,
+      this.store.preferencesState = {
+        ...this.store.preferencesState,
         ...(input.language === undefined ? {} : { language: input.language }),
         ...(input.theme === undefined ? {} : { theme: input.theme }),
         ...(input.timezone === undefined ? {} : { timezone: input.timezone }),
         notifications: {
-          ...this.preferencesState.notifications,
+          ...this.store.preferencesState.notifications,
           ...(notifications ?? {}),
         },
         accessibility: {
-          ...this.preferencesState.accessibility,
+          ...this.store.preferencesState.accessibility,
           ...(accessibility ?? {}),
         },
       };
       return {
-        ...this.preferencesState,
-        notifications: { ...this.preferencesState.notifications },
-        accessibility: { ...this.preferencesState.accessibility },
+        ...this.store.preferencesState,
+        notifications: { ...this.store.preferencesState.notifications },
+        accessibility: { ...this.store.preferencesState.accessibility },
       };
     },
   };
@@ -413,26 +484,29 @@ export class MockBackendClient implements BackendClient {
   account = {
     getMe: async () => {
       this.failIfConfigured('account.getMe');
-      return { ...this.accountState };
+      return { ...this.store.accountState };
     },
     requestDeactivation: async () => {
       this.failIfConfigured('account.requestDeactivation');
-      if (this.accountState.status !== 'active') {
+      if (this.store.accountState.status !== 'active') {
         throw new BackendOperationError(409, 'CONFLICT');
       }
-      this.accountState = {
+      this.store.accountState = {
         status: 'pending_deactivation',
         deactivationScheduledAt: '2026-10-13T00:00:00.000Z',
       };
-      return { ...this.accountState };
+      return { ...this.store.accountState };
     },
     cancelDeactivation: async () => {
       this.failIfConfigured('account.cancelDeactivation');
-      if (this.accountState.status !== 'pending_deactivation') {
+      if (this.store.accountState.status !== 'pending_deactivation') {
         throw new BackendOperationError(409, 'CONFLICT');
       }
-      this.accountState = { status: 'active', deactivationScheduledAt: null };
-      return { ...this.accountState };
+      this.store.accountState = {
+        status: 'active',
+        deactivationScheduledAt: null,
+      };
+      return { ...this.store.accountState };
     },
   };
 
@@ -471,57 +545,59 @@ export class MockBackendClient implements BackendClient {
   subscription = {
     getMe: async () => {
       this.failIfConfigured('subscription.getMe');
-      return this.subscriptionState ? { ...this.subscriptionState } : null;
+      return this.store.subscriptionState
+        ? { ...this.store.subscriptionState }
+        : null;
     },
     changePlan: async (
       plan: Parameters<BackendClient['subscription']['changePlan']>[0],
     ) => {
       this.failIfConfigured('subscription.changePlan');
-      if (this.subscriptionState?.plan === 'enterprise') {
+      if (this.store.subscriptionState?.plan === 'enterprise') {
         throw new BackendOperationError(403, 'FORBIDDEN');
       }
       if (plan === 'enterprise') {
         throw new BackendOperationError(403, 'FORBIDDEN');
       }
-      if (!this.subscriptionState) {
+      if (!this.store.subscriptionState) {
         throw new BackendOperationError(404, 'NOT_FOUND');
       }
-      if (plan === this.subscriptionState.plan) {
+      if (plan === this.store.subscriptionState.plan) {
         throw new BackendOperationError(409, 'CONFLICT');
       }
-      if (plan === 'premium' && !this.paymentMethods.length) {
+      if (plan === 'premium' && !this.store.paymentMethods.length) {
         throw new BackendOperationError(409, 'PAYMENT_METHOD_REQUIRED');
       }
-      this.subscriptionState = {
-        ...this.subscriptionState,
+      this.store.subscriptionState = {
+        ...this.store.subscriptionState,
         plan,
         status: 'active',
         currentPeriodEnd: '2026-11-04T00:00:00.000Z',
         cancelAtPeriodEnd: false,
       };
-      return { ...this.subscriptionState };
+      return { ...this.store.subscriptionState };
     },
     cancel: async () => {
       this.failIfConfigured('subscription.cancel');
-      if (!this.subscriptionState) {
+      if (!this.store.subscriptionState) {
         throw new BackendOperationError(404, 'NOT_FOUND');
       }
-      if (this.subscriptionState.status === 'canceled') {
+      if (this.store.subscriptionState.status === 'canceled') {
         throw new BackendOperationError(409, 'CONFLICT');
       }
-      this.subscriptionState = {
-        ...this.subscriptionState,
+      this.store.subscriptionState = {
+        ...this.store.subscriptionState,
         status: 'canceled',
         cancelAtPeriodEnd: true,
       };
-      return { ...this.subscriptionState };
+      return { ...this.store.subscriptionState };
     },
   };
 
   billing = {
     getPaymentMethods: async () => {
       this.failIfConfigured('billing.getPaymentMethods');
-      return this.paymentMethods.map((method) => ({ ...method }));
+      return this.store.paymentMethods.map((method) => ({ ...method }));
     },
     getInvoices: async () => {
       this.failIfConfigured('billing.getInvoices');
@@ -539,18 +615,18 @@ export class MockBackendClient implements BackendClient {
     },
     removePaymentMethod: async (paymentMethodId: string) => {
       this.failIfConfigured('billing.removePaymentMethod');
-      const index = this.paymentMethods.findIndex(
+      const index = this.store.paymentMethods.findIndex(
         (method) => method.id === paymentMethodId,
       );
       if (index < 0) throw new BackendOperationError(404, 'NOT_FOUND');
       if (
-        this.paymentMethods.length === 1 &&
-        this.subscriptionState?.plan === 'premium' &&
-        this.subscriptionState.status === 'active'
+        this.store.paymentMethods.length === 1 &&
+        this.store.subscriptionState?.plan === 'premium' &&
+        this.store.subscriptionState.status === 'active'
       ) {
         throw new BackendOperationError(409, 'CONFLICT');
       }
-      this.paymentMethods.splice(index, 1);
+      this.store.paymentMethods.splice(index, 1);
       return true;
     },
   };

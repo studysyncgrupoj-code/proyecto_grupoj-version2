@@ -428,6 +428,80 @@ El BFF es responsable de traducir ese `404` al comportamiento GraphQL correspond
 
 ---
 
+## 3.6 Perfil del usuario
+
+### Actualización del perfil
+
+La ruta es:
+
+```http
+PATCH /users/me/profile
+```
+
+Requiere autenticación mediante Access Token.
+
+El cuerpo es `BackendUpdateProfileInput`, una actualización parcial con los siguientes campos opcionales:
+
+| Campo       | Tipo                 | Descripción                                                |
+| :---------- | :------------------- | :--------------------------------------------------------- |
+| `bio`       | `BackendBio \| null` | Título y descripción biográfica del usuario.               |
+| `interests` | `string[] \| null`   | Lista de intereses. Se reemplaza completa cuando se envía. |
+| `image`     | `string \| null`     | URL o data URI de la imagen de perfil del usuario.         |
+
+#### Semántica PATCH parcial (aplicable a todos los campos):
+
+- Omitir el campo (`undefined`) → no se modifica.
+- Enviar `null` → se borra el valor.
+- Enviar un valor → se asigna el nuevo valor.
+
+#### Ejemplos:
+
+// No modifica la imagen, solo la bio
+
+```json
+{
+  "bio": {
+    "title": "Nuevo título",
+    "description": "Nueva descripción"
+  }
+}
+```
+
+// Borra la imagen de perfil
+
+```json
+{
+  "image": null
+}
+```
+
+```json
+// Asigna una nueva imagen
+{
+  "image": "https://cdn.example.com/avatars/user-123.webp"
+}
+```
+
+La respuesta es `BackendUser` con el perfil completo actualizado.
+
+### Formato de `image`
+
+El campo `image` acepta:
+
+- Una URL absoluta (`https://…`).
+- Un data URI (`data:image/png;base64,…`).
+- `null` para indicar que el usuario no tiene imagen.
+
+El backend decide cómo persistir el valor (CDN, almacenamiento propio, base64). El contrato no impone un mecanismo de subida específico.
+
+Si el cliente necesita subir un archivo binario, debe resolverlo antes de llamar a este endpoint (por ejemplo, subir el archivo a un servicio de almacenamiento y enviar la URL resultante aquí).
+
+### Perfil público
+
+La ruta para consultar el perfil público de un usuario ya está documentada en la sección 3.5 ("Rutas especiales"). El campo `image` de `BackendPublicProfile` refleja el mismo valor persistido por `PATCH /users/me/profile`.
+
+---
+
 # 4. Errores
 
 Todos los errores deben utilizar el siguiente formato:

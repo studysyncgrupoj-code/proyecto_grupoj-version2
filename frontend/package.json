@@ -19,7 +19,8 @@
     "@hookform/resolvers": "5.9.1",
     "@upstash/ratelimit": "2.2.0",
     "@upstash/redis": "1.39.0",
-    "@urql/core": "^6.0.3",
+    "@urql/core": "6.0.3",
+    "@urql/exchange-graphcache": "9.0.2",
     "clsx": "2.1.1",
     "framer-motion": "14.0.0",
     "graphql": "17.0.2",
@@ -55,7 +56,7 @@
     "prettier": "3.9.9",
     "prettier-plugin-tailwindcss": "0.8.1",
     "tailwindcss": "4",
-    "tsx": "^4.23.15",
+    "tsx": "4.23.15",
     "typescript": "7.0.2"
   },
   "packageManager": "pnpm@12.9.1"

@@ -1,9 +1,15 @@
 'use client';
 
 import { Button } from '@/components/ui/Button';
+import {
+  UpdateProfileDocument,
+  type UpdateProfileMutation,
+  type UpdateProfileMutationVariables,
+} from '@/graphql/generated/graphql';
 import { useRouter } from '@/i18n/navigation';
 import { AppIcon } from '@/lib/iconMap';
 import { useEffect, useRef, useState, type ChangeEvent } from 'react';
+import { useMutation } from 'urql';
 
 const MAX_FILE_SIZE = 4 * 1024 * 1024; // 4 MB
 const ACCEPTED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
@@ -56,6 +62,12 @@ export function ProfileAvatarSettings({
   const [isSaving, setIsSaving] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
 
+  // ← NUEVO: mutación GraphQL para updateProfile
+  const [, updateProfile] = useMutation<
+    UpdateProfileMutation,
+    UpdateProfileMutationVariables
+  >(UpdateProfileDocument);
+
   const displayImage = pendingPreview ?? currentImage;
   const hasPendingChange = !!pendingFile;
 
@@ -69,6 +81,13 @@ export function ProfileAvatarSettings({
     },
     [],
   );
+
+  // ← NUEVO: sincronizar el estado local cuando el padre revalida `image`.
+  // Evita que el avatar se quede desactualizado si otro flujo actualiza la
+  // imagen (graphcache propaga, el padre re-renderiza, y aquí adoptamos).
+  useEffect(() => {
+    setCurrentImage(image ?? null);
+  }, [image]);
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -114,44 +133,66 @@ export function ProfileAvatarSettings({
     setFeedback(null);
   };
 
+  // ← NUEVO: guardar vía mutación GraphQL
   const handleSave = async () => {
     if (!pendingFile) return;
     setIsSaving(true);
     setError(null);
-    try {
-      // TODO: Reemplazar por la mutación de URQL para actualizar el avatar/perfil
-      setCurrentImage(pendingPreview);
-      if (retainedPreviewRef.current) {
-        URL.revokeObjectURL(retainedPreviewRef.current);
-        retainedPreviewRef.current = null;
-      }
-      handleCancel();
-      setFeedback(messages.saved);
-      router.refresh();
-    } catch {
+
+    // Convertir el archivo a data URI. El contrato §3.6 acepta URL, data URI
+    // o `null`. Cuando el backend exponga un endpoint de upload dedicado,
+    // se reemplaza por la URL devuelta por ese endpoint.
+    const dataUri = await new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = () => reject(reader.error);
+      reader.readAsDataURL(pendingFile);
+    });
+
+    const result = await updateProfile({ input: { image: dataUri } });
+
+    if (result.error) {
       setError(messages.errors.uploadFailed);
-    } finally {
       setIsSaving(false);
+      return;
     }
+
+    // Adoptar la respuesta del servidor como fuente de verdad local.
+    // Si graphcache propaga correctamente al sidebar, aquí ya coincide.
+    const serverImage = result.data?.updateProfile.image ?? null;
+    setCurrentImage(serverImage);
+
+    if (retainedPreviewRef.current) {
+      URL.revokeObjectURL(retainedPreviewRef.current);
+      retainedPreviewRef.current = null;
+    }
+    handleCancel();
+    setFeedback(messages.saved);
+    router.refresh();
+    setIsSaving(false);
   };
 
+  // ← NUEVO: borrar vía mutación GraphQL
   const handleRemove = async () => {
     setIsSaving(true);
     setError(null);
-    try {
-      // TODO: Reemplazar por la mutación de URQL para remover el avatar
-      setCurrentImage(null);
-      if (retainedPreviewRef.current) {
-        URL.revokeObjectURL(retainedPreviewRef.current);
-        retainedPreviewRef.current = null;
-      }
-      setFeedback(messages.removed);
-      router.refresh();
-    } catch {
+
+    const result = await updateProfile({ input: { image: null } });
+
+    if (result.error) {
       setError(messages.errors.removeFailed);
-    } finally {
       setIsSaving(false);
+      return;
     }
+
+    setCurrentImage(null);
+    if (retainedPreviewRef.current) {
+      URL.revokeObjectURL(retainedPreviewRef.current);
+      retainedPreviewRef.current = null;
+    }
+    setFeedback(messages.removed);
+    router.refresh();
+    setIsSaving(false);
   };
 
   return (

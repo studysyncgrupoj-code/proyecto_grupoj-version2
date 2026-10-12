@@ -15,6 +15,9 @@ export async function generateMetadata() {
 
 export default async function ProfilePage() {
   const [session, t, certT, locale] = await Promise.all([
+    // TODO: migrar ProfileAvatarSettings a leer `image` del BFF (GraphQL)
+    // en lugar de la sesión. `session.user.image` no refleja cambios hechos desde
+    // el dashboard; el sidebar (que ya lee del BFF) sí los refleja.
     auth(),
     getTranslations('dashboard.userSettings.page'),
     getTranslations('dashboard.userSettings.certificates'),

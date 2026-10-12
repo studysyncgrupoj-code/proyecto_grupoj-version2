@@ -32,8 +32,8 @@ export default async function SideBar() {
       <SidebarShell labels={sidebarLabels}>
         <div>
           <SidebarBrand
-            fullLogo={<Logo variant="full" />}
-            compactLogo={<Logo variant="compact" />}
+            fullLogo={<Logo variant="full" href="/dashboard" />}
+            compactLogo={<Logo variant="compact" href="/dashboard" />}
           />
           <SidebarNav />
         </div>

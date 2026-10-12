@@ -3,6 +3,8 @@ import type { DefaultJWT } from 'next-auth/jwt';
 import type { SubscriptionType, UserRole } from './user';
 export type { SubscriptionType, UserRole } from './user';
 
+// TODO: revisar qué campos deben seguir formando parte de la sesión.
+// Ver nota en el callback `session` de src/auth.ts.
 interface UserProfile {
   id: string;
   role: UserRole;

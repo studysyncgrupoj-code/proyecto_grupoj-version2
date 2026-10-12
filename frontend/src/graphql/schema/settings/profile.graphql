@@ -11,4 +11,5 @@ input UpdateBioInput {
 input UpdateProfileInput {
   bio: UpdateBioInput
   interests: [String!]
+  image: String
 }

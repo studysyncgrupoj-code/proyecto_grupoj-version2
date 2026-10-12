@@ -95,6 +95,7 @@ export type UpdatePrivacySettingsInput = {
 
 export type UpdateProfileInput = {
   bio?: UpdateBioInput | null | undefined;
+  image?: string | null | undefined;
   interests?: Array<string> | null | undefined;
 };
 

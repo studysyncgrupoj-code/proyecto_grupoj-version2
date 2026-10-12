@@ -153,6 +153,7 @@ export interface BackendPublicProfile {
 export interface BackendUpdateProfileInput {
   bio?: BackendBio | null;
   interests?: string[] | null;
+  image?: string | null;
 }
 
 export interface BackendLoginInput {
