@@ -1,6 +1,6 @@
 # Contrato de API del backend
 
-**Versión:** `v1`
+**Versión:** `v1.1`
 
 Este documento es el contrato formal de integración entre el frontend/BFF y el backend. Define lo que ambas partes deben implementar y cómo deben interactuar.
 
@@ -27,7 +27,7 @@ La URL base del backend es `API_BASE_URL`. Todas las rutas de este documento son
 
 ## 1.1 Modos de operación
 
-El contrato `v1` puede implementarse en dos modos:
+El contrato `v1.1` puede implementarse en dos modos:
 
 | Modo   | Cuándo se usa                                                     | Fuente de datos                    |
 | ------ | ----------------------------------------------------------------- | ---------------------------------- |
@@ -85,30 +85,26 @@ En modo `mock` (sección 1.1), los tokens son valores sintéticos generados por 
 
 # 3. Cambios que el backend debe implementar
 
-Esta sección define el comportamiento requerido por el contrato `v1`.
+Esta sección define el comportamiento requerido por el contrato `v1.1`.
 
 Los cambios respecto al backend actual (nombres de campos y rutas) están resumidos en la sección 14.
 
 ## 3.1 Nombres de campos
 
-Los campos del contrato `v1` utilizan nombres en inglés.
+Los campos del contrato `v1.1` utilizan nombres en inglés.
 
 ### Respuesta de `POST /auth/login`
 
 Dentro de `data`:
 
-| Campo              | Tipo             | Descripción                            |
-| ------------------ | ---------------- | -------------------------------------- |
-| `firstName`        | `string`         | Nombre del usuario                     |
-| `lastName`         | `string`         | Apellidos del usuario                  |
-| `id`               | `string`         | Identificador único del usuario        |
-| `role`             | `string`         | Rol del usuario                        |
-| `subscription`     | `string \| null` | Suscripción, cuando corresponda        |
-| `image`            | `string \| null` | Imagen del usuario                     |
-| `token`            | `string`         | Access Token                           |
-| `refreshToken`     | `string`         | Refresh Token                          |
-| `expiresIn`        | `number`         | Duración del Access Token en segundos  |
-| `refreshExpiresIn` | `number`         | Duración del Refresh Token en segundos |
+| Campo              | Tipo     | Descripción                            |
+| ------------------ | -------- | -------------------------------------- |
+| `id`               | `string` | Identificador único del usuario        |
+| `role`             | `string` | Rol del usuario                        |
+| `token`            | `string` | Access Token                           |
+| `refreshToken`     | `string` | Refresh Token                          |
+| `expiresIn`        | `number` | Duración del Access Token en segundos  |
+| `refreshExpiresIn` | `number` | Duración del Refresh Token en segundos |
 
 `id` debe ser **el mismo valor** que devuelve `GET /users/me` en su campo `id`.
 
@@ -120,17 +116,7 @@ teacher
 admin
 ```
 
-Los valores permitidos para `subscription` son:
-
-```text
-free
-premium
-enterprise
-```
-
-`subscription` solo se envía cuando `role` es `student`. Para otros roles se omite.
-
-`image` siempre se envía. Si el usuario no tiene imagen, su valor es `null`.
+El frontend no persiste otros datos en la sesión. Los datos de presentación (nombre, correo, imagen, plan) se obtienen del BFF vía GraphQL a partir de `GET /users/me` y `GET /users/me/subscription`. Ver sección 3.7.
 
 ### Cuerpo de `POST /auth/register`
 
@@ -153,12 +139,12 @@ enterprise
 
 El backend debe:
 
-- devolver `firstName`, `lastName`, `id` y `role`;
-- utilizar el mismo `id` que devuelve posteriormente `GET /users/me`;
-- enviar `subscription` únicamente cuando corresponda;
-- enviar `image`, pudiendo ser `null`;
+- devolver `id` y `role`;
 - devolver un Access Token y un Refresh Token;
-- devolver `expiresIn` y `refreshExpiresIn`.
+- devolver `expiresIn` y `refreshExpiresIn`;
+- utilizar el mismo `id` que devuelve posteriormente `GET /users/me`.
+
+Los datos de presentación (nombre, correo, imagen, plan) no forman parte del login: se obtienen del BFF vía GraphQL (ver sección 3.7).
 
 Usuario o contraseña incorrectos:
 
@@ -500,6 +486,27 @@ Si el cliente necesita subir un archivo binario, debe resolverlo antes de llamar
 
 La ruta para consultar el perfil público de un usuario ya está documentada en la sección 3.5 ("Rutas especiales"). El campo `image` de `BackendPublicProfile` refleja el mismo valor persistido por `PATCH /users/me/profile`.
 
+## 3.7 Alcance de la sesión del frontend
+
+La sesión gestionada por Auth.js (`session.user`) se limita a tres campos:
+
+| Campo   | Uso                                                      |
+| ------- | -------------------------------------------------------- |
+| `id`    | Ancla del JWT.                                           |
+| `role`  | Autorización en el guard de rutas y en el BFF.           |
+| `error` | Notificación de sesión expirada (no es parte de `user`). |
+
+No forman parte de la sesión: nombre, correo, imagen, suscripción. Estos datos provienen del BFF vía GraphQL, que a su vez los obtiene de:
+
+- `GET /users/me` (nombre, correo, imagen, rol).
+- `GET /users/me/subscription` (plan).
+
+Reglas:
+
+- Los tokens de acceso y refresco viven en el JWT gestionado por Auth.js. Nunca se exponen al cliente vía `session.user`.
+- Auth.js es responsable de autenticar. No es la fuente de datos de presentación.
+- El BFF es la fuente de verdad para todo dato que la UI del dashboard necesite mostrar.
+
 ---
 
 # 4. Errores
@@ -782,7 +789,7 @@ Un valor no soportado responde:
 
 ### Relación con el frontend
 
-La fuente de verdad es el **contrato de API `v1`**.
+La fuente de verdad es el **contrato de API `v1.1`**.
 
 La relación es:
 
@@ -952,6 +959,15 @@ El contrato `v1` debe considerarse compartido entre frontend/BFF y backend.
 
 Los cambios incompatibles deben generar una nueva versión del contrato.
 
+## v1.1
+
+Cambios compatibles hacia atrás. El backend puede seguir enviando los campos retirados del contrato; el frontend los ignora.
+
+- `POST /auth/login`: la respuesta se limita a `id`, `role`, `token`, `refreshToken`, `expiresIn` y `refreshExpiresIn`.
+- `firstName`, `lastName`, `subscription` e `image` dejan de formar parte del contrato de login. Los datos de presentación (nombre, correo, imagen, plan) provienen del BFF vía GraphQL.
+- Nueva sección 3.7: alcance de la sesión del frontend y fuente de los datos de presentación.
+- Se aclara que los datos de presentación se obtienen a partir de `GET /users/me` y `GET /users/me/subscription`.
+
 ---
 
 # 14. Apéndice: migración desde el backend previo (histórico)
@@ -969,7 +985,9 @@ El backend previo usaba nombres de campos en español y una ruta distinta a la d
 | `uuid`      | `id`        |
 | `rol`       | `role`      |
 
-Los demás campos no cambian: `subscription`, `image`, `token`, `refreshToken`, `expiresIn` y `refreshExpiresIn`.
+Los campos del par de tokens no cambian: `token`, `refreshToken`, `expiresIn` y `refreshExpiresIn`.
+
+Nota v1.1: `firstName`, `lastName`, `subscription` e `image` dejan de formar parte de la respuesta de login. Ver secciones 3.1 y 3.7.
 
 ### Cuerpo de `POST /auth/register`
 
@@ -992,3 +1010,5 @@ Los demás campos no cambian: `subscription`, `image`, `token`, `refreshToken`, 
 Estos cambios **no son compatibles hacia atrás**.
 
 El frontend y el backend deben desplegarse a la vez. El frontend rechaza una respuesta de login que no use los nombres nuevos, así que si solo se despliega uno de los dos nadie podrá iniciar sesión ni registrarse.
+
+Nota v1.1: los cambios de v1.1 sí son compatibles hacia atrás para el backend. Un backend que siga respondiendo `firstName`, `lastName`, `subscription` e `image` en login funciona igual: el frontend los ignora. El único requisito es que los seis campos obligatorios de login sigan presentes.
