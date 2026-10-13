@@ -4,7 +4,7 @@ import {
   SidebarDataDocument,
   type AccountStatus,
 } from '@/graphql/generated/graphql';
-import type { SubscriptionType, UserRole } from '@/types/next-auth';
+import type { SubscriptionType, UserRole } from '@/types/user';
 import type { CombinedError } from '@urql/core';
 import { useQuery } from 'urql';
 

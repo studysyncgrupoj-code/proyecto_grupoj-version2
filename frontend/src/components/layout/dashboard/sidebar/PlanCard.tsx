@@ -1,10 +1,10 @@
 'use client';
 
 import { Button } from '@/components/ui/Button';
-import { IconMap, type UiIconName } from '@/lib/iconMap';
-import type { SubscriptionType } from '@/types/next-auth';
-import { cn } from '@/utilities/cn';
 import { Link } from '@/i18n/navigation';
+import { IconMap, type UiIconName } from '@/lib/iconMap';
+import type { SubscriptionType } from '@/types/user';
+import { cn } from '@/utilities/cn';
 import { useTranslations } from 'next-intl';
 import { useSidebar } from './SidebarContext';
 import { useSidebarData } from './useSidebarData';

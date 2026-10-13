@@ -2,7 +2,7 @@ import { createPublicBackendClient } from '@/lib/backend';
 import { getClientIp } from '@/lib/clientIp';
 import { checkRateLimit } from '@/lib/ratelimit';
 import { loginSchema } from '@/lib/user.schema';
-import type { SubscriptionType, UserRole } from '@/types/next-auth';
+import type { UserRole } from '@/types/next-auth';
 import NextAuth, { CredentialsSignin } from 'next-auth';
 import type { JWT } from 'next-auth/jwt';
 import Credentials from 'next-auth/providers/credentials';
@@ -12,37 +12,27 @@ import { z } from 'zod';
 // CONSTANTES Y CONFIGURACIÓN
 // ============================================================
 
-// Rol permitido tal como lo devuelve el backend
+// Rol permitido tal como lo devuelve el backend.
 const UserRoleSchema = z.enum(['student', 'teacher', 'admin']);
 
-// Suscripción permitida.
-// Solo aplica actualmente al rol student.
-const SubscriptionSchema = z.enum(['free', 'premium', 'enterprise']);
-
-// Metadatos aceptados por el logger estructurado
+// Metadatos aceptados por el logger estructurado.
 interface LogMeta {
   [key: string]: string | number | boolean | object | undefined;
 }
 
-// Debe coincidir con el TTL del refresh token en el backend
+// Debe coincidir con el TTL del refresh token en el backend.
 const SESSION_MAX_AGE = 60 * 60 * 24 * 7; // 7 días = 604 800 s
-// Renovar el access token un poco antes de que caduque
+
+// Renovar el access token un poco antes de que caduque.
 const REFRESH_MARGIN_MS = 30_000; // 30 s
 
 // Par de tokens devuelto por /auth/login y /auth/refresh.
 //
-// token:
-//   Access token utilizado para autenticarse contra el backend.
-//
-// refreshToken:
-//   Credencial utilizada exclusivamente por Next.js/Auth.js
-//   para solicitar nuevos access tokens.
-//
-// expiresIn:
-//   Vida útil del access token en segundos.
-//
-// refreshExpiresIn:
-//   Vida útil del refresh token en segundos.
+// token:            access token utilizado para autenticarse contra el backend.
+// refreshToken:     credencial usada exclusivamente por Auth.js para pedir
+//                   nuevos access tokens.
+// expiresIn:        vida útil del access token en segundos.
+// refreshExpiresIn: vida útil del refresh token en segundos.
 const TokenPairSchema = z.object({
   token: z.string().min(1),
   refreshToken: z.string().min(1),
@@ -65,18 +55,15 @@ class UnavailableError extends CredentialsSignin {
   code = 'unavailable';
 }
 
+// Campos que Auth.js y el BFF necesitan de la respuesta de login.
+// El resto de datos de presentación (nombre, correo, imagen, suscripción)
+// se obtiene del BFF vía GraphQL, no de la sesión.
 interface LoginSuccessResponse {
   status: 200;
   message: string;
   data: {
-    firstName: string;
-    lastName: string;
     id: string;
     role: UserRole;
-    subscription?: SubscriptionType | null;
-    image: string | null;
-
-    // Tokens emitidos por el backend
     token: string;
     refreshToken: string;
     expiresIn: number;
@@ -112,8 +99,8 @@ const logger = {
   },
 };
 
-// Type guard: comprueba que la respuesta tiene la forma mínima
-// que necesitamos antes de acceder a sus campos.
+// Type guard: comprueba que la respuesta tiene la forma mínima que
+// necesita el flujo de autenticación antes de acceder a sus campos.
 const isLoginSuccessResponse = (
   value: unknown,
 ): value is LoginSuccessResponse => {
@@ -127,21 +114,10 @@ const isLoginSuccessResponse = (
   if (response.status !== 200 || !data) return false;
 
   const role = UserRoleSchema.safeParse(data.role);
-  const subscriptionIsValid =
-    role.success &&
-    (role.data === 'student'
-      ? 'subscription' in data &&
-        (data.subscription === null ||
-          SubscriptionSchema.safeParse(data.subscription).success)
-      : !('subscription' in data));
 
   return (
-    typeof data.firstName === 'string' &&
-    typeof data.lastName === 'string' &&
     typeof data.id === 'string' &&
     role.success &&
-    subscriptionIsValid &&
-    (typeof data.image === 'string' || data.image === null) &&
     typeof data.token === 'string' &&
     typeof data.refreshToken === 'string' &&
     typeof data.expiresIn === 'number' &&
@@ -220,11 +196,10 @@ async function requestRefresh(token: JWT): Promise<JWT> {
     return {
       ...token,
 
-      // Nuevo access token
+      // Nuevo access token.
       accessToken: parsed.data.token,
 
-      // Importante:
-      // el backend puede rotar el refresh token.
+      // El backend puede rotar el refresh token.
       refreshToken: parsed.data.refreshToken,
 
       accessTokenExpires: now + parsed.data.expiresIn * 1000,
@@ -243,9 +218,7 @@ async function requestRefresh(token: JWT): Promise<JWT> {
 }
 
 // Deduplica llamadas concurrentes al refresh usando el refreshToken
-// como clave.
-//
-// Esto es especialmente importante si el backend utiliza refresh-token
+// como clave. Esto es importante si el backend utiliza refresh-token
 // rotation: dos refresh simultáneos podrían intentar consumir el mismo
 // refresh token y provocar que uno de ellos sea rechazado.
 function refreshAccessToken(token: JWT): Promise<JWT> {
@@ -280,11 +253,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       //   0) rate limit por IP
       //   1) validación del payload con Zod
       //   2) rate limit por email
-      //   3) POST /auth/login a través de RestBackendClient
+      //   3) POST /auth/login a través del cliente REST compartido
       //   4) parseo y validación de la respuesta
-      //   5) validación de rol y (si aplica) de suscripción
-      //   5.2) validación del par de tokens
-      //   6) construcción del objeto usuario para Auth.js
+      //   5) validación del rol
+      //   6) validación del par de tokens
+      //   7) construcción del objeto usuario para Auth.js
       async authorize(credentials, request) {
         try {
           // 0. Rate limit por IP
@@ -353,7 +326,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             return null;
           }
 
-          // 5. Validar que el rol devuelto esté entre los permitidos
+          // 5. Validar que el rol devuelto esté entre los permitidos.
           const roleParse = UserRoleSchema.safeParse(data.data.role);
           if (!roleParse.success) {
             logger.error('Rol inválido devuelto por el backend', {
@@ -365,21 +338,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
           const role: UserRole = roleParse.data;
 
-          // 5.1. Suscripción: solo aplica a estudiantes. Si falta o es
-          //      inválida se asigna 'free' por defecto.
-          const rawSubscription = data.data.subscription;
-          let subscription: SubscriptionType | undefined;
-          if (role === 'student') {
-            if (rawSubscription === null) {
-              subscription = undefined;
-            } else {
-              const subParse = SubscriptionSchema.safeParse(rawSubscription);
-              if (!subParse.success) return null;
-              subscription = subParse.data;
-            }
-          }
-
-          // 5.2. Sin par de tokens no hay sesión válida.
+          // 6. Sin par de tokens no hay sesión válida.
           const tokens = TokenPairSchema.safeParse(data.data);
 
           if (!tokens.success) {
@@ -394,25 +353,16 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             email,
             id: data.data.id,
             rol: role,
-            suscripcion: subscription,
           });
 
-          if (!tokens.success) {
-            logger.error('El backend no devolvió el par de tokens esperado', {
-              id: data.data.id,
-            });
-            throw new UnavailableError();
-          }
-
-          // 6. Objeto usuario que Auth.js guardará en el JWT
+          // 7. Objeto usuario que Auth.js guardará en el JWT.
+          // Solo lleva lo necesario para autenticación y autorización.
+          // Los datos de presentación (nombre, correo, imagen, suscripción)
+          // se obtienen del BFF vía GraphQL, no de la sesión.
           const now = Date.now();
           return {
             id: String(data.data.id),
-            name: `${data.data.firstName} ${data.data.lastName}`,
-            email,
-            image: data.data.image,
             role,
-            subscription,
             accessToken: tokens.data.token,
             refreshToken: tokens.data.refreshToken,
             accessTokenExpires: now + tokens.data.expiresIn * 1000,
@@ -444,7 +394,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (user) {
         token.id = user.id;
         token.role = user.role;
-        token.subscription = user.subscription;
         token.accessToken = user.accessToken;
         token.refreshToken = user.refreshToken;
         token.accessTokenExpires = user.accessTokenExpires;
@@ -465,13 +414,21 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       return refreshAccessToken(token);
     },
 
-    // session expone al cliente solo lo necesario.
+    // session.user se limita a lo necesario para autenticación y autorización:
+    //   - id:    ancla del JWT.
+    //   - role:  autorización (guard + BFF).
+    //   - error: notificación de sesión expirada.
+    //
+    // Los tokens de acceso y refresco viven en el JWT, no se exponen aquí.
+    // Los datos de presentación (nombre, correo, imagen, suscripción) se
+    // obtienen del BFF vía GraphQL.
+    //
+    // id y role están garantizados por `authorize` (única fuente del JWT);
+    // no se añaden guards porque el tipo Session ya los declara obligatorios
+    // y Auth.js rechaza cualquier JWT que no venga de este flujo.
     session({ session, token }) {
-      if (session.user) {
-        if (typeof token.id === 'string') session.user.id = token.id;
-        if (token.role) session.user.role = token.role;
-        session.user.subscription = token.subscription;
-      }
+      session.user.id = token.id as string;
+      session.user.role = token.role as UserRole;
       session.error = token.error;
       return session;
     },
