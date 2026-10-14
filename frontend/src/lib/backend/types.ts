@@ -10,8 +10,8 @@ export interface BackendUser {
 }
 
 export interface BackendBio {
-  title: string;
-  description: string;
+  title: string | null;
+  description: string | null;
 }
 
 export interface BackendProfile {
@@ -150,8 +150,13 @@ export interface BackendPublicProfile {
   email: string | null;
   phone: string | null;
 }
+export interface BackendUpdateBioInput {
+  title?: string | null;
+  description?: string | null;
+}
+
 export interface BackendUpdateProfileInput {
-  bio?: BackendBio | null;
+  bio?: BackendUpdateBioInput | null;
   interests?: string[] | null;
   image?: string | null;
 }

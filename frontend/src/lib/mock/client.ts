@@ -18,6 +18,7 @@ import type {
   BackendSubscription,
   BackendTokenPair,
   BackendTokenPairResponse,
+  BackendUpdateBioInput,
   BackendValidateResetTokenInput,
 } from '../backend/types';
 
@@ -270,12 +271,62 @@ export class MockBackendClient implements BackendClient {
     ) => {
       this.failIfConfigured('users.updateProfile');
 
-      if (input.bio !== undefined) this.store.profileState.bio = input.bio;
+      // --- Validaciones (contrato §3.6) -------------------------------------
+
+      const validateBioField = (
+        value: string | null | undefined,
+        field: 'title' | 'description',
+      ): void => {
+        if (value === undefined || value === null) return; // null = borrar, válido
+        const { min, max } =
+          field === 'title' ? { min: 1, max: 100 } : { min: 1, max: 500 };
+        if (value.length < min || value.length > max) {
+          throw new BackendOperationError(422, 'VALIDATION_ERROR');
+        }
+      };
+
+      if (input.bio !== undefined && input.bio !== null) {
+        validateBioField(input.bio.title, 'title');
+        validateBioField(input.bio.description, 'description');
+      }
+
+      if (input.interests !== undefined && input.interests !== null) {
+        if (input.interests.length > 20) {
+          throw new BackendOperationError(422, 'VALIDATION_ERROR');
+        }
+        for (const interest of input.interests) {
+          if (interest.length < 1 || interest.length > 40) {
+            throw new BackendOperationError(422, 'VALIDATION_ERROR');
+          }
+        }
+      }
+
+      // --- Aplicar cambios (semántica PATCH parcial) -----------------------
+
+      if (input.bio !== undefined) {
+        if (input.bio === null) {
+          // Borrar la bio completa
+          this.store.profileState.bio = null;
+        } else {
+          // PATCH parcial dentro del bio
+          const currentBio = this.store.profileState.bio ?? {
+            title: null,
+            description: null,
+          };
+          const nextBio = applyBioPatch(currentBio, input.bio);
+          this.store.profileState.bio = nextBio;
+        }
+      }
+
       if (input.interests !== undefined) {
+        // `null` = borrar todos los intereses
         this.store.profileState.interests = input.interests ?? [];
       }
-      // PATCH parcial: `undefined` = no tocar, `null` = borrar, string = asignar
+
+      // `undefined` = no tocar, `null` = borrar, string = asignar
       if (input.image !== undefined) this.store.imageState = input.image;
+
+      // --- Devolver el usuario actualizado ---------------------------------
 
       return {
         id: MOCK_USER_ID,
@@ -837,4 +888,21 @@ function isValidTimezone(timezone: string): boolean {
   } catch {
     return false;
   }
+}
+
+/**
+ * Aplica la semántica PATCH parcial de `Bio`:
+ * - campo omitido (`undefined`) → no se modifica.
+ * - `null` → se borra (queda en `null`).
+ * - valor → se asigna.
+ */
+function applyBioPatch(
+  current: { title: string | null; description: string | null },
+  patch: BackendUpdateBioInput,
+): { title: string | null; description: string | null } {
+  return {
+    title: patch.title === undefined ? current.title : patch.title,
+    description:
+      patch.description === undefined ? current.description : patch.description,
+  };
 }

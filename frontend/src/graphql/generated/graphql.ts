@@ -65,8 +65,8 @@ export type Theme =
   | 'system';
 
 export type UpdateBioInput = {
-  description: string;
-  title: string;
+  description?: string | null | undefined;
+  title?: string | null | undefined;
 };
 
 export type UpdatePersonalDataInput = {
@@ -195,21 +195,21 @@ export type UpdatePrivacySettingsMutation = { updatePrivacySettings: { profileVi
 export type MyProfileQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type MyProfileQuery = { me: { id: string, name: string, email: string, image: string | null, role: UserRole, profile: { interests: Array<string>, bio: { title: string, description: string } | null } } };
+export type MyProfileQuery = { me: { id: string, name: string, email: string, image: string | null, role: UserRole, profile: { interests: Array<string>, bio: { title: string | null, description: string | null } | null } } };
 
 export type PublicProfileQueryVariables = Exact<{
   userId: string | number;
 }>;
 
 
-export type PublicProfileQuery = { publicProfile: { id: string, name: string, image: string | null, interests: Array<string>, email: string | null, phone: string | null, bio: { title: string, description: string } | null } | null };
+export type PublicProfileQuery = { publicProfile: { id: string, name: string, image: string | null, interests: Array<string>, email: string | null, phone: string | null, bio: { title: string | null, description: string | null } | null } | null };
 
 export type UpdateProfileMutationVariables = Exact<{
   input: UpdateProfileInput;
 }>;
 
 
-export type UpdateProfileMutation = { updateProfile: { id: string, name: string, email: string, image: string | null, role: UserRole, profile: { interests: Array<string>, bio: { title: string, description: string } | null } } };
+export type UpdateProfileMutation = { updateProfile: { id: string, name: string, email: string, image: string | null, role: UserRole, profile: { interests: Array<string>, bio: { title: string | null, description: string | null } | null } } };
 
 export type BeginTwoFactorSetupMutationVariables = Exact<{ [key: string]: never; }>;
 

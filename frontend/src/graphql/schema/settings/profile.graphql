@@ -4,8 +4,8 @@ type Profile {
 }
 
 input UpdateBioInput {
-  title: String!
-  description: String!
+  title: String
+  description: String
 }
 
 input UpdateProfileInput {
