@@ -1,12 +1,13 @@
 enum AccountStatus {
   active
+  pending_deactivation
   suspended
   inactive
 }
 
 type Account {
   status: AccountStatus!
-  createdAt: DateTime!
+  deactivationScheduledAt: DateTime
 }
 
 extend type Query {

@@ -12,7 +12,7 @@ enum SubscriptionStatus {
   expired
 }
 
-type Subscription {
+type UserSubscription {
   id: ID!
   plan: SubscriptionPlan!
   status: SubscriptionStatus!
@@ -22,11 +22,11 @@ type Subscription {
 }
 
 extend type Query {
-  mySubscription: Subscription
+  mySubscription: UserSubscription
 }
 
 extend type Mutation {
-  changeSubscriptionPlan(plan: SubscriptionPlan!): Subscription!
+  changeSubscriptionPlan(plan: SubscriptionPlan!): UserSubscription!
 
-  cancelSubscription: Subscription!
+  cancelSubscription: UserSubscription!
 }

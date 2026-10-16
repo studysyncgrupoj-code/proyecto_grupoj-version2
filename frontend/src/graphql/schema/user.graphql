@@ -5,8 +5,8 @@ enum UserRole {
 }
 
 type Bio {
-  title: String!
-  description: String!
+  title: String
+  description: String
 }
 
 type User {

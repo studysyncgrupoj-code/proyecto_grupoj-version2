@@ -1,25 +1,20 @@
 'use client';
 
-import type { NavItem } from '@/config/dashboard-navigation';
+import { getRoleNavigation, type NavItem } from '@/config/dashboard-navigation';
 import { IconMap } from '@/lib/iconMap';
 import { cn } from '@/utilities/cn';
 import { Link, usePathname } from '@/i18n/navigation';
+import { useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
 import { HiEllipsisHorizontal } from 'react-icons/hi2';
 import MoreSheet from './Moresheet';
+import { useSidebarData } from './useSidebarData';
 
 interface MobileNavProps {
-  items: NavItem[];
-  user: {
-    name: string;
-    email: string;
-    image?: string | null;
-    roleLabel: string;
-  };
   homePath: string;
   homeLabel: string;
   labels: {
-    navigation: string;
+    navigationLabel: string;
     more: string;
     moreOptions: string;
     theme: string;
@@ -54,14 +49,18 @@ function getIconComponent(iconName: NavItem['icon']): IconComponentType | null {
 }
 
 export default function MobileNav({
-  items,
-  user,
   homePath,
   homeLabel,
   labels,
 }: MobileNavProps) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const { isLoading, role } = useSidebarData();
+  const t = useTranslations('dashboard.navigation');
+  const items = getRoleNavigation(role).menu.map((item) => ({
+    ...item,
+    label: t(`items.${item.label}`),
+  }));
 
   // Evita un duplicado si algún día el propio menú del rol define '/dashboard'
   const homeItem: NavItem = {
@@ -93,10 +92,28 @@ export default function MobileNav({
   const isItemActive = (path: string) =>
     pathname === path || pathname.startsWith(`${path}/`);
 
+  if (isLoading) {
+    return (
+      <div
+        className="border-border bg-background fixed inset-x-0 bottom-0 z-40 flex min-h-16 items-center justify-around border-t px-2 lg:hidden"
+        aria-hidden="true"
+      >
+        {Array.from({ length: 5 }, (_, index) => (
+          <div
+            key={index}
+            className="bg-surface-hover h-10 w-12 animate-pulse rounded-xl"
+          />
+        ))}
+      </div>
+    );
+  }
+
+  if (role === null) return null;
+
   return (
     <>
       <nav
-        aria-label={labels.navigation}
+        aria-label={labels.navigationLabel}
         className="border-border bg-background/95 fixed inset-x-0 bottom-0 z-40 flex items-stretch border-t backdrop-blur-md lg:hidden"
         style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
       >
@@ -164,8 +181,6 @@ export default function MobileNav({
       <MoreSheet
         open={open}
         onClose={() => setOpen(false)}
-        items={moreItems}
-        user={user}
         isItemActive={isItemActive}
         labels={labels}
       />

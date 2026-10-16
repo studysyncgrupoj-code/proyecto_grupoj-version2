@@ -10,8 +10,8 @@ export interface BackendUser {
 }
 
 export interface BackendBio {
-  title: string;
-  description: string;
+  title: string | null;
+  description: string | null;
 }
 
 export interface BackendProfile {
@@ -88,10 +88,11 @@ export interface BackendUpdatePreferencesInput {
   accessibility?: Partial<BackendPreferences['accessibility']> | null;
 }
 
-export type BackendAccountStatus = 'active' | 'suspended' | 'inactive';
+export type BackendAccountStatus =
+  'active' | 'pending_deactivation' | 'suspended' | 'inactive';
 export interface BackendAccount {
   status: BackendAccountStatus;
-  createdAt: string;
+  deactivationScheduledAt: string | null;
 }
 export type BackendCourseStatus = 'active' | 'completed' | 'paused';
 export interface BackendCourseEnrollment {
@@ -149,7 +150,85 @@ export interface BackendPublicProfile {
   email: string | null;
   phone: string | null;
 }
+export interface BackendUpdateBioInput {
+  title?: string | null;
+  description?: string | null;
+}
+
 export interface BackendUpdateProfileInput {
-  bio?: BackendBio | null;
+  bio?: BackendUpdateBioInput | null;
   interests?: string[] | null;
+  image?: string | null;
+}
+
+export interface BackendLoginInput {
+  email: string;
+  password: string;
+}
+
+export interface BackendRegisterInput {
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
+}
+
+export interface BackendForgotPasswordInput {
+  email: string;
+}
+
+export interface BackendValidateResetTokenInput {
+  token: string;
+}
+
+export interface BackendResetPasswordInput {
+  token: string;
+  newPassword: string;
+}
+
+export interface BackendContactInput {
+  name: string;
+  email: string;
+  contactNumber?: string;
+  subject: string;
+  message: string;
+}
+
+export interface BackendTokenPair {
+  token: string;
+  refreshToken: string;
+  expiresIn: number;
+  refreshExpiresIn: number;
+}
+
+export interface BackendLoginData extends BackendTokenPair {
+  firstName: string;
+  lastName: string;
+  id: string;
+  role: 'student' | 'teacher' | 'admin';
+  subscription?: 'free' | 'premium' | 'enterprise' | null;
+  image: string | null;
+}
+
+export interface BackendDataResponse<T> {
+  status: number;
+  message: string;
+  data: T;
+}
+
+export type BackendLoginResponse = BackendDataResponse<BackendLoginData>;
+export type BackendTokenPairResponse = BackendDataResponse<BackendTokenPair>;
+
+export interface BackendResetTokenValidationResponse {
+  valid: true;
+}
+
+export interface BackendContractError {
+  code: string;
+  message: string;
+  details: unknown;
+}
+
+export interface BackendContractErrorBody {
+  error: BackendContractError;
 }

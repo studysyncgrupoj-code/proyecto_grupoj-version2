@@ -1,7 +1,8 @@
+import { createPublicBackendClient } from '@/lib/backend';
 import { getClientIp } from '@/lib/clientIp';
 import { checkRateLimit } from '@/lib/ratelimit';
 import { loginSchema } from '@/lib/user.schema';
-import type { SubscriptionType, UserRole } from '@/types/next-auth';
+import type { UserRole } from '@/types/next-auth';
 import NextAuth, { CredentialsSignin } from 'next-auth';
 import type { JWT } from 'next-auth/jwt';
 import Credentials from 'next-auth/providers/credentials';
@@ -10,40 +11,28 @@ import { z } from 'zod';
 // ============================================================
 // CONSTANTES Y CONFIGURACIÓN
 // ============================================================
-const API_BASE_URL = process.env.API_BASE_URL;
-const API_TIMEOUT_MS = 10_000; // 10 s
 
-// Rol permitido tal como lo devuelve el backend
+// Rol permitido tal como lo devuelve el backend.
 const UserRoleSchema = z.enum(['student', 'teacher', 'admin']);
 
-// Suscripción permitida.
-// Solo aplica actualmente al rol student.
-const SubscriptionSchema = z.enum(['free', 'premium', 'enterprise']);
-
-// Metadatos aceptados por el logger estructurado
+// Metadatos aceptados por el logger estructurado.
 interface LogMeta {
   [key: string]: string | number | boolean | object | undefined;
 }
 
-// Debe coincidir con el TTL del refresh token en el backend
+// Debe coincidir con el TTL del refresh token en el backend.
 const SESSION_MAX_AGE = 60 * 60 * 24 * 7; // 7 días = 604 800 s
-// Renovar el access token un poco antes de que caduque
+
+// Renovar el access token un poco antes de que caduque.
 const REFRESH_MARGIN_MS = 30_000; // 30 s
 
 // Par de tokens devuelto por /auth/login y /auth/refresh.
 //
-// token:
-//   Access token utilizado para autenticarse contra el backend.
-//
-// refreshToken:
-//   Credencial utilizada exclusivamente por Next.js/Auth.js
-//   para solicitar nuevos access tokens.
-//
-// expiresIn:
-//   Vida útil del access token en segundos.
-//
-// refreshExpiresIn:
-//   Vida útil del refresh token en segundos.
+// token:            access token utilizado para autenticarse contra el backend.
+// refreshToken:     credencial usada exclusivamente por Auth.js para pedir
+//                   nuevos access tokens.
+// expiresIn:        vida útil del access token en segundos.
+// refreshExpiresIn: vida útil del refresh token en segundos.
 const TokenPairSchema = z.object({
   token: z.string().min(1),
   refreshToken: z.string().min(1),
@@ -66,18 +55,15 @@ class UnavailableError extends CredentialsSignin {
   code = 'unavailable';
 }
 
+// Campos que Auth.js y el BFF necesitan de la respuesta de login.
+// El resto de datos de presentación (nombre, correo, imagen, suscripción)
+// se obtiene del BFF vía GraphQL, no de la sesión.
 interface LoginSuccessResponse {
   status: 200;
   message: string;
   data: {
-    firstName: string;
-    lastName: string;
     id: string;
-    rol: string;
-    subscription?: string;
-    image?: string;
-
-    // Tokens emitidos por el backend
+    role: UserRole;
     token: string;
     refreshToken: string;
     expiresIn: number;
@@ -113,8 +99,8 @@ const logger = {
   },
 };
 
-// Type guard: comprueba que la respuesta tiene la forma mínima
-// que necesitamos antes de acceder a sus campos.
+// Type guard: comprueba que la respuesta tiene la forma mínima que
+// necesita el flujo de autenticación antes de acceder a sus campos.
 const isLoginSuccessResponse = (
   value: unknown,
 ): value is LoginSuccessResponse => {
@@ -125,13 +111,13 @@ const isLoginSuccessResponse = (
   const response = value as Partial<LoginSuccessResponse>;
   const data = response.data;
 
+  if (response.status !== 200 || !data) return false;
+
+  const role = UserRoleSchema.safeParse(data.role);
+
   return (
-    response.status === 200 &&
-    !!data &&
-    typeof data.firstName === 'string' &&
-    typeof data.lastName === 'string' &&
     typeof data.id === 'string' &&
-    typeof data.rol === 'string' &&
+    role.success &&
     typeof data.token === 'string' &&
     typeof data.refreshToken === 'string' &&
     typeof data.expiresIn === 'number' &&
@@ -150,12 +136,12 @@ const isLoginSuccessResponse = (
 const refreshInFlight = new Map<string, Promise<JWT>>();
 
 // Llama a /auth/refresh y devuelve un JWT actualizado.
-// - Si no hay refreshToken o falta API_BASE_URL → error de configuración.
+// - Si no hay refreshToken → error de configuración.
 // - Si el refresh ya caducó o el backend responde 401/403 → sesión terminada.
 // - Si el fallo es transitorio (red, 5xx, formato raro) → se conserva el
 //   token actual y se reintentará en la próxima petición.
 async function requestRefresh(token: JWT): Promise<JWT> {
-  if (!token.refreshToken || !API_BASE_URL) {
+  if (!token.refreshToken) {
     return {
       ...token,
       error: 'RefreshTokenError',
@@ -169,21 +155,10 @@ async function requestRefresh(token: JWT): Promise<JWT> {
     };
   }
 
-  const controller = new AbortController();
-
-  const timeoutId = setTimeout(() => controller.abort(), API_TIMEOUT_MS);
-
   try {
-    const res = await fetch(`${API_BASE_URL}/auth/refresh`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        refreshToken: token.refreshToken,
-      }),
-      signal: controller.signal,
-    });
+    const res = await createPublicBackendClient().auth.refresh(
+      token.refreshToken,
+    );
 
     // Refresh token inválido, expirado o revocado.
     // La sesión ya no puede continuar.
@@ -206,10 +181,8 @@ async function requestRefresh(token: JWT): Promise<JWT> {
       return token;
     }
 
-    const body: unknown = await res.json();
-
     const parsed = TokenPairSchema.safeParse(
-      (body as { data?: unknown } | null)?.data,
+      (res.body as { data?: unknown } | null)?.data,
     );
 
     if (!parsed.success) {
@@ -223,11 +196,10 @@ async function requestRefresh(token: JWT): Promise<JWT> {
     return {
       ...token,
 
-      // Nuevo access token
+      // Nuevo access token.
       accessToken: parsed.data.token,
 
-      // Importante:
-      // el backend puede rotar el refresh token.
+      // El backend puede rotar el refresh token.
       refreshToken: parsed.data.refreshToken,
 
       accessTokenExpires: now + parsed.data.expiresIn * 1000,
@@ -242,15 +214,11 @@ async function requestRefresh(token: JWT): Promise<JWT> {
     });
 
     return token;
-  } finally {
-    clearTimeout(timeoutId);
   }
 }
 
 // Deduplica llamadas concurrentes al refresh usando el refreshToken
-// como clave.
-//
-// Esto es especialmente importante si el backend utiliza refresh-token
+// como clave. Esto es importante si el backend utiliza refresh-token
 // rotation: dos refresh simultáneos podrían intentar consumir el mismo
 // refresh token y provocar que uno de ellos sea rechazado.
 function refreshAccessToken(token: JWT): Promise<JWT> {
@@ -285,11 +253,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       //   0) rate limit por IP
       //   1) validación del payload con Zod
       //   2) rate limit por email
-      //   3) POST a {API_BASE_URL}/auth/login con timeout
+      //   3) POST /auth/login a través del cliente REST compartido
       //   4) parseo y validación de la respuesta
-      //   5) validación de rol y (si aplica) de suscripción
-      //   5.2) validación del par de tokens
-      //   6) construcción del objeto usuario para Auth.js
+      //   5) validación del rol
+      //   6) validación del par de tokens
+      //   7) construcción del objeto usuario para Auth.js
       async authorize(credentials, request) {
         try {
           // 0. Rate limit por IP
@@ -326,30 +294,18 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             throw new RateLimitedError();
           }
 
-          if (!API_BASE_URL) {
-            logger.error('API_BASE_URL no configurada en el entorno');
-            throw new UnavailableError();
-          }
-
-          // 3. Llamada al backend con AbortController para aplicar timeout
-          const EXTERNAL_API_URL = `${API_BASE_URL}/auth/login`;
-          const controller = new AbortController();
-          const timeoutId = setTimeout(
-            () => controller.abort(),
-            API_TIMEOUT_MS,
-          );
-
-          let response: Response;
+          // 3. Llamada al backend a través del cliente REST compartido.
+          let response: Awaited<
+            ReturnType<
+              ReturnType<typeof createPublicBackendClient>['auth']['login']
+            >
+          >;
           try {
-            response = await fetch(EXTERNAL_API_URL, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ email, password }),
-              signal: controller.signal,
+            response = await createPublicBackendClient().auth.login({
+              email,
+              password,
             });
-            clearTimeout(timeoutId);
           } catch (error) {
-            clearTimeout(timeoutId);
             logger.error('Error de conexión o timeout con el backend externo', {
               email,
               error: error instanceof Error ? error.message : 'Desconocido',
@@ -359,14 +315,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
           // 4. Parseo defensivo: si el cuerpo no es JSON válido se decide
           //    entre credenciales inválidas (4xx) o backend caído (5xx).
-          let data: unknown;
-          try {
-            data = await response.json();
-          } catch {
-            logger.error('Respuesta JSON inválida del backend externo');
-            if (response.status >= 500) throw new UnavailableError();
-            return null;
-          }
+          const data: unknown = response.body;
 
           if (!response.ok || !isLoginSuccessResponse(data)) {
             logger.error('Credenciales rechazadas por el backend externo', {
@@ -377,13 +326,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             return null;
           }
 
-          // 5. Validar que el rol devuelto esté entre los permitidos
-          const roleParse = UserRoleSchema.safeParse(
-            data.data.rol.toLowerCase(),
-          );
+          // 5. Validar que el rol devuelto esté entre los permitidos.
+          const roleParse = UserRoleSchema.safeParse(data.data.role);
           if (!roleParse.success) {
             logger.error('Rol inválido devuelto por el backend', {
-              rol: data.data.rol,
+              role: data.data.role,
               id: data.data.id,
             });
             return null;
@@ -391,23 +338,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
           const role: UserRole = roleParse.data;
 
-          // 5.1. Suscripción: solo aplica a estudiantes. Si falta o es
-          //      inválida se asigna 'free' por defecto.
-          const rawSubscription = data.data.subscription;
-          let subscription: SubscriptionType | undefined;
-          if (role === 'student') {
-            const subParse = SubscriptionSchema.safeParse(
-              rawSubscription?.toLowerCase(),
-            );
-            if (!subParse.success) {
-              logger.error('Suscripción inválida o ausente, se asigna free', {
-                id: data.data.id,
-              });
-            }
-            subscription = subParse.success ? subParse.data : 'free';
-          }
-
-          // 5.2. Sin par de tokens no hay sesión válida.
+          // 6. Sin par de tokens no hay sesión válida.
           const tokens = TokenPairSchema.safeParse(data.data);
 
           if (!tokens.success) {
@@ -422,25 +353,16 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             email,
             id: data.data.id,
             rol: role,
-            suscripcion: subscription,
           });
 
-          if (!tokens.success) {
-            logger.error('El backend no devolvió el par de tokens esperado', {
-              id: data.data.id,
-            });
-            throw new UnavailableError();
-          }
-
-          // 6. Objeto usuario que Auth.js guardará en el JWT
+          // 7. Objeto usuario que Auth.js guardará en el JWT.
+          // Solo lleva lo necesario para autenticación y autorización.
+          // Los datos de presentación (nombre, correo, imagen, suscripción)
+          // se obtienen del BFF vía GraphQL, no de la sesión.
           const now = Date.now();
           return {
             id: String(data.data.id),
-            name: `${data.data.firstName} ${data.data.lastName}`,
-            email,
-            image: data.data.image,
             role,
-            subscription,
             accessToken: tokens.data.token,
             refreshToken: tokens.data.refreshToken,
             accessTokenExpires: now + tokens.data.expiresIn * 1000,
@@ -472,7 +394,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (user) {
         token.id = user.id;
         token.role = user.role;
-        token.subscription = user.subscription;
         token.accessToken = user.accessToken;
         token.refreshToken = user.refreshToken;
         token.accessTokenExpires = user.accessTokenExpires;
@@ -493,17 +414,21 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       return refreshAccessToken(token);
     },
 
-    // session expone al cliente solo lo necesario: nunca el refreshToken.
+    // session.user se limita a lo necesario para autenticación y autorización:
+    //   - id:    ancla del JWT.
+    //   - role:  autorización (guard + BFF).
+    //   - error: notificación de sesión expirada.
+    //
+    // Los tokens de acceso y refresco viven en el JWT, no se exponen aquí.
+    // Los datos de presentación (nombre, correo, imagen, suscripción) se
+    // obtienen del BFF vía GraphQL.
+    //
+    // id y role están garantizados por `authorize` (única fuente del JWT);
+    // no se añaden guards porque el tipo Session ya los declara obligatorios
+    // y Auth.js rechaza cualquier JWT que no venga de este flujo.
     session({ session, token }) {
-      if (session.user) {
-        if (typeof token.id === 'string') session.user.id = token.id;
-        if (token.role) session.user.role = token.role;
-        session.user.subscription = token.subscription;
-      }
-      // TODO: Si eliminamos session.accessToken, hay que cambiar la forma en que el endpoint
-      // /api/graphql obtiene el access token. Merece una modificación separada para decidir
-      // definitivamente cómo hacer que el access token sea server-side y no quede expuesto al cliente.
-      session.accessToken = token.accessToken;
+      session.user.id = token.id as string;
+      session.user.role = token.role as UserRole;
       session.error = token.error;
       return session;
     },
@@ -513,18 +438,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     // no pueda reutilizarse. Si falla, solo se registra: la sesión local
     // ya se destruyó de todas formas.
     async signOut(message) {
-      if (
-        !('token' in message) ||
-        !message.token?.refreshToken ||
-        !API_BASE_URL
-      )
-        return;
+      if (!('token' in message) || !message.token?.refreshToken) return;
       try {
-        await fetch(`${API_BASE_URL}/auth/logout`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ refreshToken: message.token.refreshToken }),
-        });
+        await createPublicBackendClient().auth.logout(
+          message.token.refreshToken,
+        );
       } catch {
         logger.error('No se pudo revocar el refresh token en el backend');
       }

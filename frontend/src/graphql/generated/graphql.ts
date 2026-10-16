@@ -12,6 +12,7 @@ export type AccessibilityPreferencesInput = {
 export type AccountStatus =
   | 'active'
   | 'inactive'
+  | 'pending_deactivation'
   | 'suspended';
 
 export type ChangePasswordInput = {
@@ -64,8 +65,8 @@ export type Theme =
   | 'system';
 
 export type UpdateBioInput = {
-  description: string;
-  title: string;
+  description?: string | null | undefined;
+  title?: string | null | undefined;
 };
 
 export type UpdatePersonalDataInput = {
@@ -94,6 +95,7 @@ export type UpdatePrivacySettingsInput = {
 
 export type UpdateProfileInput = {
   bio?: UpdateBioInput | null | undefined;
+  image?: string | null | undefined;
   interests?: Array<string> | null | undefined;
 };
 
@@ -105,17 +107,17 @@ export type UserRole =
 export type CancelAccountDeactivationMutationVariables = Exact<{ [key: string]: never; }>;
 
 
-export type CancelAccountDeactivationMutation = { cancelAccountDeactivation: { status: AccountStatus, createdAt: unknown } };
+export type CancelAccountDeactivationMutation = { cancelAccountDeactivation: { status: AccountStatus, deactivationScheduledAt: unknown } };
 
 export type MyAccountQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type MyAccountQuery = { myAccount: { status: AccountStatus, createdAt: unknown } };
+export type MyAccountQuery = { myAccount: { status: AccountStatus, deactivationScheduledAt: unknown } };
 
 export type RequestAccountDeactivationMutationVariables = Exact<{ [key: string]: never; }>;
 
 
-export type RequestAccountDeactivationMutation = { requestAccountDeactivation: { status: AccountStatus, createdAt: unknown } };
+export type RequestAccountDeactivationMutation = { requestAccountDeactivation: { status: AccountStatus, deactivationScheduledAt: unknown } };
 
 export type CancelSubscriptionMutationVariables = Exact<{ [key: string]: never; }>;
 
@@ -161,6 +163,11 @@ export type MyCoursesQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type MyCoursesQuery = { myCourses: Array<{ courseId: string, title: string, progress: number, status: CourseEnrollmentStatus, enrolledAt: unknown, completedAt: unknown }> };
 
+export type SidebarDataQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type SidebarDataQuery = { me: { id: string, name: string, email: string, image: string | null, role: UserRole }, mySubscription: { plan: SubscriptionPlan } | null, myAccount: { status: AccountStatus } };
+
 export type MyPreferencesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -188,21 +195,21 @@ export type UpdatePrivacySettingsMutation = { updatePrivacySettings: { profileVi
 export type MyProfileQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type MyProfileQuery = { me: { id: string, name: string, email: string, image: string | null, role: UserRole, profile: { interests: Array<string>, bio: { title: string, description: string } | null } } };
+export type MyProfileQuery = { me: { id: string, name: string, email: string, image: string | null, role: UserRole, profile: { interests: Array<string>, bio: { title: string | null, description: string | null } | null } } };
 
 export type PublicProfileQueryVariables = Exact<{
   userId: string | number;
 }>;
 
 
-export type PublicProfileQuery = { publicProfile: { id: string, name: string, image: string | null, interests: Array<string>, email: string | null, phone: string | null, bio: { title: string, description: string } | null } | null };
+export type PublicProfileQuery = { publicProfile: { id: string, name: string, image: string | null, interests: Array<string>, email: string | null, phone: string | null, bio: { title: string | null, description: string | null } | null } | null };
 
 export type UpdateProfileMutationVariables = Exact<{
   input: UpdateProfileInput;
 }>;
 
 
-export type UpdateProfileMutation = { updateProfile: { id: string, name: string, email: string, image: string | null, role: UserRole, profile: { interests: Array<string>, bio: { title: string, description: string } | null } } };
+export type UpdateProfileMutation = { updateProfile: { id: string, name: string, email: string, image: string | null, role: UserRole, profile: { interests: Array<string>, bio: { title: string | null, description: string | null } | null } } };
 
 export type BeginTwoFactorSetupMutationVariables = Exact<{ [key: string]: never; }>;
 
@@ -267,9 +274,9 @@ export type UpdatePersonalDataMutationVariables = Exact<{
 export type UpdatePersonalDataMutation = { updatePersonalData: { firstName: string, lastName: string, documentId: string | null, phone: string | null, country: string | null, address: string | null, identityLocked: boolean } };
 
 
-export const CancelAccountDeactivationDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"CancelAccountDeactivation"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"cancelAccountDeactivation"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}}]}}]}}]} as unknown as DocumentNode<CancelAccountDeactivationMutation, CancelAccountDeactivationMutationVariables>;
-export const MyAccountDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"MyAccount"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"myAccount"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}}]}}]}}]} as unknown as DocumentNode<MyAccountQuery, MyAccountQueryVariables>;
-export const RequestAccountDeactivationDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"RequestAccountDeactivation"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"requestAccountDeactivation"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}}]}}]}}]} as unknown as DocumentNode<RequestAccountDeactivationMutation, RequestAccountDeactivationMutationVariables>;
+export const CancelAccountDeactivationDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"CancelAccountDeactivation"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"cancelAccountDeactivation"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"deactivationScheduledAt"}}]}}]}}]} as unknown as DocumentNode<CancelAccountDeactivationMutation, CancelAccountDeactivationMutationVariables>;
+export const MyAccountDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"MyAccount"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"myAccount"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"deactivationScheduledAt"}}]}}]}}]} as unknown as DocumentNode<MyAccountQuery, MyAccountQueryVariables>;
+export const RequestAccountDeactivationDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"RequestAccountDeactivation"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"requestAccountDeactivation"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"deactivationScheduledAt"}}]}}]}}]} as unknown as DocumentNode<RequestAccountDeactivationMutation, RequestAccountDeactivationMutationVariables>;
 export const CancelSubscriptionDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"CancelSubscription"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"cancelSubscription"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"plan"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"startedAt"}},{"kind":"Field","name":{"kind":"Name","value":"currentPeriodEnd"}},{"kind":"Field","name":{"kind":"Name","value":"cancelAtPeriodEnd"}}]}}]}}]} as unknown as DocumentNode<CancelSubscriptionMutation, CancelSubscriptionMutationVariables>;
 export const ChangeSubscriptionPlanDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"ChangeSubscriptionPlan"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"plan"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"SubscriptionPlan"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"changeSubscriptionPlan"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"plan"},"value":{"kind":"Variable","name":{"kind":"Name","value":"plan"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"plan"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"startedAt"}},{"kind":"Field","name":{"kind":"Name","value":"currentPeriodEnd"}},{"kind":"Field","name":{"kind":"Name","value":"cancelAtPeriodEnd"}}]}}]}}]} as unknown as DocumentNode<ChangeSubscriptionPlanMutation, ChangeSubscriptionPlanMutationVariables>;
 export const MyInvoicesDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"MyInvoices"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"myInvoices"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"number"}},{"kind":"Field","name":{"kind":"Name","value":"amount"}},{"kind":"Field","name":{"kind":"Name","value":"currency"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"issuedAt"}},{"kind":"Field","name":{"kind":"Name","value":"downloadUrl"}}]}}]}}]} as unknown as DocumentNode<MyInvoicesQuery, MyInvoicesQueryVariables>;
@@ -278,6 +285,7 @@ export const MySubscriptionDocument = {"kind":"Document","definitions":[{"kind":
 export const RemovePaymentMethodDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"RemovePaymentMethod"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"paymentMethodId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"removePaymentMethod"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"paymentMethodId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"paymentMethodId"}}}]}]}}]} as unknown as DocumentNode<RemovePaymentMethodMutation, RemovePaymentMethodMutationVariables>;
 export const MyCertificatesDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"MyCertificates"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"myCertificates"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"courseId"}},{"kind":"Field","name":{"kind":"Name","value":"courseTitle"}},{"kind":"Field","name":{"kind":"Name","value":"certificateNumber"}},{"kind":"Field","name":{"kind":"Name","value":"issuedAt"}},{"kind":"Field","name":{"kind":"Name","value":"downloadUrl"}}]}}]}}]} as unknown as DocumentNode<MyCertificatesQuery, MyCertificatesQueryVariables>;
 export const MyCoursesDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"MyCourses"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"myCourses"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"courseId"}},{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"progress"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"enrolledAt"}},{"kind":"Field","name":{"kind":"Name","value":"completedAt"}}]}}]}}]} as unknown as DocumentNode<MyCoursesQuery, MyCoursesQueryVariables>;
+export const SidebarDataDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"SidebarData"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"me"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"email"}},{"kind":"Field","name":{"kind":"Name","value":"image"}},{"kind":"Field","name":{"kind":"Name","value":"role"}}]}},{"kind":"Field","name":{"kind":"Name","value":"mySubscription"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"plan"}}]}},{"kind":"Field","name":{"kind":"Name","value":"myAccount"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"status"}}]}}]}}]} as unknown as DocumentNode<SidebarDataQuery, SidebarDataQueryVariables>;
 export const MyPreferencesDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"MyPreferences"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"myPreferences"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"language"}},{"kind":"Field","name":{"kind":"Name","value":"theme"}},{"kind":"Field","name":{"kind":"Name","value":"timezone"}},{"kind":"Field","name":{"kind":"Name","value":"notifications"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"email"}},{"kind":"Field","name":{"kind":"Name","value":"push"}},{"kind":"Field","name":{"kind":"Name","value":"inApp"}}]}},{"kind":"Field","name":{"kind":"Name","value":"accessibility"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"reducedMotion"}},{"kind":"Field","name":{"kind":"Name","value":"highContrast"}}]}}]}}]}}]} as unknown as DocumentNode<MyPreferencesQuery, MyPreferencesQueryVariables>;
 export const UpdatePreferencesDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"UpdatePreferences"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UpdatePreferencesInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"updatePreferences"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"language"}},{"kind":"Field","name":{"kind":"Name","value":"theme"}},{"kind":"Field","name":{"kind":"Name","value":"timezone"}},{"kind":"Field","name":{"kind":"Name","value":"notifications"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"email"}},{"kind":"Field","name":{"kind":"Name","value":"push"}},{"kind":"Field","name":{"kind":"Name","value":"inApp"}}]}},{"kind":"Field","name":{"kind":"Name","value":"accessibility"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"reducedMotion"}},{"kind":"Field","name":{"kind":"Name","value":"highContrast"}}]}}]}}]}}]} as unknown as DocumentNode<UpdatePreferencesMutation, UpdatePreferencesMutationVariables>;
 export const MyPrivacySettingsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"MyPrivacySettings"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"myPrivacySettings"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"profileVisibility"}},{"kind":"Field","name":{"kind":"Name","value":"emailVisibility"}},{"kind":"Field","name":{"kind":"Name","value":"phoneVisibility"}},{"kind":"Field","name":{"kind":"Name","value":"allowDirectMessages"}}]}}]}}]} as unknown as DocumentNode<MyPrivacySettingsQuery, MyPrivacySettingsQueryVariables>;

@@ -1,5 +1,19 @@
-const GRAPHQL_URL =
-  process.env.GRAPHQL_URL ?? 'http://localhost:3000/api/graphql';
+import { graphql } from 'graphql';
+import { schema } from '../src/graphql';
+import type { GraphQLContext } from '../src/graphql/context';
+import {
+  MockBackendClient,
+  MockPublicBackendClient,
+} from '../src/lib/mock/client';
+
+const backend = new MockBackendClient();
+const contextValue: GraphQLContext = {
+  backend,
+  session: {
+    user: { id: 'test-user-001', email: 'test@example.com', name: 'Test User' },
+    expires: '2099-01-01T00:00:00.000Z',
+  } as GraphQLContext['session'],
+};
 
 type TestCase = {
   name: string;
@@ -185,7 +199,7 @@ const tests: TestCase[] = [
     variables: {
       input: {
         currentPassword: 'old-password',
-        newPassword: 'new-password',
+        newPassword: 'NewPassword1!',
       },
     },
   },
@@ -237,7 +251,7 @@ const tests: TestCase[] = [
       }
     `,
     variables: {
-      sessionId: 'session-001',
+      sessionId: 'session-other',
     },
   },
 
@@ -318,7 +332,7 @@ const tests: TestCase[] = [
       query MyAccount {
         myAccount {
           status
-          createdAt
+          deactivationScheduledAt
         }
       }
     `,
@@ -330,7 +344,7 @@ const tests: TestCase[] = [
       mutation RequestAccountDeactivation {
         requestAccountDeactivation {
           status
-          createdAt
+          deactivationScheduledAt
         }
       }
     `,
@@ -342,7 +356,7 @@ const tests: TestCase[] = [
       mutation CancelAccountDeactivation {
         cancelAccountDeactivation {
           status
-          createdAt
+          deactivationScheduledAt
         }
       }
     `,
@@ -483,7 +497,7 @@ const tests: TestCase[] = [
       }
     `,
     variables: {
-      paymentMethodId: 'pm-001',
+      paymentMethodId: 'payment-001',
     },
   },
 
@@ -553,72 +567,141 @@ function getOperationType(query: string): string {
 }
 
 async function runTest(test: TestCase) {
-  const response = await fetch(GRAPHQL_URL, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      query: test.query,
-      variables: test.variables,
-    }),
+  const result = await graphql({
+    schema,
+    source: test.query,
+    variableValues: test.variables,
+    contextValue,
   });
-
-  let body: GraphQLResponse;
-
-  try {
-    body = (await response.json()) as GraphQLResponse;
-  } catch {
+  if (result.errors?.length) {
     return {
       success: false,
-      status: response.status,
-      error: 'Response is not valid JSON',
+      error: result.errors.map((error) => error.message).join('; '),
     };
   }
 
-  if (!response.ok) {
+  if (!result.data) {
     return {
       success: false,
-      status: response.status,
-      error: `HTTP ${response.status}`,
-      body,
-    };
-  }
-
-  if (body.errors?.length) {
-    return {
-      success: false,
-      status: response.status,
-      error: body.errors.map((error) => error.message).join('; '),
-    };
-  }
-
-  if (!body.data) {
-    return {
-      success: false,
-      status: response.status,
       error: 'GraphQL response does not contain data',
     };
   }
 
   return {
     success: true,
-    status: response.status,
   };
+}
+
+/**
+ * Envuelve un check público para que cada ejecución arranque con un
+ * `MockPublicBackendClient` nuevo.
+ *
+ * Necesario porque el mock mantiene estado interno (por ejemplo, el
+ * Set de refresh tokens válidos que se rota en cada refresh). Si todos
+ * los checks comparten instancia, un refresh consume el token y el
+ * logout posterior falla con 401.
+ *
+ * Cada check debe ser independiente: su resultado no debe depender de
+ * lo que hayan hecho los checks anteriores.
+ */
+function withFreshPublicMock<T>(
+  run: (client: MockPublicBackendClient) => Promise<T>,
+): () => Promise<T> {
+  return () => run(new MockPublicBackendClient());
 }
 
 async function main() {
   console.log('');
   console.log('==========================================');
-  console.log(' GraphQL integration tests');
+  console.log(' GraphQL mock flow tests');
   console.log('==========================================');
   console.log('');
-  console.log(`Endpoint: ${GRAPHQL_URL}`);
+  console.log('Backend: in-process mock client');
   console.log(`Tests:    ${tests.length}`);
   console.log('');
 
   let passed = 0;
   let failed = 0;
+
+  const publicApiChecks: Array<
+    [string, () => Promise<{ ok: boolean; status: number }>]
+  > = [
+    [
+      'POST /auth/login',
+      withFreshPublicMock((c) =>
+        c.auth.login({
+          email: 'mock@example.com',
+          password: 'ValidPass1!',
+        }),
+      ),
+    ],
+    [
+      'POST /auth/refresh',
+      withFreshPublicMock((c) => c.auth.refresh('mock-refresh-token')),
+    ],
+    [
+      'POST /auth/logout',
+      withFreshPublicMock((c) => c.auth.logout('mock-refresh-token')),
+    ],
+    [
+      'POST /auth/register',
+      withFreshPublicMock((c) =>
+        c.auth.register({
+          firstName: 'Mock',
+          lastName: 'User',
+          email: 'mock-new@example.com',
+          password: 'ValidPass1!',
+        }),
+      ),
+    ],
+    [
+      'POST /auth/forgot-password',
+      withFreshPublicMock((c) =>
+        c.auth.forgotPassword({ email: 'mock@example.com' }),
+      ),
+    ],
+    [
+      'POST /auth/validate-reset-token',
+      withFreshPublicMock((c) =>
+        c.auth.validateResetToken({ token: 'mock-reset-token' }),
+      ),
+    ],
+    [
+      'POST /auth/reset-password',
+      withFreshPublicMock((c) =>
+        c.auth.resetPassword({
+          token: 'mock-reset-token',
+          newPassword: 'ValidPass1!',
+        }),
+      ),
+    ],
+    [
+      'POST /contact',
+      withFreshPublicMock((c) =>
+        c.contact.submit({
+          name: 'Mock User',
+          email: 'mock@example.com',
+          subject: 'Mock contact request',
+          message: 'This is a sufficiently long mock contact message.',
+        }),
+      ),
+    ],
+  ];
+
+  for (const [name, check] of publicApiChecks) {
+    try {
+      const response = await check();
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      passed++;
+      console.log(`public REST ${name.padEnd(35)} ✓ PASS`);
+    } catch (error) {
+      failed++;
+      console.log(`public REST ${name.padEnd(35)} ✗ FAIL`);
+      console.log(
+        `           ${error instanceof Error ? error.message : String(error)}`,
+      );
+    }
+  }
 
   for (const test of tests) {
     const type = getOperationType(test.query);
@@ -659,7 +742,7 @@ async function main() {
   console.log('');
   console.log(`✓ Passed: ${passed}`);
   console.log(`✗ Failed: ${failed}`);
-  console.log(`  Total:  ${tests.length}`);
+  console.log(`  Total:  ${tests.length + publicApiChecks.length}`);
   console.log('');
 
   if (failed > 0) {

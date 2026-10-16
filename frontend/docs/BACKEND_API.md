@@ -1,10 +1,12 @@
 # Contrato de API del backend
 
-**Versión:** `v1`
+**Versión:** `v1.1`
 
-Este documento es el contrato formal de integración entre el frontend/BFF y el backend, y explica en español lo que el backend debe implementar.
+Este documento es el contrato formal de integración entre el frontend/BFF y el backend. Define lo que ambas partes deben implementar y cómo deben interactuar.
 
 Es el **único documento del contrato**. Cualquier cambio en el contrato debe reflejarse primero aquí y después en el código del frontend (`src/lib/backend/types.ts`, el schema GraphQL y `RestBackendClient`).
+
+El contrato puede implementarse en dos modos: contra un backend real (`rest`) o contra una implementación controlada que no requiere backend (`mock`). Ambos modos deben cumplir exactamente este contrato. Ver sección 1.1.
 
 ---
 
@@ -23,6 +25,43 @@ Sitio público (login, registro, recuperar contraseña, contacto)
 
 La URL base del backend es `API_BASE_URL`. Todas las rutas de este documento son relativas a ella.
 
+## 1.1 Modos de operación
+
+El contrato `v1.1` puede implementarse en dos modos:
+
+| Modo   | Cuándo se usa                                                     | Fuente de datos                    |
+| ------ | ----------------------------------------------------------------- | ---------------------------------- |
+| `rest` | Entorno real. El frontend/BFF habla con el backend por HTTP.      | Backend en `API_BASE_URL`.         |
+| `mock` | Entorno controlado (desarrollo, pruebas, demos) sin backend real. | Implementación local del contrato. |
+
+El modo se selecciona mediante configuración del cliente (`BACKEND_MODE`), no mediante cambios en el contrato ni en los resolvers GraphQL.
+
+### Regla de equivalencia
+
+Ambos modos implementan **el mismo contrato**:
+
+- Las operaciones expuestas por el cliente son idénticas.
+- Los tipos de entrada y salida son idénticos.
+- Los códigos HTTP y los `error.code` son idénticos.
+- Los resolvers GraphQL y los route handlers no distinguen el modo.
+
+### Alcance del modo `mock`
+
+El modo `mock` cubre las operaciones que el frontend/BFF consume a través del cliente del contrato (ver sección 10, "Relación con el frontend").
+
+Las rutas de autenticación pública y contacto (`/auth/*` y `/contact`) son consumidas por Auth.js y los route handlers de Next.js. Si se requiere operar esas rutas sin backend, deben cubrirse mediante un cliente equivalente, no extendiendo el cliente del dashboard.
+
+### Garantías del modo `mock`
+
+- No realiza peticiones de red.
+- Devuelve datos deterministas y válidos según este contrato.
+- Respeta los formatos definidos en la sección 9.
+- Puede simular los errores definidos en las secciones 4 y 11.
+
+### Regla de validez
+
+Ningún modo puede alterar el contrato. Cualquier diferencia entre modos se considera un defecto de implementación, no una variación del contrato.
+
 ---
 
 # 2. Autenticación
@@ -40,34 +79,32 @@ Niveles de autenticación que se usan en la tabla de endpoints:
 | `Optional` | Si llega un Bearer válido, el backend lo usa. Si no llega, trata la petición como anónima. |
 | `Required` | El Bearer es obligatorio. Si falta o no es válido, responder `401`.                        |
 
+En modo `mock` (sección 1.1), los tokens son valores sintéticos generados por la implementación controlada. No se validan contra el backend. Las reglas de autenticación de esta sección aplican al modo `rest`.
+
 ---
 
 # 3. Cambios que el backend debe implementar
 
-Esta sección define el comportamiento requerido por el contrato `v1`.
+Esta sección define el comportamiento requerido por el contrato `v1.1`.
 
 Los cambios respecto al backend actual (nombres de campos y rutas) están resumidos en la sección 14.
 
 ## 3.1 Nombres de campos
 
-Los campos del contrato `v1` utilizan nombres en inglés.
+Los campos del contrato `v1.1` utilizan nombres en inglés.
 
 ### Respuesta de `POST /auth/login`
 
 Dentro de `data`:
 
-| Campo              | Tipo             | Descripción                            |
-| ------------------ | ---------------- | -------------------------------------- |
-| `firstName`        | `string`         | Nombre del usuario                     |
-| `lastName`         | `string`         | Apellidos del usuario                  |
-| `id`               | `string`         | Identificador único del usuario        |
-| `role`             | `string`         | Rol del usuario                        |
-| `subscription`     | `string \| null` | Suscripción, cuando corresponda        |
-| `image`            | `string \| null` | Imagen del usuario                     |
-| `token`            | `string`         | Access Token                           |
-| `refreshToken`     | `string`         | Refresh Token                          |
-| `expiresIn`        | `number`         | Duración del Access Token en segundos  |
-| `refreshExpiresIn` | `number`         | Duración del Refresh Token en segundos |
+| Campo              | Tipo     | Descripción                            |
+| ------------------ | -------- | -------------------------------------- |
+| `id`               | `string` | Identificador único del usuario        |
+| `role`             | `string` | Rol del usuario                        |
+| `token`            | `string` | Access Token                           |
+| `refreshToken`     | `string` | Refresh Token                          |
+| `expiresIn`        | `number` | Duración del Access Token en segundos  |
+| `refreshExpiresIn` | `number` | Duración del Refresh Token en segundos |
 
 `id` debe ser **el mismo valor** que devuelve `GET /users/me` en su campo `id`.
 
@@ -79,17 +116,7 @@ teacher
 admin
 ```
 
-Los valores permitidos para `subscription` son:
-
-```text
-free
-premium
-enterprise
-```
-
-`subscription` solo se envía cuando `role` es `student`. Para otros roles se omite.
-
-`image` siempre se envía. Si el usuario no tiene imagen, su valor es `null`.
+El frontend no persiste otros datos en la sesión. Los datos de presentación (nombre, correo, imagen, plan) se obtienen del BFF vía GraphQL a partir de `GET /users/me` y `GET /users/me/subscription`. Ver sección 3.7.
 
 ### Cuerpo de `POST /auth/register`
 
@@ -112,12 +139,12 @@ enterprise
 
 El backend debe:
 
-- devolver `firstName`, `lastName`, `id` y `role`;
-- utilizar el mismo `id` que devuelve posteriormente `GET /users/me`;
-- enviar `subscription` únicamente cuando corresponda;
-- enviar `image`, pudiendo ser `null`;
+- devolver `id` y `role`;
 - devolver un Access Token y un Refresh Token;
-- devolver `expiresIn` y `refreshExpiresIn`.
+- devolver `expiresIn` y `refreshExpiresIn`;
+- utilizar el mismo `id` que devuelve posteriormente `GET /users/me`.
+
+Los datos de presentación (nombre, correo, imagen, plan) no forman parte del login: se obtienen del BFF vía GraphQL (ver sección 3.7).
 
 Usuario o contraseña incorrectos:
 
@@ -342,7 +369,7 @@ Si la sesión indicada no existe o no pertenece al usuario autenticado, el backe
 La ruta para revocar todas las sesiones del usuario autenticado, excepto la sesión actual, es:
 
 ```http
-DELETE /users/me/security/sessions/others
+DELETE /users/me/security/sessions
 ```
 
 Esta operación requiere autenticación mediante Access Token.
@@ -384,6 +411,193 @@ Si el usuario no existe o su perfil no puede mostrarse al solicitante, el backen
 El backend **no debe responder `200` con `null`** en este caso.
 
 El BFF es responsable de traducir ese `404` al comportamiento GraphQL correspondiente, que en este caso es devolver `null`.
+
+---
+
+## 3.6 Perfil del usuario
+
+### Actualización del perfil
+
+La ruta es:
+
+```http
+PATCH /users/me/profile
+```
+
+Requiere autenticación mediante Access Token.
+
+El cuerpo es `BackendUpdateProfileInput`, una actualización parcial con los siguientes campos opcionales:
+
+| Campo       | Tipo                 | Descripción                                                                                   |
+| :---------- | :------------------- | :-------------------------------------------------------------------------------------------- |
+| `bio`       | `BackendBio \| null` | Objeto con el título y la descripción biográfica del usuario, o `null` si no tiene biografía. |
+| `interests` | `string[] \| null`   | Lista de intereses. Se reemplaza completa cuando se envía.                                    |
+| `image`     | `string \| null`     | URL o data URI de la imagen de perfil del usuario.                                            |
+
+#### Reglas de validación
+
+Se aplican solo si el campo se envía, respetando la semántica PATCH. Si el campo se omite, no se modifica.
+
+| Campo             | Regla                                                                     |
+| :---------------- | :------------------------------------------------------------------------ |
+| `bio.title`       | Entre 1 y 100 caracteres cuando no es `null`.                             |
+| `bio.description` | Entre 1 y 500 caracteres cuando no es `null`.                             |
+| `interests`       | Máximo 20 elementos. Cada elemento debe tener entre 1 y 40 caracteres.    |
+| `image`           | URL absoluta, data URI o `null`. Sin cambios respecto al contrato actual. |
+
+Los campos `BackendBio.title` y `BackendBio.description` admiten `null`, que indica que el campo no tiene valor.
+
+Enviar `null` en `bio` o `interests` borra el valor completo. Enviar `null` en `bio.title` o `bio.description` elimina únicamente el valor del campo correspondiente.
+
+#### Semántica PATCH parcial (aplicable a todos los campos)
+
+- Omitir el campo (`undefined`) → no se modifica.
+- Enviar `null` → se borra el valor, según el nivel del campo.
+- Enviar un valor → se asigna el nuevo valor.
+
+#### Semántica PATCH dentro de `bio`
+
+`bio` es un objeto cuyos campos `title` y `description` son nullable (`string | null`). Ambos siguen la semántica PATCH parcial de forma individual.
+
+Para `title`:
+
+- Omitir `title` → no se modifica el título actual.
+- Enviar `title: null` → el título queda sin valor.
+- Enviar `title: "..."` → se asigna el nuevo título.
+
+Para `description`:
+
+- Omitir `description` → no se modifica la descripción actual.
+- Enviar `description: null` → la descripción queda sin valor.
+- Enviar `description: "..."` → se asigna la nueva descripción.
+
+El objeto `bio` completo también admite `null`:
+
+- Omitir `bio` → no se modifica la biografía.
+- Enviar `bio: null` → se elimina la biografía completa.
+- Enviar un objeto `bio` → se actualizan únicamente los campos enviados, respetando la semántica PATCH individual.
+
+#### Ejemplos
+
+**Actualizar únicamente la biografía**, sin modificar la imagen ni los intereses:
+
+```json
+{
+  "bio": {
+    "title": "Nuevo título",
+    "description": "Nueva descripción"
+  }
+}
+```
+
+**Actualizar solo el título**, sin modificar la descripción:
+
+```json
+{
+  "bio": {
+    "title": "Título actualizado"
+  }
+}
+```
+
+**Borrar únicamente el título**, conservando la descripción:
+
+```json
+{
+  "bio": {
+    "title": null
+  }
+}
+```
+
+**Borrar únicamente la descripción**, conservando el título:
+
+```json
+{
+  "bio": {
+    "description": null
+  }
+}
+```
+
+**Borrar la biografía completa:**
+
+```json
+{
+  "bio": null
+}
+```
+
+**Borrar la imagen de perfil:**
+
+```json
+{
+  "image": null
+}
+```
+
+**Asignar una nueva imagen:**
+
+```json
+{
+  "image": "https://cdn.example.com/avatars/user-123.webp"
+}
+```
+
+**Borrar todos los intereses:**
+
+```json
+{
+  "interests": null
+}
+```
+
+La respuesta es `BackendUser` con el perfil completo actualizado.
+
+### Formato de `image`
+
+El campo `image` acepta:
+
+- Una URL absoluta (`https://…`).
+- Un data URI (`data:image/png;base64,…`).
+- `null` para indicar que el usuario no tiene imagen.
+
+El backend decide cómo persistir el valor (CDN, almacenamiento propio, base64). El contrato no impone un mecanismo de subida específico.
+
+Si el cliente necesita subir un archivo binario, debe resolverlo antes de llamar a este endpoint; por ejemplo, subir el archivo a un servicio de almacenamiento y enviar la URL resultante aquí.
+
+> **Nota (mejora futura, no bloquea):** el flujo actual acepta data URIs en
+> el campo `image`. Esto implica payloads potencialmente grandes (una imagen
+> de 4 MB en base64 ≈ 5.3 MB de body). A futuro se recomienda exponer un
+> endpoint de subida dedicado (`POST /users/me/avatar` o similar) que
+> devuelva una URL, y dejar `image` en este endpoint limitado a URLs.
+
+### Perfil público
+
+La ruta para consultar el perfil público de un usuario ya está documentada en la sección 3.5 ("Rutas especiales"). El campo `image` de `BackendPublicProfile` refleja el mismo valor persistido por `PATCH /users/me/profile`.
+
+## 3.7 Alcance de la sesión del frontend
+
+La sesión gestionada por Auth.js (`session.user`) se limita a tres campos:
+
+| Campo   | Uso                                                      |
+| ------- | -------------------------------------------------------- |
+| `id`    | Ancla del JWT.                                           |
+| `role`  | Autorización en el guard de rutas y en el BFF.           |
+| `error` | Notificación de sesión expirada (no es parte de `user`). |
+
+No forman parte de la sesión: nombre, correo, imagen, suscripción. Estos datos provienen del BFF vía GraphQL, que a su vez los obtiene de:
+
+- `GET /users/me` (nombre, correo, imagen, rol).
+- `GET /users/me/subscription` (plan).
+
+Reglas:
+
+- Los tokens de acceso y refresco viven en el JWT gestionado por Auth.js. Nunca se exponen al cliente vía `session.user`.
+- Auth.js es responsable de autenticar. No es la fuente de datos de presentación.
+- El BFF es la fuente de verdad para todo dato que la UI del dashboard necesite mostrar.
+
+---
 
 # 4. Errores
 
@@ -530,7 +744,7 @@ COP 49.900,00 → 4990000
 
 El backend no debe devolver cantidades monetarias como valores de punto flotante si el contrato define el campo como entero.
 
-El schema GraphQL expone `amount` como `Int!`, igual que el contrato.
+El schema GraphQL del BFF debe exponer `amount` como `Int!`, coherente con el tipo entero del contrato REST.
 
 ---
 
@@ -665,7 +879,7 @@ Un valor no soportado responde:
 
 ### Relación con el frontend
 
-La fuente de verdad es el **contrato de API `v1`**.
+La fuente de verdad es el **contrato de API `v1.1`**.
 
 La relación es:
 
@@ -776,7 +990,8 @@ El BFF:
 - no debe acoplar los resolvers directamente a REST;
 - debe interpretar los errores del backend mediante `error.code`;
 - puede transformar errores REST a errores GraphQL;
-- puede convertir comportamientos específicos como `404` de perfil público a `null`, según el contrato GraphQL.
+- puede convertir comportamientos específicos como `404` de perfil público a `null`, según el contrato GraphQL;
+- no debe depender de que exista un backend real para arrancar, renderizar o resolver operaciones cubiertas por el modo `mock` (sección 1.1).
 
 ### Backend principal
 
@@ -793,6 +1008,8 @@ El backend es responsable de:
 
 El backend **no debe depender del BFF para aplicar seguridad**.
 
+El backend **no es un requisito de arranque** para el frontend/BFF cuando el modo activo es `mock` (sección 1.1). El frontend/BFF debe poder iniciar, renderizar y resolver las operaciones cubiertas por el contrato sin que exista un backend disponible.
+
 Cualquier cambio incompatible en este contrato debe coordinarse entre ambos lados antes de implementarse.
 
 ---
@@ -802,6 +1019,8 @@ Cualquier cambio incompatible en este contrato debe coordinarse entre ambos lado
 ## v1
 
 Contrato inicial formalizado para la integración entre el frontend/BFF y el backend.
+
+Este contrato puede implementarse en dos modos equivalentes: `rest` (backend real) y `mock` (entorno controlado sin backend). Ver sección 1.1.
 
 Incluye:
 
@@ -830,11 +1049,20 @@ El contrato `v1` debe considerarse compartido entre frontend/BFF y backend.
 
 Los cambios incompatibles deben generar una nueva versión del contrato.
 
+## v1.1
+
+Cambios compatibles hacia atrás. El backend puede seguir enviando los campos retirados del contrato; el frontend los ignora.
+
+- `POST /auth/login`: la respuesta se limita a `id`, `role`, `token`, `refreshToken`, `expiresIn` y `refreshExpiresIn`.
+- `firstName`, `lastName`, `subscription` e `image` dejan de formar parte del contrato de login. Los datos de presentación (nombre, correo, imagen, plan) provienen del BFF vía GraphQL.
+- Nueva sección 3.7: alcance de la sesión del frontend y fuente de los datos de presentación.
+- Se aclara que los datos de presentación se obtienen a partir de `GET /users/me` y `GET /users/me/subscription`.
+
 ---
 
-# 14. Migración desde el backend actual
+# 14. Apéndice: migración desde el backend previo (histórico)
 
-El backend actual todavía usa nombres de campos en español y algunas rutas distintas a las del contrato `v1`. Esta sección resume lo que cambia.
+El backend previo usaba nombres de campos en español y una ruta distinta a la del contrato `v1`.
 
 ## 14.1 Nombres de campos
 
@@ -847,7 +1075,9 @@ El backend actual todavía usa nombres de campos en español y algunas rutas dis
 | `uuid`      | `id`        |
 | `rol`       | `role`      |
 
-Los demás campos no cambian: `subscription`, `image`, `token`, `refreshToken`, `expiresIn` y `refreshExpiresIn`.
+Los campos del par de tokens no cambian: `token`, `refreshToken`, `expiresIn` y `refreshExpiresIn`.
+
+Nota v1.1: `firstName`, `lastName`, `subscription` e `image` dejan de formar parte de la respuesta de login. Ver secciones 3.1 y 3.7.
 
 ### Cuerpo de `POST /auth/register`
 
@@ -861,16 +1091,14 @@ Los demás campos no cambian: `subscription`, `image`, `token`, `refreshToken`, 
 
 ## 14.2 Rutas
 
-| Antes                                           | Ahora                                |
-| :---------------------------------------------- | :----------------------------------- |
-| `POST /api/contact`                             | `POST /contact`                      |
-| `DELETE /users/me/security/sessions/others`     | `DELETE /users/me/security/sessions` |
-| `DELETE /users/me/security/sessions/:sessionId` | _Sin cambios_                        |
-
-- **`DELETE /users/me/security/sessions`**: Revoca todas las sesiones del usuario excepto la actual. Se simplificó eliminando el sufijo `others` para evitar conflictos de enrutamiento con el parámetro dinámico `:sessionId`.
+| Antes               | Ahora           |
+| :------------------ | :-------------- |
+| `POST /api/contact` | `POST /contact` |
 
 ## 14.3 Despliegue
 
 Estos cambios **no son compatibles hacia atrás**.
 
 El frontend y el backend deben desplegarse a la vez. El frontend rechaza una respuesta de login que no use los nombres nuevos, así que si solo se despliega uno de los dos nadie podrá iniciar sesión ni registrarse.
+
+Nota v1.1: los cambios de v1.1 sí son compatibles hacia atrás para el backend. Un backend que siga respondiendo `firstName`, `lastName`, `subscription` e `image` en login funciona igual: el frontend los ignora. El único requisito es que los seis campos obligatorios de login sigan presentes.
