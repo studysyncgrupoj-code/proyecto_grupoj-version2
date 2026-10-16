@@ -149,3 +149,10 @@ coverage/
 .sonarqube/
 checkstyle-cachefile
 checkstyle-result.xml
+# ============================================
+# SECRETOS LOCALES DEL PROYECTO
+# ============================================
+secrets/
+
+# Copias temporales de archivos Java
+*.bak

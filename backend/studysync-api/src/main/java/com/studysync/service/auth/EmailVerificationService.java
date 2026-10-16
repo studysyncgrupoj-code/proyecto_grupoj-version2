@@ -118,11 +118,11 @@ public class EmailVerificationService {
 
         PendingRegistration pending =
                 new PendingRegistration(
-                        request.nombre().trim(),
-                        request.apellidos().trim(),
+                        request.firstName().trim(),
+                        request.lastName().trim(),
                         email,
                         passwordEncoder.encode(
-                                request.contrasena()
+                                request.password()
                         )
                 );
 

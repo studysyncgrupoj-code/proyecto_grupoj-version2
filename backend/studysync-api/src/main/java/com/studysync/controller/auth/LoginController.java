@@ -62,61 +62,64 @@ public class LoginController {
                     new LinkedHashMap<>();
 
             data.put(
-                    "nombre",
+                    "firstName",
                     result.profile().getNombre()
             );
 
             data.put(
-                    "apellidos",
+                    "lastName",
                     result.profile().getApellidos()
             );
 
-            // UUID siempre como String
             data.put(
-                    "uuid",
+                    "id",
                     result.authAccount().getId().toString()
             );
 
             data.put(
-                    "rol",
-                    result.authAccount().getRole().name()
+                    "role",
+                    result.authAccount()
+                            .getRole()
+                            .name()
+                            .toLowerCase()
             );
 
-            data.put("token", token);
-            data.put("tokenType", "Bearer");
+            data.put(
+                    "image",
+                    result.profile().getImage()
+            );
+
+            data.put(
+                    "token",
+                    token
+            );
+
+            data.put(
+                    "refreshToken",
+                    refreshToken
+            );
+
             data.put(
                     "expiresIn",
                     jwtService.getExpirationSeconds()
             );
 
-            data.put("refreshToken", refreshToken);
             data.put(
                     "refreshExpiresIn",
                     jwtService.getRefreshExpirationSeconds()
             );
 
-            // Siempre enviar image
-            String image = result.profile().getImage();
-
-            data.put(
-                    "image",
-                    image != null ? image : ""
-            );
-
-            // Siempre enviar subscription
-            String subscription = "";
-
+            /*
+             * subscription solamente existe para estudiantes.
+             */
             if (result.subscription() != null) {
-                subscription =
+                data.put(
+                        "subscription",
                         result.subscription()
                                 .name()
-                                .toLowerCase();
+                                .toLowerCase()
+                );
             }
-
-            data.put(
-                    "subscription",
-                    subscription
-            );
 
             return ResponseEntity.ok(
                     Map.of(
@@ -141,4 +144,3 @@ public class LoginController {
         }
     }
 }
-                  

@@ -47,30 +47,51 @@ public class RefreshController {
             @RequestBody Map<String, String> request
     ) {
 
-        String refreshToken = request.get("refreshToken");
+        if (request == null) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(Map.of(
+                            "status", 400,
+                            "message",
+                            "Cuerpo de petición inválido."
+                    ));
+        }
 
-        if (refreshToken == null || refreshToken.isBlank()) {
+        String refreshToken =
+                request.get("refreshToken");
+
+        if (refreshToken == null
+                || refreshToken.isBlank()) {
+
             return ResponseEntity
                     .status(HttpStatus.UNAUTHORIZED)
                     .body(Map.of(
                             "status", 401,
-                            "message", "Refresh token requerido."
+                            "message",
+                            "Refresh token requerido."
                     ));
         }
 
         refreshToken = refreshToken.trim();
 
+        /*
+         * Un refresh token previamente revocado
+         * no puede volver a utilizarse.
+         */
         if (jwtRevocationService.isRevoked(refreshToken)) {
             return ResponseEntity
                     .status(HttpStatus.UNAUTHORIZED)
                     .body(Map.of(
                             "status", 401,
-                            "message", "Refresh token revocado."
+                            "message",
+                            "Refresh token revocado."
                     ));
         }
 
         UUID accountId =
-                jwtService.validateRefreshToken(refreshToken);
+                jwtService.validateRefreshToken(
+                        refreshToken
+                );
 
         if (accountId == null) {
             return ResponseEntity
@@ -122,45 +143,57 @@ public class RefreshController {
                     ));
         }
 
+        /*
+         * ROTACIÓN DEL REFRESH TOKEN
+         *
+         * El token utilizado deja de ser válido
+         * inmediatamente después de esta operación.
+         */
+        long remainingMillis =
+                jwtService
+                        .getRemainingRefreshValidityMillis(
+                                refreshToken
+                        );
+
+        jwtRevocationService.revoke(
+                refreshToken,
+                remainingMillis
+        );
+
         String token =
                 jwtService.generateToken(account);
 
         String newRefreshToken =
                 jwtService.generateRefreshToken(account);
 
-        SubscriptionType subscription = null;
-
-        if (account.getRole().name().equals("STUDENT")) {
-            StudentSubscription studentSubscription =
-                    studentSubscriptionService
-                            .getValidatedSubscription(account);
-
-            if (studentSubscription != null) {
-                subscription = studentSubscription.getType();
-            }
-        }
-
         Map<String, Object> data =
                 new LinkedHashMap<>();
 
         data.put(
-                "nombre",
+                "firstName",
                 profile.getNombre()
         );
 
         data.put(
-                "apellidos",
+                "lastName",
                 profile.getApellidos()
         );
 
         data.put(
-                "uuid",
+                "id",
                 account.getId().toString()
         );
 
         data.put(
-                "rol",
-                account.getRole().name()
+                "role",
+                account.getRole()
+                        .name()
+                        .toLowerCase()
+        );
+
+        data.put(
+                "image",
+                profile.getImage()
         );
 
         data.put(
@@ -169,8 +202,8 @@ public class RefreshController {
         );
 
         data.put(
-                "tokenType",
-                "Bearer"
+                "refreshToken",
+                newRefreshToken
         );
 
         data.put(
@@ -179,28 +212,35 @@ public class RefreshController {
         );
 
         data.put(
-                "refreshToken",
-                newRefreshToken
-        );
-
-        data.put(
                 "refreshExpiresIn",
                 jwtService.getRefreshExpirationSeconds()
         );
 
-        data.put(
-                "image",
-                profile.getImage() != null
-                        ? profile.getImage()
-                        : ""
-        );
+        /*
+         * subscription solamente para estudiantes.
+         */
+        if (account.getRole()
+                == com.studysync.model.auth.Role.STUDENT) {
 
-        data.put(
-                "subscription",
-                subscription != null
-                        ? subscription.name().toLowerCase()
-                        : ""
-        );
+            StudentSubscription studentSubscription =
+                    studentSubscriptionService
+                            .getValidatedSubscription(account);
+
+            if (studentSubscription != null) {
+
+                SubscriptionType subscription =
+                        studentSubscription.getType();
+
+                if (subscription != null) {
+                    data.put(
+                            "subscription",
+                            subscription
+                                    .name()
+                                    .toLowerCase()
+                    );
+                }
+            }
+        }
 
         return ResponseEntity.ok(
                 Map.of(

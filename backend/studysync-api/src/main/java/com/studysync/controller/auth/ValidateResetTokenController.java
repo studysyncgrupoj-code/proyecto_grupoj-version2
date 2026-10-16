@@ -1,10 +1,14 @@
 package com.studysync.controller.auth;
 
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.studysync.service.auth.ValidateResetTokenService;
 
@@ -25,22 +29,49 @@ public class ValidateResetTokenController {
             @RequestBody Map<String, String> body
     ) {
 
-        String token = body.get("token");
+        String token =
+                body != null
+                        ? body.get("token")
+                        : null;
 
-        boolean valid = validateResetTokenService.isValid(token);
+        boolean valid =
+                validateResetTokenService.isValid(token);
 
         if (!valid) {
+
+            Map<String, Object> error =
+                    new LinkedHashMap<>();
+
+            error.put(
+                    "code",
+                    "INVALID_RESET_TOKEN"
+            );
+
+            error.put(
+                    "message",
+                    "El token de recuperación no es válido o ha expirado."
+            );
+
+            error.put(
+                    "details",
+                    null
+            );
+
             return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
-                    .body(Map.of(
-                            "valid", false,
-                            "message", "El token es inválido o ha expirado."
-                    ));
+                    .body(
+                            Map.of(
+                                    "error",
+                                    error
+                            )
+                    );
         }
 
-        return ResponseEntity.ok(Map.of(
-                "valid", true,
-                "message", "El token es válido."
-        ));
+        return ResponseEntity.ok(
+                Map.of(
+                        "valid",
+                        true
+                )
+        );
     }
 }

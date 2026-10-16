@@ -26,15 +26,15 @@ public class ProfileController {
     }
 
     public record UpdateProfileRequest(
-            @Size(min = 1, max = 100) String nombre,
-            @Size(min = 1, max = 100) String apellidos
+            @Size(min = 1, max = 100) String firstName,
+            @Size(min = 1, max = 100) String lastName
     ) {}
 
     public record ProfileResponse(
-            UUID uuid,
-            String nombre,
-            String apellidos,
-            String avatarUrl
+            UUID id,
+            String firstName,
+            String lastName,
+            String image
     ) {}
 
     @GetMapping
@@ -57,8 +57,8 @@ public class ProfileController {
 
         UserProfile profile = profileService.updateProfile(
                 userId,
-                request.nombre(),
-                request.apellidos()
+                request.firstName(),
+                request.lastName()
         );
 
         return ResponseEntity.ok(toResponse(profile));

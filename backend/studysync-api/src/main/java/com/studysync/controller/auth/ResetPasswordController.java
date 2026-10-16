@@ -1,5 +1,6 @@
 package com.studysync.controller.auth;
 
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.springframework.http.HttpStatus;
@@ -9,7 +10,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.studysync.dto.auth.ResetPasswordRequest;
 import com.studysync.service.auth.ResetPasswordService;
+
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/auth")
@@ -25,28 +29,28 @@ public class ResetPasswordController {
 
     @PostMapping("/reset-password")
     public ResponseEntity<Map<String, Object>> resetPassword(
-            @RequestBody Map<String, String> body
+            @Valid @RequestBody ResetPasswordRequest request
     ) {
-
-        String token = body.get("token");
-        String newPassword = body.get("newPassword");
 
         boolean resetSuccessful =
                 resetPasswordService.resetPassword(
-                        token,
-                        newPassword
+                        request.token(),
+                        request.newPassword()
                 );
 
         if (!resetSuccessful) {
+
+            Map<String, Object> error = new LinkedHashMap<>();
+            error.put("code", "INVALID_RESET_TOKEN");
+            error.put(
+                    "message",
+                    "El token de recuperación no es válido o ha expirado."
+            );
+            error.put("details", null);
+
             return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
-                    .body(
-                            Map.of(
-                                    "status", 400,
-                                    "message",
-                                    "El token es inválido o ha expirado."
-                            )
-                    );
+                    .body(Map.of("error", error));
         }
 
         return ResponseEntity.ok(

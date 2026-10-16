@@ -41,14 +41,14 @@ public class RegisterService {
         AuthAccount authAccount = new AuthAccount();
         authAccount.setEmail(emailNormalizado);
         authAccount.setPasswordHash(
-                passwordEncoder.encode(request.contrasena())
+                passwordEncoder.encode(request.password())
         );
         authAccount.setRole(Role.STUDENT);
         authAccount.setActive(true);
 
         UserProfile profile = new UserProfile();
-        profile.setNombre(request.nombre().trim());
-        profile.setApellidos(request.apellidos().trim());
+        profile.setNombre(request.firstName().trim());
+        profile.setApellidos(request.lastName().trim());
 
         authAccount.setUserProfile(profile);
 
