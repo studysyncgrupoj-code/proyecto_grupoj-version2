@@ -1,6 +1,6 @@
 # Contrato de API del backend
 
-**Versión:** `v1.1`
+**Versión:** `v1.2`
 
 Este documento es el contrato formal de integración entre el frontend/BFF y el backend. Define lo que ambas partes deben implementar y cómo deben interactuar.
 
@@ -27,7 +27,7 @@ La URL base del backend es `API_BASE_URL`. Todas las rutas de este documento son
 
 ## 1.1 Modos de operación
 
-El contrato `v1.1` puede implementarse en dos modos:
+El contrato `v1.2` puede implementarse en dos modos:
 
 | Modo   | Cuándo se usa                                                     | Fuente de datos                    |
 | ------ | ----------------------------------------------------------------- | ---------------------------------- |
@@ -85,13 +85,13 @@ En modo `mock` (sección 1.1), los tokens son valores sintéticos generados por 
 
 # 3. Cambios que el backend debe implementar
 
-Esta sección define el comportamiento requerido por el contrato `v1.1`.
+Esta sección define el comportamiento requerido por el contrato `v1.2`.
 
 Los cambios respecto al backend actual (nombres de campos y rutas) están resumidos en la sección 14.
 
 ## 3.1 Nombres de campos
 
-Los campos del contrato `v1.1` utilizan nombres en inglés.
+Los campos del contrato `v1.2` utilizan nombres en inglés.
 
 ### Respuesta de `POST /auth/login`
 
@@ -412,6 +412,25 @@ El backend **no debe responder `200` con `null`** en este caso.
 
 El BFF es responsable de traducir ese `404` al comportamiento GraphQL correspondiente, que en este caso es devolver `null`.
 
+#### Matriz de visibilidad de `publicProfile`
+
+Los campos de `BackendPublicProfile` se filtran según la configuración de `PrivacySettings` del usuario consultado:
+
+| Campo de `publicProfile` | Control de visibilidad | Comportamiento                                                                             |
+| :----------------------- | :--------------------- | :----------------------------------------------------------------------------------------- |
+| `id`, `name`, `image`    | `profileVisibility`    | Si el solicitante no cumple → `404` (perfil no visible).                                   |
+| `bio`, `interests`       | `profileVisibility`    | Ídem.                                                                                      |
+| `email`                  | `emailVisibility`      | `everyone` → visible. `authenticated` → visible solo con Bearer válido. `nobody` → `null`. |
+| `phone`                  | `phoneVisibility`      | Ídem `email`.                                                                              |
+| `allowDirectMessages`    | —                      | Siempre visible si el perfil es visible.                                                   |
+
+Reglas:
+
+- `profileVisibility: nobody` → el perfil entero responde `404` (salvo que el solicitante sea el propio usuario; ver §9 regla 1).
+- `emailVisibility: nobody` → `email: null` en la respuesta.
+- `phoneVisibility: nobody` → `phone: null` en la respuesta.
+- `allowDirectMessages` no se filtra por visibilidad individual. Si el perfil es visible, el campo se expone.
+
 ---
 
 ## 3.6 Perfil del usuario
@@ -702,6 +721,23 @@ Este campo es una fecha ISO 8601 o `null`.
 
 La duración del periodo de gracia la determina el backend.
 
+### Estados
+
+| Estado                 | Significado                                                          | Autoasignable desde User Settings             |
+| :--------------------- | :------------------------------------------------------------------- | :-------------------------------------------- |
+| `active`               | Cuenta operativa.                                                    | —                                             |
+| `pending_deactivation` | Desactivación solicitada; dentro del período de gracia.              | ✅ vía `POST .../deactivation`.               |
+| `suspended`            | Suspendida por un administrador. El usuario no puede iniciar sesión. | ❌ La asigna un admin.                        |
+| `inactive`             | Cuenta cerrada definitivamente tras el período de gracia.            | ❌ La asigna el backend (proceso automático). |
+
+### Autorización por rol
+
+`POST /users/me/account/deactivation` y `DELETE /users/me/account/deactivation` responden `403 FORBIDDEN` para `teacher` y `admin`.
+
+Motivo: `teacher` y `admin` son perfiles operativos. Su baja la gestiona un administrador o el área de TI, no el propio usuario.
+
+El BFF bloquea con `403` si `session.user.role !== 'student'`, sin llamar al backend. El backend también responde `403` como defensa en profundidad.
+
 ---
 
 # 6. Suscripción
@@ -729,6 +765,23 @@ Transiciones permitidas:
 | cualquiera   | `enterprise` | No se permite por API. Responder `403`. Enterprise se contrata por el formulario de contacto. |
 | `enterprise` | cualquiera   | No se permite por API. Responder `403`.                                                       |
 | cualquiera   | mismo plan   | Responder `409`.                                                                              |
+
+### Semántica de `changeSubscriptionPlan`
+
+- **Upgrade** (`free → premium`): aplica **inmediatamente**. El backend cobra prorrateado si corresponde.
+- **Downgrade** (`premium → free`): aplica **a fin de período** (`currentPeriodEnd`). El usuario mantiene acceso premium hasta esa fecha.
+- **`enterprise`**: no se gestiona por API (ver tabla de transiciones).
+
+### Semántica de `POST /users/me/subscription/cancellation`
+
+- **Detiene cobros futuros**. Setea `cancelAtPeriodEnd: true`.
+- **Mantiene `status: 'active'`** hasta `currentPeriodEnd`. El usuario conserva acceso al plan hasta el fin del período pagado.
+- Después de `currentPeriodEnd`, el backend transiciona a `canceled` y luego a `expired`.
+- Responder `404` si no hay suscripción activa. `409` si ya está cancelada (`cancelAtPeriodEnd: true`).
+
+### Autorización por rol
+
+Todas las queries y mutations de Billing responden `403 FORBIDDEN` para `teacher` y `admin`. El BFF bloquea sin llamar al backend.
 
 ---
 
@@ -911,9 +964,24 @@ El BFF valida `null` y `language` antes de llamar al backend. El backend vuelve 
 |  35 | DELETE | `/users/me/payment-methods/:paymentMethodId` | Required | —                                          | `boolean`                        |
 |  36 | GET    | `/users/me/invoices`                         | Required | —                                          | `BackendInvoice[]`               |
 
+### Autorización por rol
+
+La columna `Auth` indica el nivel de autenticación, no de autorización. La autorización por rol se aplica en el backend y se refuerza en el BFF:
+
+| Endpoint(s)                                  | Roles permitidos              | Respuesta para roles no permitidos |
+| :------------------------------------------- | :---------------------------- | :--------------------------------- |
+| `POST/DELETE /users/me/account/deactivation` | `student`                     | `403 FORBIDDEN`                    |
+| `GET /users/me/courses`                      | `student`                     | `403 FORBIDDEN`                    |
+| `GET /users/me/certificates`                 | `student`                     | `403 FORBIDDEN`                    |
+| Billing (todas las rutas)                    | `student`                     | `403 FORBIDDEN`                    |
+| `POST /users/me/security/two-factor/disable` | `student`                     | `403 FORBIDDEN`                    |
+| Resto de endpoints de settings               | `student`, `teacher`, `admin` | —                                  |
+
+El BFF bloquea con `403` antes de llamar al backend cuando corresponde. El backend vuelve a validar como defensa en profundidad.
+
 ### Relación con el frontend
 
-La fuente de verdad es el **contrato de API `v1.1`**.
+La fuente de verdad es el **contrato de API `v1.2`**.
 
 La relación es:
 
@@ -952,32 +1020,37 @@ cuando existe un problema con el Access Token.
 
 Además:
 
-| Endpoint                                   | Errores adicionales                                                                            |
-| ------------------------------------------ | ---------------------------------------------------------------------------------------------- |
-| `POST /auth/login`                         | `400`, `401` (credenciales), `422`, `429`, `500`, `503`                                        |
-| `POST /auth/refresh`                       | `400` (solo mal formado), `401`/`403` (token inválido), `429`, `500`, `503`                    |
-| `POST /auth/logout`                        | `400`, `401`, `500`. Debe ser idempotente cuando sea posible.                                  |
-| `POST /auth/register`                      | `400`, `409` (email repetido), `422`, `429`, `500`, `503`                                      |
-| `POST /auth/forgot-password`               | `400`, `422`, `429`, `500`, `503`                                                              |
-| `POST /auth/validate-reset-token`          | `400` (`INVALID_RESET_TOKEN`), `429`, `500`, `503`                                             |
-| `POST /auth/reset-password`                | `400` (token inválido), `422`, `429`, `500`, `503`                                             |
-| `POST /contact`                            | `400`, `422`, `429`, `500`, `503`                                                              |
-| `GET /users/:userId/profile`               | `404`                                                                                          |
-| `PATCH /users/me/profile`                  | `422`                                                                                          |
-| `PATCH /users/me/personal-data`            | `403` (identidad bloqueada), `409`, `422`                                                      |
-| `PATCH /users/me/privacy`                  | `422`                                                                                          |
-| `POST .../email-change`                    | `409` (correo ya en uso), `422`                                                                |
-| `PUT .../security/password`                | `409` (la nueva es igual a la actual), `422` (`VALIDATION_ERROR` o `INVALID_CURRENT_PASSWORD`) |
-| `POST .../two-factor/setup`                | `409` (2FA ya activo)                                                                          |
-| `POST .../two-factor/verify`               | `409` (setup no iniciado o 2FA ya activo), `422` (`VALIDATION_ERROR` o `INVALID_CODE`)         |
-| `POST .../two-factor/disable`              | `403` (2FA obligatorio para este usuario), `422` (`VALIDATION_ERROR` o `INVALID_CODE`)         |
-| `DELETE .../sessions/:sessionId`           | `404`                                                                                          |
-| `PATCH /users/me/preferences`              | `422` (idioma, tema o zona horaria no soportados; `null` en cualquier campo)                   |
-| `POST /users/me/account/deactivation`      | `409` (la cuenta no está `active`)                                                             |
-| `DELETE /users/me/account/deactivation`    | `409` (la cuenta no está `pending_deactivation`)                                               |
-| `PUT /users/me/subscription/plan`          | `403`, `409` (incluye `PAYMENT_METHOD_REQUIRED`), `422`                                        |
-| `POST /users/me/subscription/cancellation` | `404`, `409`                                                                                   |
-| `DELETE /users/me/payment-methods/:id`     | `404`, `409` (por ejemplo, último método de una suscripción de pago activa)                    |
+| Endpoint                                   | Errores adicionales                                                                             |
+| ------------------------------------------ | ----------------------------------------------------------------------------------------------- |
+| `POST /auth/login`                         | `400`, `401` (credenciales), `422`, `429`, `500`, `503`                                         |
+| `POST /auth/refresh`                       | `400` (solo mal formado), `401`/`403` (token inválido), `429`, `500`, `503`                     |
+| `POST /auth/logout`                        | `400`, `401`, `500`. Debe ser idempotente cuando sea posible.                                   |
+| `POST /auth/register`                      | `400`, `409` (email repetido), `422`, `429`, `500`, `503`                                       |
+| `POST /auth/forgot-password`               | `400`, `422`, `429`, `500`, `503`                                                               |
+| `POST /auth/validate-reset-token`          | `400` (`INVALID_RESET_TOKEN`), `429`, `500`, `503`                                              |
+| `POST /auth/reset-password`                | `400` (token inválido), `422`, `429`, `500`, `503`                                              |
+| `POST /contact`                            | `400`, `422`, `429`, `500`, `503`                                                               |
+| `GET /users/:userId/profile`               | `404`                                                                                           |
+| `PATCH /users/me/profile`                  | `422`                                                                                           |
+| `PATCH /users/me/personal-data`            | `403` (identidad bloqueada), `409`, `422`                                                       |
+| `PATCH /users/me/privacy`                  | `422` (visibilidad inválida o `null` en cualquier campo)                                        |
+| `POST .../email-change`                    | `409` (correo ya en uso), `422`                                                                 |
+| `PUT .../security/password`                | `409` (la nueva es igual a la actual), `422` (`VALIDATION_ERROR` o `INVALID_CURRENT_PASSWORD`)  |
+| `POST .../two-factor/setup`                | `409` (2FA ya activo)                                                                           |
+| `POST .../two-factor/verify`               | `409` (setup no iniciado o 2FA ya activo), `422` (`VALIDATION_ERROR` o `INVALID_CODE`)          |
+| `POST .../two-factor/disable`              | `403` (2FA obligatorio para este usuario), `422` (`VALIDATION_ERROR` o `INVALID_CODE`)          |
+| `DELETE .../sessions/:sessionId`           | `404`                                                                                           |
+| `PATCH /users/me/preferences`              | `422` (idioma, tema o zona horaria no soportados; `null` en cualquier campo)                    |
+| `POST /users/me/account/deactivation`      | `403` (teacher/admin), `409` (la cuenta no está `active`)                                       |
+| `DELETE /users/me/account/deactivation`    | `403` (teacher/admin), `409` (la cuenta no está `pending_deactivation`)                         |
+| `GET /users/me/courses`                    | `403` (teacher/admin)                                                                           |
+| `GET /users/me/certificates`               | `403` (teacher/admin)                                                                           |
+| `GET /users/me/subscription`               | `403` (teacher/admin)                                                                           |
+| `GET /users/me/payment-methods`            | `403` (teacher/admin)                                                                           |
+| `GET /users/me/invoices`                   | `403` (teacher/admin)                                                                           |
+| `PUT /users/me/subscription/plan`          | `403` (enterprise o teacher/admin), `409` (incluye `PAYMENT_METHOD_REQUIRED`), `422`            |
+| `POST /users/me/subscription/cancellation` | `403` (teacher/admin), `404` (sin suscripción), `409` (ya cancelada)                            |
+| `DELETE /users/me/payment-methods/:id`     | `403` (teacher/admin), `404`, `409` (por ejemplo, último método de una suscripción paga activa) |
 
 ---
 
@@ -1092,6 +1165,48 @@ Cambios compatibles hacia atrás. El backend puede seguir enviando los campos re
 - Nueva sección 3.7: alcance de la sesión del frontend y fuente de los datos de presentación.
 - Se aclara que los datos de presentación se obtienen a partir de `GET /users/me` y `GET /users/me/subscription`.
 
+## v1.2
+
+Cambios compatibles hacia atrás. El backend puede seguir operando sin los nuevos campos o validaciones; el frontend los aprovecha cuando están presentes.
+
+### Preferencias
+
+- Formalizada la semántica transversal de `PATCH` en §9: `undefined` = no modificar, `null` = borrar, valor = asignar.
+- `PATCH /users/me/preferences` no admite `null` en ningún campo (`422 VALIDATION_ERROR`). Excepción documentada en §8.1.
+- `language` restringido a `es` | `en`. `notifications: {}` no modifica ningún subcampo.
+
+### Privacy
+
+- `PATCH /users/me/privacy` no admite `null` en ningún campo (`422 VALIDATION_ERROR`).
+- Documentada la matriz de visibilidad de `publicProfile` (§3.5).
+- `BackendPublicProfile` expone `allowDirectMessages: boolean`.
+
+### Account
+
+- Documentados los estados `suspended` e `inactive` como no autoasignables desde User Settings.
+- `403 FORBIDDEN` para `teacher`/`admin` en `POST/DELETE /users/me/account/deactivation`.
+
+### Courses
+
+- `progress` documentado en rango `[0.0, 1.0]`.
+- `403 FORBIDDEN` para `teacher`/`admin` en `GET /users/me/courses`.
+
+### Certificates
+
+- `downloadUrl` documentada como URL firmada con expiración.
+- `403 FORBIDDEN` para `teacher`/`admin` en `GET /users/me/certificates`.
+
+### Billing
+
+- `changeSubscriptionPlan`: upgrade inmediato, downgrade a fin de período.
+- `cancelSubscription`: detiene cobros futuros, mantiene acceso hasta `currentPeriodEnd`.
+- `403 FORBIDDEN` para `teacher`/`admin` en todas las queries y mutations de Billing.
+
+### Autorización por rol
+
+- Documentada la matriz de autorización por rol en §10.
+- Documentado `403 FORBIDDEN` en los endpoints exclusivos de `student`.
+
 ---
 
 # 14. Apéndice: migración desde el backend previo (histórico)
@@ -1111,7 +1226,7 @@ El backend previo usaba nombres de campos en español y una ruta distinta a la d
 
 Los campos del par de tokens no cambian: `token`, `refreshToken`, `expiresIn` y `refreshExpiresIn`.
 
-Nota v1.1: `firstName`, `lastName`, `subscription` e `image` dejan de formar parte de la respuesta de login. Ver secciones 3.1 y 3.7.
+Nota v1.2: `firstName`, `lastName`, `subscription` e `image` dejan de formar parte de la respuesta de login. Ver secciones 3.1 y 3.7.
 
 ### Cuerpo de `POST /auth/register`
 
@@ -1135,4 +1250,4 @@ Estos cambios **no son compatibles hacia atrás**.
 
 El frontend y el backend deben desplegarse a la vez. El frontend rechaza una respuesta de login que no use los nombres nuevos, así que si solo se despliega uno de los dos nadie podrá iniciar sesión ni registrarse.
 
-Nota v1.1: los cambios de v1.1 sí son compatibles hacia atrás para el backend. Un backend que siga respondiendo `firstName`, `lastName`, `subscription` e `image` en login funciona igual: el frontend los ignora. El único requisito es que los seis campos obligatorios de login sigan presentes.
+Nota v1.2: los cambios de v1.2 sí son compatibles hacia atrás para el backend. Un backend que siga respondiendo `firstName`, `lastName`, `subscription` e `image` en login funciona igual: el frontend los ignora. El único requisito es que los seis campos obligatorios de login sigan presentes.

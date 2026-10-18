@@ -32,7 +32,7 @@ frontend/src/app/[locale]/(web)/dashboard/user-settings
 
 ### 1.4 Relación con el contrato BACKEND_API.md
 
-El contrato `docs/BACKEND_API.md` (v1.1) es la fuente de verdad para toda
+El contrato `docs/BACKEND_API.md` (v1.2) es la fuente de verdad para toda
 comunicación con el backend REST. Toda decisión de UI y de BFF debe respetarlo.
 Cualquier cambio necesario se reflejará primero en el contrato.
 
@@ -139,15 +139,13 @@ La sección **Privacy** controla qué campos de la vista pública se exponen
 ### 4.3 Pendientes
 
 - Análisis del schema sección por sección: Profile ✅, Personal Data ✅,
-  Security ✅, Preferences ✅, Privacy ⏳, Account ⏳, Courses ⏳,
-  Certificates ⏳, Billing ⏳.
+  Security ✅, Preferences ✅, Privacy ✅, Account ✅, Courses ✅,
+  Certificates ✅, Billing ✅.
 - Validación y ajustes del contrato de la API para cada sección (ver sección 8):
-  Profile ✅, Personal Data ✅, Security ✅, Preferences ✅, resto pendiente.
+  Profile ✅, Personal Data ✅, Security ✅, Preferences ✅, Privacy ✅,
+  Account ✅, Courses ✅, Certificates ✅, Billing ✅.
 - Ejecución de la sub-fase 0.6 (reorganización de Zod y códigos de error) al
   inicio de la Fase 3.
-
-_Nota: el patrón de mutaciones (D7) y el patrón de modales (D8) fueron
-decididos en Fase 0.1 y 0.2 respectivamente._
 
 ---
 
@@ -686,23 +684,430 @@ La UI se implementa en Fase 3. El formulario será inline en `<SectionCard>`, si
 
 ### 5.5 Privacy
 
-_(pendiente)_
+#### 5.5.1 Tipos GraphQL
+
+```graphql
+enum ProfileVisibility {
+  everyone
+  authenticated
+  nobody
+}
+
+type PrivacySettings {
+  profileVisibility: ProfileVisibility!
+  emailVisibility: ProfileVisibility!
+  phoneVisibility: ProfileVisibility!
+  allowDirectMessages: Boolean!
+}
+
+input UpdatePrivacySettingsInput {
+  profileVisibility: ProfileVisibility
+  emailVisibility: ProfileVisibility
+  phoneVisibility: ProfileVisibility
+  allowDirectMessages: Boolean
+}
+```
+
+Notas:
+
+- `PrivacySettings` es singleton (`PrivacySettings: () => 'me'` en `UrqlProvider`).
+- `allowDirectMessages` se expone también en `PublicProfile` (ver 5.5.9 y 8.2.18).
+
+#### 5.5.2 Queries
+
+- `myPrivacySettings -> PrivacySettings!` (fuente de datos de esta sección). Operation existente: `src/graphql/operations/privacy/my-privacy-settings.graphql`.
+
+#### 5.5.3 Mutations
+
+`updatePrivacySettings(input: UpdatePrivacySettingsInput!): PrivacySettings!` — única mutación. Devuelve la entidad completa (D7).
+
+Semántica PATCH (regla general del contrato, ver `BACKEND_API.md` §9):
+
+| Campo                 | Omitido (`undefined`) | `null`                 | Valor     |
+| --------------------- | --------------------- | ---------------------- | --------- |
+| `profileVisibility`   | No se modifica        | `422 VALIDATION_ERROR` | Se asigna |
+| `emailVisibility`     | No se modifica        | `422 VALIDATION_ERROR` | Se asigna |
+| `phoneVisibility`     | No se modifica        | `422 VALIDATION_ERROR` | Se asigna |
+| `allowDirectMessages` | No se modifica        | `422 VALIDATION_ERROR` | Se asigna |
+
+Excepción: en Privacy `null` se rechaza con `422` porque ningún campo tiene estado vacío válido (mismo criterio que Preferences, ver 8.2.18).
+
+#### 5.5.4 Campos editables vs. solo lectura
+
+| Campo                 | Editable aquí | Notas                                      |
+| --------------------- | ------------- | ------------------------------------------ |
+| `profileVisibility`   | ✅            | `everyone` \| `authenticated` \| `nobody`. |
+| `emailVisibility`     | ✅            | `everyone` \| `authenticated` \| `nobody`. |
+| `phoneVisibility`     | ✅            | `everyone` \| `authenticated` \| `nobody`. |
+| `allowDirectMessages` | ✅            | Boolean.                                   |
+
+#### 5.5.5 Restricciones por rol
+
+Universal: student, teacher, admin.
+
+#### 5.5.6 Estados de UI a manejar
+
+- Loading, Populated, Editing, Saving, Success y Error.
+- `422 VALIDATION_ERROR` para valores inválidos o `null`.
+- `401 UNAUTHENTICATED` para problemas de token.
+
+#### 5.5.7 Restricciones del contrato
+
+`PATCH /users/me/privacy` responde `401` o `422`.
+
+| Campo                 | Regla                                                   |
+| --------------------- | ------------------------------------------------------- |
+| `profileVisibility`   | Enum cerrado `everyone` \| `authenticated` \| `nobody`. |
+| `emailVisibility`     | Ídem.                                                   |
+| `phoneVisibility`     | Ídem.                                                   |
+| `allowDirectMessages` | Boolean. `null` → `422`.                                |
+
+#### 5.5.8 Decisiones de UX
+
+- Formulario inline en `<SectionCard>` (D8).
+- Cada control de visibilidad se renderiza como `<select>` con las 3 opciones (etiquetas i18n).
+- `allowDirectMessages` como toggle.
+- Validación de cliente con Zod (`privacySchema`), creado en Fase 3.
+
+#### 5.5.9 Interacciones con otras partes del sistema
+
+- `publicProfile(userId)`: aplica la matriz de visibilidad documentada en §3.5 del contrato. Si el solicitante no cumple `profileVisibility`, el backend responde `404` y el BFF devuelve `null`.
+- `publicProfile.allowDirectMessages`: expuesto para que otros usuarios sepan si pueden escribir. Se agrega al schema (ver 8.2.18).
+- `UrqlProvider`: `PrivacySettings: () => 'me'` ya existe.
 
 ### 5.6 Account
 
-_(pendiente)_
+#### 5.6.1 Tipos GraphQL
+
+```graphql
+enum AccountStatus {
+  active
+  pending_deactivation
+  suspended
+  inactive
+}
+
+type Account {
+  status: AccountStatus!
+  deactivationScheduledAt: DateTime
+}
+```
+
+Notas:
+
+- `Account` es singleton (`Account: () => 'me'` en `UrqlProvider`).
+- `suspended` e `inactive` no son asignables desde User Settings. Los asigna el backend (admin o proceso automático tras el período de gracia).
+- `deactivationScheduledAt` es fecha ISO 8601 o `null`.
+
+#### 5.6.2 Queries
+
+- `myAccount -> Account!` (fuente de datos de esta sección). Operation existente: `src/graphql/operations/account/my-account.graphql`.
+
+#### 5.6.3 Mutations
+
+- `requestAccountDeactivation: Account!` — pasa la cuenta a `pending_deactivation`. Errores: `409 CONFLICT` (la cuenta no está `active`), `403 FORBIDDEN` (teacher/admin).
+- `cancelAccountDeactivation: Account!` — vuelve la cuenta a `active`. Errores: `409 CONFLICT` (la cuenta no está `pending_deactivation`), `403 FORBIDDEN` (teacher/admin).
+
+Ambas devuelven la entidad completa (D7).
+
+#### 5.6.4 Campos editables vs. solo lectura
+
+| Campo                     | Editable aquí | Notas                                                 |
+| ------------------------- | ------------- | ----------------------------------------------------- |
+| `status`                  | ❌            | Solo lectura.                                         |
+| `deactivationScheduledAt` | ❌            | Solo lectura. Se muestra con fecha exacta localizada. |
+
+#### 5.6.5 Restricciones por rol
+
+- **student:** puede solicitar y cancelar la desactivación.
+- **teacher / admin:** `403 FORBIDDEN` en ambas mutations. El BFF bloquea sin llamar al backend. La sección no se renderiza para estos roles (D3).
+
+#### 5.6.6 Estados de UI a manejar
+
+- **Loading:** primer fetch de `myAccount`.
+- **Active:** estado normal. Se muestra botón "Solicitar desactivación" con confirmación fuerte (`<ConfirmDialog>`).
+- **Pending deactivation:** se muestra `deactivationScheduledAt` con fecha exacta localizada + botón "Cancelar desactivación".
+- **Suspended / Inactive:** mensaje informativo, sin acciones.
+- **Error:**
+  - `409 CONFLICT` → mensaje específico según el estado.
+  - `403 FORBIDDEN` → "Acción no permitida".
+  - `401` → "Tu sesión expiró".
+
+#### 5.6.7 Restricciones del contrato
+
+- `POST /users/me/account/deactivation` → `401`, `403` (teacher/admin), `409` (no está `active`).
+- `DELETE /users/me/account/deactivation` → `401`, `403` (teacher/admin), `409` (no está `pending_deactivation`).
+
+#### 5.6.8 Decisiones de UX
+
+- `<ConfirmDialog>` para ambas acciones (son destructivas/inversas de destructivas). Sigue D8.
+- `deactivationScheduledAt` se muestra con fecha exacta localizada. El usuario necesita saber cuándo para poder cancelar a tiempo.
+- La sección solo se renderiza para student.
+
+#### 5.6.9 Interacciones con otras partes del sistema
+
+- `UrqlProvider`: `Account: () => 'me'` ya existe.
+- `SidebarData` consume `myAccount.status` para el estado de la cuenta. El cambio de estado debe reflejarse vía graphcache sin refetch.
+- Al pasar a `pending_deactivation`, el usuario sigue con acceso hasta la fecha de desactivación. La UI del dashboard no cambia de comportamiento hasta entonces.
 
 ### 5.7 Courses
 
-_(pendiente)_
+#### 5.7.1 Tipos GraphQL
+
+```graphql
+enum CourseEnrollmentStatus {
+  active
+  completed
+  paused
+}
+
+type CourseEnrollment {
+  courseId: ID!
+  title: String!
+  progress: Float!
+  status: CourseEnrollmentStatus!
+  enrolledAt: DateTime!
+  completedAt: DateTime
+}
+```
+
+Notas:
+
+- `CourseEnrollment` no tiene `id` propio; su identificador natural es `courseId`.
+- `progress` es `Float` en rango `[0.0, 1.0]` (`0.65` = 65%).
+- `status: paused` lo asigna otro módulo (Courses o Learning Paths), no User Settings.
+
+#### 5.7.2 Queries
+
+- `myCourses -> [CourseEnrollment!]!` (fuente de datos de esta sección). Operation existente: `src/graphql/operations/courses/my-courses.graphql`.
+
+#### 5.7.3 Mutations
+
+Ninguna. Sección de solo lectura.
+
+#### 5.7.4 Campos editables vs. solo lectura
+
+| Campo                                                                  | Editable aquí | Notas         |
+| ---------------------------------------------------------------------- | ------------- | ------------- |
+| `courseId`, `title`, `progress`, `status`, `enrolledAt`, `completedAt` | ❌            | Solo lectura. |
+
+#### 5.7.5 Restricciones por rol
+
+- **student:** acceso.
+- **teacher / admin:** `403 FORBIDDEN`. El BFF bloquea sin llamar al backend.
+
+#### 5.7.6 Estados de UI a manejar
+
+- **Loading:** primer fetch de `myCourses`.
+- **Populated:** lista de cursos con título, progreso y estado.
+- **Empty:** sin cursos inscritos. Mensaje informativo.
+- **Error:** `401` → "Tu sesión expiró"; `403` → "Acción no permitida".
+
+#### 5.7.7 Restricciones del contrato
+
+`GET /users/me/courses` → `401`, `403` (teacher/admin).
+
+#### 5.7.8 Decisiones de UX
+
+- Solo lectura. La sección muestra un resumen: título, progreso y estado por curso.
+- Click en un curso navega a la sección Courses del dashboard (fuera de User Settings). No hay acciones inline.
+- Barra de progreso visual a partir de `progress` en `[0, 1]`.
+
+#### 5.7.9 Interacciones con otras partes del sistema
+
+- `UrqlProvider`: `CourseEnrollment: (data) => data.courseId as string` en keys. La entidad se normaliza por `courseId`.
+- El progreso que se muestra aquí es informativo. La fuente de verdad del progreso vive en el módulo Courses.
 
 ### 5.8 Certificates
 
-_(pendiente)_
+#### 5.8.1 Tipos GraphQL
+
+```graphql
+type Certificate {
+  id: ID!
+  courseId: ID!
+  courseTitle: String!
+  certificateNumber: String!
+  issuedAt: DateTime!
+  downloadUrl: String!
+}
+```
+
+Notas:
+
+- `downloadUrl` es `String!` (siempre presente). El backend debe generar una URL firmada con expiración.
+- `CertificateEligibility` (componente existente) es independiente de `myCertificates`: valida requisitos para generar certificados, no para ver los ya emitidos.
+
+#### 5.8.2 Queries
+
+- `myCertificates -> [Certificate!]!` (fuente de datos de esta sección). Operation existente: `src/graphql/operations/certificates/my-certificates.graphql`.
+
+#### 5.8.3 Mutations
+
+Ninguna. Sección de solo lectura + descarga.
+
+#### 5.8.4 Campos editables vs. solo lectura
+
+| Campo                                                                           | Editable aquí | Notas         |
+| ------------------------------------------------------------------------------- | ------------- | ------------- |
+| `id`, `courseId`, `courseTitle`, `certificateNumber`, `issuedAt`, `downloadUrl` | ❌            | Solo lectura. |
+
+#### 5.8.5 Restricciones por rol
+
+- **student:** acceso.
+- **teacher / admin:** `403 FORBIDDEN`. El BFF bloquea sin llamar al backend.
+
+#### 5.8.6 Estados de UI a manejar
+
+- **Loading:** primer fetch de `myCertificates`.
+- **Populated:** lista de certificados con link de ver/descargar.
+- **Empty:** sin certificados emitidos. Mensaje informativo ("aún no tienes certificados").
+- **Error:** `401` → "Tu sesión expiró"; `403` → "Acción no permitida".
+
+#### 5.8.7 Restricciones del contrato
+
+`GET /users/me/certificates` → `401`, `403` (teacher/admin).
+
+#### 5.8.8 Decisiones de UX
+
+- Si existe al menos un certificado → se lista con link de ver/descargar (`downloadUrl`).
+- Si no existe ninguno → estado vacío informativo. No hay filtros por estado: el certificado existe o no.
+- `CertificateEligibility` es informativo: muestra qué requisitos faltan (avatar, datos personales, verificación). Bloquea la generación de certificados, no la visualización de los ya emitidos.
+- `downloadUrl` se abre en nueva pestaña. La UI no cachea la URL.
+
+#### 5.8.9 Interacciones con otras partes del sistema
+
+- `UrqlProvider`: `Certificate: (data) => data.id as string` en keys. La entidad se normaliza por `id`.
+- `CertificateEligibility` (existente en `user-settings/CertificateEligibility.tsx`): se mantiene como componente informativo. Se vincula con `myPersonalData` y `mySecuritySettings` para calcular los requisitos (Fase 5).
 
 ### 5.9 Billing
 
-_(pendiente)_
+#### 5.9.1 Tipos GraphQL
+
+```graphql
+enum SubscriptionPlan {
+  free
+  premium
+  enterprise
+}
+
+enum SubscriptionStatus {
+  trialing
+  active
+  past_due
+  canceled
+  expired
+}
+
+type UserSubscription {
+  id: ID!
+  plan: SubscriptionPlan!
+  status: SubscriptionStatus!
+  startedAt: DateTime!
+  currentPeriodEnd: DateTime
+  cancelAtPeriodEnd: Boolean!
+}
+
+type PaymentMethod {
+  id: ID!
+  brand: String
+  last4: String
+  expirationMonth: Int
+  expirationYear: Int
+}
+
+enum InvoiceStatus {
+  draft
+  open
+  paid
+  void
+  uncollectible
+}
+
+type Invoice {
+  id: ID!
+  number: String!
+  amount: Int!
+  currency: String!
+  status: InvoiceStatus!
+  issuedAt: DateTime!
+  downloadUrl: String
+}
+```
+
+Notas:
+
+- `mySubscription` puede ser `null` (usuario sin suscripción).
+- `amount` es `Int!` en la unidad menor de la moneda (contrato §7).
+- `downloadUrl` de `Invoice` es nullable.
+
+#### 5.9.2 Queries
+
+- `mySubscription -> UserSubscription | null` — operation existente: `src/graphql/operations/billing/my-subscription.graphql`.
+- `myPaymentMethods -> [PaymentMethod!]!` — operation existente: `src/graphql/operations/billing/my-payment-methods.graphql`.
+- `myInvoices -> [Invoice!]!` — operation existente: `src/graphql/operations/billing/my-invoices.graphql`.
+
+#### 5.9.3 Mutations
+
+- `changeSubscriptionPlan(plan: SubscriptionPlan!): UserSubscription!` — devuelve la suscripción completa (D7).
+  - Upgrade inmediato, downgrade a fin de período (decisión D-B3). `free → premium` aplica al instante; `premium → free` se aplica en `currentPeriodEnd`.
+  - Errores: `403` (enterprise), `409` (mismo plan o `PAYMENT_METHOD_REQUIRED`), `422`.
+- `cancelSubscription: UserSubscription!` — devuelve la suscripción completa (D7).
+  - Detiene cobros futuros, mantiene acceso hasta `currentPeriodEnd`. Setea `cancelAtPeriodEnd: true`, `status: 'active'` hasta el fin del período, luego `canceled`/`expired`.
+  - Errores: `404` (sin suscripción), `409` (ya cancelada).
+- `removePaymentMethod(paymentMethodId: ID!): Boolean!` — devuelve `Boolean`.
+  - Rompe D7: no devuelve entidad. La actualización de graphcache se hace por `updates` explícito en `UrqlProvider`.
+  - Errores: `404` (método no existe), `409` (último método de suscripción premium `active`).
+
+#### 5.9.4 Campos editables vs. solo lectura
+
+| Campo              | Editable aquí                                          | Notas                          |
+| ------------------ | ------------------------------------------------------ | ------------------------------ |
+| `mySubscription`   | ✅ vía `changeSubscriptionPlan` / `cancelSubscription` | `null` si no hay suscripción.  |
+| `myPaymentMethods` | ✅ vía `removePaymentMethod`                           | Lista con `updates` explícito. |
+| `myInvoices`       | ❌                                                     | Solo lectura.                  |
+
+#### 5.9.5 Restricciones por rol
+
+- **student:** acceso completo.
+- **teacher / admin:** `403 FORBIDDEN` en todas las queries y mutations. El BFF bloquea sin llamar al backend.
+
+#### 5.9.6 Estados de UI a manejar
+
+- **Loading:** primer fetch de cada query.
+- **Subscription:**
+  - `null` → estado vacío informativo ("sin suscripción activa").
+  - `active` → muestra plan, fecha de renovación, botón "Cancelar suscripción".
+  - `cancelAtPeriodEnd: true` → muestra "tu suscripción se cancelará el {fecha}" + botón "Reactivar" (opcional, si el backend lo soporta).
+  - `canceled` / `expired` → estado informativo.
+- **Payment methods:**
+  - Lista con `brand`, `last4`, expiración. Acción "Eliminar" con `<ConfirmDialog>`.
+  - Empty → mensaje informativo.
+- **Invoices:**
+  - Lista con número, monto, fecha, estado. Link de descarga si `downloadUrl`.
+  - Empty → mensaje informativo.
+- **Error:** `409` con `PAYMENT_METHOD_REQUIRED` → "necesitas un método de pago para cambiar a premium".
+
+#### 5.9.7 Restricciones del contrato
+
+- `PUT /users/me/subscription/plan` → `403`, `409` (incluye `PAYMENT_METHOD_REQUIRED`), `422`.
+- `POST /users/me/subscription/cancellation` → `404`, `409`.
+- `DELETE /users/me/payment-methods/:id` → `404`, `409`.
+- Todas las queries → `403` (teacher/admin).
+
+#### 5.9.8 Decisiones de UX
+
+- Formularios inline en `<SectionCard>` (D8). `<ConfirmDialog>` para cancelar suscripción y eliminar método de pago.
+- `changeSubscriptionPlan`: dropdown de planes con confirmación. Enterprise no se ofrece (contrato §6).
+- `cancelSubscription`: `<ConfirmDialog>` con aviso "Mantendrás acceso hasta {currentPeriodEnd}".
+- `removePaymentMethod`: `<ConfirmDialog>` con aviso específico si es el único método de una suscripción premium activa (pero el backend ya responde `409`, así que la UI lo pre-valida).
+
+#### 5.9.9 Interacciones con otras partes del sistema
+
+- `UrqlProvider`: `UserSubscription: (data) => data.id as string`, `PaymentMethod: (data) => data.id as string`, `Invoice: (data) => data.id as string` en keys.
+- `removePaymentMethod` incluye `updates` explícito en `UrqlProvider` para quitar el método de `myPaymentMethods` (ver 8.2.23).
+- `SidebarData` consume `mySubscription.plan` para el `PlanCard`. El cambio de plan debe reflejarse vía graphcache sin refetch.
+- Al cancelar (`cancelAtPeriodEnd: true`), el `PlanCard` sigue mostrando el plan actual hasta el fin del período.
 
 ---
 
@@ -712,14 +1117,16 @@ _(pendiente)_
 
 - [x] **0.1** Definir el patrón de mutación + refresco. → D7.
 - [x] **0.2** Definir el patrón de modales de confirmación. → D8.
-- [ ] **0.3** Analizar el schema GraphQL sección por sección y volcar las
-      conclusiones en la sección 5 de este documento. _(en curso: Profile,
-      Personal Data, Security y Preferences cerrados; Privacy, Account,
-      Courses, Certificates y Billing pendientes)_
-- [ ] **0.4** Analizar el contrato `BACKEND_API.md` para detectar discrepancias
-      o necesidades de ajuste (ver sección 8). _(en curso)_
-- [ ] **0.5** Actualizar el contrato `BACKEND_API.md` con los ajustes acordados.
-      _(Profile, Personal Data, Security y Preferences aplicados)_
+- [x] **0.3** Analizar el schema GraphQL sección por sección y volcar las
+      conclusiones en la sección 5 de este documento. _(9/9 cerradas:
+      Profile, Personal Data, Security, Preferences, Privacy, Account,
+      Courses, Certificates y Billing)_
+- [x] **0.4** Analizar el contrato `BACKEND_API.md` para detectar discrepancias
+      o necesidades de ajuste (ver sección 8). _(análisis completo para las
+      9 secciones)_
+- [x] **0.5** Actualizar el contrato `BACKEND_API.md` con los ajustes acordados.
+      _(Profile, Personal Data, Security, Preferences, Privacy, Account,
+      Courses, Certificates y Billing aplicados)_
 - [ ] **0.6** Reorganizar los schemas Zod y los códigos de error en carpetas
       modulares. Se ejecuta durante la Fase 3 (Opción B), con los primeros
       schemas nuevos (profile, personalData) como caso de uso real.
@@ -829,12 +1236,24 @@ _(pendiente)_
 
 - **5.1** `AccountSection`: `myAccount` + deactivation/cancelación con
   confirmación fuerte.
+  - Mostrar `deactivationScheduledAt` con fecha exacta localizada.
+  - `403` para teacher/admin (no se renderiza la sección).
 - **5.2** `CoursesSection`: `myCourses` (lectura).
+  - Solo resumen: título, progreso, estado. Click navega a Courses.
+  - `403` para teacher/admin.
 - **5.3** `CertificatesSection`: `myCertificates` (lectura + descarga).
-  - Vincular con `CertificateEligibility` existente.
+  - Vincular con `CertificateEligibility` existente (informativo, bloquea
+    generación, no visualización).
+  - `downloadUrl` firmada, abrir en nueva pestaña.
+  - `403` para teacher/admin.
 - **5.4** `BillingSection`: `mySubscription`, `myPaymentMethods`,
   `myInvoices`, `changeSubscriptionPlan`, `cancelSubscription`,
   `removePaymentMethod`.
+  - `changeSubscriptionPlan`: upgrade inmediato, downgrade a fin de período.
+  - `cancelSubscription`: detiene cobros, mantiene acceso hasta
+    `currentPeriodEnd`.
+  - `removePaymentMethod`: `updates` explícito en `UrqlProvider`.
+  - `403` para teacher/admin.
 
 **Commits sugeridos:**
 
@@ -898,12 +1317,11 @@ _(pendiente)_
 
 - [ ] ¿El contrato distingue en algún punto por rol? (Hoy no lo hace
       explícitamente; la autorización por rol se delega al BFF.)
-- [ ] `POST /users/me/account/deactivation` para `teacher`/`admin` — ¿se
-      documenta el `403` esperado?
-- [ ] Errores por endpoint de las secciones nuevas en Billing.
-- [ ] Revisar si hace falta exponer algún campo adicional en el contrato
-      para soportar la lógica de rol (por ej. `twoFactorRequired` ya existe
-      en `SecuritySettings`).
+- [x] `POST /users/me/account/deactivation` para `teacher`/`admin` — `403` documentado. Ver 8.2.19.
+- [x] Errores por endpoint de las secciones nuevas en Billing. Ver 8.2.22.
+- [x] Revisar si hace falta exponer algún campo adicional en el contrato
+      para soportar la lógica de rol. Revisado: `twoFactorRequired` ya existe
+      en `SecuritySettings`. Sin cambios.
 - [ ] `pendingEmail` en `SecuritySettings` para exponer correo en verificación.
       Fuera del alcance inicial; evaluar como `8.2.8`. Ver TODO(email-change).
 - [ ] Múltiples medios de 2FA (SMS, TOTP, códigos de respaldo) y preferencia
@@ -957,6 +1375,37 @@ Resueltos:
 - [x] `null` en `PATCH /users/me/preferences` → `422 VALIDATION_ERROR`. Ver 8.2.16.
 - [x] `notifications: {}` no modifica; `notifications: null` → `422`. Ver 8.2.16.
 - [x] `language` restringido a `es | en`. Ver 8.2.16.
+
+**Privacy**
+
+- [x] `null` en `PATCH /users/me/privacy` → `422 VALIDATION_ERROR`. Ver 8.2.18.
+- [x] `PublicProfile` expone `allowDirectMessages: Boolean!`. Ver 8.2.18.
+- [x] Matriz de visibilidad de `publicProfile` documentada. Ver 8.2.18.
+
+**Account**
+
+- [x] `403 FORBIDDEN` para teacher/admin en ambas mutations. Ver 8.2.19.
+- [x] `deactivationScheduledAt` con fecha exacta localizada. Ver 5.6.8.
+- [x] `suspended` / `inactive` no asignables desde User Settings. Ver 5.6.1.
+
+**Courses**
+
+- [x] `progress` en rango `[0.0, 1.0]`. Ver 8.2.20.
+- [x] `403 FORBIDDEN` para teacher/admin. Ver 8.2.20.
+- [x] `CourseEnrollment: (data) => data.courseId` en `UrqlProvider`. Ver 8.2.20.
+
+**Certificates**
+
+- [x] `downloadUrl` firmada con expiración. Ver 8.2.21.
+- [x] `403 FORBIDDEN` para teacher/admin. Ver 8.2.21.
+- [x] `CertificateEligibility` es informativo (bloquea generación, no visualización). Ver 5.8.8.
+
+**Billing**
+
+- [x] `changeSubscriptionPlan`: upgrade inmediato, downgrade a fin de período. Ver 8.2.22.
+- [x] `cancelSubscription`: detiene cobros, mantiene acceso hasta `currentPeriodEnd`. Ver 8.2.22.
+- [x] `403 FORBIDDEN` para teacher/admin en todas las operaciones. Ver 8.2.22.
+- [x] `removePaymentMethod` con `updates` explícito en `UrqlProvider`. Ver 8.2.23.
 
 ### 8.2 Ajustes acordados
 
@@ -1231,6 +1680,82 @@ Se formaliza en `BACKEND_API.md` §9 la semántica transversal de `PATCH`:
 
 Esta regla aplica a todos los endpoints `PATCH` del contrato. Las excepciones se documentan en la sección del endpoint correspondiente; por ejemplo, `PATCH /users/me/preferences` no admite `null`.
 
+#### 8.2.18 `PATCH /users/me/privacy` — excepción a la regla general PATCH
+
+Se aplica la regla general formalizada en §9 del contrato:
+
+| Valor enviado               | Efecto                                                                  |
+| :-------------------------- | :---------------------------------------------------------------------- |
+| Campo omitido (`undefined`) | No se modifica.                                                         |
+| `null`                      | **Rechazado con `422 VALIDATION_ERROR`**. Excepción a la regla general. |
+| Valor concreto              | Se asigna.                                                              |
+
+Motivo: todos los campos de `PrivacySettings` son obligatorios en la respuesta (`ProfileVisibility!`, `Boolean!`) y no tienen estado vacío válido.
+
+Cambio de schema: `PublicProfile` expone `allowDirectMessages: Boolean!` para que otros usuarios sepan si pueden escribir. Requiere actualizar:
+
+- `src/graphql/schema/user.graphql`.
+- `src/graphql/operations/profile/public-profile.graphql`.
+- `src/lib/backend/types.ts` (`BackendPublicProfile.allowDirectMessages: boolean`).
+- `src/lib/mock/client.ts` (`getPublicProfile`).
+- Regenerar `src/graphql/generated/graphql.ts`.
+
+Matriz de visibilidad de `publicProfile` (documentar en §3.5 del contrato):
+
+| Campo de `PublicProfile` | Control             | Comportamiento                                                                        |
+| :----------------------- | :------------------ | :------------------------------------------------------------------------------------ |
+| `id`, `name`, `image`    | `profileVisibility` | Si no cumple → `404` (perfil no visible).                                             |
+| `bio`, `interests`       | `profileVisibility` | Ídem.                                                                                 |
+| `email`                  | `emailVisibility`   | `everyone` → visible. `authenticated` → visible con Bearer válido. `nobody` → `null`. |
+| `phone`                  | `phoneVisibility`   | Ídem `email`.                                                                         |
+| `allowDirectMessages`    | —                   | Siempre visible si el perfil es visible.                                              |
+
+#### 8.2.19 `POST/DELETE /users/me/account/deactivation` — autorización por rol
+
+Documentar en §11 del contrato:
+
+- `POST /users/me/account/deactivation` → `403 FORBIDDEN` para teacher/admin.
+- `DELETE /users/me/account/deactivation` → `403 FORBIDDEN` para teacher/admin.
+
+El BFF bloquea con `403` si `session.user.role !== 'student'`, sin llamar al backend. El backend también responde `403` como defensa en profundidad.
+
+#### 8.2.20 Courses — validaciones y autorización
+
+Documentar en §5 y §11 del contrato:
+
+- `progress`: `Float` en rango `[0.0, 1.0]`. Fuera de rango → el backend debe normalizar o rechazar con `500` (error de datos, no de usuario).
+- `GET /users/me/courses` → `403 FORBIDDEN` para teacher/admin.
+- `paused` no es asignable desde User Settings. Lo asigna otro módulo.
+
+#### 8.2.21 Certificates — validaciones y autorización
+
+Documentar en §5 y §11 del contrato:
+
+- `downloadUrl`: URL absoluta firmada con expiración. El backend decide el TTL. La UI debe tratarla como de un solo uso.
+- `GET /users/me/certificates` → `403 FORBIDDEN` para teacher/admin.
+
+#### 8.2.22 Billing — semántica de cancelación y autorización
+
+Documentar en §6 y §11 del contrato:
+
+- `changeSubscriptionPlan`:
+  - Upgrade (`free → premium`): inmediato, con cobro prorrateado.
+  - Downgrade (`premium → free`): a fin de período (`currentPeriodEnd`).
+- `cancelSubscription`:
+  - Detiene cobros futuros. Setea `cancelAtPeriodEnd: true`.
+  - Mantiene `status: 'active'` hasta `currentPeriodEnd`.
+  - Después pasa a `canceled` y `expired`.
+  - El usuario conserva acceso hasta el fin del período pagado.
+- `403 FORBIDDEN` para teacher/admin en todas las queries y mutations de Billing.
+
+#### 8.2.23 `removePaymentMethod` — `updates` explícito en `UrqlProvider`
+
+`removePaymentMethod` devuelve `Boolean!`, no una entidad. Para que graphcache actualice `myPaymentMethods` sin refetch, se incluye `updates` explícito en `UrqlProvider`:
+
+- Al éxito, remover el `PaymentMethod` con `paymentMethodId` de la lista.
+
+Ver `src/components/providers/UrqlProvider.tsx`. Implementación en Fase 5.
+
 ---
 
 ## 9. Bitácora
@@ -1244,6 +1769,12 @@ Esta regla aplica a todos los endpoints `PATCH` del contrato. Las excepciones se
 | —     | Fase 0.3 / Personal Data | Cerrado  | Análisis completo en 5.2. Contrato actualizado: ver 8.2.5, 8.2.6, 8.2.7. Nueva sub-fase 0.6 (reorganización Zod) definida.  |
 | —     | Fase 0.3 / Security      | Cerrado  | Análisis completo en 5.3. Contrato actualizado: ver 8.2.11 a 8.2.15. TODO temporal de 2FA en login documentado.             |
 | —     | Fase 0.3 / Preferences   | Cerrado  | Análisis completo en 5.4. Contrato actualizado: ver 8.2.16 y 8.2.17. Regla general PATCH formalizada en §9 del contrato.    |
+| —     | Fase 0.3 / Privacy       | Cerrado  | Análisis completo en 5.5. Contrato actualizado: ver 8.2.18. `PublicProfile` expone `allowDirectMessages`.                   |
+| —     | Fase 0.3 / Account       | Cerrado  | Análisis completo en 5.6. Contrato actualizado: ver 8.2.19. `403` para teacher/admin. Fecha exacta localizada.              |
+| —     | Fase 0.3 / Courses       | Cerrado  | Análisis completo en 5.7. Contrato actualizado: ver 8.2.20. `progress` en `[0,1]`. `403` para teacher/admin.                |
+| —     | Fase 0.3 / Certificates  | Cerrado  | Análisis completo en 5.8. Contrato actualizado: ver 8.2.21. `downloadUrl` firmada. `403` para teacher/admin.                |
+| —     | Fase 0.3 / Billing       | Cerrado  | Análisis completo en 5.9. Contrato actualizado: ver 8.2.22 y 8.2.23. Upgrade inmediato, downgrade a fin de período.         |
+| —     | Fase 0.3                 | Cerrado  | 9/9 secciones cerradas. Fase 0 completa (0.1, 0.2, 0.3, 0.4, 0.5). Sub-fase 0.6 diferida a Fase 3 por diseño.               |
 
 ---
 
