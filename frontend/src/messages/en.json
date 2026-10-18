@@ -449,7 +449,7 @@
         "title": "Create an account",
         "description": "Enter your details to get started with StudySync.",
         "fields": {
-          "name": {
+          "firstName": {
             "label": "First name",
             "placeholder": "Enter your first name"
           },
@@ -576,7 +576,7 @@
     }
   },
   "Validation": {
-    "name": {
+    "firstName": {
       "required": "Name is required",
       "min": "Name must be at least 2 characters long",
       "max": "Name cannot exceed 100 characters",

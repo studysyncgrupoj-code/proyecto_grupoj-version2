@@ -15,13 +15,13 @@ const passwordRegex =
 // ESQUEMAS BASE
 // ============================================
 
-const nameField = z
+const firstNameField = z
   .string()
   .trim()
-  .min(1, 'name.required')
-  .min(2, 'name.min')
-  .max(100, 'name.max')
-  .refine((val) => nameRegex.test(val), { message: 'name.invalid' });
+  .min(1, 'firstName.required')
+  .min(2, 'firstName.min')
+  .max(100, 'firstName.max')
+  .refine((val) => nameRegex.test(val), { message: 'firstName.invalid' });
 
 const lastNameField = z
   .string()
@@ -52,7 +52,7 @@ const confirmPasswordField = z.string().min(1, 'confirmPassword.required');
 // ============================================
 
 export const registerSchema = z.object({
-  name: nameField,
+  firstName: firstNameField,
   lastName: lastNameField,
   email: emailField,
   password: passwordField,
@@ -73,7 +73,7 @@ export const loginSchema = z.object({
 });
 
 export const updateUserSchema = z.object({
-  name: nameField.optional(),
+  firstName: firstNameField.optional(),
   lastName: lastNameField.optional(),
   email: emailField.optional(),
   password: passwordField.optional(),

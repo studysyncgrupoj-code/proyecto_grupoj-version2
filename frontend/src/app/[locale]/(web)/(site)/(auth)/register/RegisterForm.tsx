@@ -32,7 +32,7 @@ interface RegisterFormMessages {
   terms: string;
   success: string;
   fields: {
-    name: { label: string; placeholder: string };
+    firstName: { label: string; placeholder: string };
     lastName: { label: string; placeholder: string };
     email: { label: string; placeholder: string };
     password: {
@@ -81,7 +81,7 @@ export default function RegisterForm({
   } = useForm<RegisterFormInput>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
-      name: '',
+      firstName: '',
       lastName: '',
       email: '',
       password: '',
@@ -116,7 +116,7 @@ export default function RegisterForm({
       setMessageType('success');
 
       reset({
-        name: '',
+        firstName: '',
         lastName: '',
         email: '',
         password: '',
@@ -167,18 +167,18 @@ export default function RegisterForm({
         <form className="grid gap-3.5" onSubmit={handleSubmit(onSubmit)}>
           {/* Campo Nombre */}
           <Controller
-            name="name"
+            name="firstName"
             control={control}
             render={({ field }) => (
               <InputField
-                label={messages.fields.name.label}
-                id="name"
+                label={messages.fields.firstName.label}
+                id="firstName"
                 value={field.value}
                 onChange={field.onChange}
-                placeholder={messages.fields.name.placeholder}
+                placeholder={messages.fields.firstName.placeholder}
                 autoComplete="given-name"
                 icon={<User />}
-                error={resolveError(validation, errors.name?.message)}
+                error={resolveError(validation, errors.firstName?.message)}
                 required
                 disabled={isSubmitting}
                 size="md"

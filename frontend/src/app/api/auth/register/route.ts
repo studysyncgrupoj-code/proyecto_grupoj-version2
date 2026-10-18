@@ -35,7 +35,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     if (!emailRateLimitResult.success) return apiError(429, 'rateLimited');
 
     await registerAccount({
-      firstName: result.data.name,
+      firstName: result.data.firstName,
       lastName: result.data.lastName,
       email,
       password: result.data.password,

@@ -38,9 +38,9 @@ export default async function RegisterPage() {
     title: formT('title'),
     description: formT('description'),
     fields: {
-      name: {
-        label: formT('fields.name.label'),
-        placeholder: formT('fields.name.placeholder'),
+      firstName: {
+        label: formT('fields.firstName.label'),
+        placeholder: formT('fields.firstName.placeholder'),
       },
       lastName: {
         label: formT('fields.lastName.label'),

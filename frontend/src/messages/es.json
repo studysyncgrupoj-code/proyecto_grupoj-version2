@@ -483,7 +483,7 @@
         "title": "Regístrate",
         "description": "Completa tus datos para empezar a utilizar StudySync.",
         "fields": {
-          "name": {
+          "firstName": {
             "label": "Nombre",
             "placeholder": "Escribe tu nombre"
           },
@@ -610,7 +610,7 @@
     }
   },
   "Validation": {
-    "name": {
+    "firstName": {
       "required": "El nombre es requerido",
       "min": "El nombre debe tener al menos 2 caracteres",
       "max": "El nombre no puede exceder los 100 caracteres",
