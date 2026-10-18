@@ -1,0 +1,1282 @@
+# Plan de implementación: User Settings
+
+> Documento vivo. Se actualiza conforme avanza el trabajo.
+> Fuente de verdad para el desarrollo de la sección de configuración de usuario.
+
+---
+
+## 1. Contexto
+
+### 1.1 Objetivo
+
+Implementar la sección **User Settings** del dashboard, que permite a cada usuario
+gestionar su perfil, seguridad, preferencias y — según su rol — otras áreas de
+autoservicio.
+
+### 1.2 Ruta objetivo
+
+```text
+frontend/src/app/[locale]/(web)/dashboard/user-settings
+```
+
+### 1.3 Stack relevante
+
+- **Next.js 16** (App Router, Server + Client Components).
+- **React 19**.
+- **URQL** + **@urql/exchange-graphcache** (cliente GraphQL y caché normalizada).
+- **GraphQL Yoga** como BFF en `/api/graphql`.
+- **NextAuth v5** (sesión minimalista: `id`, `role`, `error`).
+- **next-intl** para i18n (español e inglés).
+- **react-hook-form** + **zod** para formularios.
+- **framer-motion** para animaciones y modales.
+
+### 1.4 Relación con el contrato BACKEND_API.md
+
+El contrato `docs/BACKEND_API.md` (v1.1) es la fuente de verdad para toda
+comunicación con el backend REST. Toda decisión de UI y de BFF debe respetarlo.
+Cualquier cambio necesario se reflejará primero en el contrato.
+
+### 1.5 Modo mock
+
+`BACKEND_MODE=mock` permite desarrollar y probar toda esta sección sin backend
+real. Es el modo recomendado durante el desarrollo.
+
+---
+
+## 2. Decisiones fijadas
+
+| #   | Decisión                                | Valor                                                                                                                                                                                    |
+| --- | --------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| D1  | Autorización por rol                    | **En el BFF**, siguiendo el contrato                                                                                                                                                     |
+| D2  | Privacy en el alcance                   | **Sí**, es universal                                                                                                                                                                     |
+| D3  | Account deactivation para teacher/admin | **Fuera del alcance** (baja por admin/TI)                                                                                                                                                |
+| D4  | Orden de secciones                      | Profile → Personal Data → Security → Preferences → Privacy → [Account] → [Courses] → [Certificates] → [Billing]                                                                          |
+| D5  | Idioma de este documento                | Español                                                                                                                                                                                  |
+| D6  | Commits                                 | Por hitos significativos (no por cada subtarea, sí por cada fase o sub-fase grande)                                                                                                      |
+| D7  | Patrón de mutaciones                    | URQL + graphcache puro. Toda mutación que modifique una entidad con `id` devuelve la entidad completa. Toda mutación que modifique listas incluye `updates` explícito en `UrqlProvider`. |
+| D8  | Patrón de modales de confirmación       | `<ConfirmDialog>` único para acciones destructivas. Formularios inline en `<SectionCard>` para el resto.                                                                                 |
+
+---
+
+## 3. Modelo de negocio
+
+La sección User Settings se organiza según **dos ejes ortogonales**:
+
+1. **Eje de dominio** — qué tipo de información gestiona la sección.
+2. **Eje de rol** — a qué roles aplica.
+
+### 3.1 Mapa sección × rol
+
+| Sección                | student | teacher | admin | Notas                                              |
+| ---------------------- | ------- | ------- | ----- | -------------------------------------------------- |
+| Profile                | ✅      | ✅      | ✅    | Bio, intereses, avatar. Universal.                 |
+| Personal Data          | ✅      | ✅      | ✅    | Nombre, doc, teléfono, dirección. Universal.       |
+| Security               | ✅      | ✅ ⚠️   | ✅ ⚠️ | **2FA obligatorio para teacher y admin.**          |
+| Preferences            | ✅      | ✅      | ✅    | Idioma, tema, timezone, notificaciones. Universal. |
+| Privacy                | ✅      | ✅      | ✅    | Qué expone en su perfil público. Universal.        |
+| Account (deactivation) | ✅      | ❌      | ❌    | Solo student.                                      |
+| Courses                | ✅      | ❌      | ❌    | Solo student. Lectura.                             |
+| Certificates           | ✅      | ❌      | ❌    | Solo student. Lectura + descarga.                  |
+| Billing                | ✅      | ❌      | ❌    | Solo student. Métodos de pago + suscripción.       |
+
+### 3.2 Regla especial de Security
+
+- **student**: 2FA opcional. Puede activarlo y desactivarlo.
+- **teacher / admin**: 2FA obligatorio desde el arranque. Puede activarlo,
+  **no desactivarlo**.
+  - El contrato ya lo soporta: `POST /users/me/security/two-factor/disable`
+    responde `403` cuando `twoFactorRequired: true`.
+  - La UI debe **ocultar o deshabilitar** la acción de desactivar cuando
+    `SecuritySettings.twoFactorRequired === true`.
+  - **Bloqueo en el BFF (Fase 4):** la mutación `disableTwoFactor` responde
+    `403 FORBIDDEN` en el BFF si `session.user.role !== 'student'`, sin
+    llamar al backend. Es la primera regla de autorización por rol del BFF
+    (ver Fase 1, helper `requireRole`).
+- **Medio de 2FA:** por ahora, correo electrónico. El código es de 6 dígitos
+  numéricos. Múltiples medios (SMS, TOTP app, códigos de respaldo) quedan
+  fuera del alcance y se documentan como TODO.
+- **Flujo de login con 2FA:** fuera del alcance actual. Ver TODO(auth-2fa)
+  en `src/auth.ts`. Se resolverá con un modal en el login cuando se
+  implemente.
+
+### 3.3 Sobre Account (deactivation)
+
+Solo disponible para `student`.
+
+Motivo: `teacher` y `admin` son perfiles operativos del sistema. Su baja la
+gestiona un administrador o el área de TI, no el propio usuario. Esto se
+refleja tanto en la UI (no se renderiza la sección) como en el BFF
+(`requestAccountDeactivation` responde `403` para esos roles).
+
+### 3.4 Distinción clave: vista propia vs. vista pública
+
+- **Vista propia** (lo que el usuario ve de sí mismo): `me`, `myProfile`,
+  `myPersonalData`, `mySecuritySettings`, `myPreferences`, `myPrivacySettings`,
+  `myAccount`.
+- **Vista pública** (lo que otros ven del usuario): `publicProfile(userId)`.
+
+La sección **Privacy** controla qué campos de la vista pública se exponen
+(`profileVisibility`, `emailVisibility`, `phoneVisibility`,
+`allowDirectMessages`).
+
+---
+
+## 4. Alcance
+
+### 4.1 Dentro del alcance
+
+- Secciones universales: Profile, Personal Data, Security, Preferences, Privacy.
+- Secciones exclusivas de student: Account, Courses, Certificates, Billing.
+- Autorización por rol en el BFF para todas las operaciones expuestas.
+- Visibilidad condicional por rol en el orquestador de la página.
+
+### 4.2 Fuera del alcance
+
+- Flujo "solicitar baja" para teacher/admin.
+- Vista de facturación en la que un admin gestione cuentas de otros usuarios.
+- Migración de datos o scripts de mantenimiento.
+
+### 4.3 Pendientes
+
+- Análisis del schema sección por sección: Profile ✅, Personal Data ✅,
+  Security ✅, Preferences ✅, Privacy ⏳, Account ⏳, Courses ⏳,
+  Certificates ⏳, Billing ⏳.
+- Validación y ajustes del contrato de la API para cada sección (ver sección 8):
+  Profile ✅, Personal Data ✅, Security ✅, Preferences ✅, resto pendiente.
+- Ejecución de la sub-fase 0.6 (reorganización de Zod y códigos de error) al
+  inicio de la Fase 3.
+
+_Nota: el patrón de mutaciones (D7) y el patrón de modales (D8) fueron
+decididos en Fase 0.1 y 0.2 respectivamente._
+
+---
+
+## 5. Análisis del schema (sección por sección)
+
+> Esta sección se completará de forma iterativa. Cada bloque se añade cuando
+> se analice la sección correspondiente.
+
+### 5.1 Profile
+
+#### 5.1.1 Tipos GraphQL
+
+```graphql
+type Bio {
+  title: String
+  description: String
+}
+
+type User {
+  id: ID!
+  name: String!
+  email: String!
+  image: String
+  role: UserRole!
+  profile: Profile!
+}
+
+type Profile {
+  bio: Bio
+  interests: [String!]!
+}
+
+input UpdateBioInput {
+  title: String
+  description: String
+}
+
+input UpdateProfileInput {
+  bio: UpdateBioInput
+  interests: [String!]
+  image: String
+}
+```
+
+Notas:
+
+- `image` vive en `User`, no en `Profile`, aunque la mutación `updateProfile` sí lo acepta.
+- `Bio.title` y `Bio.description` son nullable. `null` indica que el campo no tiene valor.
+
+#### 5.1.2 Queries
+
+- `me -> User!` (fuente de datos de esta sección). Operation existente: `src/graphql/operations/profile/my-profile.graphql`.
+- `publicProfile(userId: ID!) -> PublicProfile` (vista pública, consumida por otros usuarios; relevante para Privacy, no para esta sección).
+- No existe una query dedicada `myProfile`. Se usa `me`.
+
+#### 5.1.3 Mutations
+
+`updateProfile(input: UpdateProfileInput!): User!` — única mutación de esta sección. Devuelve el `User` completo actualizado.
+
+Semántica PATCH parcial:
+
+| Campo             | Campo omitido (`undefined`) | Valor `null`              | Valor nuevo                         |
+| ----------------- | --------------------------- | ------------------------- | ----------------------------------- |
+| `bio`             | No se modifica              | Borra la bio completa     | Aplica PATCH parcial dentro del bio |
+| `bio.title`       | No se modifica              | Borra el título           | Asigna nuevo título                 |
+| `bio.description` | No se modifica              | Borra la descripción      | Asigna nueva descripción            |
+| `interests`       | No se modifica              | Borra todos los intereses | Reemplaza la lista completa         |
+| `image`           | No se modifica              | Borra la imagen           | Asigna nueva imagen                 |
+
+#### 5.1.4 Campos editables vs. solo lectura
+
+| Campo             | Editable aquí | Notas                                                            |
+| ----------------- | ------------- | ---------------------------------------------------------------- |
+| `bio.title`       | ✅            | 1-100 caracteres.                                                |
+| `bio.description` | ✅            | 1-500 caracteres.                                                |
+| `interests`       | ✅            | Chips, máx. 20 items, 1-40 caracteres cada uno.                  |
+| `image`           | ✅            | URL, data URI o `null`. Data URI por ahora (ver 8.2.3).          |
+| `id`              | ❌            | Solo lectura.                                                    |
+| `name`            | ❌            | Derivado de `firstName` + `lastName`. Se edita en Personal Data. |
+| `email`           | ❌            | Se gestiona en Security (email change).                          |
+| `role`            | ❌            | Solo lectura.                                                    |
+
+#### 5.1.5 Restricciones por rol
+
+Universal: student, teacher, admin.
+
+#### 5.1.6 Estados de UI a manejar
+
+- **Loading:** primer fetch de `me`.
+- **Empty:** `bio === null`, `interests === []`, `image === null`. El usuario debe poder rellenarlos.
+- **Editing:** campos con cambios pendientes.
+- **Saving:** mutación en vuelo.
+- **Success:** feedback tras guardar.
+- **Error:** `422 VALIDATION_ERROR` (y `401` por problemas de token).
+
+#### 5.1.7 Restricciones del contrato
+
+`PATCH /users/me/profile` -> `401`, `422`.
+
+Validaciones de longitud:
+
+- `bio.title`: 1-100.
+- `bio.description`: 1-500.
+- `interests`: máx. 20 items, cada uno 1-40 caracteres.
+
+#### 5.1.8 Decisiones de UX
+
+- La bio se edita como bloque, con PATCH parcial dentro del bio (`title` y `description` por separado).
+- `interests` con UI de chips (input + Enter, botón para eliminar cada uno).
+- `image`: flujo actual con data URI. Se deja TODO para endpoint de subida dedicado (ver 8.2.3).
+- Validación de cliente con zod (`profileSchema`), creado en Fase 3.
+
+#### 5.1.9 Interacciones con otras partes del sistema
+
+- `SidebarData` (`me { name, email, image, role }`) debe reflejar el cambio de `image` vía graphcache sin refetch.
+- `publicProfile` refleja `bio`, `interests`, `image` según Privacy.
+- `ProfileAvatarSettings` (existente) se refactoriza en Fase 3 para eliminar `router.refresh()` (residuo de la migración REST -> GraphQL).
+
+### 5.2 Personal Data
+
+#### 5.2.1 Tipos GraphQL
+
+```graphql
+enum DocumentType {
+  passport
+  dni
+}
+
+type PersonalData {
+  firstName: String!
+  lastName: String!
+  documentType: DocumentType
+  documentId: String
+  phone: String
+  country: String
+  address: String
+  identityLocked: Boolean!
+}
+
+input UpdatePersonalDataInput {
+  firstName: String
+  lastName: String
+  documentType: DocumentType
+  documentId: String
+  phone: String
+  country: String
+  address: String
+}
+```
+
+Notas:
+
+- `firstName` y `lastName` son `String!` en la respuesta y `String` en el input, pero no aceptan `null` en el input (ver 5.2.3).
+- `documentType` es un enum cerrado `passport | dni`, nullable en la respuesta.
+- `documentId`, `phone`, `country` y `address` son nullables.
+- `identityLocked` es solo lectura (`Boolean!`), nunca editable.
+
+#### 5.2.2 Queries
+
+- `myPersonalData -> PersonalData!` (fuente de datos de esta sección). Operation existente: `src/graphql/operations/settings/my-personal-data.graphql`.
+- No existe query dedicada `myProfile` ni `me` reutilizable para estos datos; `me` devuelve `name`, `email`, `image`, `role` y `profile`, no los datos personales. Por eso `myPersonalData` es independiente.
+- `publicProfile(userId: ID!) -> PublicProfile` devuelve `name`, `image`, `bio`, `interests`, `email` y `phone` según Privacy. No expone `documentType`, `documentId`, ni `address`.
+
+#### 5.2.3 Mutations
+
+`updatePersonalData(input: UpdatePersonalDataInput!): PersonalData!` — única mutación de esta sección. Devuelve el `PersonalData` completo actualizado.
+
+Semántica PATCH parcial:
+
+| Campo          | Omitido (`undefined`) | `null`                       | Valor nuevo                |
+| -------------- | --------------------- | ---------------------------- | -------------------------- |
+| `firstName`    | No se modifica        | `422 VALIDATION_ERROR`       | Se asigna (con validación) |
+| `lastName`     | No se modifica        | `422 VALIDATION_ERROR`       | Se asigna (con validación) |
+| `documentType` | No se modifica        | Borra el tipo de documento   | Se asigna                  |
+| `documentId`   | No se modifica        | Borra el número de documento | Se asigna                  |
+| `phone`        | No se modifica        | Borra el teléfono            | Se asigna                  |
+| `country`      | No se modifica        | Borra el país                | Se asigna                  |
+| `address`      | No se modifica        | Borra la dirección           | Se asigna                  |
+
+Regla adicional: `firstName` y `lastName` nunca pueden quedar vacíos ni ser `null`. La validación corre en el BFF y en el backend. El mock también debe rechazar `null` en esos campos con `422 VALIDATION_ERROR`.
+
+#### 5.2.4 Campos editables vs. solo lectura
+
+| Campo            | Editable aquí | Notas                                                                        |
+| ---------------- | ------------- | ---------------------------------------------------------------------------- |
+| `firstName`      | ✅            | 2-100 caracteres. No acepta `null`. Bloqueado si `identityLocked === true`.  |
+| `lastName`       | ✅            | 2-100 caracteres. No acepta `null`. Bloqueado si `identityLocked === true`.  |
+| `documentType`   | ✅            | Enum `passport` \| `dni`. Bloqueado si `identityLocked === true`.            |
+| `documentId`     | ✅            | 1-30 caracteres alfanuméricos. Bloqueado si `identityLocked === true`.       |
+| `phone`          | ✅            | Formato E.164. No bloqueado por `identityLocked`.                            |
+| `country`        | ✅            | ISO 3166-1 alpha-2 (2 letras mayúsculas). No bloqueado por `identityLocked`. |
+| `address`        | ✅            | 1-200 caracteres. No bloqueado por `identityLocked`.                         |
+| `identityLocked` | ❌            | Solo lectura. Controla el bloqueo de los campos de identidad.                |
+
+Regla de bloqueo (`identityLocked === true`):
+
+- **Bloqueo atómico:** si el PATCH incluye al menos un campo de identidad (`firstName`, `lastName`, `documentType`, `documentId`), el BFF y el backend responden `403 FORBIDDEN` y ningún campo se actualiza, ni siquiera los de contacto que vinieran en el mismo payload.
+- Si el PATCH solo incluye campos de contacto (`phone`, `country`, `address`), se aplica normalmente.
+- La UI debe deshabilitar los campos de identidad cuando `identityLocked === true` y mostrar el motivo al usuario (badge "Bloqueado" + tooltip explicativo).
+
+#### 5.2.5 Restricciones por rol
+
+Universal: student, teacher, admin.
+
+No hay reglas por rol específicas para esta sección. La regla `identityLocked` aplica a todos los roles.
+
+#### 5.2.6 Estados de UI a manejar
+
+- **Loading:** primer fetch de `myPersonalData`.
+- **Empty:** todos los campos opcionales son `null`. El usuario debe poder rellenarlos. `firstName` y `lastName` siempre tienen valor (vienen del registro).
+- **Locked:** `identityLocked === true`. Los campos de identidad se muestran deshabilitados con badge "Bloqueado". Los campos de contacto siguen editables.
+- **Editing:** campos con cambios pendientes.
+- **Saving:** mutación en vuelo.
+- **Success:** feedback tras guardar.
+- **Error:**
+  - `422 VALIDATION_ERROR` → errores por campo (longitud, formato, `null` en `firstName`/`lastName`).
+  - `403 FORBIDDEN` → intento de modificar campos de identidad con `identityLocked === true`.
+  - `401 UNAUTHENTICATED` → problema de token.
+  - `409 CONFLICT` → reservado por si el backend introduce validaciones de unicidad sobre `documentId` en el futuro.
+
+#### 5.2.7 Restricciones del contrato
+
+`PATCH /users/me/personal-data` → `401`, `403` (identidad bloqueada), `409` (futuro), `422`.
+
+Validaciones por campo (se aplican solo si el campo se envía, respetando la semántica PATCH):
+
+| Campo          | Regla                                                                                    |
+| -------------- | ---------------------------------------------------------------------------------------- |
+| `firstName`    | 2-100 caracteres. Solo letras, espacios, apóstrofes, guiones y puntos. No acepta `null`. |
+| `lastName`     | Idem `firstName`. No acepta `null`.                                                      |
+| `documentType` | Enum cerrado: `passport` \| `dni`.                                                       |
+| `documentId`   | 1-30 caracteres. Alfanumérico (`A-Z`, `a-z`, `0-9`, `-`).                                |
+| `phone`        | Formato E.164 (`+573001234567`). Longitud 8-16.                                          |
+| `country`      | ISO 3166-1 alpha-2 en mayúsculas. Longitud exacta 2.                                     |
+| `address`      | 1-200 caracteres. Letras, dígitos, espacios y `.,-#/°`.                                  |
+
+#### 5.2.8 Decisiones de UX
+
+- Formulario inline en `<SectionCard>` (no modal). Sigue el patrón D8.
+- Los campos de identidad (`firstName`, `lastName`, `documentType`, `documentId`) se agrupan visualmente como "Identidad" y los de contacto (`phone`, `country`, `address`) como "Contacto".
+- `documentType` se renderiza como `<select>` con opciones `passport` / `dni` (etiquetas i18n).
+- `country` se renderiza como `<select>` con un catálogo hardcodeado en frontend (`src/config/countries.ts` en Fase 3). No viene del backend.
+- `documentType` no se valida como par obligatorio con `documentId` a nivel de schema. La regla "ambos o ninguno" la aplica la UI: si el usuario elige un tipo, se exige número; si borra el tipo, se borra el número.
+- El campo `phone` reutiliza el componente `PhoneInput` de `react-phone-number-input` (ya en uso en `ContactForm.tsx`).
+- Validación de cliente con Zod (`personalDataSchema`), creado en Fase 3.
+- Si `identityLocked === true`, los campos de identidad quedan deshabilitados en la UI y el submit solo envía los campos de contacto modificados.
+
+#### 5.2.9 Interacciones con otras partes del sistema
+
+- `me { name }` (consumido por `useSidebarData` y `SidebarUserMenu`): el backend construye `name` a partir de `firstName` + `lastName`. Al actualizar cualquiera de los dos, el `name` del sidebar debe reflejar el cambio vía graphcache sin refetch. Esto implica que `updatePersonalData` debe incluir un `updates` explícito en `UrqlProvider` o que el resolver del BFF devuelva también el `User` para que graphcache normalice. Punto a resolver en Fase 3.
+- `publicProfile(userId)`: no expone `documentType`, `documentId` ni `address`. Sí puede exponer `phone` si Privacy lo permite. Los cambios en `phone` deben reflejarse ahí vía graphcache.
+- `CertificateEligibility`: en Fase 5, el requisito "Datos personales completos" se calculará a partir de `myPersonalData`. Qué cuenta como "completo" se define en Fase 5 (probablemente: `documentType`, `documentId`, `phone`, `country` y `address` no nulos).
+
+### 5.3 Security
+
+#### 5.3.1 Tipos GraphQL
+
+```graphql
+type SecuritySettings {
+  email: String!
+  emailVerified: Boolean!
+  twoFactorEnabled: Boolean!
+  twoFactorRequired: Boolean!
+  sessions: [Session!]!
+}
+
+type Session {
+  id: ID!
+  deviceName: String
+  browser: String
+  ipAddress: String
+  lastActiveAt: DateTime!
+  current: Boolean!
+}
+
+type SecurityOperationResult {
+  success: Boolean!
+  message: String
+}
+
+type TwoFactorSetup {
+  secret: String!
+  qrCode: String!
+}
+
+input ChangePasswordInput {
+  currentPassword: String!
+  newPassword: String!
+}
+
+input RequestEmailChangeInput {
+  newEmail: String!
+}
+```
+
+Notas:
+
+- `SecurityOperationResult.message` es informativo; la UI decide por `success` y por código de error, nunca por texto.
+- `TwoFactorSetup { secret, qrCode }` contiene datos sensibles (contrato §9, regla 6): no se loggea, no se cachea, no se envía a analítica. Actualmente no se usa en UI (2FA por correo); disponible para TODO de métodos futuros.
+
+#### 5.3.2 Queries
+
+- `mySecuritySettings -> SecuritySettings!` (fuente de datos de esta sección). Operation existente: `src/graphql/operations/security/my-security-settings.graphql`.
+- La sección se renderiza como una sola `<SectionCard>` con 5 subsecciones: Email, Contraseña, 2FA, Sesiones, Medio de verificación 2FA.
+
+#### 5.3.3 Mutations
+
+Siete mutaciones, ninguna devuelve entidad completa (solo `SecurityOperationResult` o `TwoFactorSetup`). Por tanto, la actualización de graphcache se hace por `updates` explícitos o por refetch puntual.
+
+**`requestEmailChange`** — input `{ newEmail }`. El email no cambia hasta que el usuario confirma el enlace del correo de verificación. Errores:
+
+- `409 EMAIL_TAKEN` → "Ese correo ya está registrado".
+- `409 EMAIL_UNCHANGED` → "Es tu correo actual" (también pre-validado en cliente).
+
+**`changePassword`** — input `{ currentPassword, newPassword }`. Efecto secundario: **el backend revoca todas las otras sesiones** del usuario. La UI muestra aviso "Se cerraron tus otras sesiones por seguridad" y refresca `mySecuritySettings` con `network-only`. Errores:
+
+- `422 VALIDATION_ERROR` (reglas de `newPassword`).
+- `422 INVALID_CURRENT_PASSWORD` (error en `currentPassword`).
+- `409 CONFLICT` (nueva = actual).
+
+**`beginTwoFactorSetup`** — sin input. Devuelve `{ secret, qrCode }`. Envía un código de 6 dígitos al correo del usuario. Errores:
+
+- `409 CONFLICT` ("2FA ya activo").
+
+**`verifyTwoFactorSetup`** — input `{ code }`. Errores:
+
+- `422 VALIDATION_ERROR` (formato).
+- `422 INVALID_CODE` (código incorrecto).
+- `409 CONFLICT` (setup no iniciado o ya completado).
+
+**`disableTwoFactor`** — input `{ code }`. Visible solo si `twoFactorRequired === false` (student). El BFF bloquea con `403 FORBIDDEN` si `session.user.role !== 'student'`, sin llamar al backend. Errores:
+
+- `403 FORBIDDEN` (defensa en profundidad).
+- `422 VALIDATION_ERROR`, `422 INVALID_CODE`.
+
+**`revokeSession`** — input `{ sessionId }`. Errores:
+
+- `404 NOT_FOUND` ("la sesión ya no existe").
+- `409 CONFLICT` (intento de revocar la sesión actual).
+
+**`revokeOtherSessions`** — sin input. Deja solo la sesión actual.
+
+#### 5.3.4 Campos editables vs. solo lectura
+
+| Campo               | Editable aquí                                        | Notas                                       |
+| ------------------- | ---------------------------------------------------- | ------------------------------------------- |
+| `email`             | ✅ (vía `requestEmailChange`)                        | Cambio pendiente hasta verificar.           |
+| `emailVerified`     | ❌                                                   | Solo lectura.                               |
+| `twoFactorEnabled`  | ✅ (vía `verifyTwoFactorSetup` / `disableTwoFactor`) | Desactivación bloqueada para teacher/admin. |
+| `twoFactorRequired` | ❌                                                   | Solo lectura. Discriminador de rol.         |
+| `sessions`          | ✅ (vía `revokeSession` / `revokeOtherSessions`)     | La sesión actual no se puede revocar.       |
+| `secret`, `qrCode`  | ❌ (no se exponen en UI)                             | Datos sensibles.                            |
+
+#### 5.3.5 Restricciones por rol
+
+- **student:** 2FA opcional. Puede activar y desactivar.
+- **teacher / admin:** 2FA obligatorio desde el arranque. Puede activar, **no desactivar**.
+  - El contrato lo soporta: `POST .../two-factor/disable` responde `403` cuando `twoFactorRequired: true`.
+  - **Bloqueo en el BFF (Fase 4):** `disableTwoFactor` responde `403 FORBIDDEN` si `session.user.role !== 'student'`, sin llamar al backend. Primera regla de autorización por rol del BFF.
+
+#### 5.3.6 Estados de UI a manejar
+
+- **Loading:** primer fetch de `mySecuritySettings`.
+- **Populated:** estado normal.
+- **Empty (sin sesiones):** estado defensivo. La sesión actual siempre está.
+- **Editing / Saving / Success / Error** por mutación (ver 5.3.3).
+- **Errores comunes:**
+  - `401` → "Tu sesión expiró".
+  - `403` → "Acción no permitida".
+  - `422` → error por campo.
+  - `409` → conflicto según el caso.
+  - Red/5xx → mensaje genérico con Reintentar.
+
+#### 5.3.7 Restricciones del contrato
+
+`PATCH`/`PUT`/`POST`/`DELETE` de Security pueden responder:
+
+- `401 UNAUTHENTICATED`.
+- `403 FORBIDDEN` (disable 2FA para teacher/admin, email-change en casos específicos).
+- `404 NOT_FOUND` (revoke session inexistente).
+- `409 CONFLICT` (email duplicado, email sin cambio, nueva password igual a la actual, intento de revocar la sesión actual).
+- `422 VALIDATION_ERROR`, `422 INVALID_CURRENT_PASSWORD`, `422 INVALID_CODE`.
+
+Reglas específicas:
+
+- `newPassword`: 6-15 caracteres, 1 minúscula, 1 mayúscula, 1 especial. Mismas reglas que registro/reset.
+- `code`: 6 dígitos numéricos (`/^\d{6}$/`).
+- Cambio de contraseña cierra otras sesiones automáticamente.
+
+#### 5.3.8 Decisiones de UX
+
+- Subsecciones en `<SectionCard>`, no modales (D8).
+- `<ConfirmDialog>` para `revokeSession` y `revokeOtherSessions`.
+- Formularios inline para `changePassword`, `requestEmailChange`, `verifyTwoFactorSetup`, `disableTwoFactor`.
+- `secret` y `qrCode` no se muestran en UI (2FA por correo).
+- `confirmPassword` nunca sale del cliente.
+- El campo `email` de `SecuritySettings` es la fuente de verdad del flujo de cambio de email. Para mostrar en otros lugares se usa `me { email }`.
+
+#### 5.3.9 Interacciones con otras partes del sistema
+
+- **Graphcache:** política global `cache-and-network`. Puntual `network-only` en el refetch de `mySecuritySettings` tras `changePassword`.
+- **Clasificación por mutación:**
+  - `requestEmailChange` → sin updates.
+  - `changePassword` → refetch `network-only`.
+  - `beginTwoFactorSetup` → sin updates.
+  - `verifyTwoFactorSetup` → update explícito (`twoFactorEnabled = true`).
+  - `disableTwoFactor` → update explícito (`twoFactorEnabled = false`).
+  - `revokeSession` → update explícito (quitar de la lista).
+  - `revokeOtherSessions` → update explícito (dejar solo current).
+- **`me { email }`:** cuando el cambio de email se confirme, hay que invalidar/actualizar también `me` y `SidebarData`.
+- **`auth.ts`:** TODO para 2FA en login (fuera de alcance).
+- **`UrqlProvider`:** asegurar que `TwoFactorSetup` NO se declara como entidad normalizada (contiene `secret` y `qrCode`).
+
+### 5.4 Preferences
+
+#### 5.4.1 Tipos GraphQL
+
+```graphql
+enum Theme {
+  system
+  light
+  dark
+}
+
+type Preferences {
+  language: String!
+  theme: Theme!
+  timezone: String!
+  notifications: NotificationPreferences!
+  accessibility: AccessibilityPreferences!
+}
+
+type NotificationPreferences {
+  email: Boolean!
+  push: Boolean!
+  inApp: Boolean!
+}
+
+type AccessibilityPreferences {
+  reducedMotion: Boolean!
+  highContrast: Boolean!
+}
+
+input NotificationPreferencesInput {
+  email: Boolean
+  push: Boolean
+  inApp: Boolean
+}
+
+input AccessibilityPreferencesInput {
+  reducedMotion: Boolean
+  highContrast: Boolean
+}
+
+input UpdatePreferencesInput {
+  language: String
+  theme: Theme
+  timezone: String
+  notifications: NotificationPreferencesInput
+  accessibility: AccessibilityPreferencesInput
+}
+```
+
+Notas:
+
+- Todos los campos de `Preferences` son obligatorios en la respuesta (`!`).
+- `notifications` y `accessibility` son value objects, no entidades; graphcache los embebe en el padre.
+- `language` es `String` en el schema para no acoplarlo a routing.locales. La validación vive en el BFF (ver 5.4.7).
+
+#### 5.4.2 Queries
+
+- `myPreferences -> Preferences!` (fuente de datos de esta sección). Operation existente: `src/graphql/operations/preferences/my-preferences.graphql`.
+
+#### 5.4.3 Mutations
+
+`updatePreferences(input: UpdatePreferencesInput!): Preferences!` es la única mutación y devuelve la entidad completa.
+
+Semántica PATCH (regla general del contrato, ver `BACKEND_API.md` §9):
+
+| Campo             | Omitido (`undefined`) | `null`                                               | Valor     |
+| ----------------- | --------------------- | ---------------------------------------------------- | --------- |
+| `language`        | No se modifica        | `422 VALIDATION_ERROR`                               | Se asigna |
+| `theme`           | No se modifica        | `422 VALIDATION_ERROR`                               | Se asigna |
+| `timezone`        | No se modifica        | `422 VALIDATION_ERROR`                               | Se asigna |
+| `notifications.*` | No se modifica        | `422 VALIDATION_ERROR` si el objeto entero es `null` | Se asigna |
+| `accessibility.*` | No se modifica        | `422 VALIDATION_ERROR` si el objeto entero es `null` | Se asigna |
+
+Excepción: en Preferences `null` se rechaza con `422` porque ningún campo tiene estado vacío válido. `notifications: {}` equivale a omitir el campo.
+
+#### 5.4.4 Campos editables vs. solo lectura
+
+| Campo                         | Editable aquí | Notas                                    |
+| ----------------------------- | ------------- | ---------------------------------------- |
+| `language`                    | ✅            | `es` o `en`.                             |
+| `theme`                       | ✅            | `system`, `light` o `dark`.              |
+| `timezone`                    | ✅            | Zona IANA, por ejemplo `America/Bogota`. |
+| `notifications.email`         | ✅            | Boolean.                                 |
+| `notifications.push`          | ✅            | Boolean.                                 |
+| `notifications.inApp`         | ✅            | Boolean.                                 |
+| `accessibility.reducedMotion` | ✅            | Boolean.                                 |
+| `accessibility.highContrast`  | ✅            | Boolean.                                 |
+
+#### 5.4.5 Restricciones por rol
+
+Universal: `student`, `teacher`, `admin`.
+
+#### 5.4.6 Estados de UI a manejar
+
+- Loading, Populated, Editing, Saving, Success y Error.
+- `422 VALIDATION_ERROR` para idioma, tema, timezone inválidos o `null`.
+- `401 UNAUTHENTICATED` para problemas de token.
+
+#### 5.4.7 Restricciones del contrato
+
+`PATCH /users/me/preferences` responde `401` o `422`.
+
+| Campo           | Regla                                             |
+| --------------- | ------------------------------------------------- |
+| `language`      | `es` o `en`; otro valor → `422`.                  |
+| `theme`         | `system`, `light` o `dark`.                       |
+| `timezone`      | Zona IANA válida.                                 |
+| `notifications` | Objeto parcial; `{}` no modifica; `null` → `422`. |
+| `accessibility` | Objeto parcial; `{}` no modifica; `null` → `422`. |
+
+El BFF valida `null`, `language` y normaliza antes de llamar al backend. El mock replica la validación en runtime.
+
+#### 5.4.8 Decisiones de UX (pendientes)
+
+La UI se implementa en Fase 3. El formulario será inline en `<SectionCard>`, sin cambios de comportamiento para los toggles actuales. Los TODO de flash/sync quedan documentados en §8.1.
+
+#### 5.4.9 Interacciones con otras partes del sistema
+
+- `UrqlProvider`: `Preferences: () => 'me'` ya existe.
+- `LanguageToggle` y `ThemeToggle`: sin cambios en esta fase; TODOs en §8.1.
+- `timezone`: solo se persiste; TODO `tz-global` para Fase 6+.
+
+### 5.5 Privacy
+
+_(pendiente)_
+
+### 5.6 Account
+
+_(pendiente)_
+
+### 5.7 Courses
+
+_(pendiente)_
+
+### 5.8 Certificates
+
+_(pendiente)_
+
+### 5.9 Billing
+
+_(pendiente)_
+
+---
+
+## 6. Fases y subtareas
+
+### Fase 0 — Decisiones y fundaciones
+
+- [x] **0.1** Definir el patrón de mutación + refresco. → D7.
+- [x] **0.2** Definir el patrón de modales de confirmación. → D8.
+- [ ] **0.3** Analizar el schema GraphQL sección por sección y volcar las
+      conclusiones en la sección 5 de este documento. _(en curso: Profile,
+      Personal Data, Security y Preferences cerrados; Privacy, Account,
+      Courses, Certificates y Billing pendientes)_
+- [ ] **0.4** Analizar el contrato `BACKEND_API.md` para detectar discrepancias
+      o necesidades de ajuste (ver sección 8). _(en curso)_
+- [ ] **0.5** Actualizar el contrato `BACKEND_API.md` con los ajustes acordados.
+      _(Profile, Personal Data, Security y Preferences aplicados)_
+- [ ] **0.6** Reorganizar los schemas Zod y los códigos de error en carpetas
+      modulares. Se ejecuta durante la Fase 3 (Opción B), con los primeros
+      schemas nuevos (profile, personalData) como caso de uso real.
+  - Crear `src/lib/schemas/`.
+  - Mover `src/lib/user.schema.ts` → `src/lib/schemas/auth.schema.ts`.
+  - Mover `src/lib/contactSchema.ts` → `src/lib/schemas/contact.schema.ts`.
+  - Crear `src/lib/schemas/index.ts` con re-exports públicos.
+  - Crear `src/lib/errors/`.
+  - Mover `src/lib/apiErrors.ts` → `src/lib/errors/api-errors.ts`.
+  - Mover `src/lib/authErrors.ts` → `src/lib/errors/auth-errors.ts`.
+  - Mover `src/lib/contactErrors.ts` → `src/lib/errors/contact-errors.ts`.
+  - Crear `src/lib/errors/index.ts` con re-exports públicos.
+  - Actualizar todos los imports afectados (`auth.ts`, route handlers,
+    `ContactForm.tsx`, `ForgotPasswordModal.tsx`, `LoginForm.tsx`,
+    `RegisterForm.tsx`, `Resetpasswordform.tsx`).
+  - Validar `pnpm type-check`, `pnpm lint`, `pnpm mock:test`.
+
+**Commits de la fase:**
+
+- `docs(user-settings): add plan and initial decisions`
+- `feat(contract): add validation rules and nullable bio fields for profile`
+- `docs(user-settings): close phase 0.3 analysis for profile section`
+
+---
+
+### Fase 1 — Autorización por rol en el BFF
+
+- **1.1** Añadir helper `requireRole(...)` junto a `requireAuth` en
+  `src/graphql/auth.ts`.
+- **1.2** Aplicar autorización por rol a las queries y mutations existentes
+  según la tabla 3.1.
+- **1.3** Alinear los flags de visibilidad del orquestador con la autorización
+  real del BFF.
+- **1.4** Corregir el TODO de `src/graphql/context.ts`.
+- **1.5** Extender `scripts/test-mock.ts` con casos de autorización por rol.
+- **1.6** Validar la autorización con `pnpm mock:test`.
+
+**Commits sugeridos:**
+
+- `feat(bff): add requireRole helper for role-based authorization`
+- `feat(bff): enforce role authorization on settings queries and mutations`
+- `test(bff): cover role authorization in mock test suite`
+
+---
+
+### Fase 2 — Infraestructura UI compartida
+
+- **2.1** Crear `src/config/user-settings-sections.ts` con el mapa
+  sección × rol.
+- **2.2** Componente `<SectionCard>` (encabezado + cuerpo + estado).
+- **2.3** Componente `<ConfirmDialog>` reutilizable.
+- **2.4** Componente `<SettingsSkeleton>` para estados de carga.
+- **2.5** Hook `useSectionMutation` (o equivalente) que encapsule mutación,
+  manejo de errores del contrato, refresco y estado optimista.
+- **2.6** Validar `pnpm type-check` y `pnpm lint`.
+
+**Commit sugerido:** `feat(user-settings): add shared UI primitives`
+
+---
+
+### Fase 3 — Secciones universales (parte 1)
+
+- **3.1** `ProfileSection`: refactor del existente al patrón nuevo.
+- **3.2** `PersonalDataSection`: `myPersonalData` + `updatePersonalData`.
+  - Manejo de `identityLocked`.
+  - Manejo de errores: `VALIDATION_ERROR`, `FORBIDDEN`, `CONFLICT`.
+- **3.3** `PreferencesSection`: `myPreferences` + `updatePreferences`.
+  - `language`: guardar en backend + `router.replace(pathname, { locale })`
+    en `onSuccess`.
+  - `theme`: guardar en backend + `setTheme` en `onSuccess`.
+  - `timezone`: solo persistir. TODO(tz-global) para Fase 6+.
+  - `null` en cualquier campo rechazado con `422` (ver 8.2.16).
+  - `notifications: {}` no modifica ningún subcampo.
+  - Los toggles (`LanguageToggle`, `ThemeToggle`) no se tocan en esta fase.
+    TODO(theme-no-flash) y TODO(i18n-sync) en §8.1.
+- **3.4** `PrivacySection`: `myPrivacySettings` + `updatePrivacySettings`.
+
+**Commits sugeridos:**
+
+- `feat(user-settings): add personal data section`
+- `feat(user-settings): add preferences section`
+- `feat(user-settings): add privacy section`
+
+---
+
+### Fase 4 — Security
+
+- **4.1** `SecurityOverviewSection`: `mySecuritySettings` (lectura).
+- **4.2** `ChangePasswordSection`: `changePassword` + confirmación.
+- **4.3** `EmailChangeSection`: `requestEmailChange`.
+- **4.4** `TwoFactorSection`: setup, verify, disable.
+  - Lógica de rol: `twoFactorRequired === true` → ocultar/deshabilitar disable.
+  - El secreto 2FA nunca se loggea ni se persiste en caché.
+- **4.5** `SessionsSection`: listar + `revokeSession` + `revokeOtherSessions`.
+- **4.6** Validar accesibilidad y focus management en modales.
+
+**Commits sugeridos:**
+
+- `feat(user-settings): add security overview and password change`
+- `feat(user-settings): add email change flow`
+- `feat(user-settings): add two-factor management with role rules`
+- `feat(user-settings): add sessions management`
+
+---
+
+### Fase 5 — Secciones exclusivas de student
+
+- **5.1** `AccountSection`: `myAccount` + deactivation/cancelación con
+  confirmación fuerte.
+- **5.2** `CoursesSection`: `myCourses` (lectura).
+- **5.3** `CertificatesSection`: `myCertificates` (lectura + descarga).
+  - Vincular con `CertificateEligibility` existente.
+- **5.4** `BillingSection`: `mySubscription`, `myPaymentMethods`,
+  `myInvoices`, `changeSubscriptionPlan`, `cancelSubscription`,
+  `removePaymentMethod`.
+
+**Commits sugeridos:**
+
+- `feat(user-settings): add account deactivation section`
+- `feat(user-settings): add courses and certificates sections`
+- `feat(user-settings): add billing section`
+
+---
+
+### Fase 6 — Endurecimiento
+
+- **6.1** Estados vacíos, errores de red, loading consistentes.
+- **6.2** Accesibilidad: `aria-busy`, `role="alert"`, focus en modales.
+- **6.3** Revisión de `graphcache`: cada mutación actualiza correctamente las
+  queries relacionadas.
+- **6.4** Ejecutar y pasar: `pnpm type-check`, `pnpm lint`,
+  `pnpm graphql:validate`, `pnpm mock:test`.
+- **6.5** Revisión final del contrato con el backend.
+
+**Commit sugerido:** `chore(user-settings): hardening and QA pass`
+
+---
+
+## 7. Convenciones
+
+### 7.1 Código
+
+- **Server Components** para orquestación y fetching de sesión/traducciones.
+- **Client Components** para formularios, mutaciones e interactividad.
+- Los datos de presentación (nombre, email, imagen) **siempre** vienen del BFF
+  vía GraphQL, nunca de la sesión.
+- Manejo de errores por **código** (`error.code`), nunca por texto.
+- Traducciones vía message bags explícitos desde el servidor hacia el cliente.
+- Sin `any`. Tipar todo (contrato, resolvers, componentes).
+
+### 7.2 Commits
+
+- Un commit por hito significativo (fin de fase o sub-fase grande).
+- Mensajes en formato convencional:
+  - `feat(scope): descripción`
+  - `fix(scope): descripción`
+  - `docs(scope): descripción`
+  - `test(scope): descripción`
+  - `chore(scope): descripción`
+- `scope` típico: `user-settings`, `bff`, `backend`, `contract`.
+
+### 7.3 Archivos y naming
+
+- Componentes: PascalCase (`ProfileSection.tsx`).
+- Hooks: camelCase con prefijo `use` (`useSectionMutation.ts`).
+- Config: kebab-case (`user-settings-sections.ts`).
+
+---
+
+## 8. Validación y ajustes del contrato de la API
+
+> A medida que avancemos, iremos detectando necesidades de cambio en
+> `docs/BACKEND_API.md`. Esta sección centraliza los ajustes acordados.
+
+### 8.1 Puntos a revisar
+
+- [ ] ¿El contrato distingue en algún punto por rol? (Hoy no lo hace
+      explícitamente; la autorización por rol se delega al BFF.)
+- [ ] `POST /users/me/account/deactivation` para `teacher`/`admin` — ¿se
+      documenta el `403` esperado?
+- [ ] Errores por endpoint de las secciones nuevas en Billing.
+- [ ] Revisar si hace falta exponer algún campo adicional en el contrato
+      para soportar la lógica de rol (por ej. `twoFactorRequired` ya existe
+      en `SecuritySettings`).
+- [ ] `pendingEmail` en `SecuritySettings` para exponer correo en verificación.
+      Fuera del alcance inicial; evaluar como `8.2.8`. Ver TODO(email-change).
+- [ ] Múltiples medios de 2FA (SMS, TOTP, códigos de respaldo) y preferencia
+      de medio. Fuera del alcance; ver TODO(seguridad-2fa).
+- [ ] Flujo de login con 2FA: cómo bifurcar `authorize` en Auth.js y cómo
+      resolver el segundo factor en el cliente. Ver TODO(auth-2fa).
+- [ ] **TODO temporal** (se borra al cerrar el plan completo): flujo completo
+      de 2FA en login. Ver 8.2.15.
+- [ ] TODO(theme-no-flash): estrategia de hidratación del `ThemeProvider` del
+      dashboard para eliminar el parpadeo entre `localStorage` y
+      `myPreferences`. Fuera de alcance del Bloque 1.
+- [ ] TODO(i18n-sync): sincronización de `myPreferences.language` con el locale
+      de la URL al montar el dashboard. Fuera de alcance del Bloque 1.
+- [ ] TODO(tz-global): aplicar `timezone` en el resto de la app (formateo de
+      fechas, calendario). Fase 6+.
+
+Resueltos:
+
+**Profile**
+
+- [x] Validaciones de longitud para `bio.title`, `bio.description` e
+      `interests` en `PATCH /users/me/profile`. Ver 8.2.1.
+- [x] `UpdateBioInput` con campos opcionales para permitir PATCH parcial dentro
+      del bio. Ver 8.2.2.
+- [x] `Bio.title` y `Bio.description` nullable. Ver 8.2.3.
+
+**Personal Data**
+
+- [x] `PATCH /users/me/personal-data` con `identityLocked: true` — semántica
+      definida (rechazo atómico con `403 FORBIDDEN` solo si el payload incluye
+      campos de identidad). Ver 8.2.7.
+- [x] Validaciones de longitud y formato para todos los campos de
+      `PATCH /users/me/personal-data`. Ver 8.2.5.
+- [x] Añadido `documentType` (`passport` | `dni`) a `PersonalData` y a
+      `UpdatePersonalDataInput`. Ver 8.2.6.
+
+**Security**
+
+- [x] `POST /users/me/security/two-factor/disable` con
+      `twoFactorRequired: true` — documentado. Bloqueo en BFF con `403`.
+      Ver 8.2.14.
+- [x] Códigos de error diferenciados para email-change. Ver 8.2.11.
+- [x] Reglas explícitas de `newPassword` en el contrato. Ver 8.2.13.
+- [x] Efecto secundario de `changePassword` (cierra otras sesiones). Ver 8.2.12.
+- [x] Formato del código 2FA (`/^\d{6}$/`). Ver 8.2.14.
+- [x] `revokeSession` con `sessionId === actual` → `409`. Ver 8.2.11.
+
+**Preferences**
+
+- [x] Regla general PATCH formalizada en §9 del contrato. Ver 8.2.17.
+- [x] `null` en `PATCH /users/me/preferences` → `422 VALIDATION_ERROR`. Ver 8.2.16.
+- [x] `notifications: {}` no modifica; `notifications: null` → `422`. Ver 8.2.16.
+- [x] `language` restringido a `es | en`. Ver 8.2.16.
+
+### 8.2 Ajustes acordados
+
+#### 8.2.1 `PATCH /users/me/profile` — validaciones nuevas
+
+Añadidas al contrato las siguientes reglas de validación para `BackendUpdateProfileInput`:
+
+| Campo             | Regla                                               |
+| ----------------- | --------------------------------------------------- |
+| `bio.title`       | 1 a 100 caracteres.                                 |
+| `bio.description` | 1 a 500 caracteres.                                 |
+| `interests`       | Máximo 20 items. Cada item entre 1 y 40 caracteres. |
+| `image`           | URL absoluta, data URI o `null`. Sin cambio.        |
+
+Estas reglas se aplican solo si el campo se envía (semántica PATCH). Si el campo
+se omite, no se modifica. Si se envía `null` en `bio` o `interests`, se borra el
+valor completo.
+
+#### 8.2.2 `UpdateBioInput` con campos opcionales
+
+Cambiado el schema GraphQL y el contrato REST para permitir `title` y
+`description` opcionales dentro de `UpdateBioInput`.
+
+- **Antes**:
+
+  ```graphql
+  input UpdateBioInput {
+    title: String!
+    description: String!
+  }
+  ```
+
+- **Después**:
+
+  ```graphql
+  input UpdateBioInput {
+    title: String
+    description: String
+  }
+  ```
+
+Semántica:
+
+- `title` omitido → no se modifica.
+- `title: null` → se borra el título.
+- `title: "..."` → se asigna.
+- Mismo comportamiento para `description`. Para borrar la bio completa, el
+  cliente envía `bio: null` (nivel superior).
+
+#### 8.2.3 Bio.title y Bio.description nullable
+
+Cambiado el tipo `Bio` en el schema GraphQL para que `title` y `description`
+admitan `null`.
+
+Antes:
+
+```graphql
+type Bio {
+  title: String!
+  description: String!
+}
+```
+
+Después:
+
+```graphql
+type Bio {
+  title: String
+  description: String
+}
+```
+
+`null` indica que el campo no tiene valor. El objeto `bio` completo puede ser
+`null` si el usuario no tiene bio.
+
+#### 8.2.4 `image` como data URI — mejora futura
+
+Mantener el flujo actual (data URI) por ahora. Dejar constancia en el contrato
+de que a futuro conviene un endpoint de subida dedicado
+(`POST /users/me/avatar` o similar), para evitar payloads grandes en el body de
+`PATCH /users/me/profile`. No bloquea la implementación actual.
+
+#### 8.2.5 `PATCH /users/me/personal-data` — validaciones y semántica PATCH
+
+Añadidas al contrato las siguientes reglas de validación para
+`BackendUpdatePersonalDataInput`:
+
+| Campo          | Regla                                                                                                                 |
+| -------------- | --------------------------------------------------------------------------------------------------------------------- |
+| `firstName`    | 2-100 caracteres. Solo letras, espacios, apóstrofes, guiones y puntos. **No acepta `null`** → `422 VALIDATION_ERROR`. |
+| `lastName`     | Idem `firstName`. **No acepta `null`** → `422 VALIDATION_ERROR`.                                                      |
+| `documentType` | Enum cerrado: `passport` \| `dni`.                                                                                    |
+| `documentId`   | 1-30 caracteres alfanuméricos (`A-Z`, `a-z`, `0-9`, `-`).                                                             |
+| `phone`        | Formato E.164 (`+573001234567`).                                                                                      |
+| `country`      | ISO 3166-1 alpha-2 en mayúsculas. Longitud exacta 2.                                                                  |
+| `address`      | 1-200 caracteres. Letras, dígitos, espacios y `.,-#/°`.                                                               |
+
+Semántica PATCH parcial (aplicable a todos los campos):
+
+- Omitir el campo (`undefined`) → no se modifica.
+- Enviar `null` → borra el valor. **Excepción:** `firstName` y `lastName` no
+  aceptan `null`.
+- Enviar un valor → se asigna el nuevo valor.
+
+El contrato `BACKEND_API.md` debe documentar esta semántica explícitamente en la
+sección de `PATCH /users/me/personal-data`, así como la excepción de
+`firstName` y `lastName`.
+
+#### 8.2.6 Nuevo campo `documentType`
+
+Se añade el campo `documentType` a `BackendPersonalData` y
+`BackendUpdatePersonalDataInput`. Requiere:
+
+- Nuevo enum GraphQL `DocumentType { passport, dni }`.
+- Actualizar `src/graphql/schema/settings/personal-data.graphql`.
+- Actualizar `src/lib/backend/types.ts` con
+  `BackendDocumentType = 'passport' | 'dni'`.
+- Actualizar `MockBackendClient.personalData.getMe` / `.update`.
+- Actualizar `src/graphql/operations/settings/my-personal-data.graphql` y
+  `update-personal-data.graphql`.
+- Regenerar `src/graphql/generated/graphql.ts` con `pnpm graphql:codegen`.
+- Añadir etiquetas i18n `documentType.passport` / `documentType.dni` en
+  `es.json` y `en.json`.
+- El catálogo de países (`country`) se hardcodea en frontend en
+  `src/config/countries.ts`. El catálogo de tipos de documento se hardcodea
+  junto a los schemas en Fase 3.
+
+Motivo: algunos países usan pasaporte como identificación principal; otros,
+documento nacional. Ambos casos se soportan desde el inicio. La validación de
+identidad real (verificación contra el documento) se deja como TODO detallado
+en el código para versiones posteriores.
+
+#### 8.2.7 `identityLocked` como bloqueo granular
+
+Se redefine `identityLocked` como un bloqueo **parcial**:
+
+- Bloquea los campos de identidad: `firstName`, `lastName`, `documentType`,
+  `documentId`.
+- **No** bloquea los campos de contacto: `phone`, `country`, `address`.
+
+Comportamiento en PATCH mixto (`identityLocked === true`):
+
+- Si el payload incluye al menos un campo de identidad → **rechazo atómico** con
+  `403 FORBIDDEN`. Ningún campo se actualiza, ni siquiera los de contacto que
+  vinieran en el mismo payload.
+- Si el payload solo incluye campos de contacto → se aplica normalmente.
+
+El contrato `BACKEND_API.md` debe documentar:
+
+- Qué campos bloquea `identityLocked`.
+- La semántica de rechazo atómico.
+- El código exacto de error: `403 FORBIDDEN`.
+
+La UI debe deshabilitar los campos de identidad cuando `identityLocked === true`
+y mostrar el motivo.
+
+#### 8.2.8 `PUT /users/me/security/password` — reglas explícitas
+
+Se documentan en el contrato las reglas de `newPassword`:
+
+- 6 a 15 caracteres.
+- Al menos 1 letra minúscula, 1 letra mayúscula y 1 carácter especial
+  (por ejemplo `!`).
+- No puede ser igual a `currentPassword` → `409 CONFLICT`.
+- `currentPassword` incorrecta → `422 INVALID_CURRENT_PASSWORD`.
+
+Son las mismas reglas que registro/reset. Se documentan explícitamente en §11
+porque `changePassword` es el flujo donde más se atacan las cuentas.
+
+#### 8.2.9 Código 2FA — formato
+
+`code` (en `verifyTwoFactorSetup` y `disableTwoFactor`) es un string de
+exactamente **6 dígitos numéricos**. Regex: `/^\d{6}$/`. Fuera de alcance:
+códigos de respaldo, TOTP con ventana extendida, múltiples medios.
+
+El único medio soportado actualmente es el correo electrónico del usuario.
+
+#### 8.2.10 `DELETE /users/me/security/sessions/:sessionId` — sesión actual
+
+Revocar la sesión actual (`sessionId === sesión actual`) responde
+`409 CONFLICT`. La UI oculta la acción para la sesión actual
+(`Session.current === true`). Motivo: revocar la sesión actual cerraría la
+sesión activa del usuario y lo dejaría sin acceso; el flujo correcto es "cerrar
+sesión", no "revocar sesión".
+
+#### 8.2.11 Nuevos códigos de error para Security
+
+Añadir a §4.2 del contrato:
+
+| HTTP  | Código               | Endpoint                                        |
+| ----- | -------------------- | ----------------------------------------------- |
+| `409` | `EMAIL_TAKEN`        | `POST /users/me/security/email-change`          |
+| `409` | `EMAIL_UNCHANGED`    | `POST /users/me/security/email-change`          |
+| `409` | `SESSION_IS_CURRENT` | `DELETE /users/me/security/sessions/:sessionId` |
+
+Motivo: `EMAIL_TAKEN` y `EMAIL_UNCHANGED` permiten traducir mensajes distintos
+en la UI. `SESSION_IS_CURRENT` permite mensaje específico "no puedes cerrar tu
+propia sesión desde aquí".
+
+#### 8.2.12 `changePassword` cierra otras sesiones automáticamente
+
+Documentar en el contrato que `PUT /users/me/security/password` revoca todas
+las sesiones del usuario excepto la actual. La UI refresca `mySecuritySettings`
+con `network-only` tras el éxito.
+
+#### 8.2.13 Reglas explícitas de `newPassword`
+
+Documentar en el contrato §3.5.X las reglas de `newPassword`:
+
+- 6 a 15 caracteres.
+- Al menos 1 minúscula, 1 mayúscula, 1 carácter especial.
+- No puede ser igual a `currentPassword` → `409 CONFLICT`.
+
+Mismas reglas que registro/reset. Se documentan explícitamente porque
+`changePassword` es el flujo más atacado.
+
+#### 8.2.14 Flujo de 2FA — documentación en contrato
+
+Documentar en el contrato §3.5.X:
+
+- Medio actual: correo electrónico.
+- Código: 6 dígitos numéricos (`/^\d{6}$/`).
+- Roles: student opcional; teacher/admin obligatorio.
+- Activación/desactivación en dashboard vía BFF.
+- Fuera de alcance: múltiples medios, 2FA en login.
+
+#### 8.2.15 TODO: 2FA en login (fuera de alcance)
+
+Documentar en §8.1 con detalle:
+
+- Nuevos endpoints REST: `POST /auth/login/two-factor/verify` y
+  `POST /auth/login/two-factor/resend`.
+- Cambio en `POST /auth/login` para devolver `twoFactorRequired: true` +
+  `challengeId` cuando 2FA esté activo.
+- Refactor de `authorize` en `src/auth.ts`.
+- Refactor de `LoginForm.tsx` con modal.
+- Nota: el 2FA en login usa REST directo, no GraphQL.
+
+**Este TODO es temporal. Al finalizar el plan completo, este bloque se elimina
+del documento.**
+
+#### 8.2.16 `PATCH /users/me/preferences` — excepción a la regla general PATCH
+
+Se aplica la regla general formalizada en §9 del contrato:
+
+| Valor enviado               | Efecto                                                                  |
+| :-------------------------- | :---------------------------------------------------------------------- |
+| Campo omitido (`undefined`) | No se modifica.                                                         |
+| `null`                      | **Rechazado con `422 VALIDATION_ERROR`**. Excepción a la regla general. |
+| Valor concreto              | Se asigna.                                                              |
+
+Motivo de la excepción: todos los campos de `Preferences` son obligatorios en la respuesta (`String!`, `Theme!`, etc.) y no tienen un estado vacío válido.
+
+Reglas adicionales:
+
+- `language` debe ser `es` o `en`. Otro valor → `422`.
+- `notifications: {}` equivale a omitir el campo; `notifications: null` → `422`.
+- `accessibility` sigue las mismas reglas que `notifications`.
+- `timezone` debe ser una zona horaria IANA válida.
+
+El BFF (`src/graphql/resolvers/preferences.ts`) valida `null`, `language` y normaliza antes de llamar al backend. El backend vuelve a validar como defensa en profundidad.
+
+#### 8.2.17 Regla general PATCH formalizada en §9 del contrato
+
+Se formaliza en `BACKEND_API.md` §9 la semántica transversal de `PATCH`:
+
+| Valor enviado               | Efecto                                       |
+| :-------------------------- | :------------------------------------------- |
+| Campo omitido (`undefined`) | No se modifica.                              |
+| `null`                      | Se borra el valor (queda vacío / sin valor). |
+| Valor concreto              | Se asigna.                                   |
+
+Esta regla aplica a todos los endpoints `PATCH` del contrato. Las excepciones se documentan en la sección del endpoint correspondiente; por ejemplo, `PATCH /users/me/preferences` no admite `null`.
+
+---
+
+## 9. Bitácora
+
+| Fecha | Fase                     | Estado   | Notas                                                                                                                       |
+| ----- | ------------------------ | -------- | --------------------------------------------------------------------------------------------------------------------------- |
+| —     | Fase 0.1                 | Cerrado  | Patrón de mutaciones: URQL + graphcache puro. `router.refresh()` en `ProfileAvatarSettings` se elimina en Fase 3.           |
+| —     | Fase 0.2                 | Cerrado  | Patrón de modales: `<ConfirmDialog>` para confirmaciones destructivas; formularios inline en `<SectionCard>` para el resto. |
+| —     | Fase 0.3                 | En curso | Análisis de schema sección por sección.                                                                                     |
+| —     | Fase 0.3 / Profile       | Cerrado  | Análisis completo en 5.1. Contrato actualizado: ver 8.2.1, 8.2.2, 8.2.3, 8.2.4.                                             |
+| —     | Fase 0.3 / Personal Data | Cerrado  | Análisis completo en 5.2. Contrato actualizado: ver 8.2.5, 8.2.6, 8.2.7. Nueva sub-fase 0.6 (reorganización Zod) definida.  |
+| —     | Fase 0.3 / Security      | Cerrado  | Análisis completo en 5.3. Contrato actualizado: ver 8.2.11 a 8.2.15. TODO temporal de 2FA en login documentado.             |
+| —     | Fase 0.3 / Preferences   | Cerrado  | Análisis completo en 5.4. Contrato actualizado: ver 8.2.16 y 8.2.17. Regla general PATCH formalizada en §9 del contrato.    |
+
+---
+
+## 10. Deuda técnica
+
+Detectada al desbloquear el linter (ESLint 10 → 9 + TS 6/7 side-by-side).
+
+### 10.1 Errores — `react-hooks/set-state-in-effect`
+
+Patrón común: `setState` síncrono dentro de `useEffect`. React recomienda
+resolverlo con `useSyncExternalStore`, refs, o moviendo el estado al render.
+No bloquea la funcionalidad, pero afecta performance.
+
+- `src/app/[locale]/(web)/(site)/(auth)/reset-password/[token]/Resetpasswordform.tsx:131`
+- `src/app/[locale]/(web)/dashboard/user-settings/ProfileAvatarSettings.tsx:89`
+- `src/components/layout/dashboard/sidebar/Mobilenav.tsx:79`
+- `src/components/ui/ThemeToggle/ThemeToggleClient.tsx:60`
+
+### 10.2 Warnings
+
+- **Variables no usadas** con prefijo `_` en `Button.tsx` (16 casos).
+- **Directivas `eslint-disable` obsoletas** en 4 archivos.
+- **`react-hooks/incompatible-library`** en `ContactForm.tsx` por uso de
+  `watch()` de react-hook-form (React Compiler no puede memoizar).
+- **`<img>` en lugar de `next/image`** en `AvatarUploader.tsx`.
+
+### 10.3 Estrategia de resolución
+
+Se resolverán oportunamente cuando se toquen los archivos correspondientes
+durante las fases de User Settings:
+
+- `ProfileAvatarSettings.tsx` → Fase 3 (Profile).
+- `Mobilenav.tsx` → Fase 3 o 4 (cuando se toque navegación).
+- `ThemeToggleClient.tsx` → Fase 3 (Preferences).
+- `ContactForm.tsx` → fuera de User Settings, cuando se toque contacto.
+- `Button.tsx` → fuera de User Settings, cuando se toque UI compartida.
