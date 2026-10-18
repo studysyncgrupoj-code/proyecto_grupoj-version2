@@ -764,6 +764,32 @@ Un valor no soportado responde:
 422 VALIDATION_ERROR
 ```
 
+## 8.1 Excepción: `PATCH /users/me/preferences` no admite `null`
+
+A diferencia del resto del contrato, `PATCH /users/me/preferences` **no admite `null` en ningún campo**. Todos los campos de `Preferences` son obligatorios en la respuesta y no tienen un estado "vacío" válido:
+
+- `language: String!`
+- `theme: Theme!`
+- `timezone: String!`
+- `notifications: NotificationPreferences!`
+- `accessibility: AccessibilityPreferences!`
+
+Enviar `null` en cualquier campo de `UpdatePreferencesInput` (incluidos `notifications` y `accessibility`) responde:
+
+```text
+422 VALIDATION_ERROR
+```
+
+Para no modificar un campo, se omite (`undefined`). Enviar `notifications: {}` (objeto vacío) equivale a omitirlo: no modifica ningún subcampo.
+
+Validación adicional:
+
+- `language` debe ser uno de los locales soportados por el frontend (`es`, `en`). Un valor fuera de esa lista responde `422 VALIDATION_ERROR`.
+- `theme` debe ser `system`, `light` o `dark`.
+- `timezone` debe ser una zona horaria IANA válida.
+
+El BFF valida `null` y `language` antes de llamar al backend. El backend vuelve a validar como defensa en profundidad.
+
 ---
 
 # 9. Reglas que aplican a todo el contrato
@@ -772,7 +798,15 @@ Un valor no soportado responde:
 
 2. **Autorización en el backend.** El BFF puede bloquear operaciones antes, pero el backend debe validar nuevamente autenticación y autorización.
 
-3. **`PATCH` es una actualización parcial.** Lo que no se envía no se modifica.
+3. **`PATCH` es una actualización parcial.** La semántica es transversal a todo el contrato:
+
+   | Valor enviado               | Efecto                                                               |
+   | :-------------------------- | :------------------------------------------------------------------- |
+   | Campo omitido (`undefined`) | El backend **no modifica** el campo.                                 |
+   | `null`                      | El backend **borra** el valor del campo (lo deja vacío / sin valor). |
+   | Valor concreto              | El backend **asigna** ese valor.                                     |
+
+   Las excepciones (campos que no aceptan `null`, o que lo tratan distinto) se documentan explícitamente en la sección del endpoint. Ejemplo vigente: `PATCH /users/me/preferences` no admite `null` (ver §8.1).
 
    Por ejemplo:
 
@@ -938,7 +972,7 @@ Además:
 | `POST .../two-factor/verify`               | `409` (setup no iniciado o 2FA ya activo), `422` (`VALIDATION_ERROR` o `INVALID_CODE`)         |
 | `POST .../two-factor/disable`              | `403` (2FA obligatorio para este usuario), `422` (`VALIDATION_ERROR` o `INVALID_CODE`)         |
 | `DELETE .../sessions/:sessionId`           | `404`                                                                                          |
-| `PATCH /users/me/preferences`              | `422` (idioma, tema o zona horaria no soportados)                                              |
+| `PATCH /users/me/preferences`              | `422` (idioma, tema o zona horaria no soportados; `null` en cualquier campo)                   |
 | `POST /users/me/account/deactivation`      | `409` (la cuenta no está `active`)                                                             |
 | `DELETE /users/me/account/deactivation`    | `409` (la cuenta no está `pending_deactivation`)                                               |
 | `PUT /users/me/subscription/plan`          | `403`, `409` (incluye `PAYMENT_METHOD_REQUIRED`), `422`                                        |
