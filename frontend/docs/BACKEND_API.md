@@ -1,6 +1,6 @@
 # Contrato de API del backend
 
-**Versión:** `v1.2`
+**Versión:** `v1.3`
 
 Este documento es el contrato formal de integración entre el frontend/BFF y el backend. Define lo que ambas partes deben implementar y cómo deben interactuar.
 
@@ -27,7 +27,7 @@ La URL base del backend es `API_BASE_URL`. Todas las rutas de este documento son
 
 ## 1.1 Modos de operación
 
-El contrato `v1.2` puede implementarse en dos modos:
+El contrato `v1.3` puede implementarse en dos modos:
 
 | Modo   | Cuándo se usa                                                     | Fuente de datos                    |
 | ------ | ----------------------------------------------------------------- | ---------------------------------- |
@@ -85,13 +85,13 @@ En modo `mock` (sección 1.1), los tokens son valores sintéticos generados por 
 
 # 3. Cambios que el backend debe implementar
 
-Esta sección define el comportamiento requerido por el contrato `v1.2`.
+Esta sección define el comportamiento requerido por el contrato `v1.3`.
 
 Los cambios respecto al backend actual (nombres de campos y rutas) están resumidos en la sección 14.
 
 ## 3.1 Nombres de campos
 
-Los campos del contrato `v1.2` utilizan nombres en inglés.
+Los campos del contrato `v1.3` utilizan nombres en inglés.
 
 ### Respuesta de `POST /auth/login`
 
@@ -116,7 +116,7 @@ teacher
 admin
 ```
 
-El frontend no persiste otros datos en la sesión. Los datos de presentación (nombre, correo, imagen, plan) se obtienen del BFF vía GraphQL a partir de `GET /users/me` y `GET /users/me/subscription`. Ver sección 3.7.
+El frontend no persiste otros datos en la sesión. Los datos de presentación (nombre, correo, imagen, plan) se obtienen del BFF vía GraphQL a partir de `GET /users/me` y `GET /users/me/subscription`. Ver sección 3.9.
 
 ### Cuerpo de `POST /auth/register`
 
@@ -144,7 +144,7 @@ El backend debe:
 - devolver `expiresIn` y `refreshExpiresIn`;
 - utilizar el mismo `id` que devuelve posteriormente `GET /users/me`.
 
-Los datos de presentación (nombre, correo, imagen, plan) no forman parte del login: se obtienen del BFF vía GraphQL (ver sección 3.7).
+Los datos de presentación (nombre, correo, imagen, plan) no forman parte del login: se obtienen del BFF vía GraphQL (ver sección 3.9).
 
 Usuario o contraseña incorrectos:
 
@@ -362,6 +362,12 @@ Si la sesión indicada no existe o no pertenece al usuario autenticado, el backe
 
 ```text
 404 NOT_FOUND
+```
+
+Revocar la sesión actual (`sessionId === sesión actual`) responde:
+
+```text
+409 SESSION_IS_CURRENT
 ```
 
 ### Revocar las demás sesiones
@@ -595,7 +601,110 @@ Si el cliente necesita subir un archivo binario, debe resolverlo antes de llamar
 
 La ruta para consultar el perfil público de un usuario ya está documentada en la sección 3.5 ("Rutas especiales"). El campo `image` de `BackendPublicProfile` refleja el mismo valor persistido por `PATCH /users/me/profile`.
 
-## 3.7 Alcance de la sesión del frontend
+## 3.7 Datos personales
+
+### Consulta de datos personales
+
+`GET /users/me/personal-data` devuelve `BackendPersonalData` y requiere autenticación mediante Access Token.
+
+| Campo            | Tipo                   | Descripción                                         |
+| :--------------- | :--------------------- | :-------------------------------------------------- |
+| `firstName`      | `string`               | Nombre.                                             |
+| `lastName`       | `string`               | Apellido.                                           |
+| `documentType`   | `DocumentType \| null` | Tipo: `passport` o `dni`.                           |
+| `documentId`     | `string \| null`       | Número de documento.                                |
+| `phone`          | `string \| null`       | Teléfono en formato E.164.                          |
+| `country`        | `string \| null`       | País ISO 3166-1 alpha-2 mayúsculas.                 |
+| `address`        | `string \| null`       | Dirección.                                          |
+| `identityLocked` | `boolean`              | Indica si los campos de identidad están bloqueados. |
+
+`DocumentType` es el enum cerrado `passport | dni`.
+
+### Actualización de datos personales
+
+`PATCH /users/me/personal-data` recibe `BackendUpdatePersonalDataInput`, requiere autenticación mediante Access Token y devuelve el `BackendPersonalData` completo actualizado.
+
+| Campo          | Tipo                   | Descripción                         |
+| :------------- | :--------------------- | :---------------------------------- |
+| `firstName`    | `string`               | Nombre.                             |
+| `lastName`     | `string`               | Apellido.                           |
+| `documentType` | `DocumentType \| null` | Tipo: `passport` o `dni`.           |
+| `documentId`   | `string \| null`       | Número de documento.                |
+| `phone`        | `string \| null`       | Teléfono en formato E.164.          |
+| `country`      | `string \| null`       | País ISO 3166-1 alpha-2 mayúsculas. |
+| `address`      | `string \| null`       | Dirección.                          |
+
+#### Semántica PATCH
+
+- Omitir un campo (`undefined`) → no se modifica.
+- Enviar `null` → se borra el valor del campo nullable.
+- Enviar un valor → se asigna el nuevo valor, sujeto a validación.
+
+#### Reglas de validación
+
+Se aplican solo si el campo se envía:
+
+| Campo          | Regla                                                                                    |
+| :------------- | :--------------------------------------------------------------------------------------- |
+| `firstName`    | 2-100 caracteres. Solo letras, espacios, apóstrofes, guiones y puntos. No acepta `null`. |
+| `lastName`     | 2-100 caracteres. Solo letras, espacios, apóstrofes, guiones y puntos. No acepta `null`. |
+| `documentType` | Enum cerrado: `passport` o `dni`.                                                        |
+| `documentId`   | 1-30 caracteres alfanuméricos (`A-Z`, `a-z`, `0-9`, `-`).                                |
+| `phone`        | Formato E.164 (por ejemplo `+573001234567`), longitud 8-16.                              |
+| `country`      | ISO 3166-1 alpha-2 en mayúsculas; longitud exacta 2.                                     |
+| `address`      | 1-200 caracteres. Letras, dígitos, espacios y `.,-#/°`.                                  |
+
+#### Excepciones
+
+- `firstName` y `lastName` no aceptan `null`; responden `422 VALIDATION_ERROR`.
+- `identityLocked` es solo lectura y no se puede modificar mediante este endpoint.
+
+#### Bloqueo por `identityLocked`
+
+Cuando `identityLocked` es `true`, quedan bloqueados `firstName`, `lastName`, `documentType` y `documentId`. Los campos `phone`, `country` y `address` siguen siendo editables.
+
+Si el PATCH incluye al menos un campo de identidad bloqueado, el backend rechaza atómicamente toda la operación con `403 FORBIDDEN`; no se aplica ningún campo, incluidos los campos de contacto enviados en el mismo payload. Si solo incluye campos de contacto, se aplica normalmente.
+
+## 3.8 Seguridad
+
+### Configuración de seguridad
+
+`GET /users/me/security` devuelve `BackendSecuritySettings` y requiere autenticación mediante Access Token.
+
+### Cambio de contraseña
+
+`PUT /users/me/security/password` recibe `BackendChangePasswordInput` y requiere autenticación mediante Access Token.
+
+#### Reglas de `newPassword`
+
+- De 6 a 15 caracteres.
+- Al menos una letra minúscula, una letra mayúscula y un carácter especial (por ejemplo, `!`).
+- Se aplican las mismas reglas que en registro y restablecimiento de contraseña.
+- Si `newPassword` es igual a `currentPassword`, responde `409 CONFLICT`.
+- Si `currentPassword` es incorrecta, responde `422 INVALID_CURRENT_PASSWORD`.
+
+#### Efecto secundario: cierre de otras sesiones
+
+Al cambiar la contraseña, el backend revoca todas las sesiones del usuario excepto la actual. Tras el éxito, la UI debe refrescar `mySecuritySettings` con `network-only`.
+
+### Cambio de correo electrónico
+
+`POST /users/me/security/email-change` recibe `BackendRequestEmailChangeInput`. El correo no cambia hasta que se confirme el enlace de verificación. Si el correo nuevo ya está registrado, responde `409 EMAIL_TAKEN`; si es igual al actual, responde `409 EMAIL_UNCHANGED`.
+
+### Autenticación de dos factores (2FA)
+
+- El único medio soportado actualmente es el correo electrónico del usuario.
+- El código recibido y enviado a `verify` o `disable` es un string de exactamente 6 dígitos numéricos (`/^\d{6}$/`).
+- Para `student`, 2FA es opcional; puede activarlo y desactivarlo.
+- Para `teacher` y `admin`, 2FA es obligatorio; pueden activarlo, pero no desactivarlo. `POST /users/me/security/two-factor/disable` responde `403 FORBIDDEN` para esos roles.
+- La activación y desactivación se gestionan desde el dashboard a través del BFF.
+- Fuera de alcance: múltiples medios de 2FA.
+
+### Gestión de sesiones
+
+`DELETE /users/me/security/sessions/:sessionId` revoca una sesión específica; devuelve `404 NOT_FOUND` si no existe o no pertenece al usuario y `409 SESSION_IS_CURRENT` si es la sesión actual. `DELETE /users/me/security/sessions` revoca todas las sesiones excepto la actual.
+
+## 3.9 Alcance de la sesión del frontend
 
 La sesión gestionada por Auth.js (`session.user`) se limita a tres campos:
 
@@ -653,11 +762,14 @@ El mensaje puede ser legible para diagnóstico, pero el frontend no debe depende
 
 ## 4.2 Códigos de dominio
 
-|  HTTP | Código                     | Endpoint                          |
-| ----: | -------------------------- | --------------------------------- |
-| `422` | `INVALID_CURRENT_PASSWORD` | `PUT /users/me/security/password` |
-| `422` | `INVALID_CODE`             | 2FA `verify` y `disable`          |
-| `409` | `PAYMENT_METHOD_REQUIRED`  | `PUT /users/me/subscription/plan` |
+|  HTTP | Código                     | Endpoint                                        |
+| ----: | -------------------------- | ----------------------------------------------- |
+| `422` | `INVALID_CURRENT_PASSWORD` | `PUT /users/me/security/password`               |
+| `422` | `INVALID_CODE`             | 2FA `verify` y `disable`                        |
+| `409` | `PAYMENT_METHOD_REQUIRED`  | `PUT /users/me/subscription/plan`               |
+| `409` | `EMAIL_TAKEN`              | `POST /users/me/security/email-change`          |
+| `409` | `EMAIL_UNCHANGED`          | `POST /users/me/security/email-change`          |
+| `409` | `SESSION_IS_CURRENT`       | `DELETE /users/me/security/sessions/:sessionId` |
 
 ### Regla importante sobre `401`
 
@@ -737,6 +849,14 @@ La duración del periodo de gracia la determina el backend.
 Motivo: `teacher` y `admin` son perfiles operativos. Su baja la gestiona un administrador o el área de TI, no el propio usuario.
 
 El BFF bloquea con `403` si `session.user.role !== 'student'`, sin llamar al backend. El backend también responde `403` como defensa en profundidad.
+
+### Courses
+
+`GET /users/me/courses` devuelve inscripciones de cursos. `progress` es `Float` en el rango `[0.0, 1.0]`. Si está fuera de rango, el backend lo normaliza o lo rechaza con `500` por error de datos, no por una entrada inválida del usuario. El estado `paused` no es asignable desde User Settings; lo asigna otro módulo. El endpoint responde `403 FORBIDDEN` para `teacher` y `admin`.
+
+### Certificates
+
+`GET /users/me/certificates` devuelve certificados. `downloadUrl` es `String!`: una URL absoluta firmada con expiración. El backend decide el TTL y la UI trata la URL como de un solo uso. El endpoint responde `403 FORBIDDEN` para `teacher` y `admin`.
 
 ---
 
@@ -981,7 +1101,7 @@ El BFF bloquea con `403` antes de llamar al backend cuando corresponde. El backe
 
 ### Relación con el frontend
 
-La fuente de verdad es el **contrato de API `v1.2`**.
+La fuente de verdad es el **contrato de API `v1.3`**.
 
 La relación es:
 
@@ -1034,16 +1154,16 @@ Además:
 | `PATCH /users/me/profile`                  | `422`                                                                                           |
 | `PATCH /users/me/personal-data`            | `403` (identidad bloqueada), `409`, `422`                                                       |
 | `PATCH /users/me/privacy`                  | `422` (visibilidad inválida o `null` en cualquier campo)                                        |
-| `POST .../email-change`                    | `409` (correo ya en uso), `422`                                                                 |
+| `POST .../email-change`                    | `409` (`EMAIL_TAKEN` o `EMAIL_UNCHANGED`), `422`                                                |
 | `PUT .../security/password`                | `409` (la nueva es igual a la actual), `422` (`VALIDATION_ERROR` o `INVALID_CURRENT_PASSWORD`)  |
 | `POST .../two-factor/setup`                | `409` (2FA ya activo)                                                                           |
 | `POST .../two-factor/verify`               | `409` (setup no iniciado o 2FA ya activo), `422` (`VALIDATION_ERROR` o `INVALID_CODE`)          |
 | `POST .../two-factor/disable`              | `403` (2FA obligatorio para este usuario), `422` (`VALIDATION_ERROR` o `INVALID_CODE`)          |
-| `DELETE .../sessions/:sessionId`           | `404`                                                                                           |
+| `DELETE .../sessions/:sessionId`           | `404`, `409` (`SESSION_IS_CURRENT`)                                                             |
 | `PATCH /users/me/preferences`              | `422` (idioma, tema o zona horaria no soportados; `null` en cualquier campo)                    |
 | `POST /users/me/account/deactivation`      | `403` (teacher/admin), `409` (la cuenta no está `active`)                                       |
 | `DELETE /users/me/account/deactivation`    | `403` (teacher/admin), `409` (la cuenta no está `pending_deactivation`)                         |
-| `GET /users/me/courses`                    | `403` (teacher/admin)                                                                           |
+| `GET /users/me/courses`                    | `403` (teacher/admin), `500` (`progress` fuera de rango; error de datos)                        |
 | `GET /users/me/certificates`               | `403` (teacher/admin)                                                                           |
 | `GET /users/me/subscription`               | `403` (teacher/admin)                                                                           |
 | `GET /users/me/payment-methods`            | `403` (teacher/admin)                                                                           |
@@ -1162,7 +1282,7 @@ Cambios compatibles hacia atrás. El backend puede seguir enviando los campos re
 
 - `POST /auth/login`: la respuesta se limita a `id`, `role`, `token`, `refreshToken`, `expiresIn` y `refreshExpiresIn`.
 - `firstName`, `lastName`, `subscription` e `image` dejan de formar parte del contrato de login. Los datos de presentación (nombre, correo, imagen, plan) provienen del BFF vía GraphQL.
-- Nueva sección 3.7: alcance de la sesión del frontend y fuente de los datos de presentación.
+- Nueva sección 3.7 en v1.1 (actualmente §3.9): alcance de la sesión del frontend y fuente de los datos de presentación.
 - Se aclara que los datos de presentación se obtienen a partir de `GET /users/me` y `GET /users/me/subscription`.
 
 ## v1.2
@@ -1207,6 +1327,16 @@ Cambios compatibles hacia atrás. El backend puede seguir operando sin los nuevo
 - Documentada la matriz de autorización por rol en §10.
 - Documentado `403 FORBIDDEN` en los endpoints exclusivos de `student`.
 
+## v1.3
+
+Cambios compatibles hacia atrás que completan el contrato de User Settings según los ajustes acordados.
+
+- Añadida §3.7 para datos personales: campos, `documentType`, validaciones, semántica PATCH, excepción de `null` en `firstName`/`lastName` y rechazo atómico por `identityLocked`.
+- Añadida §3.8 para Security: reglas de contraseña, cierre de otras sesiones, códigos de email diferenciados, flujo y formato de 2FA y gestión de sesiones.
+- La antigua sección de alcance de sesión del frontend pasa a §3.9; actualizadas sus referencias cruzadas.
+- Añadido `409 SESSION_IS_CURRENT` y códigos `EMAIL_TAKEN` / `EMAIL_UNCHANGED` a §4.2 y §11.
+- Añadidas reglas de `progress`, estado `paused` y `downloadUrl` en §5; reforzados los errores por endpoint.
+
 ---
 
 # 14. Apéndice: migración desde el backend previo (histórico)
@@ -1226,7 +1356,7 @@ El backend previo usaba nombres de campos en español y una ruta distinta a la d
 
 Los campos del par de tokens no cambian: `token`, `refreshToken`, `expiresIn` y `refreshExpiresIn`.
 
-Nota v1.2: `firstName`, `lastName`, `subscription` e `image` dejan de formar parte de la respuesta de login. Ver secciones 3.1 y 3.7.
+Nota v1.2: `firstName`, `lastName`, `subscription` e `image` dejan de formar parte de la respuesta de login. Ver secciones 3.1 y 3.9.
 
 ### Cuerpo de `POST /auth/register`
 
