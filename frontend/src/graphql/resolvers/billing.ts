@@ -1,18 +1,18 @@
 import type { GraphQLContext } from '../context';
-import { requireAuth } from '../auth';
+import { requireRole } from '../auth';
 
 export const billingResolvers = {
   Query: {
     mySubscription: (_: unknown, __: unknown, c: GraphQLContext) => {
-      requireAuth(c);
+      requireRole(c, ['student']);
       return c.backend.subscription.getMe();
     },
     myPaymentMethods: (_: unknown, __: unknown, c: GraphQLContext) => {
-      requireAuth(c);
+      requireRole(c, ['student']);
       return c.backend.billing.getPaymentMethods();
     },
     myInvoices: (_: unknown, __: unknown, c: GraphQLContext) => {
-      requireAuth(c);
+      requireRole(c, ['student']);
       return c.backend.billing.getInvoices();
     },
   },
@@ -26,11 +26,11 @@ export const billingResolvers = {
       },
       c: GraphQLContext,
     ) => {
-      requireAuth(c);
+      requireRole(c, ['student']);
       return c.backend.subscription.changePlan(a.plan);
     },
     cancelSubscription: (_: unknown, __: unknown, c: GraphQLContext) => {
-      requireAuth(c);
+      requireRole(c, ['student']);
       return c.backend.subscription.cancel();
     },
     removePaymentMethod: (
@@ -38,7 +38,7 @@ export const billingResolvers = {
       a: { paymentMethodId: string },
       c: GraphQLContext,
     ) => {
-      requireAuth(c);
+      requireRole(c, ['student']);
       return c.backend.billing.removePaymentMethod(a.paymentMethodId);
     },
   },

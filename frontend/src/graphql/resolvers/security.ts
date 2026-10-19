@@ -1,4 +1,4 @@
-import { requireAuth } from '../auth';
+import { requireAuth, requireRole } from '../auth';
 import type { GraphQLContext } from '../context';
 
 export const securityResolvers = {
@@ -46,7 +46,7 @@ export const securityResolvers = {
       args: { code: string },
       context: GraphQLContext,
     ) => {
-      requireAuth(context);
+      requireRole(context, ['student']);
       return context.backend.security.disableTwoFactor(args.code);
     },
     revokeSession: (

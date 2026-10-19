@@ -1,10 +1,10 @@
 import type { GraphQLContext } from '../context';
-import { requireAuth } from '../auth';
+import { requireRole } from '../auth';
 
 export const coursesResolvers = {
   Query: {
     myCourses: (_: unknown, __: unknown, c: GraphQLContext) => {
-      requireAuth(c);
+      requireRole(c, ['student']);
       return c.backend.courses.getMe();
     },
   },

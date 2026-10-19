@@ -10,7 +10,12 @@ const backend = new MockBackendClient();
 const contextValue: GraphQLContext = {
   backend,
   session: {
-    user: { id: 'test-user-001', email: 'test@example.com', name: 'Test User' },
+    user: {
+      id: 'test-user-001',
+      email: 'test@example.com',
+      name: 'Test User',
+      role: 'student',
+    },
     expires: '2099-01-01T00:00:00.000Z',
   } as GraphQLContext['session'],
 };
@@ -560,6 +565,83 @@ const tests: TestCase[] = [
   },
 ];
 
+type AuthTest = {
+  name: string;
+  query: string;
+  variables?: Record<string, unknown>;
+  role: 'student' | 'teacher' | 'admin';
+  expected: 'pass' | 'forbidden';
+};
+
+const authTests: AuthTest[] = [
+  {
+    name: 'myCourses as student',
+    query: /* GraphQL */ `query MyCourses { myCourses { courseId } }`,
+    role: 'student',
+    expected: 'pass',
+  },
+  {
+    name: 'myCourses as teacher',
+    query: /* GraphQL */ `query MyCourses { myCourses { courseId } }`,
+    role: 'teacher',
+    expected: 'forbidden',
+  },
+  {
+    name: 'myCourses as admin',
+    query: /* GraphQL */ `query MyCourses { myCourses { courseId } }`,
+    role: 'admin',
+    expected: 'forbidden',
+  },
+  {
+    name: 'myCertificates as student',
+    query: /* GraphQL */ `query MyCertificates { myCertificates { id } }`,
+    role: 'student',
+    expected: 'pass',
+  },
+  {
+    name: 'myCertificates as teacher',
+    query: /* GraphQL */ `query MyCertificates { myCertificates { id } }`,
+    role: 'teacher',
+    expected: 'forbidden',
+  },
+  {
+    name: 'mySubscription as student',
+    query: /* GraphQL */ `query MySubscription { mySubscription { id } }`,
+    role: 'student',
+    expected: 'pass',
+  },
+  {
+    name: 'mySubscription as teacher',
+    query: /* GraphQL */ `query MySubscription { mySubscription { id } }`,
+    role: 'teacher',
+    expected: 'forbidden',
+  },
+  {
+    name: 'requestAccountDeactivation as teacher',
+    query: /* GraphQL */ `mutation { requestAccountDeactivation { status } }`,
+    role: 'teacher',
+    expected: 'forbidden',
+  },
+  {
+    name: 'requestAccountDeactivation as admin',
+    query: /* GraphQL */ `mutation { requestAccountDeactivation { status } }`,
+    role: 'admin',
+    expected: 'forbidden',
+  },
+  {
+    name: 'disableTwoFactor as teacher',
+    query: /* GraphQL */ `mutation { disableTwoFactor(code: "123456") { success } }`,
+    role: 'teacher',
+    expected: 'forbidden',
+  },
+  {
+    name: 'disableTwoFactor as student',
+    query: /* GraphQL */ `mutation { disableTwoFactor(code: "123456") { success } }`,
+    role: 'student',
+    expected: 'pass',
+  },
+];
+
 function getOperationType(query: string): string {
   const match = query.match(/\b(query|mutation|subscription)\b/);
 
@@ -590,6 +672,54 @@ async function runTest(test: TestCase) {
   return {
     success: true,
   };
+}
+
+async function runAuthTests(): Promise<{ passed: number; failed: number }> {
+  let passed = 0;
+  let failed = 0;
+
+  for (const test of authTests) {
+    const contextForRole: GraphQLContext = {
+      backend: new MockBackendClient(),
+      session: {
+        user: {
+          id: 'test-user-001',
+          email: 'test@example.com',
+          name: 'Test User',
+          role: test.role,
+        },
+        expires: '2099-01-01T00:00:00.000Z',
+      } as GraphQLContext['session'],
+    };
+
+    const result = await graphql({
+      schema,
+      source: test.query,
+      variableValues: test.variables,
+      contextValue: contextForRole,
+    });
+
+    const errors = result.errors ?? [];
+    const isForbidden = errors.some((error) =>
+      error.extensions?.code === 'FORBIDDEN',
+    );
+    const success =
+      (test.expected === 'pass' && errors.length === 0) ||
+      (test.expected === 'forbidden' && isForbidden);
+
+    if (success) {
+      passed++;
+      console.log(`auth       ${test.name.padEnd(42)} ✓ PASS`);
+    } else {
+      failed++;
+      console.log(`auth       ${test.name.padEnd(42)} ✗ FAIL`);
+      console.log(
+        `           esperaba ${test.expected}, recibió ${errors[0]?.message ?? 'OK'}`,
+      );
+    }
+  }
+
+  return { passed, failed };
 }
 
 /**
@@ -736,13 +866,23 @@ async function main() {
   }
 
   console.log('');
+  console.log('=== Autorización por rol ===');
+  console.log('');
+
+  const authResult = await runAuthTests();
+  passed += authResult.passed;
+  failed += authResult.failed;
+
+  console.log('');
   console.log('==========================================');
   console.log(' Result');
   console.log('==========================================');
   console.log('');
   console.log(`✓ Passed: ${passed}`);
   console.log(`✗ Failed: ${failed}`);
-  console.log(`  Total:  ${tests.length + publicApiChecks.length}`);
+  console.log(
+    `  Total:  ${tests.length + publicApiChecks.length + authTests.length}`,
+  );
   console.log('');
 
   if (failed > 0) {

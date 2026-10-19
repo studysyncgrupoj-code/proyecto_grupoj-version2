@@ -1,5 +1,5 @@
 import type { GraphQLContext } from '../context';
-import { requireAuth } from '../auth';
+import { requireAuth, requireRole } from '../auth';
 
 export const accountResolvers = {
   Query: {
@@ -10,11 +10,11 @@ export const accountResolvers = {
   },
   Mutation: {
     requestAccountDeactivation: (_: unknown, __: unknown, c: GraphQLContext) => {
-      requireAuth(c);
+      requireRole(c, ['student']);
       return c.backend.account.requestDeactivation();
     },
     cancelAccountDeactivation: (_: unknown, __: unknown, c: GraphQLContext) => {
-      requireAuth(c);
+      requireRole(c, ['student']);
       return c.backend.account.cancelDeactivation();
     },
   },

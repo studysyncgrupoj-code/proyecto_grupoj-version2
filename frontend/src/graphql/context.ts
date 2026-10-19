@@ -1,11 +1,14 @@
 import type { BackendClient } from '@/lib/backend/client';
 import type { Session } from 'next-auth';
 
-// TODO: bloquear queries/mutations del BFF según el rol del usuario.
-// Caso conocido: `mySubscription` solo aplica a `student`. Un `teacher` o `admin`
-// con token válido puede invocarla y recibe `null` (no es un leak, pero es
-// comportamiento indefinido del contrato). Revisar el resto de queries y
-// mutations del schema para cerrar los casos equivalentes.
+/**
+ * Autorización por rol:
+ * - El helper `requireRole` (src/graphql/auth.ts) bloquea con `403` antes
+ *   de llamar al backend.
+ * - La matriz de autorización vive en BACKEND_API.md §10.
+ * - Aplicado a: Account mutations, Courses, Certificates, Billing,
+ *   Security.disableTwoFactor.
+ */
 export interface GraphQLContext {
   session: Session | null;
   backend: BackendClient;
