@@ -494,17 +494,29 @@ export class MockBackendClient implements BackendClient {
       input: Parameters<BackendClient['preferences']['update']>[0],
     ) => {
       this.failIfConfigured('preferences.update');
+
+      // Defensa en runtime: la regla general del contrato dice null = borrar,
+      // pero Preferences no admite null (BACKEND_API.md §8.1). El BFF ya rechaza
+      // null; el mock no confía en que el caller lo haga.
+      const inputWithNulls = input as Record<string, unknown>;
+      for (const field of [
+        'language',
+        'theme',
+        'timezone',
+        'notifications',
+        'accessibility',
+      ]) {
+        if (inputWithNulls[field] === null) {
+          throw new BackendOperationError(422, 'VALIDATION_ERROR');
+        }
+      }
+
       if (
-        input.language === null ||
         (input.language !== undefined &&
           !['es', 'en'].includes(input.language)) ||
-        input.theme === null ||
         (input.theme !== undefined &&
           !['system', 'light', 'dark'].includes(input.theme)) ||
-        (input.timezone !== undefined &&
-          input.timezone !== null &&
-          !isValidTimezone(input.timezone)) ||
-        input.timezone === null
+        (input.timezone !== undefined && !isValidTimezone(input.timezone))
       ) {
         throw new BackendOperationError(422, 'VALIDATION_ERROR');
       }

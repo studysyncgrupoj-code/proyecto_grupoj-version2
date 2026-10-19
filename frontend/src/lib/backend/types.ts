@@ -81,11 +81,11 @@ export interface BackendPreferences {
   accessibility: { reducedMotion: boolean; highContrast: boolean };
 }
 export interface BackendUpdatePreferencesInput {
-  language?: string | null;
-  theme?: BackendTheme | null;
-  timezone?: string | null;
-  notifications?: Partial<BackendPreferences['notifications']> | null;
-  accessibility?: Partial<BackendPreferences['accessibility']> | null;
+  language?: string;
+  theme?: BackendTheme;
+  timezone?: string;
+  notifications?: Partial<BackendPreferences['notifications']>;
+  accessibility?: Partial<BackendPreferences['accessibility']>;
 }
 
 export type BackendAccountStatus =
