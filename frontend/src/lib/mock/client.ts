@@ -4,6 +4,7 @@ import type { RestBackendResponse } from '../backend/http';
 import type {
   BackendAccount,
   BackendContactInput,
+  BackendDocumentType,
   BackendForgotPasswordInput,
   BackendLoginInput,
   BackendLoginResponse,
@@ -131,6 +132,7 @@ const initialPreferences: BackendPreferences = {
 const initialPersonalData: BackendPersonalData = {
   firstName: 'Test',
   lastName: 'User',
+  documentType: 'dni',
   documentId: '123456789',
   phone: '+573000000000',
   country: 'CO',
@@ -216,6 +218,10 @@ function getMockStore(): MockStore {
     globalThis.__mockStore = createInitialStore();
   }
   return globalThis.__mockStore;
+}
+
+export function resetMockStore(): void {
+  globalThis.__mockStore = undefined;
 }
 
 export class MockBackendClient implements BackendClient {
@@ -354,7 +360,36 @@ export class MockBackendClient implements BackendClient {
       input: Parameters<BackendClient['personalData']['update']>[0],
     ) => {
       this.failIfConfigured('personalData.update');
-      if (this.store.personalDataState.identityLocked) {
+
+      const inputWithNulls = input as Record<string, unknown>;
+      if (
+        inputWithNulls.firstName === null ||
+        inputWithNulls.lastName === null
+      ) {
+        throw new BackendOperationError(422, 'VALIDATION_ERROR');
+      }
+
+      const documentType: unknown = input.documentType;
+      if (
+        documentType !== undefined &&
+        documentType !== null &&
+        !isBackendDocumentType(documentType)
+      ) {
+        throw new BackendOperationError(422, 'VALIDATION_ERROR');
+      }
+
+      const identityFields = [
+        'firstName',
+        'lastName',
+        'documentType',
+        'documentId',
+      ] as const;
+      if (
+        this.store.personalDataState.identityLocked &&
+        identityFields.some((field) =>
+          Object.prototype.hasOwnProperty.call(input, field),
+        )
+      ) {
         throw new BackendOperationError(403, 'FORBIDDEN');
       }
       this.store.personalDataState = {
@@ -412,10 +447,10 @@ export class MockBackendClient implements BackendClient {
     ) => {
       this.failIfConfigured('security.requestEmailChange');
       if (input.newEmail === this.store.securityState.email) {
-        throw new BackendOperationError(409, 'CONFLICT');
+        throw new BackendOperationError(409, 'EMAIL_UNCHANGED');
       }
       if (input.newEmail === 'taken@example.com') {
-        throw new BackendOperationError(409, 'CONFLICT');
+        throw new BackendOperationError(409, 'EMAIL_TAKEN');
       }
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.newEmail)) {
         throw new BackendOperationError(422, 'VALIDATION_ERROR');
@@ -441,6 +476,8 @@ export class MockBackendClient implements BackendClient {
       ) {
         throw new BackendOperationError(422, 'VALIDATION_ERROR');
       }
+      this.store.securityState.sessions =
+        this.store.securityState.sessions.filter((session) => session.current);
       return { success: true, message: 'Password updated' };
     },
     beginTwoFactorSetup: async () => {
@@ -486,6 +523,9 @@ export class MockBackendClient implements BackendClient {
         (session) => session.id === sessionId,
       );
       if (sessionIndex < 0) throw new BackendOperationError(404, 'NOT_FOUND');
+      if (this.store.securityState.sessions[sessionIndex]?.current) {
+        throw new BackendOperationError(409, 'SESSION_IS_CURRENT');
+      }
       this.store.securityState.sessions.splice(sessionIndex, 1);
       return { success: true, message: 'Session revoked' };
     },
@@ -916,6 +956,10 @@ function isValidTimezone(timezone: string): boolean {
   } catch {
     return false;
   }
+}
+
+function isBackendDocumentType(value: unknown): value is BackendDocumentType {
+  return value === 'passport' || value === 'dni';
 }
 
 /**
