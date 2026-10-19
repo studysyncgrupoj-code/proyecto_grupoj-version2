@@ -2,8 +2,13 @@ import { graphql } from 'graphql';
 import { schema } from '../src/graphql';
 import type { GraphQLContext } from '../src/graphql/context';
 import {
+  BackendOperationError,
+} from '../src/lib/backend/errors';
+import type { BackendUpdatePersonalDataInput } from '../src/lib/backend/types';
+import {
   MockBackendClient,
   MockPublicBackendClient,
+  resetMockStore,
 } from '../src/lib/mock/client';
 
 const backend = new MockBackendClient();
@@ -71,6 +76,7 @@ const tests: TestCase[] = [
         myPersonalData {
           firstName
           lastName
+          documentType
           documentId
           phone
           country
@@ -88,6 +94,7 @@ const tests: TestCase[] = [
         updatePersonalData(input: $input) {
           firstName
           lastName
+          documentType
           documentId
           phone
           country
@@ -222,18 +229,6 @@ const tests: TestCase[] = [
   },
 
   {
-    name: 'verifyTwoFactorSetup',
-    query: /* GraphQL */ `
-      mutation VerifyTwoFactorSetup {
-        verifyTwoFactorSetup(code: "123456") {
-          success
-          message
-        }
-      }
-    `,
-  },
-
-  {
     name: 'disableTwoFactor',
     query: /* GraphQL */ `
       mutation DisableTwoFactor {
@@ -348,18 +343,6 @@ const tests: TestCase[] = [
     query: /* GraphQL */ `
       mutation RequestAccountDeactivation {
         requestAccountDeactivation {
-          status
-          deactivationScheduledAt
-        }
-      }
-    `,
-  },
-
-  {
-    name: 'cancelAccountDeactivation',
-    query: /* GraphQL */ `
-      mutation CancelAccountDeactivation {
-        cancelAccountDeactivation {
           status
           deactivationScheduledAt
         }
@@ -674,6 +657,332 @@ async function runTest(test: TestCase) {
   };
 }
 
+type BehaviorTest = {
+  name: string;
+  run: () => Promise<void>;
+};
+
+function assertBehavior(condition: boolean, message: string): asserts condition {
+  if (!condition) throw new Error(message);
+}
+
+function readPath(value: unknown, ...path: string[]): unknown {
+  let current = value;
+  for (const key of path) {
+    assertBehavior(
+      typeof current === 'object' && current !== null,
+      `Expected an object before reading ${key}`,
+    );
+    current = (current as Record<string, unknown>)[key];
+  }
+  return current;
+}
+
+function expectGraphQLError(
+  result: Awaited<ReturnType<typeof graphql>>,
+  code: string,
+  status: number,
+): void {
+  const error = result.errors?.[0];
+  assertBehavior(error !== undefined, `Expected GraphQL error ${code}`);
+  assertBehavior(
+    error.extensions?.code === code && error.extensions?.status === status,
+    `Expected ${status} ${code}, got ${JSON.stringify(error.extensions)}`,
+  );
+}
+
+function expectGraphQLSuccess(
+  result: Awaited<ReturnType<typeof graphql>>,
+): void {
+  assertBehavior(
+    !result.errors?.length,
+    `Expected GraphQL success, got ${result.errors?.[0]?.message ?? 'unknown error'}`,
+  );
+}
+
+async function runPersonalDataSecurityTests(): Promise<{
+  passed: number;
+  failed: number;
+  total: number;
+}> {
+  const personalDataQuery = /* GraphQL */ `
+    query MyPersonalData {
+      myPersonalData {
+        firstName lastName documentType documentId phone country address identityLocked
+      }
+    }
+  `;
+  const personalDataMutation = /* GraphQL */ `
+    mutation UpdatePersonalData($input: UpdatePersonalDataInput!) {
+      updatePersonalData(input: $input) {
+        firstName lastName documentType documentId phone country address identityLocked
+      }
+    }
+  `;
+  const securityQuery = /* GraphQL */ `
+    query MySecuritySettings {
+      mySecuritySettings {
+        sessions { id current }
+      }
+    }
+  `;
+
+  const setIdentityLocked = async () => {
+    await backend.personalData.getMe();
+    const store = globalThis.__mockStore;
+    assertBehavior(store !== undefined, 'Mock store was not initialized');
+    store.personalDataState.identityLocked = true;
+  };
+
+  const behaviorTests: BehaviorTest[] = [
+    {
+      name: 'myPersonalData includes documentType',
+      run: async () => {
+        const result = await graphql({ schema, source: personalDataQuery, contextValue });
+        expectGraphQLSuccess(result);
+        assertBehavior(
+          readPath(result.data, 'myPersonalData', 'documentType') === 'dni',
+          'Expected initial documentType to be dni',
+        );
+      },
+    },
+    {
+      name: 'verifyTwoFactorSetup after beginTwoFactorSetup',
+      run: async () => {
+        const begin = await graphql({
+          schema,
+          source: /* GraphQL */ `mutation { beginTwoFactorSetup { secret } }`,
+          contextValue,
+        });
+        expectGraphQLSuccess(begin);
+
+        const verify = await graphql({
+          schema,
+          source: /* GraphQL */ `mutation { verifyTwoFactorSetup(code: "123456") { success } }`,
+          contextValue,
+        });
+        expectGraphQLSuccess(verify);
+        assertBehavior(
+          readPath(verify.data, 'verifyTwoFactorSetup', 'success') === true,
+          'Expected verifyTwoFactorSetup to succeed',
+        );
+      },
+    },
+    {
+      name: 'cancelAccountDeactivation after requestAccountDeactivation',
+      run: async () => {
+        const request = await graphql({
+          schema,
+          source: /* GraphQL */ `mutation { requestAccountDeactivation { status } }`,
+          contextValue,
+        });
+        expectGraphQLSuccess(request);
+        assertBehavior(
+          readPath(request.data, 'requestAccountDeactivation', 'status') ===
+            'pending_deactivation',
+          'Expected pending_deactivation after request',
+        );
+
+        const cancel = await graphql({
+          schema,
+          source: /* GraphQL */ `mutation { cancelAccountDeactivation { status } }`,
+          contextValue,
+        });
+        expectGraphQLSuccess(cancel);
+        assertBehavior(
+          readPath(cancel.data, 'cancelAccountDeactivation', 'status') ===
+            'active',
+          'Expected active after cancel',
+        );
+      },
+    },
+    {
+      name: 'updatePersonalData rejects null firstName',
+      run: async () => {
+        const result = await graphql({
+          schema,
+          source: personalDataMutation,
+          variableValues: { input: { firstName: null } },
+          contextValue,
+        });
+        expectGraphQLError(result, 'VALIDATION_ERROR', 422);
+      },
+    },
+    {
+      name: 'updatePersonalData rejects null lastName',
+      run: async () => {
+        const result = await graphql({
+          schema,
+          source: personalDataMutation,
+          variableValues: { input: { lastName: null } },
+          contextValue,
+        });
+        expectGraphQLError(result, 'VALIDATION_ERROR', 422);
+      },
+    },
+    {
+      name: 'identityLocked rejects mixed identity/contact patch atomically',
+      run: async () => {
+        await setIdentityLocked();
+        const before = await backend.personalData.getMe();
+        const result = await graphql({
+          schema,
+          source: personalDataMutation,
+          variableValues: {
+            input: { firstName: 'Blocked', phone: '+573001111111' },
+          },
+          contextValue,
+        });
+        expectGraphQLError(result, 'FORBIDDEN', 403);
+        const after = await graphql({ schema, source: personalDataQuery, contextValue });
+        expectGraphQLSuccess(after);
+        assertBehavior(
+          readPath(after.data, 'myPersonalData', 'phone') === before.phone,
+          'Phone changed despite atomic identity lock rejection',
+        );
+      },
+    },
+    {
+      name: 'identityLocked allows contact-only patch',
+      run: async () => {
+        await setIdentityLocked();
+        const result = await graphql({
+          schema,
+          source: personalDataMutation,
+          variableValues: { input: { phone: '+573001234567' } },
+          contextValue,
+        });
+        expectGraphQLSuccess(result);
+        assertBehavior(
+          readPath(result.data, 'updatePersonalData', 'phone') === '+573001234567',
+          'Contact phone was not updated',
+        );
+      },
+    },
+    {
+      name: 'updatePersonalData accepts passport documentType',
+      run: async () => {
+        const result = await graphql({
+          schema,
+          source: personalDataMutation,
+          variableValues: { input: { documentType: 'passport' } },
+          contextValue,
+        });
+        expectGraphQLSuccess(result);
+        assertBehavior(
+          readPath(result.data, 'updatePersonalData', 'documentType') === 'passport',
+          'documentType was not updated to passport',
+        );
+      },
+    },
+    {
+      name: 'mock rejects unsupported documentType with 422',
+      run: async () => {
+        try {
+          await backend.personalData.update({
+            documentType: 'inexistente',
+          } as unknown as BackendUpdatePersonalDataInput);
+        } catch (error) {
+          assertBehavior(
+            error instanceof BackendOperationError &&
+              error.status === 422 &&
+              error.code === 'VALIDATION_ERROR',
+            'Expected 422 VALIDATION_ERROR for unsupported documentType',
+          );
+          return;
+        }
+        throw new Error('Expected mock to reject unsupported documentType');
+      },
+    },
+    {
+      name: 'revokeSession rejects current session',
+      run: async () => {
+        const result = await graphql({
+          schema,
+          source: /* GraphQL */ `mutation { revokeSession(sessionId: "session-current") { success } }`,
+          contextValue,
+        });
+        expectGraphQLError(result, 'SESSION_IS_CURRENT', 409);
+      },
+    },
+    {
+      name: 'revokeSession accepts a non-current session',
+      run: async () => {
+        const result = await graphql({
+          schema,
+          source: /* GraphQL */ `mutation { revokeSession(sessionId: "session-other") { success } }`,
+          contextValue,
+        });
+        expectGraphQLSuccess(result);
+      },
+    },
+    {
+      name: 'changePassword closes other sessions',
+      run: async () => {
+        const result = await graphql({
+          schema,
+          source: /* GraphQL */ `mutation ChangePassword($input: ChangePasswordInput!) { changePassword(input: $input) { success } }`,
+          variableValues: {
+            input: { currentPassword: 'old-password', newPassword: 'NewPass1!' },
+          },
+          contextValue,
+        });
+        expectGraphQLSuccess(result);
+        const security = await graphql({ schema, source: securityQuery, contextValue });
+        expectGraphQLSuccess(security);
+        const sessions = readPath(security.data, 'mySecuritySettings', 'sessions');
+        assertBehavior(Array.isArray(sessions), 'Expected sessions array');
+        assertBehavior(
+          sessions.length === 1 &&
+            readPath(sessions[0], 'current') === true,
+          'Expected only the current session after password change',
+        );
+      },
+    },
+    {
+      name: 'requestEmailChange distinguishes unchanged email',
+      run: async () => {
+        const result = await graphql({
+          schema,
+          source: /* GraphQL */ `mutation { requestEmailChange(input: { newEmail: "test@example.com" }) { success } }`,
+          contextValue,
+        });
+        expectGraphQLError(result, 'EMAIL_UNCHANGED', 409);
+      },
+    },
+    {
+      name: 'requestEmailChange distinguishes taken email',
+      run: async () => {
+        const result = await graphql({
+          schema,
+          source: /* GraphQL */ `mutation { requestEmailChange(input: { newEmail: "taken@example.com" }) { success } }`,
+          contextValue,
+        });
+        expectGraphQLError(result, 'EMAIL_TAKEN', 409);
+      },
+    },
+  ];
+
+  let passed = 0;
+  let failed = 0;
+  for (const test of behaviorTests) {
+    resetMockStore();
+    try {
+      await test.run();
+      passed++;
+      console.log(`behavior   ${test.name.padEnd(58)} ✓ PASS`);
+    } catch (error) {
+      failed++;
+      console.log(`behavior   ${test.name.padEnd(58)} ✗ FAIL`);
+      console.log(
+        `           ${error instanceof Error ? error.message : String(error)}`,
+      );
+    }
+  }
+
+  return { passed, failed, total: behaviorTests.length };
+}
+
 async function runAuthTests(): Promise<{ passed: number; failed: number }> {
   let passed = 0;
   let failed = 0;
@@ -834,6 +1143,7 @@ async function main() {
   }
 
   for (const test of tests) {
+    resetMockStore();
     const type = getOperationType(test.query);
 
     process.stdout.write(`${type.padEnd(10)} ${test.name.padEnd(35)} `);
@@ -866,6 +1176,13 @@ async function main() {
   }
 
   console.log('');
+  console.log('=== Personal Data y Security ===');
+  console.log('');
+  const behaviorResult = await runPersonalDataSecurityTests();
+  passed += behaviorResult.passed;
+  failed += behaviorResult.failed;
+
+  console.log('');
   console.log('=== Autorización por rol ===');
   console.log('');
 
@@ -881,7 +1198,7 @@ async function main() {
   console.log(`✓ Passed: ${passed}`);
   console.log(`✗ Failed: ${failed}`);
   console.log(
-    `  Total:  ${tests.length + publicApiChecks.length + authTests.length}`,
+    `  Total:  ${tests.length + publicApiChecks.length + authTests.length + behaviorResult.total}`,
   );
   console.log('');
 
