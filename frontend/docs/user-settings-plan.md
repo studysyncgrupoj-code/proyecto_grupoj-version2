@@ -88,10 +88,11 @@ La sección User Settings se organiza según **dos ejes ortogonales**:
     responde `403` cuando `twoFactorRequired: true`.
   - La UI debe **ocultar o deshabilitar** la acción de desactivar cuando
     `SecuritySettings.twoFactorRequired === true`.
-  - **Bloqueo en el BFF (Fase 4):** la mutación `disableTwoFactor` responde
-    `403 FORBIDDEN` en el BFF si `session.user.role !== 'student'`, sin
-    llamar al backend. Es la primera regla de autorización por rol del BFF
-    (ver Fase 1, helper `requireRole`).
+    - **Bloqueo en el BFF (implementado en Fase 1):** la mutación
+      `disableTwoFactor` responde `403 FORBIDDEN` en el BFF si
+      `session.user.role !== 'student'`, sin llamar al backend. Es la primera
+      regla de autorización por rol del BFF (ver Fase 1, helper `requireRole`,
+      commit `3d03535`).
 - **Medio de 2FA:** por ahora, correo electrónico. El código es de 6 dígitos
   numéricos. Múltiples medios (SMS, TOTP app, códigos de respaldo) quedan
   fuera del alcance y se documentan como TODO.
@@ -918,6 +919,10 @@ Ninguna. Sección de solo lectura.
 - `UrqlProvider`: `CourseEnrollment: (data) => data.courseId as string` en keys. La entidad se normaliza por `courseId`.
 - El progreso que se muestra aquí es informativo. La fuente de verdad del progreso vive en el módulo Courses.
 
+**Estado (2026-10-18):** la key `CourseEnrollment: (data) => data.courseId`
+en `UrqlProvider` **queda diferida a Fase 5.2**, cuando se construya
+`CoursesSection`. Hoy la query `myCourses` funciona sin normalización.
+
 ### 5.8 Certificates
 
 #### 5.8.1 Tipos GraphQL
@@ -979,6 +984,11 @@ Ninguna. Sección de solo lectura + descarga.
 
 - `UrqlProvider`: `Certificate: (data) => data.id as string` en keys. La entidad se normaliza por `id`.
 - `CertificateEligibility` (existente en `user-settings/CertificateEligibility.tsx`): se mantiene como componente informativo. Se vincula con `myPersonalData` y `mySecuritySettings` para calcular los requisitos (Fase 5).
+
+**Estado (2026-10-18):** la key `Certificate: (data) => data.id` en
+`UrqlProvider` **queda diferida a Fase 5.3**, cuando se construya
+`CertificatesSection`. Hoy la query `myCertificates` funciona sin
+normalización.
 
 ### 5.9 Billing
 
@@ -1105,6 +1115,12 @@ Notas:
 #### 5.9.9 Interacciones con otras partes del sistema
 
 - `UrqlProvider`: `UserSubscription: (data) => data.id as string`, `PaymentMethod: (data) => data.id as string`, `Invoice: (data) => data.id as string` en keys.
+
+  **Estado (2026-10-18):** la key `UserSubscription` ya existe en
+  `UrqlProvider`. Las keys `PaymentMethod` e `Invoice` **quedan diferidas a
+  Fase 5.4**, cuando se construya `BillingSection`. Hoy `myPaymentMethods` y
+  `myInvoices` funcionan sin normalización.
+
 - `removePaymentMethod` incluye `updates` explícito en `UrqlProvider` para quitar el método de `myPaymentMethods` (ver 8.2.23).
 - `SidebarData` consume `mySubscription.plan` para el `PlanCard`. El cambio de plan debe reflejarse vía graphcache sin refetch.
 - Al cancelar (`cancelAtPeriodEnd: true`), el `PlanCard` sigue mostrando el plan actual hasta el fin del período.
@@ -1121,6 +1137,19 @@ Notas:
       conclusiones en la sección 5 de este documento. _(9/9 cerradas:
       Profile, Personal Data, Security, Preferences, Privacy, Account,
       Courses, Certificates y Billing)_
+
+      **Implementación en código:** se completó el 2026-10-18 con los commits:
+
+      - `feat(personal-data): agregar documentType y validaciones de entrada`
+      - `fix(bff): propagar códigos de BackendOperationError a GraphQL y
+        endurecer mock`
+      - `test(bff): cubrir validaciones de Personal Data y semántica de
+        Security en mock`
+
+      Estado: `pnpm type-check`, `pnpm graphql:validate` y
+      `pnpm mock:test` (59/59) en verde. `pnpm lint` con los 4 errores
+      preexistentes de §10.1.
+
 - [x] **0.4** Analizar el contrato `BACKEND_API.md` para detectar discrepancias
       o necesidades de ajuste (ver sección 8). _(análisis completo para las
       9 secciones)_
@@ -1154,21 +1183,20 @@ Notas:
 
 ### Fase 1 — Autorización por rol en el BFF
 
-- **1.1** Añadir helper `requireRole(...)` junto a `requireAuth` en
-  `src/graphql/auth.ts`.
-- **1.2** Aplicar autorización por rol a las queries y mutations existentes
-  según la tabla 3.1.
-- **1.3** Alinear los flags de visibilidad del orquestador con la autorización
-  real del BFF.
-- **1.4** Corregir el TODO de `src/graphql/context.ts`.
-- **1.5** Extender `scripts/test-mock.ts` con casos de autorización por rol.
-- **1.6** Validar la autorización con `pnpm mock:test`.
+- [x] **1.1** Añadir helper `requireRole(...)` junto a `requireAuth` en
+      `src/graphql/auth.ts`.
+- [x] **1.2** Aplicar autorización por rol a las queries y mutations existentes
+      según la tabla 3.1.
+- [x] **1.3** Alinear los flags de visibilidad del orquestador con la autorización
+      real del BFF.
+- [x] **1.4** Corregir el TODO de `src/graphql/context.ts`.
+- [x] **1.5** Extender `scripts/test-mock.ts` con casos de autorización por rol.
+- [x] **1.6** Validar la autorización con `pnpm mock:test`.
 
-**Commits sugeridos:**
+**Commits realizados:**
 
-- `feat(bff): add requireRole helper for role-based authorization`
-- `feat(bff): enforce role authorization on settings queries and mutations`
-- `test(bff): cover role authorization in mock test suite`
+- `feat(bff): aplicar autorización por rol en queries y mutations de settings`
+  (commit `3d03535`, incluye 1.1–1.6)
 
 ---
 
@@ -1533,6 +1561,11 @@ Se añade el campo `documentType` a `BackendPersonalData` y
   `src/config/countries.ts`. El catálogo de tipos de documento se hardcodea
   junto a los schemas en Fase 3.
 
+**Estado (2026-10-18):** `documentType` implementado de punta a punta en
+types, schema, operations, generated, resolver y mock. Las etiquetas i18n
+`documentType.passport` / `documentType.dni` **quedan diferidas a Fase 3**,
+cuando se construya la UI de `PersonalDataSection`.
+
 Motivo: algunos países usan pasaporte como identificación principal; otros,
 documento nacional. Ambos casos se soportan desde el inicio. La validación de
 identidad real (verificación contra el documento) se deja como TODO detallado
@@ -1756,25 +1789,32 @@ Documentar en §6 y §11 del contrato:
 
 Ver `src/components/providers/UrqlProvider.tsx`. Implementación en Fase 5.
 
+**Estado (2026-10-18):** el `updates` explícito **queda diferido a Fase 5.4**,
+junto con la construcción de `BillingSection`. El contrato v1.3 ya documenta
+el comportamiento esperado.
+
 ---
 
 ## 9. Bitácora
 
-| Fecha | Fase                     | Estado   | Notas                                                                                                                       |
-| ----- | ------------------------ | -------- | --------------------------------------------------------------------------------------------------------------------------- |
-| —     | Fase 0.1                 | Cerrado  | Patrón de mutaciones: URQL + graphcache puro. `router.refresh()` en `ProfileAvatarSettings` se elimina en Fase 3.           |
-| —     | Fase 0.2                 | Cerrado  | Patrón de modales: `<ConfirmDialog>` para confirmaciones destructivas; formularios inline en `<SectionCard>` para el resto. |
-| —     | Fase 0.3                 | En curso | Análisis de schema sección por sección.                                                                                     |
-| —     | Fase 0.3 / Profile       | Cerrado  | Análisis completo en 5.1. Contrato actualizado: ver 8.2.1, 8.2.2, 8.2.3, 8.2.4.                                             |
-| —     | Fase 0.3 / Personal Data | Cerrado  | Análisis completo en 5.2. Contrato actualizado: ver 8.2.5, 8.2.6, 8.2.7. Nueva sub-fase 0.6 (reorganización Zod) definida.  |
-| —     | Fase 0.3 / Security      | Cerrado  | Análisis completo en 5.3. Contrato actualizado: ver 8.2.11 a 8.2.15. TODO temporal de 2FA en login documentado.             |
-| —     | Fase 0.3 / Preferences   | Cerrado  | Análisis completo en 5.4. Contrato actualizado: ver 8.2.16 y 8.2.17. Regla general PATCH formalizada en §9 del contrato.    |
-| —     | Fase 0.3 / Privacy       | Cerrado  | Análisis completo en 5.5. Contrato actualizado: ver 8.2.18. `PublicProfile` expone `allowDirectMessages`.                   |
-| —     | Fase 0.3 / Account       | Cerrado  | Análisis completo en 5.6. Contrato actualizado: ver 8.2.19. `403` para teacher/admin. Fecha exacta localizada.              |
-| —     | Fase 0.3 / Courses       | Cerrado  | Análisis completo en 5.7. Contrato actualizado: ver 8.2.20. `progress` en `[0,1]`. `403` para teacher/admin.                |
-| —     | Fase 0.3 / Certificates  | Cerrado  | Análisis completo en 5.8. Contrato actualizado: ver 8.2.21. `downloadUrl` firmada. `403` para teacher/admin.                |
-| —     | Fase 0.3 / Billing       | Cerrado  | Análisis completo en 5.9. Contrato actualizado: ver 8.2.22 y 8.2.23. Upgrade inmediato, downgrade a fin de período.         |
-| —     | Fase 0.3                 | Cerrado  | 9/9 secciones cerradas. Fase 0 completa (0.1, 0.2, 0.3, 0.4, 0.5). Sub-fase 0.6 diferida a Fase 3 por diseño.               |
+| Fecha      | Fase                              | Estado   | Notas                                                                                                                                                                                                                                                                                                                              |
+| ---------- | --------------------------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| —          | Fase 0.1                          | Cerrado  | Patrón de mutaciones: URQL + graphcache puro. `router.refresh()` en `ProfileAvatarSettings` se elimina en Fase 3.                                                                                                                                                                                                                  |
+| —          | Fase 0.2                          | Cerrado  | Patrón de modales: `<ConfirmDialog>` para confirmaciones destructivas; formularios inline en `<SectionCard>` para el resto.                                                                                                                                                                                                        |
+| —          | Fase 0.3                          | En curso | Análisis de schema sección por sección.                                                                                                                                                                                                                                                                                            |
+| —          | Fase 0.3 / Profile                | Cerrado  | Análisis completo en 5.1. Contrato actualizado: ver 8.2.1, 8.2.2, 8.2.3, 8.2.4.                                                                                                                                                                                                                                                    |
+| —          | Fase 0.3 / Personal Data          | Cerrado  | Análisis completo en 5.2. Contrato actualizado: ver 8.2.5, 8.2.6, 8.2.7. Nueva sub-fase 0.6 (reorganización Zod) definida.                                                                                                                                                                                                         |
+| —          | Fase 0.3 / Security               | Cerrado  | Análisis completo en 5.3. Contrato actualizado: ver 8.2.11 a 8.2.15. TODO temporal de 2FA en login documentado.                                                                                                                                                                                                                    |
+| —          | Fase 0.3 / Preferences            | Cerrado  | Análisis completo en 5.4. Contrato actualizado: ver 8.2.16 y 8.2.17. Regla general PATCH formalizada en §9 del contrato.                                                                                                                                                                                                           |
+| —          | Fase 0.3 / Privacy                | Cerrado  | Análisis completo en 5.5. Contrato actualizado: ver 8.2.18. `PublicProfile` expone `allowDirectMessages`.                                                                                                                                                                                                                          |
+| —          | Fase 0.3 / Account                | Cerrado  | Análisis completo en 5.6. Contrato actualizado: ver 8.2.19. `403` para teacher/admin. Fecha exacta localizada.                                                                                                                                                                                                                     |
+| —          | Fase 0.3 / Courses                | Cerrado  | Análisis completo en 5.7. Contrato actualizado: ver 8.2.20. `progress` en `[0,1]`. `403` para teacher/admin.                                                                                                                                                                                                                       |
+| —          | Fase 0.3 / Certificates           | Cerrado  | Análisis completo en 5.8. Contrato actualizado: ver 8.2.21. `downloadUrl` firmada. `403` para teacher/admin.                                                                                                                                                                                                                       |
+| —          | Fase 0.3 / Billing                | Cerrado  | Análisis completo en 5.9. Contrato actualizado: ver 8.2.22 y 8.2.23. Upgrade inmediato, downgrade a fin de período.                                                                                                                                                                                                                |
+| —          | Fase 0.3                          | Cerrado  | 9/9 secciones cerradas. Fase 0 completa (0.1, 0.2, 0.3, 0.4, 0.5). Sub-fase 0.6 diferida a Fase 3 por diseño.                                                                                                                                                                                                                      |
+| 2026-10-18 | Contrato v1.3                     | Cerrado  | Sincronización de `BACKEND_API.md` con los ajustes de Personal Data y Security (§3.7, §3.8, §4.2, §11). Commit `docs(contract): sync v1.3 with Personal Data and Security adjustments`.                                                                                                                                            |
+| 2026-10-18 | Fase 0.3 implementación en código | Cerrado  | Personal Data (`documentType`, validaciones, `identityLocked` atómico) y Security (`EMAIL_TAKEN`/`EMAIL_UNCHANGED`/`SESSION_IS_CURRENT`, `changePassword` cierra sesiones) implementados en types, schema, operations, generated, resolver y mock. `pnpm mock:test` 59/59. Commits `feat(personal-data)`, `fix(bff)`, `test(bff)`. |
+| 2026-10-18 | Fase 1 implementación en código   | Cerrado  | `requireRole` en `auth.ts` aplicado en `account`, `courses`, `certificates`, `billing`, `security.disableTwoFactor`. `context.ts` sin TODO. 11 `authTests` pasan. Commit `3d03535 feat(bff): aplicar autorización por rol en queries y mutations de settings`.                                                                     |
 
 ---
 
