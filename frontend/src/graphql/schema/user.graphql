@@ -26,6 +26,7 @@ type PublicProfile {
   interests: [String!]!
   email: String
   phone: String
+  allowDirectMessages: Boolean!
 }
 
 type Query {

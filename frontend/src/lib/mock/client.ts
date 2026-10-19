@@ -264,6 +264,7 @@ export class MockBackendClient implements BackendClient {
         interests: [...this.store.profileState.interests],
         email: null,
         phone: null,
+        allowDirectMessages: this.store.privacyState.allowDirectMessages,
       };
     },
     updateProfile: async (
@@ -376,6 +377,21 @@ export class MockBackendClient implements BackendClient {
       input: Parameters<BackendClient['privacy']['update']>[0],
     ) => {
       this.failIfConfigured('privacy.update');
+
+      // Defensa en runtime: null = borrar según regla general, pero Privacy
+      // no admite null (BACKEND_API.md §8.2.18).
+      const inputWithNulls = input as Record<string, unknown>;
+      for (const field of [
+        'profileVisibility',
+        'emailVisibility',
+        'phoneVisibility',
+        'allowDirectMessages',
+      ]) {
+        if (inputWithNulls[field] === null) {
+          throw new BackendOperationError(422, 'VALIDATION_ERROR');
+        }
+      }
+
       this.store.privacyState = { ...this.store.privacyState, ...input };
       return { ...this.store.privacyState };
     },

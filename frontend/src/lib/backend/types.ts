@@ -149,6 +149,7 @@ export interface BackendPublicProfile {
   interests: string[];
   email: string | null;
   phone: string | null;
+  allowDirectMessages: boolean;
 }
 export interface BackendUpdateBioInput {
   title?: string | null;

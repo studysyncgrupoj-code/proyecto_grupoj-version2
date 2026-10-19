@@ -31,7 +31,7 @@ type Documents = {
     "query MyPrivacySettings {\n  myPrivacySettings {\n    profileVisibility\n    emailVisibility\n    phoneVisibility\n    allowDirectMessages\n  }\n}": typeof types.MyPrivacySettingsDocument,
     "mutation UpdatePrivacySettings($input: UpdatePrivacySettingsInput!) {\n  updatePrivacySettings(input: $input) {\n    profileVisibility\n    emailVisibility\n    phoneVisibility\n    allowDirectMessages\n  }\n}": typeof types.UpdatePrivacySettingsDocument,
     "query MyProfile {\n  me {\n    id\n    name\n    email\n    image\n    role\n    profile {\n      bio {\n        title\n        description\n      }\n      interests\n    }\n  }\n}": typeof types.MyProfileDocument,
-    "query PublicProfile($userId: ID!) {\n  publicProfile(userId: $userId) {\n    id\n    name\n    image\n    bio {\n      title\n      description\n    }\n    interests\n    email\n    phone\n  }\n}": typeof types.PublicProfileDocument,
+    "query PublicProfile($userId: ID!) {\n  publicProfile(userId: $userId) {\n    id\n    name\n    image\n    bio {\n      title\n      description\n    }\n    interests\n    email\n    phone\n    allowDirectMessages\n  }\n}": typeof types.PublicProfileDocument,
     "mutation UpdateProfile($input: UpdateProfileInput!) {\n  updateProfile(input: $input) {\n    id\n    name\n    email\n    image\n    role\n    profile {\n      bio {\n        title\n        description\n      }\n      interests\n    }\n  }\n}": typeof types.UpdateProfileDocument,
     "mutation BeginTwoFactorSetup {\n  beginTwoFactorSetup {\n    secret\n    qrCode\n  }\n}": typeof types.BeginTwoFactorSetupDocument,
     "mutation ChangePassword($input: ChangePasswordInput!) {\n  changePassword(input: $input) {\n    success\n    message\n  }\n}": typeof types.ChangePasswordDocument,
@@ -62,7 +62,7 @@ const documents: Documents = {
     "query MyPrivacySettings {\n  myPrivacySettings {\n    profileVisibility\n    emailVisibility\n    phoneVisibility\n    allowDirectMessages\n  }\n}": types.MyPrivacySettingsDocument,
     "mutation UpdatePrivacySettings($input: UpdatePrivacySettingsInput!) {\n  updatePrivacySettings(input: $input) {\n    profileVisibility\n    emailVisibility\n    phoneVisibility\n    allowDirectMessages\n  }\n}": types.UpdatePrivacySettingsDocument,
     "query MyProfile {\n  me {\n    id\n    name\n    email\n    image\n    role\n    profile {\n      bio {\n        title\n        description\n      }\n      interests\n    }\n  }\n}": types.MyProfileDocument,
-    "query PublicProfile($userId: ID!) {\n  publicProfile(userId: $userId) {\n    id\n    name\n    image\n    bio {\n      title\n      description\n    }\n    interests\n    email\n    phone\n  }\n}": types.PublicProfileDocument,
+    "query PublicProfile($userId: ID!) {\n  publicProfile(userId: $userId) {\n    id\n    name\n    image\n    bio {\n      title\n      description\n    }\n    interests\n    email\n    phone\n    allowDirectMessages\n  }\n}": types.PublicProfileDocument,
     "mutation UpdateProfile($input: UpdateProfileInput!) {\n  updateProfile(input: $input) {\n    id\n    name\n    email\n    image\n    role\n    profile {\n      bio {\n        title\n        description\n      }\n      interests\n    }\n  }\n}": types.UpdateProfileDocument,
     "mutation BeginTwoFactorSetup {\n  beginTwoFactorSetup {\n    secret\n    qrCode\n  }\n}": types.BeginTwoFactorSetupDocument,
     "mutation ChangePassword($input: ChangePasswordInput!) {\n  changePassword(input: $input) {\n    success\n    message\n  }\n}": types.ChangePasswordDocument,
@@ -161,7 +161,7 @@ export function graphql(source: "query MyProfile {\n  me {\n    id\n    name\n  
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function graphql(source: "query PublicProfile($userId: ID!) {\n  publicProfile(userId: $userId) {\n    id\n    name\n    image\n    bio {\n      title\n      description\n    }\n    interests\n    email\n    phone\n  }\n}"): (typeof documents)["query PublicProfile($userId: ID!) {\n  publicProfile(userId: $userId) {\n    id\n    name\n    image\n    bio {\n      title\n      description\n    }\n    interests\n    email\n    phone\n  }\n}"];
+export function graphql(source: "query PublicProfile($userId: ID!) {\n  publicProfile(userId: $userId) {\n    id\n    name\n    image\n    bio {\n      title\n      description\n    }\n    interests\n    email\n    phone\n    allowDirectMessages\n  }\n}"): (typeof documents)["query PublicProfile($userId: ID!) {\n  publicProfile(userId: $userId) {\n    id\n    name\n    image\n    bio {\n      title\n      description\n    }\n    interests\n    email\n    phone\n    allowDirectMessages\n  }\n}"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
