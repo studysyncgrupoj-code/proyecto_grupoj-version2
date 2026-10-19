@@ -2,6 +2,7 @@ mutation UpdatePersonalData($input: UpdatePersonalDataInput!) {
   updatePersonalData(input: $input) {
     firstName
     lastName
+    documentType
     documentId
     phone
     country

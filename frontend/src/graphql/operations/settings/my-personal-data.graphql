@@ -2,6 +2,7 @@ query MyPersonalData {
   myPersonalData {
     firstName
     lastName
+    documentType
     documentId
     phone
     country

@@ -19,9 +19,12 @@ export interface BackendProfile {
   interests: string[];
 }
 
+export type BackendDocumentType = 'passport' | 'dni';
+
 export interface BackendPersonalData {
   firstName: string;
   lastName: string;
+  documentType: BackendDocumentType | null;
   documentId: string | null;
   phone: string | null;
   country: string | null;

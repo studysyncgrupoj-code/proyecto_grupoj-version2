@@ -41,8 +41,8 @@ type Documents = {
     "mutation RevokeOtherSessions {\n  revokeOtherSessions {\n    success\n    message\n  }\n}": typeof types.RevokeOtherSessionsDocument,
     "mutation RevokeSession($sessionId: ID!) {\n  revokeSession(sessionId: $sessionId) {\n    success\n    message\n  }\n}": typeof types.RevokeSessionDocument,
     "mutation VerifyTwoFactorSetup($code: String!) {\n  verifyTwoFactorSetup(code: $code) {\n    success\n    message\n  }\n}": typeof types.VerifyTwoFactorSetupDocument,
-    "query MyPersonalData {\n  myPersonalData {\n    firstName\n    lastName\n    documentId\n    phone\n    country\n    address\n    identityLocked\n  }\n}": typeof types.MyPersonalDataDocument,
-    "mutation UpdatePersonalData($input: UpdatePersonalDataInput!) {\n  updatePersonalData(input: $input) {\n    firstName\n    lastName\n    documentId\n    phone\n    country\n    address\n    identityLocked\n  }\n}": typeof types.UpdatePersonalDataDocument,
+    "query MyPersonalData {\n  myPersonalData {\n    firstName\n    lastName\n    documentType\n    documentId\n    phone\n    country\n    address\n    identityLocked\n  }\n}": typeof types.MyPersonalDataDocument,
+    "mutation UpdatePersonalData($input: UpdatePersonalDataInput!) {\n  updatePersonalData(input: $input) {\n    firstName\n    lastName\n    documentType\n    documentId\n    phone\n    country\n    address\n    identityLocked\n  }\n}": typeof types.UpdatePersonalDataDocument,
 };
 const documents: Documents = {
     "mutation CancelAccountDeactivation {\n  cancelAccountDeactivation {\n    status\n    deactivationScheduledAt\n  }\n}": types.CancelAccountDeactivationDocument,
@@ -72,8 +72,8 @@ const documents: Documents = {
     "mutation RevokeOtherSessions {\n  revokeOtherSessions {\n    success\n    message\n  }\n}": types.RevokeOtherSessionsDocument,
     "mutation RevokeSession($sessionId: ID!) {\n  revokeSession(sessionId: $sessionId) {\n    success\n    message\n  }\n}": types.RevokeSessionDocument,
     "mutation VerifyTwoFactorSetup($code: String!) {\n  verifyTwoFactorSetup(code: $code) {\n    success\n    message\n  }\n}": types.VerifyTwoFactorSetupDocument,
-    "query MyPersonalData {\n  myPersonalData {\n    firstName\n    lastName\n    documentId\n    phone\n    country\n    address\n    identityLocked\n  }\n}": types.MyPersonalDataDocument,
-    "mutation UpdatePersonalData($input: UpdatePersonalDataInput!) {\n  updatePersonalData(input: $input) {\n    firstName\n    lastName\n    documentId\n    phone\n    country\n    address\n    identityLocked\n  }\n}": types.UpdatePersonalDataDocument,
+    "query MyPersonalData {\n  myPersonalData {\n    firstName\n    lastName\n    documentType\n    documentId\n    phone\n    country\n    address\n    identityLocked\n  }\n}": types.MyPersonalDataDocument,
+    "mutation UpdatePersonalData($input: UpdatePersonalDataInput!) {\n  updatePersonalData(input: $input) {\n    firstName\n    lastName\n    documentType\n    documentId\n    phone\n    country\n    address\n    identityLocked\n  }\n}": types.UpdatePersonalDataDocument,
 };
 
 /**
@@ -201,11 +201,11 @@ export function graphql(source: "mutation VerifyTwoFactorSetup($code: String!) {
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function graphql(source: "query MyPersonalData {\n  myPersonalData {\n    firstName\n    lastName\n    documentId\n    phone\n    country\n    address\n    identityLocked\n  }\n}"): (typeof documents)["query MyPersonalData {\n  myPersonalData {\n    firstName\n    lastName\n    documentId\n    phone\n    country\n    address\n    identityLocked\n  }\n}"];
+export function graphql(source: "query MyPersonalData {\n  myPersonalData {\n    firstName\n    lastName\n    documentType\n    documentId\n    phone\n    country\n    address\n    identityLocked\n  }\n}"): (typeof documents)["query MyPersonalData {\n  myPersonalData {\n    firstName\n    lastName\n    documentType\n    documentId\n    phone\n    country\n    address\n    identityLocked\n  }\n}"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function graphql(source: "mutation UpdatePersonalData($input: UpdatePersonalDataInput!) {\n  updatePersonalData(input: $input) {\n    firstName\n    lastName\n    documentId\n    phone\n    country\n    address\n    identityLocked\n  }\n}"): (typeof documents)["mutation UpdatePersonalData($input: UpdatePersonalDataInput!) {\n  updatePersonalData(input: $input) {\n    firstName\n    lastName\n    documentId\n    phone\n    country\n    address\n    identityLocked\n  }\n}"];
+export function graphql(source: "mutation UpdatePersonalData($input: UpdatePersonalDataInput!) {\n  updatePersonalData(input: $input) {\n    firstName\n    lastName\n    documentType\n    documentId\n    phone\n    country\n    address\n    identityLocked\n  }\n}"): (typeof documents)["mutation UpdatePersonalData($input: UpdatePersonalDataInput!) {\n  updatePersonalData(input: $input) {\n    firstName\n    lastName\n    documentType\n    documentId\n    phone\n    country\n    address\n    identityLocked\n  }\n}"];
 
 export function graphql(source: string) {
   return (documents as any)[source] ?? {};
