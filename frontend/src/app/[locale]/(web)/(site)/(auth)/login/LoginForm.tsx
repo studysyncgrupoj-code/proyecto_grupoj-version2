@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/Button';
 import { InputField } from '@/components/ui/InputField';
 import { CustomLink } from '@/components/ui/Link';
 import { IconMap } from '@/lib/iconMap';
-import { loginSchema, type LoginInput } from '@/lib/user.schema';
+import { loginSchema, type LoginInput } from '@/lib/schemas/auth/login.schema';
 import { resolveError, type ValidationDict } from '@/lib/validation';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { signIn } from 'next-auth/react';

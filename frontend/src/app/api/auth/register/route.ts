@@ -3,7 +3,7 @@ import { backendRouteError } from '@/lib/backend/routeErrors';
 import { registerAccount } from '@/lib/backend/services/auth';
 import { getClientIp } from '@/lib/clientIp';
 import { checkRateLimit } from '@/lib/ratelimit';
-import { registerSchema } from '@/lib/user.schema';
+import { registerSchema } from '@/lib/schemas/auth/register.schema';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(request: NextRequest): Promise<NextResponse> {

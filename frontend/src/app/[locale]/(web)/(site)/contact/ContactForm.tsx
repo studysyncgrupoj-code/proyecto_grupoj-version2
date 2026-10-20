@@ -10,16 +10,16 @@ import 'react-phone-number-input/style.css';
 
 import { Button } from '@/components/ui/Button';
 import { InputField } from '@/components/ui/InputField';
-import { readErrorCode } from '@/lib/apiErrors';
+import { readErrorCode } from '@/lib/errors/api-errors';
 import {
   CONTACT_ERROR_CODES,
   type ContactErrorCode,
-} from '@/lib/contactErrors';
+} from '@/lib/errors/contact-errors';
 import {
   contactSchema,
   type ContactFormData,
   type ContactFormInput,
-} from '@/lib/contactSchema';
+} from '@/lib/schemas/contact/contact.schema';
 import { AppIcon, type UiIconName } from '@/lib/iconMap';
 import { resolveError, type ValidationDict } from '@/lib/validation';
 import { cn } from '@/utilities/cn';

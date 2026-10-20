@@ -1,7 +1,7 @@
 import { createPublicBackendClient } from '@/lib/backend';
 import { getClientIp } from '@/lib/clientIp';
 import { checkRateLimit } from '@/lib/ratelimit';
-import { loginSchema } from '@/lib/user.schema';
+import { loginSchema } from '@/lib/schemas/auth/login.schema';
 import type { UserRole } from '@/types/next-auth';
 import NextAuth, { CredentialsSignin } from 'next-auth';
 import type { JWT } from 'next-auth/jwt';

@@ -2,7 +2,7 @@ import type {
   ForgotPasswordErrorCode,
   RegisterErrorCode,
   ResetPasswordErrorCode,
-} from '@/lib/authErrors';
+} from '@/lib/errors/auth-errors';
 import { createPublicBackendClient } from '@/lib/backend';
 import { BackendOperationError } from '../errors';
 import { isInvalidResetToken } from '../http';

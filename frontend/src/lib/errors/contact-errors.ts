@@ -1,4 +1,4 @@
-import { COMMON_ERROR_CODES } from './apiErrors';
+import { COMMON_ERROR_CODES } from './api-errors';
 
 // Códigos comunes + los propios de esta ruta.
 export const CONTACT_ERROR_CODES = [

@@ -4,13 +4,13 @@ import { Button } from '@/components/ui/Button';
 import { InputField } from '@/components/ui/InputField';
 import { CustomLink } from '@/components/ui/Link';
 import { useRouter } from '@/i18n/navigation';
-import { readErrorCode } from '@/lib/apiErrors';
-import { RESET_PASSWORD_ERROR_CODES } from '@/lib/authErrors';
+import { readErrorCode } from '@/lib/errors/api-errors';
+import { RESET_PASSWORD_ERROR_CODES } from '@/lib/errors/auth-errors';
 import { IconMap } from '@/lib/iconMap';
 import {
   resetPasswordSchema,
   type ResetPasswordInput,
-} from '@/lib/user.schema';
+} from '@/lib/schemas/auth/reset-password.schema';
 import { resolveError, type ValidationDict } from '@/lib/validation';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';

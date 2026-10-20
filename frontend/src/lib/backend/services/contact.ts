@@ -1,5 +1,5 @@
 import { createPublicBackendClient } from '@/lib/backend';
-import type { ContactErrorCode } from '@/lib/contactErrors';
+import type { ContactErrorCode } from '@/lib/errors/contact-errors';
 import { BackendOperationError } from '../errors';
 import type { BackendContactInput } from '../types';
 import {

@@ -2,7 +2,7 @@ import { apiError, apiOk } from '@/lib/apiResponse';
 import { backendRouteError } from '@/lib/backend/routeErrors';
 import { submitContact } from '@/lib/backend/services/contact';
 import { getClientIp } from '@/lib/clientIp';
-import { contactSchema } from '@/lib/contactSchema';
+import { contactSchema } from '@/lib/schemas/contact/contact.schema';
 import { checkRateLimit } from '@/lib/ratelimit';
 import { NextRequest, NextResponse } from 'next/server';
 

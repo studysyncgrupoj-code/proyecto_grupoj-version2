@@ -4,26 +4,22 @@ import { Button } from '@/components/ui/Button';
 import { InputField } from '@/components/ui/InputField';
 import { CustomLink } from '@/components/ui/Link';
 import { useRouter } from '@/i18n/navigation';
-import { readErrorCode } from '@/lib/apiErrors';
-import { REGISTER_ERROR_CODES } from '@/lib/authErrors';
+import { readErrorCode } from '@/lib/errors/api-errors';
+import { REGISTER_ERROR_CODES } from '@/lib/errors/auth-errors';
 import { IconMap } from '@/lib/iconMap';
-import { registerWithConfirmSchema } from '@/lib/user.schema';
+import {
+  registerWithConfirmSchema,
+  toRegisterPayload,
+  type RegisterWithConfirmInput,
+} from '@/lib/schemas/auth/register.schema';
 import { resolveError, type ValidationDict } from '@/lib/validation';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import { z } from 'zod';
 
 type MessageType = 'success' | 'error' | '';
 
-// Extendemos el schema para incluir acceptedTerms como booleano con validación
-const registerSchema = registerWithConfirmSchema.extend({
-  acceptedTerms: z.boolean().refine((val) => val === true, {
-    message: 'acceptedTerms.required',
-  }),
-});
-
-type RegisterFormInput = z.infer<typeof registerSchema>;
+type RegisterFormInput = RegisterWithConfirmInput;
 
 interface RegisterFormMessages {
   eyebrow: string;
@@ -65,8 +61,6 @@ export default function RegisterForm({
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const {
-    eye: Eye,
-    eyeOff: EyeOff,
     lock: LockKeyhole,
     mail: Mail,
     user: User,
@@ -79,7 +73,7 @@ export default function RegisterForm({
     formState: { errors, isValid },
     reset,
   } = useForm<RegisterFormInput>({
-    resolver: zodResolver(registerSchema),
+    resolver: zodResolver(registerWithConfirmSchema),
     defaultValues: {
       firstName: '',
       lastName: '',
@@ -97,13 +91,10 @@ export default function RegisterForm({
     setIsSubmitting(true);
 
     try {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { confirmPassword, acceptedTerms, ...formData } = data;
-
       const response = await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(toRegisterPayload(data)),
       });
 
       if (!response.ok) {

@@ -3,7 +3,7 @@ import { backendRouteError } from '@/lib/backend/routeErrors';
 import { validateResetToken } from '@/lib/backend/services/auth';
 import { getClientIp } from '@/lib/clientIp';
 import { checkRateLimit } from '@/lib/ratelimit';
-import { resetPasswordTokenSchema } from '@/lib/user.schema';
+import { resetPasswordTokenSchema } from '@/lib/schemas/auth/reset-password.schema';
 import { NextRequest, NextResponse } from 'next/server';
 
 const IP_RATE_LIMIT = { max: 10, window: '15 m' } as const;

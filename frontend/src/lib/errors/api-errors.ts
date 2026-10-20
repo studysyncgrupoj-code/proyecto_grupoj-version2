@@ -1,6 +1,6 @@
 /**
  * Códigos de error que cualquier ruta API puede devolver.
- * Cada ruta los extiende con los suyos (ver contactErrors.ts).
+ * Cada ruta los extiende con los suyos (ver auth-errors.ts, contact-errors.ts).
  * Sin dependencias de Next: se puede importar desde el cliente.
  */
 export const COMMON_ERROR_CODES = [

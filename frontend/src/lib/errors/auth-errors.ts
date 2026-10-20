@@ -1,4 +1,4 @@
-import { COMMON_ERROR_CODES } from './apiErrors';
+import { COMMON_ERROR_CODES } from './api-errors';
 
 export const FORGOT_PASSWORD_ERROR_CODES = [...COMMON_ERROR_CODES] as const;
 export type ForgotPasswordErrorCode =

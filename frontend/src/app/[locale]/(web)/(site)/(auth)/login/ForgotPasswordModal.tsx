@@ -2,12 +2,12 @@
 
 import { Button } from '@/components/ui/Button';
 import { InputField } from '@/components/ui/InputField';
-import { COMMON_ERROR_CODES, readErrorCode } from '@/lib/apiErrors';
+import { COMMON_ERROR_CODES, readErrorCode } from '@/lib/errors/api-errors';
 import { IconMap } from '@/lib/iconMap';
 import {
   forgotPasswordSchema,
   type ForgotPasswordInput,
-} from '@/lib/user.schema';
+} from '@/lib/schemas/auth/forgot-password.schema';
 import { resolveError, type ValidationDict } from '@/lib/validation';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
