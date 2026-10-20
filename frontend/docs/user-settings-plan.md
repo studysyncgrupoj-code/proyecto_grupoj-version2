@@ -32,7 +32,7 @@ frontend/src/app/[locale]/(web)/dashboard/user-settings
 
 ### 1.4 Relación con el contrato BACKEND_API.md
 
-El contrato `docs/BACKEND_API.md` (v1.2) es la fuente de verdad para toda
+El contrato `docs/BACKEND_API.md` (**v1.3**) es la fuente de verdad para toda
 comunicación con el backend REST. Toda decisión de UI y de BFF debe respetarlo.
 Cualquier cambio necesario se reflejará primero en el contrato.
 
@@ -139,14 +139,18 @@ La sección **Privacy** controla qué campos de la vista pública se exponen
 
 ### 4.3 Pendientes
 
-- Análisis del schema sección por sección: Profile ✅, Personal Data ✅,
-  Security ✅, Preferences ✅, Privacy ✅, Account ✅, Courses ✅,
-  Certificates ✅, Billing ✅.
-- Validación y ajustes del contrato de la API para cada sección (ver sección 8):
-  Profile ✅, Personal Data ✅, Security ✅, Preferences ✅, Privacy ✅,
-  Account ✅, Courses ✅, Certificates ✅, Billing ✅.
-- Ejecución de la sub-fase 0.6 (reorganización de Zod y códigos de error) al
-  inicio de la Fase 3.
+- [x] Análisis del schema sección por sección: Profile ✅, Personal Data ✅,
+      Security ✅, Preferences ✅, Privacy ✅, Account ✅, Courses ✅,
+      Certificates ✅, Billing ✅.
+- [x] Validación y ajustes del contrato de la API para cada sección (ver sección 8):
+      Profile ✅, Personal Data ✅, Security ✅, Preferences ✅, Privacy ✅,
+      Account ✅, Courses ✅, Certificates ✅, Billing ✅.
+- [x] Sub-fase 0.6 (reorganización de Zod y códigos de error). **Cerrada e
+      implementada en código** (commit
+      `refactor(schemas): reorganizar schemas Zod y códigos de error por dominio`).
+
+Sin pendientes bloqueantes. Fase 2 (Infraestructura UI compartida) lista para
+iniciar.
 
 ---
 
@@ -1156,22 +1160,26 @@ Notas:
 - [x] **0.5** Actualizar el contrato `BACKEND_API.md` con los ajustes acordados.
       _(Profile, Personal Data, Security, Preferences, Privacy, Account,
       Courses, Certificates y Billing aplicados)_
-- [ ] **0.6** Reorganizar los schemas Zod y los códigos de error en carpetas
-      modulares. Se ejecuta durante la Fase 3 (Opción B), con los primeros
-      schemas nuevos (profile, personalData) como caso de uso real.
-  - Crear `src/lib/schemas/`.
-  - Mover `src/lib/user.schema.ts` → `src/lib/schemas/auth.schema.ts`.
-  - Mover `src/lib/contactSchema.ts` → `src/lib/schemas/contact.schema.ts`.
-  - Crear `src/lib/schemas/index.ts` con re-exports públicos.
-  - Crear `src/lib/errors/`.
-  - Mover `src/lib/apiErrors.ts` → `src/lib/errors/api-errors.ts`.
-  - Mover `src/lib/authErrors.ts` → `src/lib/errors/auth-errors.ts`.
-  - Mover `src/lib/contactErrors.ts` → `src/lib/errors/contact-errors.ts`.
-  - Crear `src/lib/errors/index.ts` con re-exports públicos.
-  - Actualizar todos los imports afectados (`auth.ts`, route handlers,
-    `ContactForm.tsx`, `ForgotPasswordModal.tsx`, `LoginForm.tsx`,
-    `RegisterForm.tsx`, `Resetpasswordform.tsx`).
-  - Validar `pnpm type-check`, `pnpm lint`, `pnpm mock:test`.
+- [x] **0.6** Reorganizar los schemas Zod y los códigos de error en carpetas
+      modulares. **Cerrada e implementada en código el 2026-10-19** (commit
+      `refactor(schemas): reorganizar schemas Zod y códigos de error por dominio`).
+
+  Resultado:
+
+  - `src/lib/schemas/primitives.ts` — fuente única de verdad de las reglas
+    del contrato v1.3 (longitudes, regex, helpers, catálogos). Incluye los 5
+    gaps cerrados: `language`, `theme`, `image`, `plan`, `normalizeEmail`.
+  - `src/lib/schemas/fields/auth.ts` — fragmentos Zod reutilizables.
+  - `src/lib/schemas/auth/{login,register,forgot-password,reset-password}.schema.ts`.
+  - `src/lib/schemas/contact/contact.schema.ts` (`contactNumber` alineado a
+    E.164 estricto, coherente con contrato §3.4 y mock).
+  - `src/lib/schemas/index.ts` — re-exports públicos.
+  - `src/lib/errors/{api,auth,contact}-errors.ts` organizados por dominio.
+  - `src/lib/errors/index.ts` — re-exports públicos.
+  - Eliminados los 5 archivos viejos: `user.schema.ts`, `contactSchema.ts`,
+    `apiErrors.ts`, `authErrors.ts`, `contactErrors.ts`.
+  - 13 consumidores migrados.
+  - `pnpm type-check`, `pnpm lint`, `pnpm mock:test` (59/59) en verde.
 
 **Commits de la fase:**
 
@@ -1181,37 +1189,123 @@ Notas:
 
 ---
 
-### Fase 1 — Autorización por rol en el BFF
+### Fase 1 — Autorización por rol en el BFF ✅ CERRADA
 
-- [x] **1.1** Añadir helper `requireRole(...)` junto a `requireAuth` en
-      `src/graphql/auth.ts`.
-- [x] **1.2** Aplicar autorización por rol a las queries y mutations existentes
-      según la tabla 3.1.
-- [x] **1.3** Alinear los flags de visibilidad del orquestador con la autorización
-      real del BFF.
-- [x] **1.4** Corregir el TODO de `src/graphql/context.ts`.
-- [x] **1.5** Extender `scripts/test-mock.ts` con casos de autorización por rol.
-- [x] **1.6** Validar la autorización con `pnpm mock:test`.
+Implementada y commiteada el **2026-10-19** en el commit
+`3d03535 feat(bff): aplicar autorización por rol en queries y mutations de settings`.
 
-**Commits realizados:**
-
-- `feat(bff): aplicar autorización por rol en queries y mutations de settings`
-  (commit `3d03535`, incluye 1.1–1.6)
+- [x] **1.1** Helper `requireRole(context, allowedRoles)` en
+      `src/graphql/auth.ts`. Lanza `GraphQLError` con
+      `extensions.code = 'FORBIDDEN'` y `status: 403`.
+- [x] **1.2** Aplicado en `account.ts` (mutations), `courses.ts`,
+      `certificates.ts`, `billing.ts`, `security.ts` (`disableTwoFactor`).
+      `myAccount` y el resto de Security siguen con `requireAuth`.
+- [x] **1.3** Visibilidad del orquestador (`page.tsx`) alineada con la
+      autorización real del BFF.
+- [x] **1.4** `src/graphql/context.ts` documentado (sin TODO).
+- [x] **1.5** 11 `authTests` en `scripts/test-mock.ts` (student/teacher/admin
+      en Courses, Certificates, Subscription, Account, disableTwoFactor).
+- [x] **1.6** `pnpm mock:test` 59/59 PASS (26 tests genéricos + 8 public API + 11 auth + 14 behavior de Personal Data y Security).
 
 ---
 
-### Fase 2 — Infraestructura UI compartida
+### Fase 1.7 — Limpieza de lint preexistente (BLOQUEANTE)
 
-- **2.1** Crear `src/config/user-settings-sections.ts` con el mapa
-  sección × rol.
-- **2.2** Componente `<SectionCard>` (encabezado + cuerpo + estado).
-- **2.3** Componente `<ConfirmDialog>` reutilizable.
-- **2.4** Componente `<SettingsSkeleton>` para estados de carga.
-- **2.5** Hook `useSectionMutation` (o equivalente) que encapsule mutación,
-  manejo de errores del contrato, refresco y estado optimista.
-- **2.6** Validar `pnpm type-check` y `pnpm lint`.
+> **Motivo.** Al instalar TypeScript 6/7 side-by-side, ESLint quedó
+> temporalmente en un estado inconsistente y acumuló problemas que no
+> estaban clasificados. Al reactivarlo aparecen **34 problemas (4 errors,
+> 30 warnings)**, todos ajenos a User Settings. Se resuelven antes de
+> arrancar Fase 2 para no arrastrar ruido en cada validación de la fase
+> siguiente.
 
-**Commit sugerido:** `feat(user-settings): add shared UI primitives`
+- [ ] **1.7.1** Ejecutar `pnpm lint` y volcar el listado completo de
+      problemas a un archivo temporal (`lint-before.txt`).
+- [ ] **1.7.2** Ejecutar `pnpm lint --fix` y volcar el resultado a
+      `lint-after-fix.txt`.
+- [ ] **1.7.3** Resolver manualmente los 4 errores (`react-hooks/set-state-in-effect`
+      y `react-hooks/incompatible-library`) que `--fix` no puede tocar.
+- [ ] **1.7.4** Resolver los warnings restantes (variables no usadas,
+      `eslint-disable` obsoletos, `<img>` en lugar de `next/image`).
+- [ ] **1.7.5** Validar `pnpm type-check` (exit 0), `pnpm lint` (exit 0),
+      `pnpm mock:test` (59/59).
+
+**Resultado esperado:** estado base limpio, sin errores ni warnings de ESLint.
+
+**Commit sugerido:** `chore(lint): resolve preexisting eslint errors and warnings`
+
+---
+
+### Fase 1.8 — Modular `docs/BACKEND_API.md` (BLOQUEANTE para Fase 3+)
+
+> **Motivo.** `docs/BACKEND_API.md` tiene 1.471 líneas. Es difícil de
+> navegar, de revisar y de mantener. Antes de que las fases 3–5 empiecen a
+> consultarlo intensivamente, se divide en archivos por dominio, con un
+> índice raíz. El contrato se mantiene formalmente igual; solo cambia su
+> organización física.
+
+- [x] **1.8.1** Definir la estructura de directorios (ver más abajo).
+- [x] **1.8.2** Crear `docs/backend-api/README.md` como índice.
+- [x] **1.8.3** Mover secciones del archivo actual a los nuevos archivos,
+      sin cambiar contenido.
+- [x] **1.8.4** Verificar referencias cruzadas en código y en `docs/user-settings-plan.md`.
+- [x] **1.8.5** Eliminar `docs/BACKEND_API.md` (sin stub). El punto de entrada
+      único es `docs/backend-api/README.md`.
+- [x] **1.8.6** Validar el resultado.
+
+Estructura objetivo:
+
+```text
+docs/backend-api/
+  README.md                        (índice + encabezado legal)
+  01-convenciones.md               (§1, §2, §9 transversales, §12)
+  02-endpoints-publicos.md         (§3.4)
+  03-usuarios.md                   (§3.5 partial, §3.6, §3.7, §3.9)
+  04-security.md                   (§3.5 partial, §3.8)
+  05-preferencias.md               (§8)
+  06-cuenta.md                     (§5 sin Courses ni Certificates)
+  07-cursos-certificados.md        (§5 Courses + Certificates)
+  08-suscripcion-billing.md        (§6, §7)
+  09-errores.md                    (§4, §11)
+  10-regex-referencia.md           (§15)
+  11-migracion.md                  (§14, histórico)
+  12-historial-cambios.md          (§13, histórico)
+  13-resumen-endpoints.md          (§10)
+
+Ver detalle de la división exacta en la Parte 2.
+```
+
+**Commit sugerido:** `docs(contract): modularize BACKEND_API.md into docs/backend-api/`
+
+---
+
+### Fase 2 — Infraestructura UI compartida (BLOQUEADA por 1.5 y 1.6)
+
+Decisiones arquitectónicas fijadas para esta fase (ver `Rol y propósito.txt`):
+
+- **D-A (A1):** `<SectionCard>` es Server Component por defecto. Sin estado
+  propio; los casos con estado se encapsulan en subcomponentes Client.
+- **D-B (B1):** `useSectionMutation` es un wrapper de `useMutation` de URQL.
+  No hace optimismo de caché; expone `isSaving`, `errorCode`, `resetError`
+  y llama `onSuccess`. La caché se actualiza por normalización (entidades
+  con `id`) o por `updates` explícito en `UrqlProvider` (Boolean /
+  `SecurityOperationResult`).
+- **D-C (C2):** `<ConfirmDialog>` usa `<dialog>` nativo (`showModal()` /
+  `close()`) con estilos Tailwind. Focus trap, Escape, restauración de foco
+  y `aria-modal` vienen del navegador. Animación de entrada/salida con CSS +
+  `prefers-reduced-motion`, sin framer-motion.
+
+Orden de implementación aprobado (un archivo a la vez, con
+`pnpm type-check` + `pnpm lint` entre cada uno):
+
+- [ ] **2.1** `src/config/user-settings-sections.ts` — mapa sección × rol.
+- [ ] **2.2** `src/components/ui/SectionCard.tsx`.
+- [ ] **2.3** `src/components/ui/SettingsSkeleton.tsx`.
+- [ ] **2.4** `src/components/ui/ConfirmDialog.tsx`.
+- [ ] **2.5** `src/hooks/useSectionMutation.ts`.
+- [ ] **2.6** `pnpm mock:test` (59/59) al final de la fase.
+
+**Commit sugerido (único al cerrar Fase 2):**
+`feat(user-settings): add shared UI primitives`
 
 ---
 
@@ -1343,6 +1437,13 @@ Notas:
 
 ### 8.1 Puntos a revisar
 
+> **Nota de navegación (post Fase 1.6).** Los ajustes §8.2.x describen
+> cambios acordados al contrato. Con la modularización del contrato
+> (Fase 1.6), su hogar físico pasa a ser `docs/backend-api/`. La
+> numeración §8.2.N se mantiene aquí como referencia estable para este
+> plan; los contratos modularizados reflejan el contenido final en las
+> secciones §3.4, §3.6, §3.7, §3.8, §8 y §11.
+
 - [ ] ¿El contrato distingue en algún punto por rol? (Hoy no lo hace
       explícitamente; la autorización por rol se delega al BFF.)
 - [x] `POST /users/me/account/deactivation` para `teacher`/`admin` — `403` documentado. Ver 8.2.19.
@@ -1457,6 +1558,7 @@ valor completo.
 Cambiado el schema GraphQL y el contrato REST para permitir `title` y
 `description` opcionales dentro de `UpdateBioInput`.
 
+````md
 - **Antes**:
 
   ```graphql
@@ -1797,30 +1899,41 @@ el comportamiento esperado.
 
 ## 9. Bitácora
 
-| Fecha      | Fase                              | Estado   | Notas                                                                                                                                                                                                                                                                                                                              |
-| ---------- | --------------------------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| —          | Fase 0.1                          | Cerrado  | Patrón de mutaciones: URQL + graphcache puro. `router.refresh()` en `ProfileAvatarSettings` se elimina en Fase 3.                                                                                                                                                                                                                  |
-| —          | Fase 0.2                          | Cerrado  | Patrón de modales: `<ConfirmDialog>` para confirmaciones destructivas; formularios inline en `<SectionCard>` para el resto.                                                                                                                                                                                                        |
-| —          | Fase 0.3                          | En curso | Análisis de schema sección por sección.                                                                                                                                                                                                                                                                                            |
-| —          | Fase 0.3 / Profile                | Cerrado  | Análisis completo en 5.1. Contrato actualizado: ver 8.2.1, 8.2.2, 8.2.3, 8.2.4.                                                                                                                                                                                                                                                    |
-| —          | Fase 0.3 / Personal Data          | Cerrado  | Análisis completo en 5.2. Contrato actualizado: ver 8.2.5, 8.2.6, 8.2.7. Nueva sub-fase 0.6 (reorganización Zod) definida.                                                                                                                                                                                                         |
-| —          | Fase 0.3 / Security               | Cerrado  | Análisis completo en 5.3. Contrato actualizado: ver 8.2.11 a 8.2.15. TODO temporal de 2FA en login documentado.                                                                                                                                                                                                                    |
-| —          | Fase 0.3 / Preferences            | Cerrado  | Análisis completo en 5.4. Contrato actualizado: ver 8.2.16 y 8.2.17. Regla general PATCH formalizada en §9 del contrato.                                                                                                                                                                                                           |
-| —          | Fase 0.3 / Privacy                | Cerrado  | Análisis completo en 5.5. Contrato actualizado: ver 8.2.18. `PublicProfile` expone `allowDirectMessages`.                                                                                                                                                                                                                          |
-| —          | Fase 0.3 / Account                | Cerrado  | Análisis completo en 5.6. Contrato actualizado: ver 8.2.19. `403` para teacher/admin. Fecha exacta localizada.                                                                                                                                                                                                                     |
-| —          | Fase 0.3 / Courses                | Cerrado  | Análisis completo en 5.7. Contrato actualizado: ver 8.2.20. `progress` en `[0,1]`. `403` para teacher/admin.                                                                                                                                                                                                                       |
-| —          | Fase 0.3 / Certificates           | Cerrado  | Análisis completo en 5.8. Contrato actualizado: ver 8.2.21. `downloadUrl` firmada. `403` para teacher/admin.                                                                                                                                                                                                                       |
-| —          | Fase 0.3 / Billing                | Cerrado  | Análisis completo en 5.9. Contrato actualizado: ver 8.2.22 y 8.2.23. Upgrade inmediato, downgrade a fin de período.                                                                                                                                                                                                                |
-| —          | Fase 0.3                          | Cerrado  | 9/9 secciones cerradas. Fase 0 completa (0.1, 0.2, 0.3, 0.4, 0.5). Sub-fase 0.6 diferida a Fase 3 por diseño.                                                                                                                                                                                                                      |
-| 2026-10-18 | Contrato v1.3                     | Cerrado  | Sincronización de `BACKEND_API.md` con los ajustes de Personal Data y Security (§3.7, §3.8, §4.2, §11). Commit `docs(contract): sync v1.3 with Personal Data and Security adjustments`.                                                                                                                                            |
-| 2026-10-18 | Fase 0.3 implementación en código | Cerrado  | Personal Data (`documentType`, validaciones, `identityLocked` atómico) y Security (`EMAIL_TAKEN`/`EMAIL_UNCHANGED`/`SESSION_IS_CURRENT`, `changePassword` cierra sesiones) implementados en types, schema, operations, generated, resolver y mock. `pnpm mock:test` 59/59. Commits `feat(personal-data)`, `fix(bff)`, `test(bff)`. |
-| 2026-10-18 | Fase 1 implementación en código   | Cerrado  | `requireRole` en `auth.ts` aplicado en `account`, `courses`, `certificates`, `billing`, `security.disableTwoFactor`. `context.ts` sin TODO. 11 `authTests` pasan. Commit `3d03535 feat(bff): aplicar autorización por rol en queries y mutations de settings`.                                                                     |
+| Fecha      | Fase                              | Estado    | Notas                                                                                                                                                                                                                                                                                                                              |
+| ---------- | --------------------------------- | --------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| —          | Fase 0.1                          | Cerrado   | Patrón de mutaciones: URQL + graphcache puro. `router.refresh()` en `ProfileAvatarSettings` se elimina en Fase 3.                                                                                                                                                                                                                  |
+| —          | Fase 0.2                          | Cerrado   | Patrón de modales: `<ConfirmDialog>` para confirmaciones destructivas; formularios inline en `<SectionCard>` para el resto.                                                                                                                                                                                                        |
+| —          | Fase 0.3                          | En curso  | Análisis de schema sección por sección.                                                                                                                                                                                                                                                                                            |
+| —          | Fase 0.3 / Profile                | Cerrado   | Análisis completo en 5.1. Contrato actualizado: ver 8.2.1, 8.2.2, 8.2.3, 8.2.4.                                                                                                                                                                                                                                                    |
+| —          | Fase 0.3 / Personal Data          | Cerrado   | Análisis completo en 5.2. Contrato actualizado: ver 8.2.5, 8.2.6, 8.2.7. Nueva sub-fase 0.6 (reorganización Zod) definida.                                                                                                                                                                                                         |
+| —          | Fase 0.3 / Security               | Cerrado   | Análisis completo en 5.3. Contrato actualizado: ver 8.2.11 a 8.2.15. TODO temporal de 2FA en login documentado.                                                                                                                                                                                                                    |
+| —          | Fase 0.3 / Preferences            | Cerrado   | Análisis completo en 5.4. Contrato actualizado: ver 8.2.16 y 8.2.17. Regla general PATCH formalizada en §9 del contrato.                                                                                                                                                                                                           |
+| —          | Fase 0.3 / Privacy                | Cerrado   | Análisis completo en 5.5. Contrato actualizado: ver 8.2.18. `PublicProfile` expone `allowDirectMessages`.                                                                                                                                                                                                                          |
+| —          | Fase 0.3 / Account                | Cerrado   | Análisis completo en 5.6. Contrato actualizado: ver 8.2.19. `403` para teacher/admin. Fecha exacta localizada.                                                                                                                                                                                                                     |
+| —          | Fase 0.3 / Courses                | Cerrado   | Análisis completo en 5.7. Contrato actualizado: ver 8.2.20. `progress` en `[0,1]`. `403` para teacher/admin.                                                                                                                                                                                                                       |
+| —          | Fase 0.3 / Certificates           | Cerrado   | Análisis completo en 5.8. Contrato actualizado: ver 8.2.21. `downloadUrl` firmada. `403` para teacher/admin.                                                                                                                                                                                                                       |
+| —          | Fase 0.3 / Billing                | Cerrado   | Análisis completo en 5.9. Contrato actualizado: ver 8.2.22 y 8.2.23. Upgrade inmediato, downgrade a fin de período.                                                                                                                                                                                                                |
+| —          | Fase 0.3                          | Cerrado   | 9/9 secciones cerradas. Fase 0 completa (0.1, 0.2, 0.3, 0.4, 0.5). Sub-fase 0.6 diferida a Fase 3 por diseño.                                                                                                                                                                                                                      |
+| 2026-10-18 | Contrato v1.3                     | Cerrado   | Sincronización de `BACKEND_API.md` con los ajustes de Personal Data y Security (§3.7, §3.8, §4.2, §11). Commit `docs(contract): sync v1.3 with Personal Data and Security adjustments`.                                                                                                                                            |
+| 2026-10-18 | Fase 0.3 implementación en código | Cerrado   | Personal Data (`documentType`, validaciones, `identityLocked` atómico) y Security (`EMAIL_TAKEN`/`EMAIL_UNCHANGED`/`SESSION_IS_CURRENT`, `changePassword` cierra sesiones) implementados en types, schema, operations, generated, resolver y mock. `pnpm mock:test` 59/59. Commits `feat(personal-data)`, `fix(bff)`, `test(bff)`. |
+| 2026-10-19 | Fase 0.6 (reorganización Zod)     | Cerrado   | `src/lib/schemas/**` (primitives, fields, auth, contact) y `src/lib/errors/**` (api, auth, contact). 5 archivos viejos eliminados, 13 consumidores migrados. `pnpm type-check`, `pnpm lint`, `pnpm mock:test` 59/59 en verde. Commit `refactor(schemas): reorganizar schemas Zod y códigos de error por dominio`.                  |
+| 2026-10-19 | Fase 1 (auth por rol en BFF)      | Cerrado   | `requireRole` en `auth.ts` aplicado en `account`, `courses`, `certificates`, `billing`, `security.disableTwoFactor`. `context.ts` sin TODO. 11 `authTests` pasan. Commit `3d03535 feat(bff): aplicar autorización por rol en queries y mutations de settings`.                                                                     |
+| 2026-10-19 | Fase 1.5 (lint preexistente)      | Pendiente | 34 problemas (4 errors, 30 warnings) heredados de la época en que ESLint estaba crasheado por la instalación de TS 6/7. Se resuelven antes de Fase 2. Estado al iniciar: pendiente.                                                                                                                                                |
+| 2026-10-19 | Fase 1.6 (modular contrato)       | Pendiente | `docs/BACKEND_API.md` tiene 1.471 líneas. Se divide en `docs/backend-api/` por dominio (13 archivos), con README índice y sin stub (`docs/BACKEND_API.md` se elimina). Sin cambios de contenido. Estado al iniciar: pendiente.                                                                                                     |
+| 2026-10-19 | Fase 2 (infra UI compartida)      | En espera | Bloqueada por 1.5 y 1.6. Orden aprobado: `user-settings-sections.ts` → `SectionCard` → `SettingsSkeleton` → `ConfirmDialog` → `useSectionMutation`. Decisiones D-A (A1), D-B (B1), D-C (C2) fijadas.                                                                                                                               |
 
 ---
 
 ## 10. Deuda técnica
 
 Detectada al desbloquear el linter (ESLint 10 → 9 + TS 6/7 side-by-side).
+
+> **Alcance:** toda la deuda listada abajo se resuelve en **Fase 1.5**,
+> antes de arrancar Fase 2. Al cierre de 1.5, `pnpm lint` debe pasar con
+> exit 0 y sin warnings. La Fase 2 arranca desde un estado base limpio.
+> La estrategia de §10.3 queda como referencia histórica de cómo se
+> detectó cada entrada; no describe el plan de resolución definitivo
+> (que es 1.5).
 
 ### 10.1 Errores — `react-hooks/set-state-in-effect`
 
@@ -1851,3 +1964,4 @@ durante las fases de User Settings:
 - `ThemeToggleClient.tsx` → Fase 3 (Preferences).
 - `ContactForm.tsx` → fuera de User Settings, cuando se toque contacto.
 - `Button.tsx` → fuera de User Settings, cuando se toque UI compartida.
+````
