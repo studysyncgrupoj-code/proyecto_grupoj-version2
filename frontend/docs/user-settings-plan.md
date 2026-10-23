@@ -1218,15 +1218,15 @@ Implementada y commiteada el **2026-10-19** en el commit
 > arrancar Fase 2 para no arrastrar ruido en cada validación de la fase
 > siguiente.
 
-- [ ] **1.7.1** Ejecutar `pnpm lint` y volcar el listado completo de
+- [x] **1.7.1** Ejecutar `pnpm lint` y volcar el listado completo de
       problemas a un archivo temporal (`lint-before.txt`).
-- [ ] **1.7.2** Ejecutar `pnpm lint --fix` y volcar el resultado a
+- [x] **1.7.2** Ejecutar `pnpm lint --fix` y volcar el resultado a
       `lint-after-fix.txt`.
-- [ ] **1.7.3** Resolver manualmente los 4 errores (`react-hooks/set-state-in-effect`
+- [x] **1.7.3** Resolver manualmente los 4 errores (`react-hooks/set-state-in-effect`
       y `react-hooks/incompatible-library`) que `--fix` no puede tocar.
-- [ ] **1.7.4** Resolver los warnings restantes (variables no usadas,
+- [x] **1.7.4** Resolver los warnings restantes (variables no usadas,
       `eslint-disable` obsoletos, `<img>` en lugar de `next/image`).
-- [ ] **1.7.5** Validar `pnpm type-check` (exit 0), `pnpm lint` (exit 0),
+- [x] **1.7.5** Validar `pnpm type-check` (exit 0), `pnpm lint` (exit 0),
       `pnpm mock:test` (59/59).
 
 **Resultado esperado:** estado base limpio, sin errores ni warnings de ESLint.

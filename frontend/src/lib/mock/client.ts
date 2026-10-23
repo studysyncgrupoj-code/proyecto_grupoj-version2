@@ -209,7 +209,6 @@ function createInitialStore(): MockStore {
 }
 
 declare global {
-  // eslint-disable-next-line no-var
   var __mockStore: MockStore | undefined;
 }
 
@@ -435,11 +434,19 @@ export class MockBackendClient implements BackendClient {
   security = {
     getMe: async () => {
       this.failIfConfigured('security.getMe');
-      const { twoFactorSetupStarted: _setup, ...settings } =
-        this.store.securityState;
+      const {
+        email,
+        emailVerified,
+        twoFactorEnabled,
+        twoFactorRequired,
+        sessions,
+      } = this.store.securityState;
       return {
-        ...settings,
-        sessions: settings.sessions.map((session) => ({ ...session })),
+        email,
+        emailVerified,
+        twoFactorEnabled,
+        twoFactorRequired,
+        sessions: sessions.map((session) => ({ ...session })),
       };
     },
     requestEmailChange: async (
@@ -841,11 +848,19 @@ export class MockPublicBackendClient implements PublicBackendClient {
       return mockResponse({ status: 201, message: 'Cuenta creada.' }, 201);
     },
 
-    forgotPassword: async (_input: BackendForgotPasswordInput) =>
-      mockResponse({
+    forgotPassword: async (input: BackendForgotPasswordInput) => {
+      // El contrato exige `email` y lo normaliza con trim + toLowerCase
+      // antes de procesarlo (docs/backend-api/_rutas/auth/forgot-password.md).
+      // El mock no debe romper el contrato; aquí solo se aplica la
+      // normalización para dejar constancia del comportamiento esperado.
+      const email = input.email.trim().toLowerCase();
+      void email;
+
+      return mockResponse({
         status: 200,
         message: 'Si la cuenta existe, recibirá un correo.',
-      }),
+      });
+    },
 
     validateResetToken: async (
       input: BackendValidateResetTokenInput,

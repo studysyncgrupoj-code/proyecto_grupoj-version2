@@ -1,13 +1,13 @@
 'use client';
 
 import { Button } from '@/components/ui/Button';
+import Image from 'next/image';
 import { useRef, useState, type ChangeEvent } from 'react';
 
 const MAX_FILE_SIZE = 4 * 1024 * 1024; // 4 MB
 const ACCEPTED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 
 interface AvatarUploaderProps {
-  name: string;
   initials: string;
   image?: string | null;
   messages: {
@@ -29,7 +29,6 @@ interface AvatarUploaderProps {
 }
 
 export function AvatarUploader({
-  name,
   initials,
   image,
   messages,
@@ -186,11 +185,17 @@ function Avatar({
   size: number;
 }) {
   if (image) {
-    // eslint-disable-next-line @next/next/no-img-element -- preview local (blob) además de URL persistida
+    // `unoptimized` + `referrerPolicy="no-referrer"` porque la imagen
+    // puede ser un blob local (preview) o un data URI: next/image no debe
+    // intentar optimizarla ni reescribir el origen.
     return (
-      <img
+      <Image
         src={image}
         alt=""
+        width={size}
+        height={size}
+        unoptimized
+        referrerPolicy="no-referrer"
         style={{ width: size, height: size }}
         className="border-border shrink-0 rounded-full border object-cover"
       />

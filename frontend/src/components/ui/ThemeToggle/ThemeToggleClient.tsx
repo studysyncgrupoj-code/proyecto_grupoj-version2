@@ -56,7 +56,12 @@ export default function ThemeToggleClient({
 
   const currentSize = sizes[size] || sizes.md;
 
+  // `mounted` evita el flash SSR/cliente de `resolvedTheme` (que es undefined
+  // en el primer render). TODO(fase-3): reemplazar por `useSyncExternalStore`
+  // con `matchMedia('(prefers-color-scheme: dark)')` + `next-themes`, o por la
+  // estrategia que se acuerde al construir `PreferencesSection`.
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- hidratación intencional para evitar flash de tema, se reemplaza en Fase 3
     setMounted(true);
   }, []);
 

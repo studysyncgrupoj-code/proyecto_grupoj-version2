@@ -74,8 +74,12 @@ export default function MobileNav({
   const primaryItems = [homeItem, ...roleItems.slice(0, maxRoleItems)];
   const moreItems = roleItems.slice(maxRoleItems);
 
-  // Cierra el panel "Más" al navegar
+  // Cierra el panel "Más" al navegar.
+  // TODO(fase-3): sustituir por `onNavigate` pasado al `<Link>` de cada item
+  // (mismo patrón que `MoreSheet`), eliminando la dependencia del pathname y
+  // el `setState` síncrono en efecto.
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- cierre por cambio de ruta, se reemplaza por onNavigate en Fase 3
     setOpen(false);
   }, [pathname]);
 

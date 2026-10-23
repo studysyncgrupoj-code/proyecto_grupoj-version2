@@ -82,10 +82,13 @@ export function ProfileAvatarSettings({
     [],
   );
 
-  // ← NUEVO: sincronizar el estado local cuando el padre revalida `image`.
-  // Evita que el avatar se quede desactualizado si otro flujo actualiza la
-  // imagen (graphcache propaga, el padre re-renderiza, y aquí adoptamos).
+  // Sincroniza el estado local cuando el padre revalida `image`.
+  // TODO(fase-3): al refactorizar este componente sobre `useSectionMutation` +
+  // graphcache, eliminar este `useEffect` y el `router.refresh()` residual de
+  // `handleSave`/`handleRemove`. Con graphcache propagando `User.image`, el
+  // estado local se puede derivar directamente de la prop.
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- sincronización intencional con la prop `image`, se elimina en Fase 3
     setCurrentImage(image ?? null);
   }, [image]);
 

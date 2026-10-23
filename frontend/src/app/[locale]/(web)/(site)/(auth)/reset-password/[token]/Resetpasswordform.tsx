@@ -128,6 +128,12 @@ export default function ResetPasswordForm({
 
   useEffect(() => {
     let isCurrent = true;
+    // TODO(fase-hardening): sustituir esta máquina de estados por un guard
+    // basado en `useReducer` (acciones VALIDATE_START / VALIDATE_SUCCESS /
+    // VALIDATE_ERROR) o `useSyncExternalStore`. El `setState` síncrono es
+    // intencional aquí para reflejar el reinicio de la validación, pero
+    // React Compiler lo marca porque provoca cascading renders.
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- transición a "validating" antes de la promesa, intencional
     setTokenStatus('validating');
 
     validateResetToken(token)
@@ -174,7 +180,11 @@ export default function ResetPasswordForm({
   const onSubmit = async (data: ResetPasswordInput) => {
     setFeedback(null);
     try {
-      const message = await submitNewPassword(token, data.password);
+      // TODO(fase-hardening): `submitNewPassword` devuelve un string que hoy
+      // no se usa (el mensaje viene de `messages.success`). Se marca con
+      // `void` para evitar el warning; si en el futuro el backend devuelve
+      // un mensaje distinto por caso, consumirlo aquí.
+      void (await submitNewPassword(token, data.password));
       setFeedback(messages.success);
       setStatus('success');
       setTimeout(() => router.push('/login'), 1600);

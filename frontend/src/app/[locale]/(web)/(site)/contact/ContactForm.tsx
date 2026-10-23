@@ -267,6 +267,10 @@ export function ContactForm({
     defaultValues: DEFAULT_VALUES,
   });
 
+  // TODO(contact): migrar `watch()` a `useWatch()` de react-hook-form para
+  // que React Compiler pueda memoizar el componente sin saltarse esta rama.
+  // `useWatch` devuelve el valor directamente y sí es memoizable.
+  // eslint-disable-next-line react-hooks/incompatible-library -- watch() de RHF no es memoizable por React Compiler, se migra en fase de contacto
   const messageLength = watch('message')?.length ?? 0;
 
   const motionProps = {

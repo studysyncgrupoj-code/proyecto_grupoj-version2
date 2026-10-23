@@ -47,10 +47,11 @@ export type RegisterWithConfirmInput = z.infer<
 export function toRegisterPayload(
   input: RegisterWithConfirmInput,
 ): RegisterInput {
-  const {
-    confirmPassword: _confirmPassword,
-    acceptedTerms: _acceptedTerms,
-    ...payload
-  } = input;
+  // Se descartan explícitamente los campos solo-cliente antes de enviar
+  // el payload al backend. `void` documenta la intención sin generar
+  // variables no usadas ni depender de renombres con prefijo `_`.
+  const { confirmPassword, acceptedTerms, ...payload } = input;
+  void confirmPassword;
+  void acceptedTerms;
   return payload;
 }
