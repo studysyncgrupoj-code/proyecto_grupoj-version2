@@ -1994,3 +1994,28 @@ onSuccess]`. Si Fase 3 ve re-renders por `mutate` en deps de `useEffect`,
   se envuelve en `useEventCallback` o se documenta el patrón. No es un bug;
   es una fricción potencial.
 ````
+
+### 10.5 Deudas de contrato abiertas al cerrar sub-fase 2 (Fase 3)
+
+Detectadas al construir los schemas Zod de las secciones universales.
+El cliente **ya decidió** la normalización; el contrato debe actualizarse
+para reflejarla. El backend se ajusta al contrato, no al revés.
+
+**Regla de normalización adoptada:** todo string de entrada a un schema
+de User Settings se normaliza con `trim()` antes de validar. Motivo:
+consistencia con `email`/`firstName`/`lastName` (donde el contrato ya lo
+pide) y para que `"   "` no pase el `min(1)`. `timezone` es la única
+excepción al `toLowerCase()` (es case-sensitive).
+
+- **`trim()` en `profile.schema.ts` (`bio.title`, `bio.description`, `interests[i]`).**
+  Contrato a actualizar: `docs/backend-api/_rutas/users-me/profile.md` §3.6.
+- **`trim()` en `personal-data.schema.ts` (`documentId`, `phone`, `country`, `address`).**
+  Contrato a actualizar: `docs/backend-api/_rutas/users-me/personal-data.md` §3.7.
+- **`trim()` en `preferences.schema.ts` (`timezone`).**
+  Contrato a actualizar: `docs/backend-api/_rutas/users-me/preferences.md` §8.2.16.
+
+**Cómo se resuelven:** actualizando los 3 archivos del contrato para
+documentar el `trim()` en los campos listados. El código del cliente ya
+lo aplica (`TODO(contract)` en cada schema). El backend debe recibir el
+valor normalizado y aplicar la misma normalización como defensa en
+profundidad. No requiere cambios de código en el cliente.

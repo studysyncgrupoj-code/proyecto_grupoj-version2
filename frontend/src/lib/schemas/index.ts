@@ -16,3 +16,9 @@ export * from './auth/reset-password.schema';
 
 // Contact
 export * from './contact/contact.schema';
+
+// User Settings
+export * from './user-settings/profile.schema';
+export * from './user-settings/personal-data.schema';
+export * from './user-settings/preferences.schema';
+export * from './user-settings/privacy.schema';
