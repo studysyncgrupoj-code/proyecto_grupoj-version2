@@ -1278,7 +1278,10 @@ Ver detalle de la división exacta en la Parte 2.
 
 ---
 
-### Fase 2 — Infraestructura UI compartida (BLOQUEADA por 1.5 y 1.6)
+### Fase 2 — Infraestructura UI compartida ✅ CERRADA
+
+Implementada y commiteada el **2026-10-24** en el commit
+`feat(user-settings): add shared UI primitives`.
 
 Decisiones arquitectónicas fijadas para esta fase (ver `Rol y propósito.txt`):
 
@@ -1297,19 +1300,19 @@ Decisiones arquitectónicas fijadas para esta fase (ver `Rol y propósito.txt`):
 Orden de implementación aprobado (un archivo a la vez, con
 `pnpm type-check` + `pnpm lint` entre cada uno):
 
-- [ ] **2.1** `src/config/user-settings-sections.ts` — mapa sección × rol.
-- [ ] **2.2** `src/components/ui/SectionCard.tsx`.
-- [ ] **2.3** `src/components/ui/SettingsSkeleton.tsx`.
-- [ ] **2.4** `src/components/ui/ConfirmDialog.tsx`.
-- [ ] **2.5** `src/hooks/useSectionMutation.ts`.
-- [ ] **2.6** `pnpm mock:test` (59/59) al final de la fase.
+- [x] **2.1** `src/config/user-settings-sections.ts` — mapa sección × rol.
+- [x] **2.2** `src/components/ui/SectionCard.tsx`.
+- [x] **2.3** `src/components/ui/SettingsSkeleton.tsx`.
+- [x] **2.4** `src/components/ui/ConfirmDialog.tsx`.
+- [x] **2.5** `src/hooks/useSectionMutation.ts`.
+- [x] **2.6** `pnpm mock:test` (59/59) al final de la fase.
 
-**Commit sugerido (único al cerrar Fase 2):**
+**Commit (cerrado el 2026-10-24):**
 `feat(user-settings): add shared UI primitives`
 
 ---
 
-### Fase 3 — Secciones universales (parte 1)
+### Fase 3 — Secciones universales (parte 1) — lista para arrancar
 
 - **3.1** `ProfileSection`: refactor del existente al patrón nuevo.
 - **3.2** `PersonalDataSection`: `myPersonalData` + `updatePersonalData`.
@@ -1921,6 +1924,7 @@ el comportamiento esperado.
 | 2026-10-19 | Fase 1.5 (lint preexistente)      | Pendiente | 34 problemas (4 errors, 30 warnings) heredados de la época en que ESLint estaba crasheado por la instalación de TS 6/7. Se resuelven antes de Fase 2. Estado al iniciar: pendiente.                                                                                                                                                |
 | 2026-10-19 | Fase 1.6 (modular contrato)       | Pendiente | `docs/BACKEND_API.md` tiene 1.471 líneas. Se divide en `docs/backend-api/` por dominio (13 archivos), con README índice y sin stub (`docs/BACKEND_API.md` se elimina). Sin cambios de contenido. Estado al iniciar: pendiente.                                                                                                     |
 | 2026-10-19 | Fase 2 (infra UI compartida)      | En espera | Bloqueada por 1.5 y 1.6. Orden aprobado: `user-settings-sections.ts` → `SectionCard` → `SettingsSkeleton` → `ConfirmDialog` → `useSectionMutation`. Decisiones D-A (A1), D-B (B1), D-C (C2) fijadas.                                                                                                                               |
+| 2026-10-24 | Fase 2 (infra UI compartida)      | Cerrado   | 5 archivos creados: `src/config/user-settings-sections.ts`, `src/components/ui/{SectionCard,SettingsSkeleton,ConfirmDialog}.tsx`, `src/hooks/useSectionMutation.ts`. D-A (SectionCard Server), D-B (useSectionMutation wrapper de URQL, `errorCode: string                                                                         | null`, sin `graphql-errors.ts`en Fase 2), D-C (ConfirmDialog`<dialog>`nativo, sin animación de salida) cerradas.`pnpm type-check`, `pnpm lint`, `pnpm mock:test`59/59,`pnpm graphql:validate`en verde. Commit`feat(user-settings): add shared UI primitives`. |
 
 ---
 
@@ -1964,4 +1968,29 @@ durante las fases de User Settings:
 - `ThemeToggleClient.tsx` → Fase 3 (Preferences).
 - `ContactForm.tsx` → fuera de User Settings, cuando se toque contacto.
 - `Button.tsx` → fuera de User Settings, cuando se toque UI compartida.
+
+### 10.4 Deudas diferidas al cerrar Fase 2
+
+Detectadas al implementar los 5 archivos de Fase 2. Ninguna bloquea Fase 3.
+
+- **Variante `danger` en `Button.tsx`.** D-2 se resolvió en Fase 2 con
+  `variant="primary"` + override `className="bg-danger hover:bg-danger-hover"`.
+  Si en Fase 4/5 la semántica `danger` se repite en 3+ sitios (cancelar
+  suscripción, revocar sesión, eliminar método de pago, cancelar
+  desactivación), se añade la variante a `Button.tsx` en esa fase.
+- **Animación de salida en `ConfirmDialog`.** D-C se resolvió sin animación
+  de salida (solo entrada CSS). Si Fase 4/5 requiere paridad visual con
+  `ForgotPasswordModal`, se añade `data-state="closed"` + `transitionend` +
+  `dialog.close()` diferido, con tests manuales de Escape durante la
+  animación.
+- **Iconos semánticos por sección.** `user-settings-sections.ts` mapea a
+  `UiIconName` existentes (`user`, `shield`, `sparkles`, `lockOpen`, `alert`,
+  `checkCircle`, `star`, `crown`). `bookOpen` para Courses y `settings` para
+  Preferences no existen en `IconMap.ui`. Si Fase 3 lo requiere, se añaden a
+  `iconMap.tsx` (los consumidores no cambian: el tipo `UiIconName` se amplía).
+- **`useSectionMutation` con `mutate` inestable si el consumidor pasa
+  lambdas inline.** `useCallback` deps `[execute, parseVariables, mapError,
+onSuccess]`. Si Fase 3 ve re-renders por `mutate` en deps de `useEffect`,
+  se envuelve en `useEventCallback` o se documenta el patrón. No es un bug;
+  es una fricción potencial.
 ````
