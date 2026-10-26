@@ -1,6 +1,8 @@
 import { auth } from '@/auth';
 import { getLocale, getTranslations } from 'next-intl/server';
 import { redirect } from 'next/navigation';
+import { PersonalDataSection } from './PersonalDataSection';
+import { PreferencesSection } from './PreferencesSection';
 import { ProfileSection } from './ProfileSection';
 
 export async function generateMetadata() {
@@ -91,9 +93,14 @@ export default async function ProfilePage() {
         />
 
         {/* 2. Personal Data */}
+        <PersonalDataSection />
+
         {/* 3. Security */}
         {showCourses && <>{/* 5. Courses */}</>}
+
         {/* 6. Preferences */}
+        <PreferencesSection />
+
         {showSubscription && <>{/* Plan / Subscription */}</>}
         {/* 7. Account */}
       </div>
