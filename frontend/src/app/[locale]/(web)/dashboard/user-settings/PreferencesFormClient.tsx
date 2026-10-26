@@ -339,6 +339,10 @@ export function PreferencesFormClient({
           </p>
         </div>
 
+        {/* TODO(timezone-select): reemplazar por <select> con catálogo IANA
+            (src/config/timezones.ts) para evitar que el usuario tenga que
+            escribir el identificador a mano. Requiere sub-fase nueva
+            (~600 entradas). Diferido a Fase 6+. */}
         <InputField
           name="timezone"
           type="text"

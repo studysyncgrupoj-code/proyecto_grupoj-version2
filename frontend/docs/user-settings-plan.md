@@ -2050,3 +2050,13 @@ Anotadas al cerrar la sub-fase 3. Ninguna bloquea Fase 3.
   y la de datos personales (`phone.invalid`). Los schemas emiten claves
   distintas, así que `resolveError` las resuelve por separado. Se anota para
   evitar confusión al buscar `phone` en el JSON.
+- **Sidebar del dashboard no sticky.** Al hacer scroll en páginas con
+  contenido largo, el sidebar se va hacia arriba. Fix pendiente en Fase 6+:
+  `sticky top-0` en el `<aside>` de `SidebarShell.tsx`, o mover el scroll
+  al `<main>` (`overflow-y-auto h-screen`). `TODO(dashboard-layout)` en
+  `dashboard/layout.tsx`. No bloquea Fase 3.
+
+- **`timezone` como `<input type="text">` libre.** El usuario tiene que
+  escribir el identificador IANA a mano. `TODO(timezone-select)` en
+  `PreferencesFormClient.tsx`. Diferido a Fase 6+ con `src/config/timezones.ts`
+  (catálogo IANA) y `<select>`.
