@@ -883,6 +883,11 @@
             "placeholder": "e.g., America/Bogota"
           }
         },
+        "fieldsets": {
+          "general": "General",
+          "notifications": "Notifications",
+          "accessibility": "Accessibility"
+        },
         "notifications": {
           "title": "Notifications",
           "email": { "label": "Email" },

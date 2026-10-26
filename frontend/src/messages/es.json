@@ -892,6 +892,11 @@
             "placeholder": "Ej: America/Bogota"
           }
         },
+        "fieldsets": {
+          "general": "General",
+          "notifications": "Notificaciones",
+          "accessibility": "Accesibilidad"
+        },
         "notifications": {
           "title": "Notificaciones",
           "email": { "label": "Correo electrónico" },
