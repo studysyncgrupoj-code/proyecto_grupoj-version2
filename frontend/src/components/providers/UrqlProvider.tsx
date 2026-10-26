@@ -1,7 +1,8 @@
 'use client';
 
-import { createClient, fetchExchange } from '@urql/core';
+import { createClient, fetchExchange, gql } from '@urql/core';
 import { cacheExchange } from '@urql/exchange-graphcache';
+import { SidebarDataDocument } from '@/graphql/generated/graphql';
 import { useMemo, type ReactNode } from 'react';
 import { Provider } from 'urql';
 
@@ -35,6 +36,53 @@ export function UrqlProvider({ children }: { children: ReactNode }) {
               AccessibilityPreferences: () => null,
               SecurityOperationResult: () => null,
               TwoFactorSetup: () => null,
+            },
+            updates: {
+              Mutation: {
+                updatePersonalData: (result, _args, cache) => {
+                  const data = result.updatePersonalData as
+                    { firstName?: string; lastName?: string } | undefined;
+                  if (!data) return;
+
+                  // `me` ya está cacheada: el dashboard monta `SidebarData` en el
+                  // layout y esa query pide `me { id, name, email, image, role }`.
+                  const meQuery = cache.readQuery({
+                    query: SidebarDataDocument,
+                  });
+                  const userId = meQuery?.me?.id;
+                  if (!userId) return;
+
+                  const entityId = cache.keyOfEntity({
+                    __typename: 'User',
+                    id: userId,
+                  });
+                  if (!entityId) return;
+
+                  const current = cache.readFragment(
+                    gql`
+                      fragment _ on User {
+                        name
+                      }
+                    `,
+                    entityId,
+                  ) as { name?: string } | null;
+
+                  const firstName = data.firstName ?? '';
+                  const lastName = data.lastName ?? '';
+                  const nextName = `${firstName} ${lastName}`.trim();
+                  if (!nextName) return;
+                  if (current?.name === nextName) return;
+
+                  cache.writeFragment(
+                    gql`
+                      fragment _ on User {
+                        name
+                      }
+                    `,
+                    { __typename: 'User', id: userId, name: nextName },
+                  );
+                },
+              },
             },
           }),
           fetchExchange,
