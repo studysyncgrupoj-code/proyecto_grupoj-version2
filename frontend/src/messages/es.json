@@ -132,35 +132,6 @@
         }
       }
     },
-    "HomeFeatures": {
-      "status": "Plataforma activa",
-      "welcome": "Bienvenido de nuevo",
-      "progressTitle": "Tu progreso académico",
-      "initials": "RV",
-      "stats": {
-        "timeStudied": "Tiempo estudiado",
-        "weeklyGoal": "Meta semanal",
-        "activeRooms": "Salas activas"
-      },
-      "weeklyProgress": {
-        "title": "Progreso semanal",
-        "value": "18 horas de 22",
-        "ariaLabel": "Gráfico de barras del progreso semanal. La altura de las barras representa las horas estudiadas cada día, totalizando 18 horas de 22."
-      },
-      "nextSession": {
-        "title": "Próxima sesión",
-        "course": "React avanzado",
-        "time": "Hoy · 4:30 p. m."
-      },
-      "streak": {
-        "title": "Racha actual",
-        "value": "12 días"
-      },
-      "aiCoach": {
-        "title": "IA Coach",
-        "value": "Plan actualizado"
-      }
-    },
     "features": {
       "eyebrow": "Aprendizaje con propósito",
       "title": "Todo lo que necesitas para estudiar mejor",
@@ -661,6 +632,25 @@
         "invalid": "El mensaje contiene caracteres no permitidos"
       }
     },
+    "documentType": {
+      "invalid": "Selecciona un tipo de documento válido"
+    },
+    "documentId": {
+      "min": "El número de documento no puede estar vacío",
+      "max": "El número de documento no puede exceder los 30 caracteres",
+      "invalid": "El número de documento solo puede contener letras, números y guiones"
+    },
+    "phone": {
+      "invalid": "El teléfono debe tener un formato internacional válido (ej: +573001234567)"
+    },
+    "country": {
+      "invalid": "Selecciona un país válido"
+    },
+    "address": {
+      "min": "La dirección no puede estar vacía",
+      "max": "La dirección no puede exceder los 200 caracteres",
+      "invalid": "La dirección contiene caracteres no permitidos"
+    },
     "acceptedTerms": {
       "required": "Debes aceptar los términos y condiciones"
     }
@@ -772,6 +762,59 @@
         "personalData": "Datos personales completos",
         "verified": "Cuenta verificada",
         "comingSoon": "Próximamente"
+      },
+      "personalData": {
+        "title": "Datos personales",
+        "description": "Gestiona tu identidad y tu información de contacto. Algunos campos pueden estar bloqueados.",
+        "fields": {
+          "firstName": {
+            "label": "Nombre",
+            "placeholder": "Tu nombre"
+          },
+          "lastName": {
+            "label": "Apellido",
+            "placeholder": "Tu apellido"
+          },
+          "documentType": {
+            "label": "Tipo de documento"
+          },
+          "documentId": {
+            "label": "Número de documento",
+            "placeholder": "Ej: 12345678"
+          },
+          "phone": {
+            "label": "Teléfono",
+            "placeholder": "Ej: +57 300 123 4567"
+          },
+          "country": {
+            "label": "País"
+          },
+          "address": {
+            "label": "Dirección",
+            "placeholder": "Calle 123 #45-67, Bogotá"
+          }
+        },
+        "documentType": {
+          "passport": "Pasaporte",
+          "dni": "Documento Nacional de Identidad"
+        },
+        "emptyOption": "Sin especificar",
+        "locked": {
+          "title": "Identidad bloqueada",
+          "description": "Tus datos de identidad no se pueden modificar. Contacta a soporte si necesitas actualizarlos.",
+          "badge": "Bloqueado"
+        },
+        "actions": {
+          "save": "Guardar cambios",
+          "saving": "Guardando..."
+        },
+        "successMessage": "Datos personales actualizados.",
+        "errors": {
+          "VALIDATION_ERROR": "Revisa los campos del formulario.",
+          "FORBIDDEN": "No tienes permiso para modificar estos datos de identidad.",
+          "CONFLICT": "Ya existe otro usuario con estos datos. Contacta a soporte.",
+          "INTERNAL_ERROR": "Ocurrió un error inesperado. Inténtalo de nuevo."
+        }
       }
     }
   }

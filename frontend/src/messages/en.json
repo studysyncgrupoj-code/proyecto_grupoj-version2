@@ -627,13 +627,24 @@
         "invalid": "Message contains invalid characters"
       }
     },
-    "error": {
-      "unexpected": "Something went wrong. Please try again.",
-      "sendFailed": "We couldn't send your message. Please try again in a few minutes.",
-      "rateLimited": "You've sent too many messages. Please try again later.",
-      "invalidData": "Check the form data and try again.",
-      "serverError": "There was a problem on our server. Please try again later.",
-      "unavailable": "We couldn't reach the contact service. Please try again in a few minutes."
+    "documentType": {
+      "invalid": "Please select a valid document type"
+    },
+    "documentId": {
+      "min": "Document ID cannot be empty",
+      "max": "Document ID cannot exceed 30 characters",
+      "invalid": "Document ID can only contain letters, numbers, and hyphens"
+    },
+    "phone": {
+      "invalid": "Phone number must be a valid international format (e.g., +573001234567)"
+    },
+    "country": {
+      "invalid": "Please select a valid country"
+    },
+    "address": {
+      "min": "Address cannot be empty",
+      "max": "Address cannot exceed 200 characters",
+      "invalid": "Address contains invalid characters"
     },
     "acceptedTerms": {
       "required": "You must accept the terms and conditions"
@@ -746,6 +757,59 @@
         "personalData": "Personal details complete",
         "verified": "Account verified",
         "comingSoon": "Coming soon"
+      },
+      "personalData": {
+        "title": "Personal Data",
+        "description": "Manage your identity and contact information. Some fields may be locked.",
+        "fields": {
+          "firstName": {
+            "label": "First Name",
+            "placeholder": "Your first name"
+          },
+          "lastName": {
+            "label": "Last Name",
+            "placeholder": "Your last name"
+          },
+          "documentType": {
+            "label": "Document Type"
+          },
+          "documentId": {
+            "label": "Document ID",
+            "placeholder": "e.g., 12345678"
+          },
+          "phone": {
+            "label": "Phone",
+            "placeholder": "e.g., +57 300 123 4567"
+          },
+          "country": {
+            "label": "Country"
+          },
+          "address": {
+            "label": "Address",
+            "placeholder": "123 Main St, Anytown"
+          }
+        },
+        "documentType": {
+          "passport": "Passport",
+          "dni": "National ID"
+        },
+        "emptyOption": "Not specified",
+        "locked": {
+          "title": "Identity Locked",
+          "description": "Your identity information cannot be changed. Contact support if you need to update it.",
+          "badge": "Locked"
+        },
+        "actions": {
+          "save": "Save changes",
+          "saving": "Saving..."
+        },
+        "successMessage": "Personal data updated.",
+        "errors": {
+          "VALIDATION_ERROR": "Please check the form fields.",
+          "FORBIDDEN": "You don't have permission to modify this identity information.",
+          "CONFLICT": "Another user already exists with this information. Contact support.",
+          "INTERNAL_ERROR": "An unexpected error occurred. Please try again."
+        }
       }
     }
   }
