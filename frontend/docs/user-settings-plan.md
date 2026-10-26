@@ -1312,28 +1312,41 @@ Orden de implementación aprobado (un archivo a la vez, con
 
 ---
 
-### Fase 3 — Secciones universales (parte 1) — lista para arrancar
+### Fase 3 — Secciones universales (parte 1) — EN CURSO
 
-- **3.1** `ProfileSection`: refactor del existente al patrón nuevo.
-- **3.2** `PersonalDataSection`: `myPersonalData` + `updatePersonalData`.
-  - Manejo de `identityLocked`.
-  - Manejo de errores: `VALIDATION_ERROR`, `FORBIDDEN`, `CONFLICT`.
-- **3.3** `PreferencesSection`: `myPreferences` + `updatePreferences`.
-  - `language`: guardar en backend + `router.replace(pathname, { locale })`
-    en `onSuccess`.
+> **Estado 2026-10-24:** sub-fase 1 (`countries.ts`), sub-fase 2 (4 schemas Zod + barrel + §10.5) y sub-fase 3 (i18n de las 4 secciones universales) **cerradas y commiteadas**. Arranca el paso 4 del orden aprobado: construcción de `PersonalDataSection.tsx`. Orden corregido según **D-H**: `ProfileSection` pasa al final del bloque, para validar primero el patrón `SectionCard` + `useSectionMutation` en secciones nuevas sin riesgo de regresión en el componente ya en producción.
+
+**Sub-fases de i18n (cerradas):**
+
+- [x] **3.i18n.1** `countries.ts` + 4 schemas Zod + barrel + §10.5 del plan. Commits `feat(user-settings): agregar catálogo ISO 3166-1 de países` y `feat(user-settings): agregar schemas Zod de las secciones universales`.
+- [x] **3.i18n.2** Claves de `personalData`. Commit `feat(i18n): agregar claves de datos personales y limpiar claves muertas`.
+- [x] **3.i18n.3** Claves de `preferences`, `privacy` y `profile`. Commit `feat(i18n): agregar claves de preferencias, privacidad y perfil`.
+
+**Construcción de componentes (en curso, un archivo a la vez con `pnpm type-check` + `pnpm lint` entre cada uno):**
+
+- [ ] **3.1** `PersonalDataSection`: `myPersonalData` + `updatePersonalData`.
+  - [ ] **3.1.a** Decisión D-E: Plan A (añadir `id` al selection set de `update-personal-data.graphql`) vs. Plan B (leer `me.id` de caché). A decidir al construir la sección.
+  - [ ] **3.1.b** `PersonalDataSection.tsx` (Server Component contenedor con subcomponentes Client).
+  - [ ] **3.1.c** `updates.Mutation.updatePersonalData` en `UrqlProvider` (dentro del commit de la sección, D-I).
+  - [ ] **3.1.d** Manejo de `identityLocked`, `VALIDATION_ERROR`, `FORBIDDEN`, `CONFLICT`.
+  - [ ] **3.1.e** `pnpm type-check` + `pnpm lint` + `git diff` de archivos clave.
+  - **Commit:** `feat(user-settings): agregar sección de datos personales`.
+- [ ] **3.2** `PreferencesSection`: `myPreferences` + `updatePreferences`.
+  - `language`: guardar en backend + `router.replace(pathname, { locale })` en `onSuccess`.
   - `theme`: guardar en backend + `setTheme` en `onSuccess`.
   - `timezone`: solo persistir. TODO(tz-global) para Fase 6+.
   - `null` en cualquier campo rechazado con `422` (ver 8.2.16).
   - `notifications: {}` no modifica ningún subcampo.
-  - Los toggles (`LanguageToggle`, `ThemeToggle`) no se tocan en esta fase.
-    TODO(theme-no-flash) y TODO(i18n-sync) en §8.1.
-- **3.4** `PrivacySection`: `myPrivacySettings` + `updatePrivacySettings`.
-
-**Commits sugeridos:**
-
-- `feat(user-settings): add personal data section`
-- `feat(user-settings): add preferences section`
-- `feat(user-settings): add privacy section`
+  - Los toggles (`LanguageToggle`, `ThemeToggle`) no se tocan en esta fase. TODO(theme-no-flash) y TODO(i18n-sync) en §8.1.
+  - **Commit:** `feat(user-settings): agregar sección de preferencias`.
+- [ ] **3.3** `PrivacySection`: `myPrivacySettings` + `updatePrivacySettings`.
+  - **Commit:** `feat(user-settings): agregar sección de privacidad`.
+- [ ] **3.4** `ProfileSection` + `ProfileAvatarSettings.tsx` (refactor). **Al final, según D-H.**
+  - Elimina `router.refresh()` residual y `useEffect` de sincronización de `image` (deuda §10.1).
+  - **Commit:** `feat(user-settings): refactorizar perfil sobre primitivas compartidas`.
+- [ ] **3.5** `page.tsx`: migrar a `getVisibleSections(role)`.
+  - Corrige el bug de visibilidad (`showCourses = student || teacher`).
+  - **Commit:** `refactor(user-settings): migrar orquestador a mapa sección × rol`.
 
 ---
 
@@ -1924,7 +1937,10 @@ el comportamiento esperado.
 | 2026-10-19 | Fase 1.5 (lint preexistente)      | Pendiente | 34 problemas (4 errors, 30 warnings) heredados de la época en que ESLint estaba crasheado por la instalación de TS 6/7. Se resuelven antes de Fase 2. Estado al iniciar: pendiente.                                                                                                                                                |
 | 2026-10-19 | Fase 1.6 (modular contrato)       | Pendiente | `docs/BACKEND_API.md` tiene 1.471 líneas. Se divide en `docs/backend-api/` por dominio (13 archivos), con README índice y sin stub (`docs/BACKEND_API.md` se elimina). Sin cambios de contenido. Estado al iniciar: pendiente.                                                                                                     |
 | 2026-10-19 | Fase 2 (infra UI compartida)      | En espera | Bloqueada por 1.5 y 1.6. Orden aprobado: `user-settings-sections.ts` → `SectionCard` → `SettingsSkeleton` → `ConfirmDialog` → `useSectionMutation`. Decisiones D-A (A1), D-B (B1), D-C (C2) fijadas.                                                                                                                               |
-| 2026-10-24 | Fase 2 (infra UI compartida)      | Cerrado   | 5 archivos creados: `src/config/user-settings-sections.ts`, `src/components/ui/{SectionCard,SettingsSkeleton,ConfirmDialog}.tsx`, `src/hooks/useSectionMutation.ts`. D-A (SectionCard Server), D-B (useSectionMutation wrapper de URQL, `errorCode: string                                                                         | null`, sin `graphql-errors.ts`en Fase 2), D-C (ConfirmDialog`<dialog>`nativo, sin animación de salida) cerradas.`pnpm type-check`, `pnpm lint`, `pnpm mock:test`59/59,`pnpm graphql:validate`en verde. Commit`feat(user-settings): add shared UI primitives`. |
+| 2026-10-24 | Fase 2 (infra UI compartida)      | Cerrado   | 5 archivos creados: `src/config/user-settings-sections.ts`, `src/components/ui/{SectionCard,SettingsSkeleton,ConfirmDialog}.tsx`, `src/hooks/useSectionMutation.ts`. D-A (SectionCard Server), D-B (useSectionMutation wrapper de URQL, `errorCode: string          | null`, sin `graphql-errors.ts`en Fase 2), D-C (ConfirmDialog`<dialog>`nativo, sin animación de salida) cerradas.`pnpm type-check`, `pnpm lint`, `pnpm mock:test`59/59,`pnpm graphql:validate`en verde. Commit`feat(user-settings): add shared UI primitives`. |
+| 2026-10-24 | Fase 3 / i18n `personalData`      | Cerrado   | Commit `feat(i18n): agregar claves de datos personales y limpiar claves muertas`. Añade `dashboard.userSettings.personalData` + `Validation.{documentType,documentId,phone,country,address}` en es/en. Limpia código muerto: `home.HomeFeatures` (es, duplicado de `home.hero.dashboardPreview`) y `Validation.error` (en, sin consumidores). Deuda detectada: `pages.subscription.{title,monthly,yearly}` existe en `es.json` y no en `en.json`, sin consumidores. Anotada en §10.6. `pnpm type-check` + `pnpm lint` verde. |
+| 2026-10-24 | Fase 3 / i18n `preferences`+`privacy`+`profile` | Cerrado   | Commit `feat(i18n): agregar claves de preferencias, privacidad y perfil`. Añade `dashboard.userSettings.{preferences,privacy,profile}` + `Validation.{preferences,privacy,bio,interests,image}.*` en es/en. Incluye `notes.theme` para reforzar D-G (PreferencesSection es la fuente persistida; ThemeToggle solo toca localStorage). Validado con `jq` (JSON válido), `diff` de claves aplanadas (solo diferencias preexistentes `pages.subscription.*`), no-colisión con `footer.legal.privacy` y `home.benefits.platform.privacy`. `pnpm type-check` + `pnpm lint` verde. |
+| 2026-10-24 | Fase 3 / i18n (sub-fase 3)        | Cerrada   | Cierre completo de la sub-fase 3. Los 4 namespaces `dashboard.userSettings.{personalData,preferences,privacy,profile}` y sus `Validation.*` correspondientes están implementados y commiteados. Fase 3 lista para arrancar la construcción de componentes (paso 4 del orden aprobado: `PersonalDataSection.tsx`). |
 
 ---
 
@@ -2019,3 +2035,18 @@ documentar el `trim()` en los campos listados. El código del cliente ya
 lo aplica (`TODO(contract)` en cada schema). El backend debe recibir el
 valor normalizado y aplicar la misma normalización como defensa en
 profundidad. No requiere cambios de código en el cliente.
+
+### 10.6 Deudas detectadas en sub-fase 3 (i18n)
+
+Anotadas al cerrar la sub-fase 3. Ninguna bloquea Fase 3.
+
+- **`pages.subscription.{title,monthly,yearly}` asimétrico es/en.**
+  `es.json` tiene el bloque `pages.subscription` (heredado del scaffold inicial),
+  `en.json` no lo tiene. No tiene consumidores: la página `/subscription` usa
+  `subscription.plans.*`, no `pages.subscription.*`. Se resolverá en Fase 6
+  (endurecimiento) o cuando se toque `pages.*` por otro motivo.
+- **Nota (no deuda): `Validation.contact.phone.invalid` vs. `Validation.phone.invalid`.**
+  Coexisten dos claves de "teléfono inválido": la de contacto (`contact.phone.invalid`)
+  y la de datos personales (`phone.invalid`). Los schemas emiten claves
+  distintas, así que `resolveError` las resuelve por separado. Se anota para
+  evitar confusión al buscar `phone` en el JSON.
