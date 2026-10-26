@@ -646,6 +646,53 @@
       "max": "Address cannot exceed 200 characters",
       "invalid": "Address contains invalid characters"
     },
+    "preferences": {
+      "language": {
+        "invalid": "Please select a valid language"
+      },
+      "theme": {
+        "invalid": "Please select a valid theme"
+      },
+      "timezone": {
+        "invalid": "Please select a valid timezone"
+      },
+      "notifications": {
+        "email": { "invalid": "Invalid value" },
+        "push": { "invalid": "Invalid value" },
+        "inApp": { "invalid": "Invalid value" }
+      },
+      "accessibility": {
+        "reducedMotion": { "invalid": "Invalid value" },
+        "highContrast": { "invalid": "Invalid value" }
+      }
+    },
+    "privacy": {
+      "visibility": {
+        "invalid": "Please select a valid visibility option"
+      },
+      "allowDirectMessages": {
+        "invalid": "Invalid value"
+      }
+    },
+    "bio": {
+      "title": {
+        "min": "Bio title cannot be empty",
+        "max": "Bio title cannot exceed 100 characters"
+      },
+      "description": {
+        "min": "Bio description cannot be empty",
+        "max": "Bio description cannot exceed 500 characters"
+      }
+    },
+    "interests": {
+      "invalid": "Invalid interests format",
+      "minLength": "Each interest must be at least 1 character long",
+      "maxLength": "Each interest cannot exceed 40 characters",
+      "maxCount": "You cannot add more than 20 interests"
+    },
+    "image": {
+      "invalid": "Image must be a valid URL or a base64 data URI"
+    },
     "acceptedTerms": {
       "required": "You must accept the terms and conditions"
     }
@@ -808,6 +855,103 @@
           "VALIDATION_ERROR": "Please check the form fields.",
           "FORBIDDEN": "You don't have permission to modify this identity information.",
           "CONFLICT": "Another user already exists with this information. Contact support.",
+          "INTERNAL_ERROR": "An unexpected error occurred. Please try again."
+        }
+      },
+      "preferences": {
+        "title": "Preferences",
+        "description": "Customize your StudySync experience. Changes are saved to your account.",
+        "fields": {
+          "language": {
+            "label": "Language",
+            "options": { "es": "Spanish", "en": "English" }
+          },
+          "theme": {
+            "label": "Theme",
+            "options": { "system": "System", "light": "Light", "dark": "Dark" }
+          },
+          "timezone": {
+            "label": "Timezone",
+            "placeholder": "e.g., America/Bogota"
+          }
+        },
+        "notifications": {
+          "title": "Notifications",
+          "email": { "label": "Email" },
+          "push": { "label": "Push notifications" },
+          "inApp": { "label": "In-app" }
+        },
+        "accessibility": {
+          "title": "Accessibility",
+          "reducedMotion": { "label": "Reduce motion" },
+          "highContrast": { "label": "High contrast" }
+        },
+        "notes": {
+          "theme": "We save this preference to your account. The header selector only changes the theme in this browser."
+        },
+        "actions": {
+          "save": "Save preferences",
+          "saving": "Saving..."
+        },
+        "successMessage": "Preferences saved.",
+        "errors": {
+          "VALIDATION_ERROR": "Please check the form fields.",
+          "INTERNAL_ERROR": "An unexpected error occurred. Please try again."
+        }
+      },
+      "privacy": {
+        "title": "Privacy",
+        "description": "Control who can see your information and contact you.",
+        "fields": {
+          "profileVisibility": { "label": "Profile visibility" },
+          "emailVisibility": { "label": "Email visibility" },
+          "phoneVisibility": { "label": "Phone visibility" },
+          "allowDirectMessages": {
+            "label": "Allow direct messages",
+            "description": "If disabled, other users won't be able to message you from your public profile."
+          }
+        },
+        "visibilityOptions": {
+          "everyone": "Everyone",
+          "authenticated": "Authenticated users only",
+          "nobody": "Nobody"
+        },
+        "actions": {
+          "save": "Save privacy",
+          "saving": "Saving..."
+        },
+        "successMessage": "Privacy settings saved.",
+        "errors": {
+          "VALIDATION_ERROR": "Please check the form fields.",
+          "INTERNAL_ERROR": "An unexpected error occurred. Please try again."
+        }
+      },
+      "profile": {
+        "title": "Profile",
+        "description": "Manage your bio, interests, and profile image.",
+        "fields": {
+          "bio": {
+            "title": { "label": "Bio title", "placeholder": "e.g., Engineering student" },
+            "description": { "label": "Description", "placeholder": "Tell us about yourself…" }
+          },
+          "interests": {
+            "label": "Interests",
+            "placeholder": "Add an interest and press Enter",
+            "addButton": "Add",
+            "removeAria": "Remove interest"
+          },
+          "image": {
+            "label": "Profile image",
+            "emptyOption": "No image"
+          }
+        },
+        "actions": {
+          "save": "Save profile",
+          "saving": "Saving..."
+        },
+        "successMessage": "Profile updated.",
+        "errors": {
+          "VALIDATION_ERROR": "Please check the form fields.",
           "INTERNAL_ERROR": "An unexpected error occurred. Please try again."
         }
       }

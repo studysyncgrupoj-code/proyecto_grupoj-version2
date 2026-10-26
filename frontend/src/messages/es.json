@@ -651,6 +651,53 @@
       "max": "La dirección no puede exceder los 200 caracteres",
       "invalid": "La dirección contiene caracteres no permitidos"
     },
+    "preferences": {
+      "language": {
+        "invalid": "Selecciona un idioma válido"
+      },
+      "theme": {
+        "invalid": "Selecciona un tema válido"
+      },
+      "timezone": {
+        "invalid": "Selecciona una zona horaria válida"
+      },
+      "notifications": {
+        "email": { "invalid": "Valor inválido" },
+        "push": { "invalid": "Valor inválido" },
+        "inApp": { "invalid": "Valor inválido" }
+      },
+      "accessibility": {
+        "reducedMotion": { "invalid": "Valor inválido" },
+        "highContrast": { "invalid": "Valor inválido" }
+      }
+    },
+    "privacy": {
+      "visibility": {
+        "invalid": "Selecciona una opción de visibilidad válida"
+      },
+      "allowDirectMessages": {
+        "invalid": "Valor inválido"
+      }
+    },
+    "bio": {
+      "title": {
+        "min": "El título de la biografía no puede estar vacío",
+        "max": "El título no puede exceder los 100 caracteres"
+      },
+      "description": {
+        "min": "La descripción de la biografía no puede estar vacía",
+        "max": "La descripción no puede exceder los 500 caracteres"
+      }
+    },
+    "interests": {
+      "invalid": "Formato de intereses inválido",
+      "minLength": "Cada interés debe tener al menos 1 carácter",
+      "maxLength": "Cada interés no puede exceder los 40 caracteres",
+      "maxCount": "No puedes añadir más de 20 intereses"
+    },
+    "image": {
+      "invalid": "La imagen debe ser una URL válida o un data URI base64"
+    },
     "acceptedTerms": {
       "required": "Debes aceptar los términos y condiciones"
     }
@@ -813,6 +860,103 @@
           "VALIDATION_ERROR": "Revisa los campos del formulario.",
           "FORBIDDEN": "No tienes permiso para modificar estos datos de identidad.",
           "CONFLICT": "Ya existe otro usuario con estos datos. Contacta a soporte.",
+          "INTERNAL_ERROR": "Ocurrió un error inesperado. Inténtalo de nuevo."
+        }
+      },
+      "preferences": {
+        "title": "Preferencias",
+        "description": "Personaliza tu experiencia en StudySync. Los cambios se guardan en tu cuenta.",
+        "fields": {
+          "language": {
+            "label": "Idioma",
+            "options": { "es": "Español", "en": "Inglés" }
+          },
+          "theme": {
+            "label": "Tema",
+            "options": { "system": "Sistema", "light": "Claro", "dark": "Oscuro" }
+          },
+          "timezone": {
+            "label": "Zona horaria",
+            "placeholder": "Ej: America/Bogota"
+          }
+        },
+        "notifications": {
+          "title": "Notificaciones",
+          "email": { "label": "Correo electrónico" },
+          "push": { "label": "Notificaciones push" },
+          "inApp": { "label": "En la aplicación" }
+        },
+        "accessibility": {
+          "title": "Accesibilidad",
+          "reducedMotion": { "label": "Reducir movimiento" },
+          "highContrast": { "label": "Alto contraste" }
+        },
+        "notes": {
+          "theme": "Guardamos esta preferencia en tu cuenta. El selector del header solo cambia el tema en este navegador."
+        },
+        "actions": {
+          "save": "Guardar preferencias",
+          "saving": "Guardando..."
+        },
+        "successMessage": "Preferencias guardadas.",
+        "errors": {
+          "VALIDATION_ERROR": "Revisa los campos del formulario.",
+          "INTERNAL_ERROR": "Ocurrió un error inesperado. Inténtalo de nuevo."
+        }
+      },
+      "privacy": {
+        "title": "Privacidad",
+        "description": "Controla quién puede ver tu información y contactarte.",
+        "fields": {
+          "profileVisibility": { "label": "Visibilidad del perfil" },
+          "emailVisibility": { "label": "Visibilidad del correo" },
+          "phoneVisibility": { "label": "Visibilidad del teléfono" },
+          "allowDirectMessages": {
+            "label": "Permitir mensajes directos",
+            "description": "Si lo desactivas, otros usuarios no podrán escribirte desde tu perfil público."
+          }
+        },
+        "visibilityOptions": {
+          "everyone": "Todos",
+          "authenticated": "Solo usuarios autenticados",
+          "nobody": "Nadie"
+        },
+        "actions": {
+          "save": "Guardar privacidad",
+          "saving": "Guardando..."
+        },
+        "successMessage": "Configuración de privacidad guardada.",
+        "errors": {
+          "VALIDATION_ERROR": "Revisa los campos del formulario.",
+          "INTERNAL_ERROR": "Ocurrió un error inesperado. Inténtalo de nuevo."
+        }
+      },
+      "profile": {
+        "title": "Perfil",
+        "description": "Gestiona tu biografía, intereses e imagen de perfil.",
+        "fields": {
+          "bio": {
+            "title": { "label": "Título de la biografía", "placeholder": "Ej: Estudiante de ingeniería" },
+            "description": { "label": "Descripción", "placeholder": "Cuéntanos sobre ti…" }
+          },
+          "interests": {
+            "label": "Intereses",
+            "placeholder": "Añade un interés y pulsa Enter",
+            "addButton": "Añadir",
+            "removeAria": "Eliminar interés"
+          },
+          "image": {
+            "label": "Imagen de perfil",
+            "emptyOption": "Sin imagen"
+          }
+        },
+        "actions": {
+          "save": "Guardar perfil",
+          "saving": "Guardando..."
+        },
+        "successMessage": "Perfil actualizado.",
+        "errors": {
+          "VALIDATION_ERROR": "Revisa los campos del formulario.",
           "INTERNAL_ERROR": "Ocurrió un error inesperado. Inténtalo de nuevo."
         }
       }
