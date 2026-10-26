@@ -822,6 +822,10 @@
             "label": "Apellido",
             "placeholder": "Tu apellido"
           },
+          "fieldsets": {
+            "identity": "Identidad",
+            "contact": "Contacto"
+          },
           "documentType": {
             "label": "Tipo de documento"
           },
@@ -851,6 +855,10 @@
           "description": "Tus datos de identidad no se pueden modificar. Contacta a soporte si necesitas actualizarlos.",
           "badge": "Bloqueado"
         },
+        "fieldsets": {
+          "identity": "Identidad",
+          "contact": "Contacto"
+        },
         "actions": {
           "save": "Guardar cambios",
           "saving": "Guardando..."
@@ -873,7 +881,11 @@
           },
           "theme": {
             "label": "Tema",
-            "options": { "system": "Sistema", "light": "Claro", "dark": "Oscuro" }
+            "options": {
+              "system": "Sistema",
+              "light": "Claro",
+              "dark": "Oscuro"
+            }
           },
           "timezone": {
             "label": "Zona horaria",
@@ -936,8 +948,14 @@
         "description": "Gestiona tu biografía, intereses e imagen de perfil.",
         "fields": {
           "bio": {
-            "title": { "label": "Título de la biografía", "placeholder": "Ej: Estudiante de ingeniería" },
-            "description": { "label": "Descripción", "placeholder": "Cuéntanos sobre ti…" }
+            "title": {
+              "label": "Título de la biografía",
+              "placeholder": "Ej: Estudiante de ingeniería"
+            },
+            "description": {
+              "label": "Descripción",
+              "placeholder": "Cuéntanos sobre ti…"
+            }
           },
           "interests": {
             "label": "Intereses",

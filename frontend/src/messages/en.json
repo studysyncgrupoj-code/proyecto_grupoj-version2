@@ -817,6 +817,10 @@
             "label": "Last Name",
             "placeholder": "Your last name"
           },
+          "fieldsets": {
+            "identity": "Identity",
+            "contact": "Contact"
+          },
           "documentType": {
             "label": "Document Type"
           },
@@ -845,6 +849,10 @@
           "title": "Identity Locked",
           "description": "Your identity information cannot be changed. Contact support if you need to update it.",
           "badge": "Locked"
+        },
+        "fieldsets": {
+          "identity": "Identity",
+          "contact": "Contact"
         },
         "actions": {
           "save": "Save changes",
@@ -931,8 +939,14 @@
         "description": "Manage your bio, interests, and profile image.",
         "fields": {
           "bio": {
-            "title": { "label": "Bio title", "placeholder": "e.g., Engineering student" },
-            "description": { "label": "Description", "placeholder": "Tell us about yourself…" }
+            "title": {
+              "label": "Bio title",
+              "placeholder": "e.g., Engineering student"
+            },
+            "description": {
+              "label": "Description",
+              "placeholder": "Tell us about yourself…"
+            }
           },
           "interests": {
             "label": "Interests",
