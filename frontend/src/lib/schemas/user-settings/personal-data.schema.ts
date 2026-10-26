@@ -133,14 +133,29 @@ const addressSchema = z
  *   - documentType / documentId / phone / country / address: null
  *     permitido (borra el valor).
  */
-export const personalDataSchema = z.object({
-  firstName: firstNameField.optional(),
-  lastName: lastNameField.optional(),
-  documentType: documentTypeSchema.nullable().optional(),
-  documentId: documentIdSchema.nullable().optional(),
-  phone: phoneSchema.nullable().optional(),
-  country: countrySchema.nullable().optional(),
-  address: addressSchema.nullable().optional(),
-});
+export const personalDataSchema = z
+  .object({
+    firstName: firstNameField.optional(),
+    lastName: lastNameField.optional(),
+    documentType: documentTypeSchema.nullable().optional(),
+    documentId: documentIdSchema.nullable().optional(),
+    phone: phoneSchema.nullable().optional(),
+    country: countrySchema.nullable().optional(),
+    address: addressSchema.nullable().optional(),
+  })
+  .superRefine((data, ctx) => {
+    const hasDocumentType =
+      data.documentType !== null && data.documentType !== undefined;
+    const hasDocumentId =
+      data.documentId !== null && data.documentId !== undefined;
+
+    if (hasDocumentType !== hasDocumentId) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['documentId'],
+        message: 'documentId.invalid',
+      });
+    }
+  });
 
 export type PersonalDataInput = z.infer<typeof personalDataSchema>;
