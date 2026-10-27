@@ -1,10 +1,43 @@
+import { Fragment } from 'react';
 import { auth } from '@/auth';
+import {
+  getVisibleSections,
+  type UserSettingsSectionId,
+} from '@/config/user-settings-sections';
 import { getLocale, getTranslations } from 'next-intl/server';
 import { redirect } from 'next/navigation';
 import { PersonalDataSection } from './PersonalDataSection';
 import { PreferencesSection } from './PreferencesSection';
 import { PrivacySection } from './PrivacySection';
 import { ProfileSection } from './ProfileSection';
+
+function renderSection(
+  id: UserSettingsSectionId,
+  showCertificates: boolean,
+): React.ReactNode {
+  switch (id) {
+    case 'profile':
+      return <ProfileSection showCertificates={showCertificates} />;
+    case 'personalData':
+      return <PersonalDataSection />;
+    case 'preferences':
+      return <PreferencesSection />;
+    case 'privacy':
+      return <PrivacySection />;
+
+    // Fases 4 y 5 — secciones aún no implementadas.
+    // Cuando se implementen, reemplazar `return null` por el componente real.
+    case 'security':
+    case 'account':
+    case 'courses':
+    case 'certificates':
+    case 'billing':
+      return null;
+
+    default:
+      return null;
+  }
+}
 
 export async function generateMetadata() {
   const t = await getTranslations('dashboard.userSettings.metadata');
@@ -30,10 +63,8 @@ export default async function ProfilePage() {
   // Los datos de presentación (nombre, correo, imagen, plan) los entrega
   // el BFF vía GraphQL dentro de ProfileSection.
   const { role } = session.user;
-
-  const showSubscription = role === 'student';
-  const showCertificates = role === 'student';
-  const showCourses = role === 'student' || role === 'teacher';
+  const sections = getVisibleSections(role);
+  const showCertificates = sections.includes('certificates');
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6 sm:py-10 lg:px-8">
@@ -43,21 +74,11 @@ export default async function ProfilePage() {
       </header>
 
       <div className="grid gap-6">
-        <ProfileSection showCertificates={showCertificates} />
-
-        {/* 2. Personal Data */}
-        <PersonalDataSection />
-
-        {/* 3. Security */}
-        {showCourses && <>{/* 5. Courses */}</>}
-
-        {/* 6. Preferences */}
-        <PreferencesSection />
-
-        <PrivacySection />
-
-        {showSubscription && <>{/* Plan / Subscription */}</>}
-        {/* 7. Account */}
+        {sections.map((id) => {
+          const node = renderSection(id, showCertificates);
+          if (node === null) return null;
+          return <Fragment key={id}>{node}</Fragment>;
+        })}
       </div>
     </div>
   );
