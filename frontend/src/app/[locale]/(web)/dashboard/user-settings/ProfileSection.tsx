@@ -1,99 +1,84 @@
-'use client';
-
-import { useSidebarData } from '@/components/layout/dashboard/sidebar/useSidebarData';
-import { useTranslations } from 'next-intl';
+import { SectionCard } from '@/components/ui/SectionCard';
+import type { ValidationDict } from '@/lib/validation';
+import { getMessages, getTranslations } from 'next-intl/server';
 import { CertificateEligibility } from './CertificateEligibility';
 import { ProfileAvatarSettings } from './ProfileAvatarSettings';
-
-type UserRole = 'student' | 'teacher' | 'admin';
-
-interface PageMessages {
-  fallbackName: string;
-  fallbackEmail: string;
-}
-
-interface AvatarMessages {
-  title: string;
-  description: string;
-  changeAria: string;
-  uploadAria: string;
-  save: string;
-  saving: string;
-  cancel: string;
-  change: string;
-  upload: string;
-  remove: string;
-  limit: string;
-  previewTitle: string;
-  visibility: string;
-  saved: string;
-  removed: string;
-  errors: {
-    unsupportedType: string;
-    fileTooLarge: string;
-    uploadFailed: string;
-    removeFailed: string;
-  };
-}
-
-interface CertificateMessages {
-  title: string;
-  description: string;
-  eligible: string;
-  pending: string;
-  avatar: string;
-  personalData: string;
-  verified: string;
-  comingSoon: string;
-}
+import { ProfileFormClient } from './ProfileFormClient';
 
 interface ProfileSectionProps {
-  role: UserRole;
-  pageMessages: PageMessages;
-  avatarMessages: AvatarMessages;
-  certificateMessages: CertificateMessages;
   showCertificates: boolean;
 }
 
-export function ProfileSection({
-  role,
-  pageMessages,
-  avatarMessages,
-  certificateMessages,
+export async function ProfileSection({
   showCertificates,
 }: ProfileSectionProps) {
-  const rolesT = useTranslations('dashboard.navigation.roles');
-  const { isLoading, name, email, image } = useSidebarData();
+  const [avatarT, pageT, certT, allMessages] = await Promise.all([
+    getTranslations('dashboard.userSettings.avatar'),
+    getTranslations('dashboard.userSettings.page'),
+    getTranslations('dashboard.userSettings.certificates'),
+    getMessages(),
+  ]);
 
-  const roleKey =
-    role === 'admin' ? 'admin' : role === 'teacher' ? 'professor' : 'student';
-  const roleLabel = rolesT(roleKey);
+  const avatarMessages = {
+    fallbackName: pageT('fallbackName'),
+    fallbackEmail: pageT('fallbackEmail'),
+    title: avatarT('title'),
+    description: avatarT('description'),
+    changeAria: avatarT('changeAria'),
+    uploadAria: avatarT('uploadAria'),
+    save: avatarT('save'),
+    saving: avatarT('saving'),
+    cancel: avatarT('cancel'),
+    change: avatarT('change'),
+    upload: avatarT('upload'),
+    remove: avatarT('remove'),
+    limit: avatarT('limit'),
+    previewTitle: avatarT('previewTitle'),
+    visibility: avatarT('visibility'),
+    saved: avatarT('saved'),
+    removed: avatarT('removed'),
+    errors: {
+      unsupportedType: avatarT('errors.unsupportedType'),
+      fileTooLarge: avatarT('errors.fileTooLarge'),
+      uploadFailed: avatarT('errors.uploadFailed'),
+      removeFailed: avatarT('errors.removeFailed'),
+    },
+  };
 
-  // Primer frame: mientras el BFF responde, no renderizamos el bloque.
-  // Evita parpadeo entre "sin datos" y "con datos reales".
-  if (isLoading) {
-    return null;
-  }
+  const certificateMessages = {
+    title: certT('title'),
+    description: certT('description'),
+    eligible: certT('eligible'),
+    pending: certT('pending'),
+    avatar: certT('avatar'),
+    personalData: certT('personalData'),
+    verified: certT('verified'),
+    comingSoon: certT('comingSoon'),
+  };
 
-  const displayName = name ?? pageMessages.fallbackName;
-  const displayEmail = email ?? pageMessages.fallbackEmail;
+  const profileT = allMessages.dashboard.userSettings.profile;
+  const profileMessages = {
+    fields: {
+      bio: profileT.fields.bio,
+      interests: profileT.fields.interests,
+    },
+    actions: profileT.actions,
+    successMessage: profileT.successMessage,
+    errors: profileT.errors,
+  };
+  const validation = allMessages.Validation as ValidationDict;
 
   return (
     <>
-      <ProfileAvatarSettings
-        name={displayName}
-        email={displayEmail}
-        roleLabel={roleLabel}
-        image={image}
-        messages={avatarMessages}
-      />
+      <ProfileAvatarSettings messages={avatarMessages} />
 
       {showCertificates && (
-        <CertificateEligibility
-          hasAvatar={!!image}
-          messages={certificateMessages}
-        />
+        <CertificateEligibility messages={certificateMessages} />
       )}
+
+      <SectionCard title={profileT.title} description={profileT.description}>
+        <ProfileFormClient messages={profileMessages} validation={validation} />
+      </SectionCard>
     </>
   );
 }

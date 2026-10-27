@@ -1,3 +1,6 @@
+'use client';
+
+import { useSidebarData } from '@/components/layout/dashboard/sidebar/useSidebarData';
 import { AppIcon, type UiIconName } from '@/lib/iconMap';
 
 interface Requirement {
@@ -8,7 +11,6 @@ interface Requirement {
 }
 
 interface CertificateEligibilityProps {
-  hasAvatar: boolean;
   messages: {
     title: string;
     description: string;
@@ -22,9 +24,11 @@ interface CertificateEligibilityProps {
 }
 
 export function CertificateEligibility({
-  hasAvatar,
   messages,
 }: CertificateEligibilityProps) {
+  const { image } = useSidebarData();
+  const hasAvatar = !!image;
+
   // TODO: sumar acá los requisitos reales de "Personal Data" y "Security"
   // en cuanto existan (ej: datos completos, cuenta verificada).
   const requirements: Requirement[] = [

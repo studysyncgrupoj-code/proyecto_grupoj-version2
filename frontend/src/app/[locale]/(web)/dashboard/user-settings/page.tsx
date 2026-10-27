@@ -16,11 +16,9 @@ export async function generateMetadata() {
 }
 
 export default async function ProfilePage() {
-  const [session, t, certT, avatarT, locale] = await Promise.all([
+  const [session, t, locale] = await Promise.all([
     auth(),
     getTranslations('dashboard.userSettings.page'),
-    getTranslations('dashboard.userSettings.certificates'),
-    getTranslations('dashboard.userSettings.avatar'),
     getLocale(),
   ]);
 
@@ -37,46 +35,6 @@ export default async function ProfilePage() {
   const showCertificates = role === 'student';
   const showCourses = role === 'student' || role === 'teacher';
 
-  const pageMessages = {
-    fallbackName: t('fallbackName'),
-    fallbackEmail: t('fallbackEmail'),
-  };
-
-  const avatarMessages = {
-    title: avatarT('title'),
-    description: avatarT('description'),
-    changeAria: avatarT('changeAria'),
-    uploadAria: avatarT('uploadAria'),
-    save: avatarT('save'),
-    saving: avatarT('saving'),
-    cancel: avatarT('cancel'),
-    change: avatarT('change'),
-    upload: avatarT('upload'),
-    remove: avatarT('remove'),
-    limit: avatarT('limit'),
-    previewTitle: avatarT('previewTitle'),
-    visibility: avatarT('visibility'),
-    saved: avatarT('saved'),
-    removed: avatarT('removed'),
-    errors: {
-      unsupportedType: avatarT('errors.unsupportedType'),
-      fileTooLarge: avatarT('errors.fileTooLarge'),
-      uploadFailed: avatarT('errors.uploadFailed'),
-      removeFailed: avatarT('errors.removeFailed'),
-    },
-  };
-
-  const certificateMessages = {
-    title: certT('title'),
-    description: certT('description'),
-    eligible: certT('eligible'),
-    pending: certT('pending'),
-    avatar: certT('avatar'),
-    personalData: certT('personalData'),
-    verified: certT('verified'),
-    comingSoon: certT('comingSoon'),
-  };
-
   return (
     <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6 sm:py-10 lg:px-8">
       <header className="mb-6">
@@ -85,13 +43,7 @@ export default async function ProfilePage() {
       </header>
 
       <div className="grid gap-6">
-        <ProfileSection
-          role={role}
-          pageMessages={pageMessages}
-          avatarMessages={avatarMessages}
-          certificateMessages={certificateMessages}
-          showCertificates={showCertificates}
-        />
+        <ProfileSection showCertificates={showCertificates} />
 
         {/* 2. Personal Data */}
         <PersonalDataSection />

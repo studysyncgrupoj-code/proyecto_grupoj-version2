@@ -1,129 +1,79 @@
 'use client';
 
 import { Button } from '@/components/ui/Button';
+import { useSidebarData } from '@/components/layout/dashboard/sidebar/useSidebarData';
 import {
   UpdateProfileDocument,
   type UpdateProfileMutation,
   type UpdateProfileMutationVariables,
 } from '@/graphql/generated/graphql';
-import { useRouter } from '@/i18n/navigation';
+import { getRoleTranslationKey } from '@/config/dashboard-navigation';
 import { AppIcon } from '@/lib/iconMap';
+import { useSectionMutation } from '@/hooks/useSectionMutation';
+import { useTranslations } from 'next-intl';
 import { useEffect, useRef, useState, type ChangeEvent } from 'react';
-import { useMutation } from 'urql';
 
 const MAX_FILE_SIZE = 4 * 1024 * 1024; // 4 MB
 const ACCEPTED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 
-interface ProfileAvatarSettingsProps {
-  name: string;
-  email: string;
-  roleLabel: string;
-  image?: string | null;
-  messages: {
-    title: string;
-    description: string;
-    changeAria: string;
-    uploadAria: string;
-    save: string;
-    saving: string;
-    cancel: string;
-    change: string;
-    upload: string;
-    remove: string;
-    limit: string;
-    previewTitle: string;
-    visibility: string;
-    saved: string;
-    removed: string;
-    errors: {
-      unsupportedType: string;
-      fileTooLarge: string;
-      uploadFailed: string;
-      removeFailed: string;
-    };
+interface AvatarMessages {
+  fallbackName: string;
+  fallbackEmail: string;
+  title: string;
+  description: string;
+  changeAria: string;
+  uploadAria: string;
+  save: string;
+  saving: string;
+  cancel: string;
+  change: string;
+  upload: string;
+  remove: string;
+  limit: string;
+  previewTitle: string;
+  visibility: string;
+  saved: string;
+  removed: string;
+  errors: {
+    unsupportedType: string;
+    fileTooLarge: string;
+    uploadFailed: string;
+    removeFailed: string;
   };
 }
 
+interface ProfileAvatarSettingsProps {
+  messages: AvatarMessages;
+}
+
 export function ProfileAvatarSettings({
-  name,
-  email,
-  roleLabel,
-  image,
   messages,
 }: ProfileAvatarSettingsProps) {
-  const router = useRouter();
+  const { name, email, image, role } = useSidebarData();
+  const rolesT = useTranslations('dashboard.navigation.roles');
+  const roleLabel = rolesT(getRoleTranslationKey(role));
+
   const inputRef = useRef<HTMLInputElement>(null);
   const pendingPreviewRef = useRef<string | null>(null);
-  const retainedPreviewRef = useRef<string | null>(null);
-  const [currentImage, setCurrentImage] = useState(image ?? null);
+  const lastActionRef = useRef<'save' | 'remove' | null>(null);
   const [pendingPreview, setPendingPreview] = useState<string | null>(null);
   const [pendingFile, setPendingFile] = useState<File | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [isSaving, setIsSaving] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
 
-  // ← NUEVO: mutación GraphQL para updateProfile
-  const [, updateProfile] = useMutation<
-    UpdateProfileMutation,
-    UpdateProfileMutationVariables
-  >(UpdateProfileDocument);
-
+  const currentImage = image;
   const displayImage = pendingPreview ?? currentImage;
   const hasPendingChange = !!pendingFile;
 
   useEffect(
     () => () => {
-      const urls = new Set([
-        pendingPreviewRef.current,
-        retainedPreviewRef.current,
-      ]);
-      urls.forEach((url) => url && URL.revokeObjectURL(url));
+      if (pendingPreviewRef.current) {
+        URL.revokeObjectURL(pendingPreviewRef.current);
+        pendingPreviewRef.current = null;
+      }
     },
     [],
   );
-
-  // Sincroniza el estado local cuando el padre revalida `image`.
-  // TODO(fase-3): al refactorizar este componente sobre `useSectionMutation` +
-  // graphcache, eliminar este `useEffect` y el `router.refresh()` residual de
-  // `handleSave`/`handleRemove`. Con graphcache propagando `User.image`, el
-  // estado local se puede derivar directamente de la prop.
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- sincronización intencional con la prop `image`, se elimina en Fase 3
-    setCurrentImage(image ?? null);
-  }, [image]);
-
-  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    e.target.value = '';
-    if (!file) return;
-
-    if (!ACCEPTED_TYPES.includes(file.type)) {
-      if (pendingPreview) URL.revokeObjectURL(pendingPreview);
-      pendingPreviewRef.current = null;
-      setPendingPreview(null);
-      setPendingFile(null);
-      setFeedback(null);
-      setError(messages.errors.unsupportedType);
-      return;
-    }
-    if (file.size > MAX_FILE_SIZE) {
-      if (pendingPreview) URL.revokeObjectURL(pendingPreview);
-      pendingPreviewRef.current = null;
-      setPendingPreview(null);
-      setPendingFile(null);
-      setFeedback(null);
-      setError(messages.errors.fileTooLarge);
-      return;
-    }
-
-    setError(null);
-    setFeedback(null);
-    if (pendingPreview) URL.revokeObjectURL(pendingPreview);
-    setPendingFile(file);
-    const preview = URL.createObjectURL(file);
-    pendingPreviewRef.current = preview;
-    setPendingPreview(preview);
-  };
 
   const handleCancel = () => {
     if (pendingPreview && pendingPreview !== currentImage) {
@@ -134,69 +84,105 @@ export function ProfileAvatarSettings({
     setPendingFile(null);
     setError(null);
     setFeedback(null);
+    resetError();
   };
 
-  // ← NUEVO: guardar vía mutación GraphQL
+  const { mutate, isSaving, errorCode, resetError } = useSectionMutation<
+    UpdateProfileMutation,
+    UpdateProfileMutationVariables,
+    string | null
+  >({
+    document: UpdateProfileDocument,
+    parseVariables: (dataUri) => ({ input: { image: dataUri } }),
+    mapError: (code) =>
+      code === 'VALIDATION_ERROR' || code === 'INTERNAL_ERROR'
+        ? messages.errors.uploadFailed
+        : null,
+    onSuccess: () => {
+      const action = lastActionRef.current;
+      lastActionRef.current = null;
+      handleCancel();
+      setFeedback(action === 'remove' ? messages.removed : messages.saved);
+    },
+  });
+
+  const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    event.target.value = '';
+    if (!file) return;
+
+    if (!ACCEPTED_TYPES.includes(file.type)) {
+      if (pendingPreview) URL.revokeObjectURL(pendingPreview);
+      pendingPreviewRef.current = null;
+      setPendingPreview(null);
+      setPendingFile(null);
+      setFeedback(null);
+      setError(messages.errors.unsupportedType);
+      resetError();
+      return;
+    }
+
+    if (file.size > MAX_FILE_SIZE) {
+      if (pendingPreview) URL.revokeObjectURL(pendingPreview);
+      pendingPreviewRef.current = null;
+      setPendingPreview(null);
+      setPendingFile(null);
+      setFeedback(null);
+      setError(messages.errors.fileTooLarge);
+      resetError();
+      return;
+    }
+
+    setError(null);
+    setFeedback(null);
+    resetError();
+    if (pendingPreview) URL.revokeObjectURL(pendingPreview);
+    setPendingFile(file);
+    const preview = URL.createObjectURL(file);
+    pendingPreviewRef.current = preview;
+    setPendingPreview(preview);
+  };
+
   const handleSave = async () => {
     if (!pendingFile) return;
-    setIsSaving(true);
+
     setError(null);
+    setFeedback(null);
+    resetError();
 
-    // Convertir el archivo a data URI. El contrato §3.6 acepta URL, data URI
-    // o `null`. Cuando el backend exponga un endpoint de upload dedicado,
-    // se reemplaza por la URL devuelta por ese endpoint.
-    const dataUri = await new Promise<string>((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result as string);
-      reader.onerror = () => reject(reader.error);
-      reader.readAsDataURL(pendingFile);
-    });
+    try {
+      const dataUri = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          if (typeof reader.result === 'string') {
+            resolve(reader.result);
+          } else {
+            reject(new Error('FileReader did not return a data URI'));
+          }
+        };
+        reader.onerror = () => reject(reader.error);
+        reader.readAsDataURL(pendingFile);
+      });
 
-    const result = await updateProfile({ input: { image: dataUri } });
-
-    if (result.error) {
+      lastActionRef.current = 'save';
+      await mutate(dataUri);
+    } catch {
       setError(messages.errors.uploadFailed);
-      setIsSaving(false);
-      return;
     }
-
-    // Adoptar la respuesta del servidor como fuente de verdad local.
-    // Si graphcache propaga correctamente al sidebar, aquí ya coincide.
-    const serverImage = result.data?.updateProfile.image ?? null;
-    setCurrentImage(serverImage);
-
-    if (retainedPreviewRef.current) {
-      URL.revokeObjectURL(retainedPreviewRef.current);
-      retainedPreviewRef.current = null;
-    }
-    handleCancel();
-    setFeedback(messages.saved);
-    router.refresh();
-    setIsSaving(false);
   };
 
-  // ← NUEVO: borrar vía mutación GraphQL
   const handleRemove = async () => {
-    setIsSaving(true);
     setError(null);
-
-    const result = await updateProfile({ input: { image: null } });
-
-    if (result.error) {
-      setError(messages.errors.removeFailed);
-      setIsSaving(false);
-      return;
-    }
-
-    setCurrentImage(null);
-    if (retainedPreviewRef.current) {
-      URL.revokeObjectURL(retainedPreviewRef.current);
-      retainedPreviewRef.current = null;
-    }
-    setFeedback(messages.removed);
-    router.refresh();
-    setIsSaving(false);
+    setFeedback(null);
+    resetError();
+    lastActionRef.current = 'remove';
+    await mutate(null);
   };
+
+  // `errorCode` (error de mutación) tiene prioridad sobre `error` (error local
+  // de validación de archivo), porque el de mutación es el más reciente y
+  // crítico.
+  const displayError = errorCode ?? error;
 
   return (
     <section className="border-border bg-surface rounded-3xl border p-6 sm:p-8">
@@ -231,7 +217,9 @@ export function ProfileAvatarSettings({
                 <span
                   aria-hidden="true"
                   className="bg-primary text-primary-foreground flex size-full items-center justify-center text-4xl font-bold"
-                ></span>
+                >
+                  {(name ?? messages.fallbackName).charAt(0).toUpperCase()}
+                </span>
               )}
               <span className="bg-foreground/40 absolute inset-0 flex items-center justify-center opacity-0 transition-opacity group-hover:opacity-100">
                 <AppIcon
@@ -308,16 +296,16 @@ export function ProfileAvatarSettings({
             </div>
           )}
 
-          {error && (
+          {displayError && (
             <p
               role="alert"
               className="text-danger text-center text-xs leading-relaxed"
             >
-              {error}
+              {displayError}
             </p>
           )}
 
-          {feedback && !error && (
+          {feedback && !displayError && (
             <p role="status" className="text-success text-center text-xs">
               {feedback}
             </p>
@@ -345,13 +333,17 @@ export function ProfileAvatarSettings({
               <span
                 aria-hidden="true"
                 className="bg-primary text-primary-foreground flex size-10 shrink-0 items-center justify-center rounded-full text-sm font-bold"
-              ></span>
+              >
+                {(name ?? messages.fallbackName).charAt(0).toUpperCase()}
+              </span>
             )}
             <div className="min-w-0">
               <p className="text-foreground truncate text-sm leading-tight font-bold">
-                {name}
+                {name ?? messages.fallbackName}
               </p>
-              <p className="text-foreground-subtle truncate text-xs">{email}</p>
+              <p className="text-foreground-subtle truncate text-xs">
+                {email ?? messages.fallbackEmail}
+              </p>
               <p className="text-foreground-muted truncate text-xs font-medium">
                 {roleLabel}
               </p>
