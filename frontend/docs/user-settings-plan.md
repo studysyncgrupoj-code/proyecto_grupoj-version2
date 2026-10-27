@@ -1314,9 +1314,9 @@ Orden de implementación aprobado (un archivo a la vez, con
 
 ---
 
-### Fase 3 — Secciones universales (parte 1) — EN CURSO
+### Fase 3 — Secciones universales (parte 1) ✅ CERRADA
 
-> **Estado 2026-10-25:** sub-fase 1 (`countries.ts`), sub-fase 2 (4 schemas Zod + barrel + §10.5), sub-fase 3 (i18n) y pasos 4–5 (`PersonalDataSection` y `PreferencesSection` con sus Client, integrados en `page.tsx`) **cerrados y commiteados**. Pendiente: paso 6 (`PrivacySection`), paso 7 (`ProfileSection` refactor), paso 8 (`page.tsx` → `getVisibleSections`). Orden según **D-H**: `ProfileSection` al final del bloque.
+> **Estado 2026-10-26:** Fase 3 **completa**. Sub-fase 1 (`countries.ts`), sub-fase 2 (4 schemas Zod + barrel + §10.5), sub-fase 3 (i18n), pasos 4–5 (`PersonalDataSection` y `PreferencesSection`), paso 6 (`PrivacySection`), paso 7 (`ProfileSection` refactor) y paso 8 (`page.tsx` → `getVisibleSections`), todos cerrados y commiteados. Orden seguido según **D-H**: `ProfileSection` al final del bloque, antes del orquestador.
 
 **Sub-fases de i18n (cerradas):**
 
@@ -1358,8 +1358,13 @@ Orden de implementación aprobado (un archivo a la vez, con
   - Salda las deudas §10.1 de `ProfileAvatarSettings` (ver §10.1 actualizada abajo).
   - Validado: `pnpm type-check` (0), `pnpm lint` (0), `pnpm mock:test` (59/59).
   - **Commit:** `feat(user-settings): refactorizar perfil sobre primitivas compartidas` (`d3dd484`).
-- [ ] **3.5** `page.tsx`: migrar a `getVisibleSections(role)`.
-  - Corrige el bug de visibilidad (`showCourses = student || teacher`).
+- [x] **3.5** `page.tsx`: migrar a `getVisibleSections(role)`. **Cerrado.**
+  - `page.tsx` calcula `sections = getVisibleSections(role)` y renderiza con `sections.map` + `<Fragment key={id}>`.
+  - Nuevo `renderSection(id, showCertificates)`: función módulo con `switch` que mapea cada `UserSettingsSectionId` a su componente. Los `case`s de Fases 4 y 5 devuelven `null`.
+  - Eliminados `showSubscription`, `showCourses` y los 3 placeholders JSX.
+  - `showCertificates` se deriva de `sections.includes('certificates')` (no hardcodeado como `role === 'student'`).
+  - **Corrige bug de Fase 2:** `showCourses = student || teacher` mostraba el placeholder de Courses a teacher. Con `getVisibleSections`, teacher no lo ve (la fuente de verdad `USER_SETTINGS_SECTIONS.courses.roles = ['student']` es la que manda).
+  - Validado: `pnpm type-check` (0), `pnpm lint` (0), `pnpm mock:test` (59/59).
   - **Commit:** `refactor(user-settings): migrar orquestador a mapa sección × rol`.
 
 ---
@@ -1960,7 +1965,8 @@ el comportamiento esperado.
 | 2026-10-25 | Fase 3 / Deudas documentadas                    | Cerrado   | Dos `TODO` añadidos al código (`TODO(timezone-select)` en `PreferencesFormClient.tsx`, `TODO(dashboard-layout)` en `layout.tsx`) y anotados en §10.6. Commit `docs(user-settings): documentar deudas de timezone, sidebar y actualizar plan`.                                                                                                                                                                                                                                                                                                                                                                                                                                           |
 | 2026-10-26 | Fase 3 / `PrivacySection`                       | Cerrado   | `PrivacySection.tsx` (Server) + `PrivacyFormClient.tsx` (Client). `mapError` limitado a `VALIDATION_ERROR`/`INTERNAL_ERROR`. `defaultValues` vacío hasta que la query resuelve (evita flash de `'everyone'`). `autoComplete="off"` en 3 selects + checkbox. `aria-describedby` condicional en `allowDirectMessages`. Commits `774efab feat(user-settings): agregar sección de privacidad` (el hash cambió por `git restore`/amend implícito; el contenido es el mismo que `01513f3`). `pnpm type-check` + `pnpm lint` + `pnpm mock:test` (59/59) en verde.                                                                                                                              |
 | 2026-10-26 | Fase 3 / `ProfileSection` refactor              | Cerrado   | `ProfileSection.tsx` reescrito como Server Component. `ProfileFormClient.tsx` nuevo (bio + `interests`, `InterestsField` inline, PATCH diferencial anidado). `ProfileAvatarSettings.tsx` refactorizado (sin `set-state-in-effect`, sin `router.refresh()`, migrado a `useSectionMutation`, `fallbackName`/`fallbackEmail` en `avatarMessages`). `CertificateEligibility.tsx` convertido a Client (mínimo) con `useSidebarData()` para `hasAvatar`. `page.tsx` simplificado (`<ProfileSection showCertificates={...} />`). Commits `d3dd484 feat(user-settings): refactorizar perfil sobre primitivas compartidas`. `pnpm type-check` + `pnpm lint` + `pnpm mock:test` (59/59) en verde. |
-| 2026-10-26 | Fase 3 / Deudas saldadas (§10.1 + §5.1.9)       | Cerrado   | Saldadas tres deudas de §10.1 (`set-state-in-effect` en `ProfileAvatarSettings.tsx:89`, `router.refresh()` residual, `useMutation` directo) y la interacción de §5.1.9 (`ProfileAvatarSettings` refactorizado sobre `useSidebarData()` + graphcache). Sin nuevas deudas.                                                                                                                                                                                                                                                                                                                                                                                                                |
+| 2026-10-26 | Fase 3 / `page.tsx` → `getVisibleSections`      | Cerrado   | `page.tsx` migrado a `getVisibleSections(role)`. Nuevo `renderSection(id, showCertificates)` con `switch`; los `case`s de Fases 4 y 5 devuelven `null`. Eliminados `showSubscription`, `showCourses` y los placeholders JSX. `showCertificates` se deriva de `sections.includes('certificates')`. **Corrige bug de Fase 2:** `showCourses = student                                                                                                                                                                                                                                                                                                                                     |                                                                                                                                                                                                                                                               | teacher`ya no muestra Courses a teacher. Commit`refactor(user-settings): migrar orquestador a mapa sección × rol`. Validado: `pnpm type-check`(0),`pnpm lint`(0),`pnpm mock:test` (59/59). |
+| 2026-10-26 | **Fase 3 ✅ CERRADA**                           | Cerrado   | Los 5 pasos de la Fase 3 (3.1 `PersonalDataSection`, 3.2 `PreferencesSection`, 3.3 `PrivacySection`, 3.4 `ProfileSection` refactor, 3.5 `page.tsx` → `getVisibleSections`) están cerrados y commiteados. Fase 3 completa. Siguiente: Fase 4 (Security).                                                                                                                                                                                                                                                                                                                                                                                                                                 |
 
 ---
 
