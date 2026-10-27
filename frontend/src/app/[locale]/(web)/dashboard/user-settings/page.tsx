@@ -3,6 +3,7 @@ import { getLocale, getTranslations } from 'next-intl/server';
 import { redirect } from 'next/navigation';
 import { PersonalDataSection } from './PersonalDataSection';
 import { PreferencesSection } from './PreferencesSection';
+import { PrivacySection } from './PrivacySection';
 import { ProfileSection } from './ProfileSection';
 
 export async function generateMetadata() {
@@ -100,6 +101,8 @@ export default async function ProfilePage() {
 
         {/* 6. Preferences */}
         <PreferencesSection />
+
+        <PrivacySection />
 
         {showSubscription && <>{/* Plan / Subscription */}</>}
         {/* 7. Account */}
