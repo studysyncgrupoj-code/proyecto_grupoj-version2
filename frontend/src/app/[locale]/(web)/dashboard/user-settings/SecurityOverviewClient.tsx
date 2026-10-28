@@ -9,6 +9,7 @@ import { useCallback } from 'react';
 import { useQuery } from 'urql';
 import { ChangePasswordSection } from './ChangePasswordSection';
 import type { ValidationDict } from '@/lib/validation';
+import { EmailChangeSection } from './EmailChangeSection';
 
 type SecuritySettings = MySecuritySettingsQuery['mySecuritySettings'];
 
@@ -52,6 +53,21 @@ interface SecurityOverviewMessages {
       VALIDATION_ERROR: string;
       INVALID_CURRENT_PASSWORD: string;
       CONFLICT: string;
+      INTERNAL_ERROR: string;
+    };
+  };
+  emailChange: {
+    title: string;
+    description: string;
+    fields: {
+      newEmail: { label: string; placeholder: string };
+    };
+    actions: { save: string; saving: string };
+    successMessage: string;
+    errors: {
+      VALIDATION_ERROR: string;
+      EMAIL_TAKEN: string;
+      EMAIL_UNCHANGED: string;
       INTERNAL_ERROR: string;
     };
   };
@@ -171,6 +187,12 @@ export function SecurityOverviewClient({
         messages={messages.changePassword}
         validation={validation}
         onRefetchSecurity={refetchSecurity}
+      />
+
+      <EmailChangeSection
+        messages={messages.emailChange}
+        validation={validation}
+        currentEmail={security.email}
       />
     </div>
   );

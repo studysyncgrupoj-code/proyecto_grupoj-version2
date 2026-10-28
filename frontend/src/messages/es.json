@@ -698,6 +698,11 @@
     "image": {
       "invalid": "La imagen debe ser una URL válida o un data URI base64"
     },
+    "security": {
+      "emailChange": {
+        "sameAsCurrent": "Es tu correo actual."
+      }
+    },
     "acceptedTerms": {
       "required": "Debes aceptar los términos y condiciones"
     }
@@ -963,36 +968,57 @@
           "sessionsCount": "{count, plural, =0 {Sin sesiones} =1 {# sesión} other {# sesiones}}"
         },
         "changePassword": {
-          "title": "Change password",
-          "description": "Update your password regularly to keep your account secure.",
+          "title": "Cambiar contraseña",
+          "description": "Actualiza tu contraseña periódicamente para mantener tu cuenta segura.",
           "fields": {
             "currentPassword": {
-              "label": "Current password",
-              "placeholder": "Your current password",
-              "show": "Show password",
-              "hide": "Hide password"
+              "label": "Contraseña actual",
+              "placeholder": "Tu contraseña actual",
+              "show": "Mostrar contraseña",
+              "hide": "Ocultar contraseña"
             },
             "newPassword": {
-              "label": "New password",
-              "placeholder": "Create a new password",
-              "show": "Show password",
-              "hide": "Hide password"
+              "label": "Nueva contraseña",
+              "placeholder": "Crea una nueva contraseña",
+              "show": "Mostrar contraseña",
+              "hide": "Ocultar contraseña"
             },
             "confirmPassword": {
-              "label": "Confirm new password",
-              "placeholder": "Repeat the new password"
+              "label": "Confirmar nueva contraseña",
+              "placeholder": "Repite la nueva contraseña"
             }
           },
           "actions": {
-            "save": "Change password",
-            "saving": "Updating..."
+            "save": "Cambiar contraseña",
+            "saving": "Actualizando..."
           },
-          "successMessage": "Password updated. For your security, your other sessions were closed.",
+          "successMessage": "Contraseña actualizada. Por seguridad, se cerraron tus otras sesiones.",
           "errors": {
-            "VALIDATION_ERROR": "Check the form fields.",
-            "INVALID_CURRENT_PASSWORD": "The current password is incorrect.",
-            "CONFLICT": "The new password can't be the same as the current one.",
-            "INTERNAL_ERROR": "An unexpected error occurred. Please try again."
+            "VALIDATION_ERROR": "Revisa los campos del formulario.",
+            "INVALID_CURRENT_PASSWORD": "La contraseña actual no es correcta.",
+            "CONFLICT": "La nueva contraseña no puede ser igual a la actual.",
+            "INTERNAL_ERROR": "Ocurrió un error inesperado. Inténtalo de nuevo."
+          }
+        },
+        "emailChange": {
+          "title": "Correo electrónico",
+          "description": "Cambia el correo asociado a tu cuenta. Recibirás un enlace de verificación en la nueva dirección.",
+          "fields": {
+            "newEmail": {
+              "label": "Nuevo correo electrónico",
+              "placeholder": "nuevo@correo.com"
+            }
+          },
+          "actions": {
+            "save": "Solicitar cambio",
+            "saving": "Enviando..."
+          },
+          "successMessage": "Te enviamos un correo de verificación. Revisa tu nueva dirección para confirmar el cambio.",
+          "errors": {
+            "VALIDATION_ERROR": "Revisa el formato del correo electrónico.",
+            "EMAIL_TAKEN": "Ese correo ya está registrado.",
+            "EMAIL_UNCHANGED": "Es tu correo actual.",
+            "INTERNAL_ERROR": "Ocurrió un error inesperado. Inténtalo de nuevo."
           }
         },
         "errors": {

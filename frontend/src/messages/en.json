@@ -693,6 +693,11 @@
     "image": {
       "invalid": "Image must be a valid URL or a base64 data URI"
     },
+    "security": {
+      "emailChange": {
+        "sameAsCurrent": "That's your current email."
+      }
+    },
     "acceptedTerms": {
       "required": "You must accept the terms and conditions"
     }
@@ -984,6 +989,27 @@
             "INVALID_CURRENT_PASSWORD": "La contraseña actual no es correcta.",
             "CONFLICT": "La nueva contraseña no puede ser igual a la actual.",
             "INTERNAL_ERROR": "Ocurrió un error inesperado. Inténtalo de nuevo."
+          }
+        },
+        "emailChange": {
+          "title": "Email address",
+          "description": "Change the email associated with your account. You'll receive a verification link at the new address.",
+          "fields": {
+            "newEmail": {
+              "label": "New email address",
+              "placeholder": "new@email.com"
+            }
+          },
+          "actions": {
+            "save": "Request change",
+            "saving": "Sending..."
+          },
+          "successMessage": "We sent a verification email. Check your new address to confirm the change.",
+          "errors": {
+            "VALIDATION_ERROR": "Check the email format.",
+            "EMAIL_TAKEN": "That email is already registered.",
+            "EMAIL_UNCHANGED": "That's your current email.",
+            "INTERNAL_ERROR": "An unexpected error occurred. Please try again."
           }
         },
         "errors": {

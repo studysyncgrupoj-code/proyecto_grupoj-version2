@@ -9,7 +9,11 @@
 // Los mensajes son claves del namespace `Validation` (i18n),
 // no texto final. `resolveError` los traduce.
 
-import { confirmPasswordField, passwordField } from '@/lib/schemas/fields/auth';
+import {
+  confirmPasswordField,
+  emailField,
+  passwordField,
+} from '@/lib/schemas/fields/auth';
 import { z } from 'zod';
 
 /* ============================================================
@@ -48,3 +52,40 @@ export const changePasswordFormSchema = z
   });
 
 export type ChangePasswordFormInput = z.infer<typeof changePasswordFormSchema>;
+
+/* ============================================================
+ * REQUEST EMAIL CHANGE (4.3)
+ * ============================================================ */
+
+/**
+ * Schema del formulario de solicitud de cambio de email.
+ *
+ * Reglas del contrato §3.8 (`POST /users/me/security/email-change`):
+ *   - `newEmail`: obligatorio, formato de email (regex `^[^\s@]+@[^\s@]+\.[^\s@]+$`).
+ *   - `newEmail !== currentEmail` → 409 EMAIL_UNCHANGED. Se valida
+ *     en el cliente para feedback inmediato; el backend también lo rechaza.
+ *
+ * El schema es una función porque necesita conocer el email actual
+ * (desde `mySecuritySettings.email`) para el refine. La comparación es
+ * case-insensitive (`trim().toLowerCase()`), alineada con la
+ * normalización del contrato.
+ */
+export function requestEmailChangeSchema(currentEmail: string) {
+  const normalizedCurrent = currentEmail.trim().toLowerCase();
+
+  return z
+    .object({
+      newEmail: emailField,
+    })
+    .refine(
+      (data) => data.newEmail.trim().toLowerCase() !== normalizedCurrent,
+      {
+        message: 'security.emailChange.sameAsCurrent',
+        path: ['newEmail'],
+      },
+    );
+}
+
+export type RequestEmailChangeInput = z.infer<
+  ReturnType<typeof requestEmailChangeSchema>
+>;
