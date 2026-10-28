@@ -1044,6 +1044,33 @@
             "INTERNAL_ERROR": "An unexpected error occurred. Please try again."
           }
         },
+        "sessions": {
+          "title": "Active sessions",
+          "description": "Devices where your account is signed in. Revoke any you don't recognize.",
+          "currentBadge": "Current session",
+          "unknownDevice": "Unknown device",
+          "unknownBrowser": "Unknown browser",
+          "unknownIp": "Unknown IP",
+          "lastActive": "Last active: {date}",
+          "revoke": "Revoke",
+          "revokeAllOthers": "Sign out other sessions",
+          "empty": "No other active sessions.",
+          "confirmRevokeTitle": "Revoke session",
+          "confirmRevokeDescription": "Are you sure you want to sign out {device}? You'll have to sign in again on that device.",
+          "confirmRevokeOthersTitle": "Sign out other sessions",
+          "confirmRevokeOthersDescription": "All sessions except the current one will be closed. You'll have to sign in again on those devices.",
+          "confirm": "Revoke",
+          "confirmOthers": "Sign out all",
+          "cancel": "Cancel",
+          "revoking": "Revoking...",
+          "successRevoked": "Session revoked.",
+          "successRevokedOthers": "Other sessions were closed.",
+          "errors": {
+            "NOT_FOUND": "The session no longer exists. Refresh the page.",
+            "SESSION_IS_CURRENT": "You can't revoke your current session from here.",
+            "INTERNAL_ERROR": "An unexpected error occurred. Please try again."
+          }
+        },
         "errors": {
           "INTERNAL_ERROR": "Ocurrió un error inesperado. Inténtalo de nuevo.",
           "sameAsCurrent": "La nueva contraseña no puede ser igual a la actual."

@@ -11,6 +11,7 @@ import { ChangePasswordSection } from './ChangePasswordSection';
 import type { ValidationDict } from '@/lib/validation';
 import { EmailChangeSection } from './EmailChangeSection';
 import { TwoFactorSection } from './TwoFactorSection';
+import { SessionsSection } from './SessionsSection';
 
 type SecuritySettings = MySecuritySettingsQuery['mySecuritySettings'];
 
@@ -98,6 +99,33 @@ interface SecurityOverviewMessages {
       INVALID_CODE: string;
       CONFLICT: string;
       FORBIDDEN: string;
+      INTERNAL_ERROR: string;
+    };
+  };
+  sessions: {
+    title: string;
+    description: string;
+    currentBadge: string;
+    unknownDevice: string;
+    unknownBrowser: string;
+    unknownIp: string;
+    lastActive: string;
+    revoke: string;
+    revokeAllOthers: string;
+    empty: string;
+    confirmRevokeTitle: string;
+    confirmRevokeDescription: string;
+    confirmRevokeOthersTitle: string;
+    confirmRevokeOthersDescription: string;
+    confirm: string;
+    confirmOthers: string;
+    cancel: string;
+    revoking: string;
+    successRevoked: string;
+    successRevokedOthers: string;
+    errors: {
+      NOT_FOUND: string;
+      SESSION_IS_CURRENT: string;
       INTERNAL_ERROR: string;
     };
   };
@@ -230,6 +258,12 @@ export function SecurityOverviewClient({
         validation={validation}
         twoFactorEnabled={security.twoFactorEnabled}
         twoFactorRequired={security.twoFactorRequired}
+        onRefetchSecurity={refetchSecurity}
+      />
+
+      <SessionsSection
+        messages={messages.sessions}
+        sessions={security.sessions}
         onRefetchSecurity={refetchSecurity}
       />
     </div>

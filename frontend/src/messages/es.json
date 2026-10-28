@@ -1053,6 +1053,33 @@
             "INTERNAL_ERROR": "Ocurrió un error inesperado. Inténtalo de nuevo."
           }
         },
+        "sessions": {
+          "title": "Sesiones activas",
+          "description": "Dispositivos donde tu cuenta tiene una sesión iniciada. Revoca cualquiera que no reconozcas.",
+          "currentBadge": "Sesión actual",
+          "unknownDevice": "Dispositivo desconocido",
+          "unknownBrowser": "Navegador desconocido",
+          "unknownIp": "IP desconocida",
+          "lastActive": "Última actividad: {date}",
+          "revoke": "Revocar",
+          "revokeAllOthers": "Cerrar otras sesiones",
+          "empty": "No hay otras sesiones activas.",
+          "confirmRevokeTitle": "Revocar sesión",
+          "confirmRevokeDescription": "¿Seguro que quieres cerrar la sesión en {device}? Tendrás que volver a iniciar sesión en ese dispositivo.",
+          "confirmRevokeOthersTitle": "Cerrar otras sesiones",
+          "confirmRevokeOthersDescription": "Se cerrarán todas las sesiones excepto la actual. Tendrás que volver a iniciar sesión en esos dispositivos.",
+          "confirm": "Revocar",
+          "confirmOthers": "Cerrar todas",
+          "cancel": "Cancelar",
+          "revoking": "Revocando...",
+          "successRevoked": "Sesión revocada.",
+          "successRevokedOthers": "Se cerraron las otras sesiones.",
+          "errors": {
+            "NOT_FOUND": "La sesión ya no existe. Actualiza la página.",
+            "SESSION_IS_CURRENT": "No puedes revocar tu sesión actual desde aquí.",
+            "INTERNAL_ERROR": "Ocurrió un error inesperado. Inténtalo de nuevo."
+          }
+        },
         "errors": {
           "INTERNAL_ERROR": "An unexpected error occurred. Please try again.",
           "sameAsCurrent": "The new password can't be the same as the current one."
