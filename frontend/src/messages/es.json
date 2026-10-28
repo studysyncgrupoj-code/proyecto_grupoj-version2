@@ -948,6 +948,24 @@
           "INTERNAL_ERROR": "Ocurrió un error inesperado. Inténtalo de nuevo."
         }
       },
+      "security": {
+        "title": "Seguridad",
+        "description": "Gestiona tu contraseña, tu correo electrónico, la autenticación de dos factores y tus sesiones activas.",
+        "overview": {
+          "email": "Correo electrónico",
+          "emailVerified": "Verificado",
+          "emailNotVerified": "No verificado",
+          "twoFactor": "Autenticación de dos factores (2FA)",
+          "twoFactorEnabled": "Activado",
+          "twoFactorDisabled": "Desactivado",
+          "twoFactorRequired": "Obligatorio para tu rol",
+          "sessions": "Sesiones activas",
+          "sessionsCount": "{count, plural, =0 {Sin sesiones} =1 {# sesión} other {# sesiones}}"
+        },
+        "errors": {
+          "INTERNAL_ERROR": "Ocurrió un error inesperado. Inténtalo de nuevo."
+        }
+      },
       "profile": {
         "title": "Perfil",
         "description": "Gestiona tu biografía, intereses e imagen de perfil.",

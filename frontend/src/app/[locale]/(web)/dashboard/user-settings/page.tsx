@@ -10,6 +10,7 @@ import { PersonalDataSection } from './PersonalDataSection';
 import { PreferencesSection } from './PreferencesSection';
 import { PrivacySection } from './PrivacySection';
 import { ProfileSection } from './ProfileSection';
+import { SecuritySection } from './SecuritySection';
 
 function renderSection(
   id: UserSettingsSectionId,
@@ -25,9 +26,11 @@ function renderSection(
     case 'privacy':
       return <PrivacySection />;
 
-    // Fases 4 y 5 — secciones aún no implementadas.
-    // Cuando se implementen, reemplazar `return null` por el componente real.
     case 'security':
+      return <SecuritySection />;
+
+    // Fase 5 — secciones aún no implementadas.
+    // Cuando se implementen, reemplazar `return null` por el componente real.
     case 'account':
     case 'courses':
     case 'certificates':

@@ -939,6 +939,24 @@
           "INTERNAL_ERROR": "An unexpected error occurred. Please try again."
         }
       },
+      "security": {
+        "title": "Security",
+        "description": "Manage your password, email, two-factor authentication, and active sessions.",
+        "overview": {
+          "email": "Email address",
+          "emailVerified": "Verified",
+          "emailNotVerified": "Not verified",
+          "twoFactor": "Two-factor authentication (2FA)",
+          "twoFactorEnabled": "Enabled",
+          "twoFactorDisabled": "Disabled",
+          "twoFactorRequired": "Required for your role",
+          "sessions": "Active sessions",
+          "sessionsCount": "{count, plural, =0 {No sessions} =1 {# session} other {# sessions}}"
+        },
+        "errors": {
+          "INTERNAL_ERROR": "An unexpected error occurred. Please try again."
+        }
+      },
       "profile": {
         "title": "Profile",
         "description": "Manage your bio, interests, and profile image.",

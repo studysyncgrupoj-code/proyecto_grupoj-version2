@@ -1,0 +1,139 @@
+'use client';
+
+import { SettingsSkeleton } from '@/components/ui/SettingsSkeleton';
+import {
+  MySecuritySettingsDocument,
+  type MySecuritySettingsQuery,
+} from '@/graphql/generated/graphql';
+import { useCallback } from 'react';
+import { useQuery } from 'urql';
+
+type SecuritySettings = MySecuritySettingsQuery['mySecuritySettings'];
+
+interface SecurityOverviewMessages {
+  overview: {
+    email: string;
+    emailVerified: string;
+    emailNotVerified: string;
+    twoFactor: string;
+    twoFactorEnabled: string;
+    twoFactorDisabled: string;
+    twoFactorRequired: string;
+    sessions: string;
+    sessionsCount: string;
+  };
+  errors: {
+    INTERNAL_ERROR: string;
+  };
+}
+
+interface SecurityOverviewClientProps {
+  messages: SecurityOverviewMessages;
+}
+
+/**
+ * Contenedor de la sección Security.
+ *
+ * Centraliza:
+ *   - El `useQuery(mySecuritySettings)` (fuente de verdad del estado).
+ *   - El `refetchSecurity` expuesto a los subformularios. Las mutaciones de
+ *     Security no devuelven entidades normalizables, así que en esta fase
+ *     cada mutación exitosa dispara un refetch `network-only` (ver prompt
+ *     de rol v4.2 y plan §5.3.9).
+ *
+ * En este paso todavía no renderiza los subformularios (ChangePassword,
+ * EmailChange, TwoFactor, Sessions); se añaden en 4.2–4.5.
+ */
+export function SecurityOverviewClient({
+  messages,
+}: SecurityOverviewClientProps) {
+  const [result, reexecuteQuery] = useQuery({
+    query: MySecuritySettingsDocument,
+    requestPolicy: 'cache-and-network',
+  });
+
+  const refetchSecurity = useCallback(() => {
+    reexecuteQuery({ requestPolicy: 'network-only' });
+  }, [reexecuteQuery]);
+
+  if (result.fetching && !result.data) {
+    return <SettingsSkeleton rows={4} />;
+  }
+
+  if (!result.data && result.error) {
+    return (
+      <p role="alert" className="text-danger">
+        {messages.errors.INTERNAL_ERROR}
+      </p>
+    );
+  }
+
+  if (!result.data) return null;
+
+  const security: SecuritySettings = result.data.mySecuritySettings;
+  const sessionCount = security.sessions.length;
+
+  // TODO(4.2–4.5): los subformularios reciben `security` y `refetchSecurity`.
+  // Mientras tanto, mostramos solo el resumen de solo lectura.
+  void refetchSecurity;
+
+  return (
+    <div className="grid gap-6">
+      <dl className="grid gap-3 sm:grid-cols-2">
+        <div className="border-border bg-background rounded-xl border p-4">
+          <dt className="text-foreground-muted text-xs font-semibold">
+            {messages.overview.email}
+          </dt>
+          <dd className="text-foreground mt-1 text-sm break-all">
+            {security.email}
+          </dd>
+          <dd
+            className={
+              security.emailVerified
+                ? 'text-success mt-1 text-xs font-medium'
+                : 'text-warning mt-1 text-xs font-medium'
+            }
+          >
+            {security.emailVerified
+              ? messages.overview.emailVerified
+              : messages.overview.emailNotVerified}
+          </dd>
+        </div>
+
+        <div className="border-border bg-background rounded-xl border p-4">
+          <dt className="text-foreground-muted text-xs font-semibold">
+            {messages.overview.twoFactor}
+          </dt>
+          <dd
+            className={
+              security.twoFactorEnabled
+                ? 'text-success mt-1 text-sm font-medium'
+                : 'text-foreground-muted mt-1 text-sm font-medium'
+            }
+          >
+            {security.twoFactorEnabled
+              ? messages.overview.twoFactorEnabled
+              : messages.overview.twoFactorDisabled}
+          </dd>
+          {security.twoFactorRequired && (
+            <dd className="text-warning mt-1 text-xs font-medium">
+              {messages.overview.twoFactorRequired}
+            </dd>
+          )}
+        </div>
+
+        <div className="border-border bg-background rounded-xl border p-4 sm:col-span-2">
+          <dt className="text-foreground-muted text-xs font-semibold">
+            {messages.overview.sessions}
+          </dt>
+          <dd className="text-foreground mt-1 text-sm">
+            {messages.overview.sessionsCount.replace(
+              '{count}',
+              String(sessionCount),
+            )}
+          </dd>
+        </div>
+      </dl>
+    </div>
+  );
+}
