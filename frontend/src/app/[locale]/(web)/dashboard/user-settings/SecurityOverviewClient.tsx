@@ -10,6 +10,7 @@ import { useQuery } from 'urql';
 import { ChangePasswordSection } from './ChangePasswordSection';
 import type { ValidationDict } from '@/lib/validation';
 import { EmailChangeSection } from './EmailChangeSection';
+import { TwoFactorSection } from './TwoFactorSection';
 
 type SecuritySettings = MySecuritySettingsQuery['mySecuritySettings'];
 
@@ -68,6 +69,35 @@ interface SecurityOverviewMessages {
       VALIDATION_ERROR: string;
       EMAIL_TAKEN: string;
       EMAIL_UNCHANGED: string;
+      INTERNAL_ERROR: string;
+    };
+  };
+  twoFactor: {
+    title: string;
+    description: string;
+    enabled: string;
+    disabled: string;
+    required: string;
+    activate: string;
+    activating: string;
+    verifyingTitle: string;
+    verifyingDescription: string;
+    codeLabel: string;
+    codePlaceholder: string;
+    verify: string;
+    verifying: string;
+    cancel: string;
+    disable: string;
+    disabling: string;
+    disablingTitle: string;
+    disablingDescription: string;
+    successEnabled: string;
+    successDisabled: string;
+    errors: {
+      VALIDATION_ERROR: string;
+      INVALID_CODE: string;
+      CONFLICT: string;
+      FORBIDDEN: string;
       INTERNAL_ERROR: string;
     };
   };
@@ -193,6 +223,14 @@ export function SecurityOverviewClient({
         messages={messages.emailChange}
         validation={validation}
         currentEmail={security.email}
+      />
+
+      <TwoFactorSection
+        messages={messages.twoFactor}
+        validation={validation}
+        twoFactorEnabled={security.twoFactorEnabled}
+        twoFactorRequired={security.twoFactorRequired}
+        onRefetchSecurity={refetchSecurity}
       />
     </div>
   );

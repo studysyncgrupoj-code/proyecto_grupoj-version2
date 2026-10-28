@@ -696,6 +696,9 @@
     "security": {
       "emailChange": {
         "sameAsCurrent": "That's your current email."
+      },
+      "twoFactor": {
+        "codeInvalid": "The code must have exactly 6 digits."
       }
     },
     "acceptedTerms": {
@@ -1009,6 +1012,35 @@
             "VALIDATION_ERROR": "Check the email format.",
             "EMAIL_TAKEN": "That email is already registered.",
             "EMAIL_UNCHANGED": "That's your current email.",
+            "INTERNAL_ERROR": "An unexpected error occurred. Please try again."
+          }
+        },
+        "twoFactor": {
+          "title": "Two-factor authentication (2FA)",
+          "description": "Add an extra layer of security. You'll receive a code by email when needed.",
+          "enabled": "Enabled",
+          "disabled": "Disabled",
+          "required": "Required for your role",
+          "activate": "Enable 2FA",
+          "activating": "Enabling...",
+          "verifyingTitle": "Verify your email",
+          "verifyingDescription": "We sent a 6-digit code to your email. Enter it to complete activation.",
+          "codeLabel": "Verification code",
+          "codePlaceholder": "123456",
+          "verify": "Verify",
+          "verifying": "Verifying...",
+          "cancel": "Cancel",
+          "disable": "Disable 2FA",
+          "disabling": "Disabling...",
+          "disablingTitle": "Disable 2FA",
+          "disablingDescription": "Enter the 6-digit code you received by email to confirm the deactivation.",
+          "successEnabled": "2FA enabled successfully.",
+          "successDisabled": "2FA disabled.",
+          "errors": {
+            "VALIDATION_ERROR": "Check the code format.",
+            "INVALID_CODE": "The code is incorrect.",
+            "CONFLICT": "The operation isn't valid right now. Please try again.",
+            "FORBIDDEN": "You can't disable 2FA with your role.",
             "INTERNAL_ERROR": "An unexpected error occurred. Please try again."
           }
         },

@@ -701,6 +701,9 @@
     "security": {
       "emailChange": {
         "sameAsCurrent": "Es tu correo actual."
+      },
+      "twoFactor": {
+        "codeInvalid": "El código debe tener exactamente 6 dígitos."
       }
     },
     "acceptedTerms": {
@@ -1018,6 +1021,35 @@
             "VALIDATION_ERROR": "Revisa el formato del correo electrónico.",
             "EMAIL_TAKEN": "Ese correo ya está registrado.",
             "EMAIL_UNCHANGED": "Es tu correo actual.",
+            "INTERNAL_ERROR": "Ocurrió un error inesperado. Inténtalo de nuevo."
+          }
+        },
+        "twoFactor": {
+          "title": "Autenticación de dos factores (2FA)",
+          "description": "Añade una capa extra de seguridad. Recibirás un código por correo cada vez que sea necesario.",
+          "enabled": "Activado",
+          "disabled": "Desactivado",
+          "required": "Obligatorio para tu rol",
+          "activate": "Activar 2FA",
+          "activating": "Activando...",
+          "verifyingTitle": "Verifica tu correo",
+          "verifyingDescription": "Te enviamos un código de 6 dígitos a tu correo. Ingrésalo para completar la activación.",
+          "codeLabel": "Código de verificación",
+          "codePlaceholder": "123456",
+          "verify": "Verificar",
+          "verifying": "Verificando...",
+          "cancel": "Cancelar",
+          "disable": "Desactivar 2FA",
+          "disabling": "Desactivando...",
+          "disablingTitle": "Desactivar 2FA",
+          "disablingDescription": "Ingresa el código de 6 dígitos que recibiste por correo para confirmar la desactivación.",
+          "successEnabled": "2FA activado correctamente.",
+          "successDisabled": "2FA desactivado.",
+          "errors": {
+            "VALIDATION_ERROR": "Revisa el formato del código.",
+            "INVALID_CODE": "El código no es correcto.",
+            "CONFLICT": "La operación no es válida en este momento. Inténtalo de nuevo.",
+            "FORBIDDEN": "No puedes desactivar el 2FA con tu rol.",
             "INTERNAL_ERROR": "Ocurrió un error inesperado. Inténtalo de nuevo."
           }
         },

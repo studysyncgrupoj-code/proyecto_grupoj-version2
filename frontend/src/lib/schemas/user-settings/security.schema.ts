@@ -14,6 +14,7 @@ import {
   emailField,
   passwordField,
 } from '@/lib/schemas/fields/auth';
+import { isValidTwoFactorCode } from '@/lib/schemas/primitives';
 import { z } from 'zod';
 
 /* ============================================================
@@ -89,3 +90,28 @@ export function requestEmailChangeSchema(currentEmail: string) {
 export type RequestEmailChangeInput = z.infer<
   ReturnType<typeof requestEmailChangeSchema>
 >;
+
+/* ============================================================
+ * TWO FACTOR (4.4)
+ * ============================================================ */
+
+/**
+ * Schema del formulario de código 2FA.
+ *
+ * Reglas del contrato §3.8 (`verify` y `disable`):
+ *   - `code`: string de exactamente 6 dígitos numéricos (`/^\d{6}$/`).
+ *
+ * Mismo schema para ambos formularios (verificar el setup y
+ * desactivar). `isValidTwoFactorCode` ya vive en `primitives.ts`
+ * y se reutiliza para no duplicar el regex.
+ */
+export const twoFactorCodeSchema = z.object({
+  code: z
+    .string()
+    .trim()
+    .refine((value) => isValidTwoFactorCode(value), {
+      message: 'security.twoFactor.codeInvalid',
+    }),
+});
+
+export type TwoFactorCodeInput = z.infer<typeof twoFactorCodeSchema>;
