@@ -1,12 +1,18 @@
 package com.studysync.security;
 
+import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.studysync.security.jwt.JwtAuthenticationFilter;
+
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -19,6 +25,12 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 @Configuration
 public class SecurityConfig {
+
+    private final ObjectMapper objectMapper;
+
+    public SecurityConfig(ObjectMapper objectMapper) {
+        this.objectMapper = objectMapper;
+    }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -37,6 +49,30 @@ public class SecurityConfig {
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(
                                 SessionCreationPolicy.STATELESS
+                        )
+                )
+                .exceptionHandling(exceptions -> exceptions
+
+                        // Usuario sin autenticación válida
+                        .authenticationEntryPoint(
+                                (request, response, authException) ->
+                                        writeError(
+                                                response,
+                                                HttpServletResponse.SC_UNAUTHORIZED,
+                                                "UNAUTHENTICATED",
+                                                "Autenticación requerida."
+                                        )
+                        )
+
+                        // Usuario autenticado sin permisos
+                        .accessDeniedHandler(
+                                (request, response, accessDeniedException) ->
+                                        writeError(
+                                                response,
+                                                HttpServletResponse.SC_FORBIDDEN,
+                                                "FORBIDDEN",
+                                                "No tienes permiso para realizar esta operación."
+                                        )
                         )
                 )
                 .authorizeHttpRequests(auth -> auth
@@ -82,8 +118,10 @@ public class SecurityConfig {
                         )
                         .authenticated()
 
-                        // Perfil del usuario: requiere JWT
+                        // Endpoints del usuario autenticado: requieren JWT
                         .requestMatchers(
+                                "/users/me",
+                                "/users/me/**",
                                 "/api/users/me/profile"
                         )
                         .authenticated()
@@ -95,7 +133,7 @@ public class SecurityConfig {
                         )
                         .permitAll()
 
-                        // Temporalmente conservamos las demás rutas
+                        // Conservamos las demás rutas existentes
                         .anyRequest()
                         .permitAll()
                 )
@@ -105,6 +143,38 @@ public class SecurityConfig {
                 );
 
         return http.build();
+    }
+
+    private void writeError(
+            HttpServletResponse response,
+            int status,
+            String code,
+            String message
+    ) throws IOException {
+
+        response.setStatus(status);
+        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+        response.setCharacterEncoding("UTF-8");
+
+        Map<String, Object> error = Map.of(
+                "error",
+                Map.of(
+                        "code", code,
+                        "message", message,
+                        "details", ""
+                )
+        );
+
+        // El contrato exige details: null
+        Map<String, Object> errorDetails = new java.util.LinkedHashMap<>();
+        errorDetails.put("code", code);
+        errorDetails.put("message", message);
+        errorDetails.put("details", null);
+
+        objectMapper.writeValue(
+                response.getWriter(),
+                Map.of("error", errorDetails)
+        );
     }
 
     @Bean

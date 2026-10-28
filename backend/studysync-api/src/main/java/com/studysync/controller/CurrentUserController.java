@@ -30,9 +30,14 @@ public class CurrentUserController {
         this.profileService = profileService;
     }
 
+    public record BioResponse(
+            String title,
+            String description
+    ) {}
+
     public record ProfileResponse(
-            String bio,
-            String[] interests
+            BioResponse bio,
+            java.util.List<String> interests
     ) {}
 
     public record CurrentUserResponse(
@@ -74,8 +79,13 @@ public class CurrentUserController {
                         profile.getImage(),
                         role,
                         new ProfileResponse(
-                                null,
-                                new String[0]
+                                profile.getBio() == null
+                                        ? null
+                                        : new BioResponse(
+                                                profile.getBio().getTitle(),
+                                                profile.getBio().getDescription()
+                                        ),
+                                java.util.List.copyOf(profile.getInterests())
                         )
                 );
 
