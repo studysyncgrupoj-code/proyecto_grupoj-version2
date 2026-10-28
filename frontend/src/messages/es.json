@@ -962,8 +962,42 @@
           "sessions": "Sesiones activas",
           "sessionsCount": "{count, plural, =0 {Sin sesiones} =1 {# sesión} other {# sesiones}}"
         },
+        "changePassword": {
+          "title": "Change password",
+          "description": "Update your password regularly to keep your account secure.",
+          "fields": {
+            "currentPassword": {
+              "label": "Current password",
+              "placeholder": "Your current password",
+              "show": "Show password",
+              "hide": "Hide password"
+            },
+            "newPassword": {
+              "label": "New password",
+              "placeholder": "Create a new password",
+              "show": "Show password",
+              "hide": "Hide password"
+            },
+            "confirmPassword": {
+              "label": "Confirm new password",
+              "placeholder": "Repeat the new password"
+            }
+          },
+          "actions": {
+            "save": "Change password",
+            "saving": "Updating..."
+          },
+          "successMessage": "Password updated. For your security, your other sessions were closed.",
+          "errors": {
+            "VALIDATION_ERROR": "Check the form fields.",
+            "INVALID_CURRENT_PASSWORD": "The current password is incorrect.",
+            "CONFLICT": "The new password can't be the same as the current one.",
+            "INTERNAL_ERROR": "An unexpected error occurred. Please try again."
+          }
+        },
         "errors": {
-          "INTERNAL_ERROR": "Ocurrió un error inesperado. Inténtalo de nuevo."
+          "INTERNAL_ERROR": "An unexpected error occurred. Please try again.",
+          "sameAsCurrent": "The new password can't be the same as the current one."
         }
       },
       "profile": {

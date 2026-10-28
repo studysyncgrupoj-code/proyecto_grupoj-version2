@@ -22,3 +22,4 @@ export * from './user-settings/profile.schema';
 export * from './user-settings/personal-data.schema';
 export * from './user-settings/preferences.schema';
 export * from './user-settings/privacy.schema';
+export * from './user-settings/security.schema';

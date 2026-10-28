@@ -7,6 +7,8 @@ import {
 } from '@/graphql/generated/graphql';
 import { useCallback } from 'react';
 import { useQuery } from 'urql';
+import { ChangePasswordSection } from './ChangePasswordSection';
+import type { ValidationDict } from '@/lib/validation';
 
 type SecuritySettings = MySecuritySettingsQuery['mySecuritySettings'];
 
@@ -24,11 +26,40 @@ interface SecurityOverviewMessages {
   };
   errors: {
     INTERNAL_ERROR: string;
+    sameAsCurrent: string;
+  };
+  changePassword: {
+    title: string;
+    description: string;
+    fields: {
+      currentPassword: {
+        label: string;
+        placeholder: string;
+        show: string;
+        hide: string;
+      };
+      newPassword: {
+        label: string;
+        placeholder: string;
+        show: string;
+        hide: string;
+      };
+      confirmPassword: { label: string; placeholder: string };
+    };
+    actions: { save: string; saving: string };
+    successMessage: string;
+    errors: {
+      VALIDATION_ERROR: string;
+      INVALID_CURRENT_PASSWORD: string;
+      CONFLICT: string;
+      INTERNAL_ERROR: string;
+    };
   };
 }
 
 interface SecurityOverviewClientProps {
   messages: SecurityOverviewMessages;
+  validation: ValidationDict;
 }
 
 /**
@@ -46,6 +77,7 @@ interface SecurityOverviewClientProps {
  */
 export function SecurityOverviewClient({
   messages,
+  validation,
 }: SecurityOverviewClientProps) {
   const [result, reexecuteQuery] = useQuery({
     query: MySecuritySettingsDocument,
@@ -134,6 +166,12 @@ export function SecurityOverviewClient({
           </dd>
         </div>
       </dl>
+
+      <ChangePasswordSection
+        messages={messages.changePassword}
+        validation={validation}
+        onRefetchSecurity={refetchSecurity}
+      />
     </div>
   );
 }
