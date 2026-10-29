@@ -804,14 +804,26 @@
         "sidebarPreview": "Sidebar preview"
       },
       "certificates": {
-        "title": "Certificate requirements",
-        "description": "Complete these profile requirements to generate certificates.",
-        "eligible": "Eligible",
-        "pending": "Pending",
-        "avatar": "Profile photo added",
-        "personalData": "Personal details complete",
-        "verified": "Account verified",
-        "comingSoon": "Coming soon"
+        "title": "My certificates",
+        "description": "Certificates you've earned. Click download to open the signed link in a new tab.",
+        "empty": "You haven't earned any certificates yet.",
+        "downloadLabel": "Download",
+        "issuedAt": "Issued: {date}",
+        "certificateNumber": "Certificate No. {number}",
+        "errors": {
+          "FORBIDDEN": "This section isn't available for your account.",
+          "INTERNAL_ERROR": "An unexpected error occurred. Please try again."
+        },
+        "eligibility": {
+          "title": "Certificate requirements",
+          "description": "Complete these profile requirements to generate certificates.",
+          "eligible": "Eligible",
+          "pending": "Pending",
+          "avatar": "Profile photo added",
+          "personalData": "Personal details complete",
+          "verified": "Account verified",
+          "comingSoon": "Coming soon"
+        }
       },
       "account": {
         "title": "Account",

@@ -1,21 +1,13 @@
 import { SectionCard } from '@/components/ui/SectionCard';
 import type { ValidationDict } from '@/lib/validation';
 import { getMessages, getTranslations } from 'next-intl/server';
-import { CertificateEligibility } from './CertificateEligibility';
 import { ProfileAvatarSettings } from './ProfileAvatarSettings';
 import { ProfileFormClient } from './ProfileFormClient';
 
-interface ProfileSectionProps {
-  showCertificates: boolean;
-}
-
-export async function ProfileSection({
-  showCertificates,
-}: ProfileSectionProps) {
-  const [avatarT, pageT, certT, allMessages] = await Promise.all([
+export async function ProfileSection() {
+  const [avatarT, pageT, allMessages] = await Promise.all([
     getTranslations('dashboard.userSettings.avatar'),
     getTranslations('dashboard.userSettings.page'),
-    getTranslations('dashboard.userSettings.certificates'),
     getMessages(),
   ]);
 
@@ -45,17 +37,6 @@ export async function ProfileSection({
     },
   };
 
-  const certificateMessages = {
-    title: certT('title'),
-    description: certT('description'),
-    eligible: certT('eligible'),
-    pending: certT('pending'),
-    avatar: certT('avatar'),
-    personalData: certT('personalData'),
-    verified: certT('verified'),
-    comingSoon: certT('comingSoon'),
-  };
-
   const profileT = allMessages.dashboard.userSettings.profile;
   const profileMessages = {
     fields: {
@@ -71,10 +52,6 @@ export async function ProfileSection({
   return (
     <>
       <ProfileAvatarSettings messages={avatarMessages} />
-
-      {showCertificates && (
-        <CertificateEligibility messages={certificateMessages} />
-      )}
 
       <SectionCard title={profileT.title} description={profileT.description}>
         <ProfileFormClient messages={profileMessages} validation={validation} />

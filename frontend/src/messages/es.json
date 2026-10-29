@@ -809,14 +809,26 @@
         "sidebarPreview": "Así se ve en el menú lateral"
       },
       "certificates": {
-        "title": "Requisitos para certificados",
-        "description": "Debes completar estos puntos de tu perfil para poder generar certificados.",
-        "eligible": "Cumples",
-        "pending": "Pendiente",
-        "avatar": "Foto de perfil cargada",
-        "personalData": "Datos personales completos",
-        "verified": "Cuenta verificada",
-        "comingSoon": "Próximamente"
+        "title": "Mis certificados",
+        "description": "Certificados que has obtenido. Haz clic en descargar para abrir el enlace firmado en una nueva pestaña.",
+        "empty": "Aún no has obtenido ningún certificado.",
+        "downloadLabel": "Descargar",
+        "issuedAt": "Emitido: {date}",
+        "certificateNumber": "Certificado n.º {number}",
+        "errors": {
+          "FORBIDDEN": "Esta sección no está disponible para tu cuenta.",
+          "INTERNAL_ERROR": "Ocurrió un error inesperado. Inténtalo de nuevo."
+        },
+        "eligibility": {
+          "title": "Requisitos para certificados",
+          "description": "Debes completar estos puntos de tu perfil para poder generar certificados.",
+          "eligible": "Cumples",
+          "pending": "Pendiente",
+          "avatar": "Foto de perfil cargada",
+          "personalData": "Datos personales completos",
+          "verified": "Cuenta verificada",
+          "comingSoon": "Próximamente"
+        }
       },
       "account": {
         "title": "Cuenta",
