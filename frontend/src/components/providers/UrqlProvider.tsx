@@ -2,7 +2,10 @@
 
 import { createClient, fetchExchange, gql } from '@urql/core';
 import { cacheExchange } from '@urql/exchange-graphcache';
-import { SidebarDataDocument } from '@/graphql/generated/graphql';
+import {
+  MyPaymentMethodsDocument,
+  SidebarDataDocument,
+} from '@/graphql/generated/graphql';
 import { useMemo, type ReactNode } from 'react';
 import { Provider } from 'urql';
 
@@ -18,7 +21,13 @@ export function UrqlProvider({ children }: { children: ReactNode }) {
               User: (data) => data.id as string,
               PublicProfile: (data) => data.id as string,
               UserSubscription: (data) => data.id as string,
-              // ... resto de keys con id
+              Certificate: (data) => data.id as string,
+              PaymentMethod: (data) => data.id as string,
+              Invoice: (data) => data.id as string,
+
+              // `CourseEnrollment` no tiene `id` propio; su clave natural
+              // es `courseId` (contrato §5.7.1 / plan §5.7.9).
+              CourseEnrollment: (data) => data.courseId as string,
 
               // Singletons "me"
               Account: () => 'me',
@@ -80,6 +89,49 @@ export function UrqlProvider({ children }: { children: ReactNode }) {
                       }
                     `,
                     { __typename: 'User', id: userId, name: nextName },
+                  );
+                },
+
+                /**
+                 * `removePaymentMethod` devuelve `Boolean!`, no una entidad.
+                 * Sin este `update` explícito, graphcache no puede saber
+                 * que el método de pago eliminado ya no existe en el
+                 * backend, y `myPaymentMethods` seguiría mostrándolo
+                 * hasta un refetch.
+                 *
+                 * Estrategia (plan §8.2.23): al éxito (`true`), quitar
+                 * el `PaymentMethod` cuyo `id` coincide con
+                 * `args.paymentMethodId` de la lista cacheada.
+                 *
+                 * `myPaymentMethods` no recibe argumentos en el contrato
+                 * §7, así que una sola llamada a `cache.updateQuery`
+                 * cubre todas las variantes posibles (hoy: una sola).
+                 * Si en el futuro se le añaden filtros o paginación,
+                 * este `update` debe pasar a iterar sobre
+                 * `cache.inspectFields('Query')` filtrando por
+                 * `fieldName === 'myPaymentMethods'`.
+                 */
+                removePaymentMethod: (result, args, cache) => {
+                  if (result.removePaymentMethod !== true) return;
+
+                  const paymentMethodId =
+                    typeof args.paymentMethodId === 'string'
+                      ? args.paymentMethodId
+                      : null;
+                  if (!paymentMethodId) return;
+
+                  cache.updateQuery(
+                    { query: MyPaymentMethodsDocument },
+                    (data) => {
+                      if (!data) return null;
+
+                      return {
+                        ...data,
+                        myPaymentMethods: data.myPaymentMethods.filter(
+                          (method) => method.id !== paymentMethodId,
+                        ),
+                      };
+                    },
                   );
                 },
               },
