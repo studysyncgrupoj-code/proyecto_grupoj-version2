@@ -926,7 +926,32 @@
             "pastDueWarning": "Tu último pago falló. Revisa tus métodos de pago para mantener la suscripción activa.",
             "trialingNotice": "Estás en período de prueba. El plan se cobrará al terminar la prueba."
           },
+          "actions": {
+            "changePlan": "Cambiar plan",
+            "changingPlan": "Cambiando...",
+            "cancelSubscription": "Cancelar suscripción",
+            "cancellingSubscription": "Cancelando...",
+            "planSelectLabel": "Nuevo plan"
+          },
+          "confirmChange": {
+            "title": "¿Cambiar a {plan}?",
+            "description": "Tu plan se actualizará según el contrato: los upgrades aplican de inmediato con cobro prorrateado, los downgrades aplican al final del período actual.",
+            "confirm": "Cambiar plan",
+            "cancel": "Conservar plan actual"
+          },
+          "confirmCancel": {
+            "title": "¿Cancelar tu suscripción?",
+            "description": "Se detendrán los cobros futuros. Mantendrás el acceso hasta el final del período de facturación actual.",
+            "confirm": "Cancelar suscripción",
+            "cancel": "Mantener suscripción"
+          },
+          "successChange": "Plan de suscripción actualizado.",
+          "successCancel": "Suscripción cancelada. Mantendrás acceso hasta el final del período.",
           "errors": {
+            "CONFLICT": "Ese ya es tu plan actual.",
+            "PAYMENT_METHOD_REQUIRED": "Necesitas un método de pago para cambiar a premium.",
+            "FORBIDDEN": "Esta acción no está permitida para tu cuenta.",
+            "VALIDATION_ERROR": "Revisa el plan seleccionado.",
             "INTERNAL_ERROR": "Ocurrió un error inesperado. Inténtalo de nuevo."
           }
         },
@@ -941,9 +966,21 @@
             "unknownBrand": "Tarjeta desconocida",
             "unknownLast4": "••••"
           },
+          "actions": {
+            "remove": "Eliminar",
+            "removing": "Eliminando..."
+          },
+          "confirmRemove": {
+            "title": "¿Eliminar este método de pago?",
+            "description": "La tarjeta {card} se eliminará de tu cuenta. Podrás añadirla de nuevo más tarde.",
+            "confirm": "Eliminar tarjeta",
+            "cancel": "Conservar tarjeta"
+          },
+          "successRemove": "Método de pago eliminado.",
           "errors": {
             "NOT_FOUND": "Este método de pago ya no existe.",
             "CONFLICT": "No puedes eliminar el último método de pago de una suscripción premium activa.",
+            "FORBIDDEN": "Esta acción no está permitida para tu cuenta.",
             "INTERNAL_ERROR": "Ocurrió un error inesperado. Inténtalo de nuevo."
           }
         },

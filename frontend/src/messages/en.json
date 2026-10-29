@@ -921,7 +921,32 @@
             "pastDueWarning": "Your last payment failed. Please review your payment methods to keep your subscription active.",
             "trialingNotice": "You're on a trial period. The plan will be charged when the trial ends."
           },
+          "actions": {
+            "changePlan": "Change plan",
+            "changingPlan": "Changing...",
+            "cancelSubscription": "Cancel subscription",
+            "cancellingSubscription": "Cancelling...",
+            "planSelectLabel": "New plan"
+          },
+          "confirmChange": {
+            "title": "Change to {plan}?",
+            "description": "Your plan will be updated according to the contract: upgrades apply immediately with prorated billing, downgrades apply at the end of the current period.",
+            "confirm": "Change plan",
+            "cancel": "Keep current plan"
+          },
+          "confirmCancel": {
+            "title": "Cancel your subscription?",
+            "description": "Future charges will stop. You'll keep access until the end of the current billing period.",
+            "confirm": "Cancel subscription",
+            "cancel": "Keep subscription"
+          },
+          "successChange": "Subscription plan updated.",
+          "successCancel": "Subscription canceled. You'll keep access until the end of the period.",
           "errors": {
+            "CONFLICT": "That's already your current plan.",
+            "PAYMENT_METHOD_REQUIRED": "You need a payment method to switch to premium.",
+            "FORBIDDEN": "This action isn't allowed for your account.",
+            "VALIDATION_ERROR": "Please check the selected plan.",
             "INTERNAL_ERROR": "An unexpected error occurred. Please try again."
           }
         },
@@ -936,9 +961,21 @@
             "unknownBrand": "Unknown card",
             "unknownLast4": "••••"
           },
+          "actions": {
+            "remove": "Remove",
+            "removing": "Removing..."
+          },
+          "confirmRemove": {
+            "title": "Remove this payment method?",
+            "description": "The card {card} will be removed from your account. You can add it again later.",
+            "confirm": "Remove card",
+            "cancel": "Keep card"
+          },
+          "successRemove": "Payment method removed.",
           "errors": {
             "NOT_FOUND": "This payment method no longer exists.",
             "CONFLICT": "You can't remove the last payment method of an active premium subscription.",
+            "FORBIDDEN": "This action isn't allowed for your account.",
             "INTERNAL_ERROR": "An unexpected error occurred. Please try again."
           }
         },
