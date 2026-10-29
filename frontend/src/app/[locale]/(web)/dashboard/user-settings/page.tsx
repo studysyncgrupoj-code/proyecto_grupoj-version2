@@ -6,18 +6,20 @@ import {
 } from '@/config/user-settings-sections';
 import { getLocale, getTranslations } from 'next-intl/server';
 import { redirect } from 'next/navigation';
+import { AccountSection } from './AccountSection';
+import { BillingSection } from './BillingSection';
+import { CertificatesSection } from './CertificatesSection';
+import { CoursesSection } from './CoursesSection';
 import { PersonalDataSection } from './PersonalDataSection';
 import { PreferencesSection } from './PreferencesSection';
 import { PrivacySection } from './PrivacySection';
 import { ProfileSection } from './ProfileSection';
+import { SecuritySection } from './SecuritySection';
 
-function renderSection(
-  id: UserSettingsSectionId,
-  showCertificates: boolean,
-): React.ReactNode {
+function renderSection(id: UserSettingsSectionId): React.ReactNode {
   switch (id) {
     case 'profile':
-      return <ProfileSection showCertificates={showCertificates} />;
+      return <ProfileSection />;
     case 'personalData':
       return <PersonalDataSection />;
     case 'preferences':
@@ -25,14 +27,20 @@ function renderSection(
     case 'privacy':
       return <PrivacySection />;
 
-    // Fases 4 y 5 — secciones aún no implementadas.
-    // Cuando se implementen, reemplazar `return null` por el componente real.
     case 'security':
+      return <SecuritySection />;
+
     case 'account':
+      return <AccountSection />;
+
     case 'courses':
+      return <CoursesSection />;
+
     case 'certificates':
+      return <CertificatesSection />;
+
     case 'billing':
-      return null;
+      return <BillingSection />;
 
     default:
       return null;
@@ -64,7 +72,6 @@ export default async function ProfilePage() {
   // el BFF vía GraphQL dentro de ProfileSection.
   const { role } = session.user;
   const sections = getVisibleSections(role);
-  const showCertificates = sections.includes('certificates');
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6 sm:py-10 lg:px-8">
@@ -75,7 +82,7 @@ export default async function ProfilePage() {
 
       <div className="grid gap-6">
         {sections.map((id) => {
-          const node = renderSection(id, showCertificates);
+          const node = renderSection(id);
           if (node === null) return null;
           return <Fragment key={id}>{node}</Fragment>;
         })}

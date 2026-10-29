@@ -698,6 +698,14 @@
     "image": {
       "invalid": "La imagen debe ser una URL válida o un data URI base64"
     },
+    "security": {
+      "emailChange": {
+        "sameAsCurrent": "Es tu correo actual."
+      },
+      "twoFactor": {
+        "codeInvalid": "El código debe tener exactamente 6 dígitos."
+      }
+    },
     "acceptedTerms": {
       "required": "Debes aceptar los términos y condiciones"
     }
@@ -801,14 +809,201 @@
         "sidebarPreview": "Así se ve en el menú lateral"
       },
       "certificates": {
-        "title": "Requisitos para certificados",
-        "description": "Debes completar estos puntos de tu perfil para poder generar certificados.",
-        "eligible": "Cumples",
-        "pending": "Pendiente",
-        "avatar": "Foto de perfil cargada",
-        "personalData": "Datos personales completos",
-        "verified": "Cuenta verificada",
-        "comingSoon": "Próximamente"
+        "title": "Mis certificados",
+        "description": "Certificados que has obtenido. Haz clic en descargar para abrir el enlace firmado en una nueva pestaña.",
+        "empty": "Aún no has obtenido ningún certificado.",
+        "downloadLabel": "Descargar",
+        "issuedAt": "Emitido: {date}",
+        "certificateNumber": "Certificado n.º {number}",
+        "errors": {
+          "FORBIDDEN": "Esta sección no está disponible para tu cuenta.",
+          "INTERNAL_ERROR": "Ocurrió un error inesperado. Inténtalo de nuevo."
+        },
+        "eligibility": {
+          "title": "Requisitos para certificados",
+          "description": "Debes completar estos puntos de tu perfil para poder generar certificados.",
+          "eligible": "Cumples",
+          "pending": "Pendiente",
+          "avatar": "Foto de perfil cargada",
+          "personalData": "Datos personales completos",
+          "verified": "Cuenta verificada",
+          "comingSoon": "Próximamente"
+        }
+      },
+      "account": {
+        "title": "Cuenta",
+        "description": "Gestiona el ciclo de vida de tu cuenta. La desactivación es reversible hasta la fecha programada.",
+        "statuses": {
+          "active": {
+            "title": "Cuenta activa",
+            "description": "Puedes desactivar tu cuenta. Tendrás un período de gracia para cancelar antes de que se cierre definitivamente."
+          },
+          "pending_deactivation": {
+            "title": "Desactivación programada",
+            "description": "Tu cuenta se cerrará el {date}. Puedes cancelar la desactivación hasta esa fecha."
+          },
+          "suspended": {
+            "title": "Cuenta suspendida",
+            "description": "Tu cuenta fue suspendida por un administrador. Contacta a soporte para más información."
+          },
+          "inactive": {
+            "title": "Cuenta inactiva",
+            "description": "Esta cuenta fue cerrada. Si crees que es un error, por favor contacta a soporte."
+          }
+        },
+        "actions": {
+          "request": "Desactivar cuenta",
+          "requesting": "Desactivando...",
+          "cancel": "Cancelar desactivación",
+          "cancelling": "Cancelando..."
+        },
+        "confirmRequest": {
+          "title": "¿Desactivar tu cuenta?",
+          "description": "No podrás revertirlo cuando el período de gracia termine. Puedes cancelar en cualquier momento antes de la fecha programada.",
+          "confirm": "Desactivar cuenta",
+          "cancel": "Conservar mi cuenta"
+        },
+        "confirmCancel": {
+          "title": "¿Cancelar la desactivación?",
+          "description": "Tu cuenta volverá al estado activo y tu acceso se mantendrá.",
+          "confirm": "Cancelar desactivación",
+          "cancel": "Mantener desactivación"
+        },
+        "successRequest": "Desactivación solicitada. Recibirás un correo con los detalles.",
+        "successCancel": "Desactivación cancelada. Tu cuenta está activa de nuevo.",
+        "errors": {
+          "VALIDATION_ERROR": "Revisa los campos del formulario.",
+          "FORBIDDEN": "Esta acción no está permitida para tu cuenta.",
+          "CONFLICT": "La operación no se puede completar en el estado actual de la cuenta.",
+          "INTERNAL_ERROR": "Ocurrió un error inesperado. Inténtalo de nuevo."
+        }
+      },
+      "courses": {
+        "title": "Mis cursos",
+        "description": "Cursos en los que estás inscrito. Haz clic en cualquiera para abrir su detalle.",
+        "empty": "Aún no tienes cursos inscritos.",
+        "statuses": {
+          "active": "Activo",
+          "completed": "Completado",
+          "paused": "En pausa"
+        },
+        "progressLabel": "Progreso",
+        "enrolledAt": "Inscrito: {date}",
+        "completedAt": "Completado: {date}",
+        "errors": {
+          "FORBIDDEN": "Esta sección no está disponible para tu cuenta.",
+          "INTERNAL_ERROR": "Ocurrió un error inesperado. Inténtalo de nuevo."
+        }
+      },
+      "billing": {
+        "title": "Facturación",
+        "description": "Gestiona tu suscripción, métodos de pago y facturas.",
+        "errors": {
+          "INTERNAL_ERROR": "Ocurrió un error inesperado. Inténtalo de nuevo."
+        },
+        "subscription": {
+          "title": "Suscripción",
+          "description": "Tu plan actual y fecha de renovación.",
+          "empty": "Aún no tienes una suscripción activa.",
+          "planLabels": {
+            "free": "Gratis",
+            "premium": "Premium",
+            "enterprise": "Empresarial"
+          },
+          "statusLabels": {
+            "trialing": "Período de prueba",
+            "active": "Activa",
+            "past_due": "Pago pendiente",
+            "canceled": "Cancelada",
+            "expired": "Expirada"
+          },
+          "fields": {
+            "currentPlan": "Plan actual",
+            "status": "Estado",
+            "startedAt": "Inicio",
+            "currentPeriodEnd": "Tu suscripción se cancelará el {date}",
+            "cancelAtPeriodEnd": "Cancelación programada",
+            "pastDueWarning": "Tu último pago falló. Revisa tus métodos de pago para mantener la suscripción activa.",
+            "trialingNotice": "Estás en período de prueba. El plan se cobrará al terminar la prueba."
+          },
+          "actions": {
+            "changePlan": "Cambiar plan",
+            "changingPlan": "Cambiando...",
+            "cancelSubscription": "Cancelar suscripción",
+            "cancellingSubscription": "Cancelando...",
+            "planSelectLabel": "Nuevo plan"
+          },
+          "confirmChange": {
+            "title": "¿Cambiar a {plan}?",
+            "description": "Tu plan se actualizará según el contrato: los upgrades aplican de inmediato con cobro prorrateado, los downgrades aplican al final del período actual.",
+            "confirm": "Cambiar plan",
+            "cancel": "Conservar plan actual"
+          },
+          "confirmCancel": {
+            "title": "¿Cancelar tu suscripción?",
+            "description": "Se detendrán los cobros futuros. Mantendrás el acceso hasta el final del período de facturación actual.",
+            "confirm": "Cancelar suscripción",
+            "cancel": "Mantener suscripción"
+          },
+          "successChange": "Plan de suscripción actualizado.",
+          "successCancel": "Suscripción cancelada. Mantendrás acceso hasta el final del período.",
+          "errors": {
+            "CONFLICT": "Ese ya es tu plan actual.",
+            "PAYMENT_METHOD_REQUIRED": "Necesitas un método de pago para cambiar a premium.",
+            "FORBIDDEN": "Esta acción no está permitida para tu cuenta.",
+            "VALIDATION_ERROR": "Revisa el plan seleccionado.",
+            "INTERNAL_ERROR": "Ocurrió un error inesperado. Inténtalo de nuevo."
+          }
+        },
+        "paymentMethods": {
+          "title": "Métodos de pago",
+          "description": "Tarjetas vinculadas a tu cuenta. No puedes eliminar la última tarjeta de una suscripción premium activa.",
+          "empty": "Aún no tienes métodos de pago registrados.",
+          "fields": {
+            "brand": "Marca",
+            "last4": "Últimos 4 dígitos",
+            "expiration": "Vence {date}",
+            "unknownBrand": "Tarjeta desconocida",
+            "unknownLast4": "••••"
+          },
+          "actions": {
+            "remove": "Eliminar",
+            "removing": "Eliminando..."
+          },
+          "confirmRemove": {
+            "title": "¿Eliminar este método de pago?",
+            "description": "La tarjeta {card} se eliminará de tu cuenta. Podrás añadirla de nuevo más tarde.",
+            "confirm": "Eliminar tarjeta",
+            "cancel": "Conservar tarjeta"
+          },
+          "successRemove": "Método de pago eliminado.",
+          "errors": {
+            "NOT_FOUND": "Este método de pago ya no existe.",
+            "CONFLICT": "No puedes eliminar el último método de pago de una suscripción premium activa.",
+            "FORBIDDEN": "Esta acción no está permitida para tu cuenta.",
+            "INTERNAL_ERROR": "Ocurrió un error inesperado. Inténtalo de nuevo."
+          }
+        },
+        "invoices": {
+          "title": "Facturas",
+          "description": "Historial de facturación. Haz clic en descargar para abrir el enlace firmado en una nueva pestaña.",
+          "empty": "Aún no tienes facturas.",
+          "fields": {
+            "issuedAt": "Emitida el {date}",
+            "amount": "Monto"
+          },
+          "statusLabels": {
+            "draft": "Borrador",
+            "open": "Abierta",
+            "paid": "Pagada",
+            "void": "Anulada",
+            "uncollectible": "Incobrable"
+          },
+          "downloadLabel": "Descargar",
+          "errors": {
+            "INTERNAL_ERROR": "Ocurrió un error inesperado. Inténtalo de nuevo."
+          }
+        }
       },
       "personalData": {
         "title": "Datos personales",
@@ -946,6 +1141,135 @@
         "errors": {
           "VALIDATION_ERROR": "Revisa los campos del formulario.",
           "INTERNAL_ERROR": "Ocurrió un error inesperado. Inténtalo de nuevo."
+        }
+      },
+      "security": {
+        "title": "Seguridad",
+        "description": "Gestiona tu contraseña, tu correo electrónico, la autenticación de dos factores y tus sesiones activas.",
+        "overview": {
+          "email": "Correo electrónico",
+          "emailVerified": "Verificado",
+          "emailNotVerified": "No verificado",
+          "twoFactor": "Autenticación de dos factores (2FA)",
+          "twoFactorEnabled": "Activado",
+          "twoFactorDisabled": "Desactivado",
+          "twoFactorRequired": "Obligatorio para tu rol",
+          "sessions": "Sesiones activas",
+          "sessionsCount": "{count, plural, =0 {Sin sesiones} =1 {# sesión} other {# sesiones}}"
+        },
+        "changePassword": {
+          "title": "Cambiar contraseña",
+          "description": "Actualiza tu contraseña periódicamente para mantener tu cuenta segura.",
+          "fields": {
+            "currentPassword": {
+              "label": "Contraseña actual",
+              "placeholder": "Tu contraseña actual",
+              "show": "Mostrar contraseña",
+              "hide": "Ocultar contraseña"
+            },
+            "newPassword": {
+              "label": "Nueva contraseña",
+              "placeholder": "Crea una nueva contraseña",
+              "show": "Mostrar contraseña",
+              "hide": "Ocultar contraseña"
+            },
+            "confirmPassword": {
+              "label": "Confirmar nueva contraseña",
+              "placeholder": "Repite la nueva contraseña"
+            }
+          },
+          "actions": {
+            "save": "Cambiar contraseña",
+            "saving": "Actualizando..."
+          },
+          "successMessage": "Contraseña actualizada. Por seguridad, se cerraron tus otras sesiones.",
+          "errors": {
+            "VALIDATION_ERROR": "Revisa los campos del formulario.",
+            "INVALID_CURRENT_PASSWORD": "La contraseña actual no es correcta.",
+            "CONFLICT": "La nueva contraseña no puede ser igual a la actual.",
+            "INTERNAL_ERROR": "Ocurrió un error inesperado. Inténtalo de nuevo."
+          }
+        },
+        "emailChange": {
+          "title": "Correo electrónico",
+          "description": "Cambia el correo asociado a tu cuenta. Recibirás un enlace de verificación en la nueva dirección.",
+          "fields": {
+            "newEmail": {
+              "label": "Nuevo correo electrónico",
+              "placeholder": "nuevo@correo.com"
+            }
+          },
+          "actions": {
+            "save": "Solicitar cambio",
+            "saving": "Enviando..."
+          },
+          "successMessage": "Te enviamos un correo de verificación. Revisa tu nueva dirección para confirmar el cambio.",
+          "errors": {
+            "VALIDATION_ERROR": "Revisa el formato del correo electrónico.",
+            "EMAIL_TAKEN": "Ese correo ya está registrado.",
+            "EMAIL_UNCHANGED": "Es tu correo actual.",
+            "INTERNAL_ERROR": "Ocurrió un error inesperado. Inténtalo de nuevo."
+          }
+        },
+        "twoFactor": {
+          "title": "Autenticación de dos factores (2FA)",
+          "description": "Añade una capa extra de seguridad. Recibirás un código por correo cada vez que sea necesario.",
+          "enabled": "Activado",
+          "disabled": "Desactivado",
+          "required": "Obligatorio para tu rol",
+          "activate": "Activar 2FA",
+          "activating": "Activando...",
+          "verifyingTitle": "Verifica tu correo",
+          "verifyingDescription": "Te enviamos un código de 6 dígitos a tu correo. Ingrésalo para completar la activación.",
+          "codeLabel": "Código de verificación",
+          "codePlaceholder": "123456",
+          "verify": "Verificar",
+          "verifying": "Verificando...",
+          "cancel": "Cancelar",
+          "disable": "Desactivar 2FA",
+          "disabling": "Desactivando...",
+          "disablingTitle": "Desactivar 2FA",
+          "disablingDescription": "Ingresa el código de 6 dígitos que recibiste por correo para confirmar la desactivación.",
+          "successEnabled": "2FA activado correctamente.",
+          "successDisabled": "2FA desactivado.",
+          "errors": {
+            "VALIDATION_ERROR": "Revisa el formato del código.",
+            "INVALID_CODE": "El código no es correcto.",
+            "CONFLICT": "La operación no es válida en este momento. Inténtalo de nuevo.",
+            "FORBIDDEN": "No puedes desactivar el 2FA con tu rol.",
+            "INTERNAL_ERROR": "Ocurrió un error inesperado. Inténtalo de nuevo."
+          }
+        },
+        "sessions": {
+          "title": "Sesiones activas",
+          "description": "Dispositivos donde tu cuenta tiene una sesión iniciada. Revoca cualquiera que no reconozcas.",
+          "currentBadge": "Sesión actual",
+          "unknownDevice": "Dispositivo desconocido",
+          "unknownBrowser": "Navegador desconocido",
+          "unknownIp": "IP desconocida",
+          "lastActive": "Última actividad: {date}",
+          "revoke": "Revocar",
+          "revokeAllOthers": "Cerrar otras sesiones",
+          "empty": "No hay otras sesiones activas.",
+          "confirmRevokeTitle": "Revocar sesión",
+          "confirmRevokeDescription": "¿Seguro que quieres cerrar la sesión en {device}? Tendrás que volver a iniciar sesión en ese dispositivo.",
+          "confirmRevokeOthersTitle": "Cerrar otras sesiones",
+          "confirmRevokeOthersDescription": "Se cerrarán todas las sesiones excepto la actual. Tendrás que volver a iniciar sesión en esos dispositivos.",
+          "confirm": "Revocar",
+          "confirmOthers": "Cerrar todas",
+          "cancel": "Cancelar",
+          "revoking": "Revocando...",
+          "successRevoked": "Sesión revocada.",
+          "successRevokedOthers": "Se cerraron las otras sesiones.",
+          "errors": {
+            "NOT_FOUND": "La sesión ya no existe. Actualiza la página.",
+            "SESSION_IS_CURRENT": "No puedes revocar tu sesión actual desde aquí.",
+            "INTERNAL_ERROR": "Ocurrió un error inesperado. Inténtalo de nuevo."
+          }
+        },
+        "errors": {
+          "INTERNAL_ERROR": "An unexpected error occurred. Please try again.",
+          "sameAsCurrent": "The new password can't be the same as the current one."
         }
       },
       "profile": {

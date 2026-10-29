@@ -1369,54 +1369,99 @@ Orden de implementación aprobado (un archivo a la vez, con
 
 ---
 
-### Fase 4 — Security
+### Fase 4 — Security ✅ CERRADA (salvo 4.6)
 
-- **4.1** `SecurityOverviewSection`: `mySecuritySettings` (lectura).
-- **4.2** `ChangePasswordSection`: `changePassword` + confirmación.
-- **4.3** `EmailChangeSection`: `requestEmailChange`.
-- **4.4** `TwoFactorSection`: setup, verify, disable.
-  - Lógica de rol: `twoFactorRequired === true` → ocultar/deshabilitar disable.
-  - El secreto 2FA nunca se loggea ni se persiste en caché.
-- **4.5** `SessionsSection`: listar + `revokeSession` + `revokeOtherSessions`.
-- **4.6** Validar accesibilidad y focus management en modales.
+- [x] **4.1** `SecuritySection` + `SecurityOverviewClient`: `mySecuritySettings` (lectura). Contenedor que centraliza `useQuery` y expone `refetchSecurity` (network-only) a los subcomponentes.
+- [x] **4.2** `ChangePasswordSection`: `changePassword` + `confirmPassword` (cliente-only) + `refetchSecurity` tras éxito.
+- [x] **4.3** `EmailChangeSection`: `requestEmailChange` con schema dinámico (refine "es tu correo actual"). Sin refetch tras éxito (contrato §3.8: el email no cambia hasta confirmar el enlace).
+- [x] **4.4** `TwoFactorSection`: máquina de estados `idle | verifying | disabling`. Activación `beginTwoFactorSetup → verifyTwoFactorSetup(code)`; desactivación `disableTwoFactor(code)`. `secret`/`qrCode` se descartan (no se renderizan). Botón "Desactivar" oculto cuando `twoFactorRequired === true` con badge "Obligatorio para tu rol".
+- [x] **4.5** `SessionsSection`: listar sesiones + `revokeSession` + `revokeOtherSessions` con `<ConfirmDialog>`. La sesión actual no muestra botón de revocar.
+- [ ] **4.6** Validar accesibilidad y focus management en modales. **(pendiente: se cubre en Fase 6 — hardening)**
 
-**Commits sugeridos:**
+**Commits aplicados (2026-10-28):**
 
-- `feat(user-settings): add security overview and password change`
-- `feat(user-settings): add email change flow`
-- `feat(user-settings): add two-factor management with role rules`
-- `feat(user-settings): add sessions management`
+- `5afe564 feat(user-settings): agregar esqueleto de la sección de seguridad`
+- `8756368 feat(user-settings): agregar cambio de contraseña en Security`
+- `40c82a0 feat(user-settings): agregar cambio de correo en Security`
+- `c6ef2cc feat(user-settings): agregar gestión de 2FA en Security`
+- `b0fc86b feat(user-settings): agregar gestión de sesiones en Security`
+
+**Estado (2026-10-28):** Fase 4 **completa** salvo el punto 4.6 (accesibilidad), diferido a Fase 6 (hardening). Patrón `refetch` `network-only` centralizado aplicado y verificado. Siguiente: Fase 5 (secciones exclusivas de student).
 
 ---
 
-### Fase 5 — Secciones exclusivas de student
+### Fase 5 — Secciones exclusivas de student ✅ CERRADA
 
-- **5.1** `AccountSection`: `myAccount` + deactivation/cancelación con
-  confirmación fuerte.
-  - Mostrar `deactivationScheduledAt` con fecha exacta localizada.
-  - `403` para teacher/admin (no se renderiza la sección).
-- **5.2** `CoursesSection`: `myCourses` (lectura).
-  - Solo resumen: título, progreso, estado. Click navega a Courses.
-  - `403` para teacher/admin.
-- **5.3** `CertificatesSection`: `myCertificates` (lectura + descarga).
-  - Vincular con `CertificateEligibility` existente (informativo, bloquea
-    generación, no visualización).
-  - `downloadUrl` firmada, abrir en nueva pestaña.
-  - `403` para teacher/admin.
-- **5.4** `BillingSection`: `mySubscription`, `myPaymentMethods`,
-  `myInvoices`, `changeSubscriptionPlan`, `cancelSubscription`,
-  `removePaymentMethod`.
-  - `changeSubscriptionPlan`: upgrade inmediato, downgrade a fin de período.
-  - `cancelSubscription`: detiene cobros, mantiene acceso hasta
-    `currentPeriodEnd`.
-  - `removePaymentMethod`: `updates` explícito en `UrqlProvider`.
-  - `403` para teacher/admin.
+> **Estado 2026-10-28:** Fase 5 **completa**. Los 4 sub-pasos y el prerrequisito de infraestructura están commiteados. Con esta fase se cierra la implementación de las 9 secciones del plan. Siguiente: Fase 6 (endurecimiento).
 
-**Commits sugeridos:**
+**Prerrequisito de Fase 5 (cerrado el 2026-10-28):**
 
-- `feat(user-settings): add account deactivation section`
-- `feat(user-settings): add courses and certificates sections`
-- `feat(user-settings): add billing section`
+- [x] **5.0** `refactor(urql): activar keys de Fase 5 y updates de removePaymentMethod`
+      (`7781616`). Añade a `UrqlProvider`:
+  - `Certificate`, `PaymentMethod`, `Invoice` en `keys` por `id`.
+  - `CourseEnrollment` en `keys` por `courseId`.
+  - `updates.Mutation.removePaymentMethod` para quitar el `PaymentMethod`
+    de `myPaymentMethods` al éxito (contrato §7 y plan §8.2.23).
+
+**Sub-pasos:**
+
+- [x] **5.1** `AccountSection`: `myAccount` + deactivation/cancelación con
+      confirmación fuerte. (`43ea6d2`)
+  - `AccountSection` (Server) + `AccountClient` (Client).
+  - Cuatro estados renderizados: `active`, `pending_deactivation`,
+    `suspended`, `inactive`. Los dos últimos son informativos.
+  - `deactivationScheduledAt` formateado con `Intl.DateTimeFormat`
+    (`dateStyle: 'long'` + `timeStyle: 'short'`), coherente con
+    `SessionsSection`.
+  - Dos `<ConfirmDialog>` independientes (solicitar / cancelar), D8 y D-AC.
+  - `useSectionMutation` con `parseVariables: () => ({})` (mutaciones sin
+    input). Ambas devuelven `Account` completo (D7) → normalización, sin
+    refetch explícito (D-AD).
+  - `403` para teacher/admin: no se renderiza la sección (`getVisibleSections`
+    ya la excluye).
+
+- [x] **5.2** `CoursesSection`: `myCourses` (lectura). (`5b6ca39`)
+  - `CoursesSection` (Server) + `CoursesClient` (Client).
+  - Cada curso enlaza a `/courses/{courseId}` con `Link` de
+    `@/i18n/navigation` (locale preservado).
+  - `<progress>` nativo + estilos Tailwind cruzados (webkit + moz) contra
+    las variables del tema. Semántica accesible gratis.
+  - `completedAt` llega como `unknown` (DateTime); se estrecha a
+    `string | null` antes de usarlo en JSX.
+  - `403` para teacher/admin: no se renderiza.
+
+- [x] **5.3** `CertificatesSection`: `myCertificates` (lectura + descarga),
+  - refactor `CertificateEligibility`. (`58a0862`)
+  - `CertificatesSection` (Server) + `CertificatesClient` (Client).
+  - `CertificateEligibility` se **mueve** de `ProfileSection` a
+    `CertificatesSection`: en Fase 3 vivía en Profile por pragmatismo (no
+    existía sección de certificados); ahora es su lugar natural.
+  - `ProfileSection` queda con dos bloques (avatar + form). Se elimina la
+    prop `showCertificates` y el cálculo en `page.tsx`.
+  - `downloadUrl` con `<a target="_blank" rel="noopener noreferrer">`
+    (URL absoluta firmada, contrato §5.8).
+  - `issuedAt` se estrecha de `unknown` a `string | null` (DateTime).
+
+- [x] **5.4** `BillingSection`: `mySubscription`, `myPaymentMethods`,
+      `myInvoices`, `changeSubscriptionPlan`, `cancelSubscription`,
+      `removePaymentMethod`. Dividida en dos commits.
+  - [x] **5.4.a** Lectura (`d437fcd`). `BillingSection` (Server) +
+        `BillingOverviewClient` (Client) + `SubscriptionClient`,
+        `PaymentMethodsClient`, `InvoicesClient`. Patrón
+        `SecurityOverviewClient`: un contenedor centraliza las tres queries,
+        sin refetch explícito.
+  - [x] **5.4.b** Mutaciones (`0f25c40`). `<select>` de plan (excluye
+        `enterprise` y el plan actual), `<ConfirmDialog>` para
+        `changeSubscriptionPlan` (incluso `free → premium` porque implica
+        cobro prorrateado). `<ConfirmDialog>` para `cancelSubscription`
+        (oculto si ya cancelada). `<ConfirmDialog>` por fila para
+        `removePaymentMethod`.
+  - **Primera activación real del `updates.Mutation.removePaymentMethod`**
+    (preparado en `7781616`): la eliminación se refleja en
+    `myPaymentMethods` sin refetch. Verificado manualmente.
+  - `403` para teacher/admin: no se renderiza.
+
+**Deudas diferidas:** ver §10.8.
 
 ---
 
@@ -1967,6 +2012,17 @@ el comportamiento esperado.
 | 2026-10-26 | Fase 3 / `ProfileSection` refactor              | Cerrado   | `ProfileSection.tsx` reescrito como Server Component. `ProfileFormClient.tsx` nuevo (bio + `interests`, `InterestsField` inline, PATCH diferencial anidado). `ProfileAvatarSettings.tsx` refactorizado (sin `set-state-in-effect`, sin `router.refresh()`, migrado a `useSectionMutation`, `fallbackName`/`fallbackEmail` en `avatarMessages`). `CertificateEligibility.tsx` convertido a Client (mínimo) con `useSidebarData()` para `hasAvatar`. `page.tsx` simplificado (`<ProfileSection showCertificates={...} />`). Commits `d3dd484 feat(user-settings): refactorizar perfil sobre primitivas compartidas`. `pnpm type-check` + `pnpm lint` + `pnpm mock:test` (59/59) en verde. |
 | 2026-10-26 | Fase 3 / `page.tsx` → `getVisibleSections`      | Cerrado   | `page.tsx` migrado a `getVisibleSections(role)`. Nuevo `renderSection(id, showCertificates)` con `switch`; los `case`s de Fases 4 y 5 devuelven `null`. Eliminados `showSubscription`, `showCourses` y los placeholders JSX. `showCertificates` se deriva de `sections.includes('certificates')`. **Corrige bug de Fase 2:** `showCourses = student                                                                                                                                                                                                                                                                                                                                     |                                                                                                                                                                                                                                                               | teacher`ya no muestra Courses a teacher. Commit`refactor(user-settings): migrar orquestador a mapa sección × rol`. Validado: `pnpm type-check`(0),`pnpm lint`(0),`pnpm mock:test` (59/59). |
 | 2026-10-26 | **Fase 3 ✅ CERRADA**                           | Cerrado   | Los 5 pasos de la Fase 3 (3.1 `PersonalDataSection`, 3.2 `PreferencesSection`, 3.3 `PrivacySection`, 3.4 `ProfileSection` refactor, 3.5 `page.tsx` → `getVisibleSections`) están cerrados y commiteados. Fase 3 completa. Siguiente: Fase 4 (Security).                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| 2026-10-28 | Fase 4 / `SecuritySection` + Overview           | Cerrado   | `SecuritySection` (Server) + `SecurityOverviewClient` (Client). Centraliza `useQuery(mySecuritySettings)` y `refetchSecurity` (network-only) para subcomponentes. Commit `5afe564`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| 2026-10-28 | Fase 4 / `ChangePasswordSection`                | Cerrado   | Formulario con `currentPassword`, `newPassword`, `confirmPassword` (cliente-only). Zod con `newPassword !== currentPassword`. `refetchSecurity` tras éxito (el backend revoca otras sesiones). Commit `8756368`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| 2026-10-28 | Fase 4 / `EmailChangeSection`                   | Cerrado   | Schema dinámico `requestEmailChangeSchema(currentEmail)` con refine "es tu correo actual". Sin refetch tras éxito (contrato §3.8: el email no cambia hasta confirmar el enlace). Commit `40c82a0`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| 2026-10-28 | Fase 4 / `TwoFactorSection`                     | Cerrado   | Máquina de estados `idle \| verifying \| disabling`. `secret`/`qrCode` se descartan (no se renderizan, no se cachean). Botón "Desactivar" oculto si `twoFactorRequired === true` con badge "Obligatorio para tu rol". `refetchSecurity` tras verify/disable. Commit `c6ef2cc`.                                                                                                                                                                                                                                                                                                                                                                                                          |
+| 2026-10-28 | Fase 4 / `SessionsSection`                      | Cerrado   | Lista `mySecuritySettings.sessions` con badge "Actual" para la sesión actual (sin botón revocar). `<ConfirmDialog>` para revocar una o todas las demás. `refetchSecurity` tras éxito. Commit `b0fc86b`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| 2026-10-28 | **Fase 4 ✅ CERRADA (salvo 4.6)**               | Cerrado   | Los 5 subpasos implementables de la Fase 4 están cerrados y commiteados. El punto 4.6 (accesibilidad y focus management) se difiere a Fase 6. Siguiente: Fase 5 (secciones exclusivas de student).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| 2026-10-28 | Fase 5 / `UrqlProvider` (prerrequisito)         | Cerrado   | `7781616 refactor(urql): activar keys de Fase 5 y updates de removePaymentMethod`. Activa las keys diferidas de Fase 5 (`Certificate`, `PaymentMethod`, `Invoice`, `CourseEnrollment`) y `updates.Mutation.removePaymentMethod` (contrato §7, plan §8.2.23). `pnpm type-check` + `pnpm lint` en verde.                                                                                                                                                                                                                                                                                                                                                                                  |
+| 2026-10-28 | Fase 5.1 / `AccountSection`                     | Cerrado   | `43ea6d2`. `AccountSection` (Server) + `AccountClient` (Client). Cuatro estados renderizados: `active`, `pending_deactivation`, `suspended`, `inactive`. Dos `<ConfirmDialog>` independientes. `useSectionMutation` con `parseVariables: () => ({})`; `Account` normaliza por la key `Account: () => 'me'`, sin refetch explícito (D-AD). Claves i18n en es/en. `pnpm type-check` + `pnpm lint` en verde.                                                                                                                                                                                                                                                                               |
+| 2026-10-28 | Fase 5.2 / `CoursesSection`                     | Cerrado   | `5b6ca39`. `CoursesSection` (Server) + `CoursesClient` (Client). Solo lectura; cada curso enlaza a `/courses/{courseId}`. `<progress>` nativo con estilos webkit/moz contra las variables del tema. `completedAt` se estrecha de `unknown` a `string \| null` antes de usarlo en JSX. Claves i18n en es/en. `pnpm type-check` + `pnpm lint` en verde.                                                                                                                                                                                                                                                                                                                                   |
+| 2026-10-28 | Fase 5.3 / `CertificatesSection`                | Cerrado   | `58a0862`. `CertificatesSection` (Server) + `CertificatesClient` (Client). **Refactor:** `CertificateEligibility` se mueve de `ProfileSection` a `CertificatesSection`. `ProfileSection` simplificado (avatar + form). `page.tsx` sin `showCertificates`. `downloadUrl` con `<a target="_blank" rel="noopener noreferrer">`. `issuedAt` estrechado de `unknown`. Claves i18n reorganizadas bajo `certificates.eligibility`. `pnpm type-check` + `pnpm lint` en verde.                                                                                                                                                                                                                   |
+| 2026-10-28 | **Fase 5 ✅ CERRADA**                           | Cerrado   | Los 4 subpasos y el prerrequisito de infraestructura están cerrados y commiteados: `7781616` + `43ea6d2` + `5b6ca39` + `58a0862` + `d437fcd` + `0f25c40`. La sección `billing` se dividió en dos commits (lectura / mutaciones) para aislar la verificación del `updates.Mutation.removePaymentMethod` (primera activación real en Fase 5, verificada manualmente). Con Fase 5 cerrada, las 9 secciones del plan están implementadas. Siguiente: Fase 6 (endurecimiento).                                                                                                                                                                                                               |
 
 ---
 
@@ -2091,3 +2147,24 @@ Anotadas al cerrar la sub-fase 3. Ninguna bloquea Fase 3.
   escribir el identificador IANA a mano. `TODO(timezone-select)` en
   `PreferencesFormClient.tsx`. Diferido a Fase 6+ con `src/config/timezones.ts`
   (catálogo IANA) y `<select>`.
+
+  ### 10.7 Deudas detectadas al cerrar Fase 4 (Security)
+
+Anotadas al cerrar los 5 subpasos. Ninguna bloquea Fase 5.
+
+- **TODO(graphcache-security)** — Ya previsto en el prompt de rol v4.2. Hoy usamos `refetch` `network-only` centralizado en `SecurityOverviewClient` para todas las mutaciones que no normalizan (`changePassword`, `verifyTwoFactorSetup`, `disableTwoFactor`, `revokeSession`, `revokeOtherSessions`). Revisar en Fase 6 si conviene migrar a `updates` explícitos por rendimiento.
+- **TODO(mock-2fa-teacher)** — El mock actual no permite probar el caso `twoFactorRequired === true` desde la UI (no hay usuario `teacher`/`admin` con `twoFactorRequired: true` en el mock). Añadir en Fase 6 si se quiere test manual end-to-end.
+- **TODO(mock-changePassword-login)** — El mock permite loguearse con cualquier email/password (salvo `invalid@example.com` / `wrong-password`) pero `changePassword` exige `currentPassword: 'old-password'`. Puede confundir en QA manual. Alinear en Fase 6 si molesta.
+- **TODO(email-change-confirm-ui)** — La UI de `EmailChangeSection` no indica "verificación pendiente" tras `requestEmailChange`. El contrato §3.8 dice que el email no cambia hasta confirmar el enlace, pero no expone `pendingEmail` en `SecuritySettings`. Anotado también en §8.1. Fase 6+ o cuando el backend lo soporte.
+- **Punto 4.6 (accesibilidad y focus management en modales)** — Diferido a Fase 6 (hardening). `ConfirmDialog` ya maneja focus trap, Escape y restauración de foco nativos; falta revisar `aria-busy`, `role="alert"` en feedbacks y `aria-live` en el flujo multi-paso de 2FA.
+
+### 10.8 Deudas detectadas al cerrar Fase 5 (Account, Courses, Certificates, Billing)
+
+Anotadas al cerrar los 4 subpasos y el prerrequisito de la Fase 5. Ninguna bloquea Fase 6.
+
+- **TODO(amount-units)** — En `InvoicesClient.tsx` (5.4.a), `amount` se divide entre 100 asumiendo que la moneda tiene 2 decimales (COP, USD, EUR). El contrato §7 dice "entero en la unidad menor de la moneda", pero no todas las monedas tienen 2 decimales (JPY, KRW: 0). Cuando aparezca una moneda sin decimales o cuando el contrato exponga los decimales de la moneda, extraer un helper por moneda. Hoy no hay consumidor con moneda sin decimales (el mock usa COP), pero la deuda queda anotada con el `TODO(amount-units)` en el código.
+- **TODO(reactivar-suscripcion)** — En `SubscriptionClient.tsx` (5.4.b), si `cancelAtPeriodEnd === true` mostramos el aviso "tu suscripción se cancelará el {fecha}" pero **no** ofrecemos botón "Reactivar". El plan §5.9.6 lo menciona como opcional ("si el backend lo soporta"), pero el contrato §6 no lo define. Revisar con el backend en Fase 6.
+- **TODO(plan-selector-sticky)** — En `SubscriptionClient.tsx` (5.4.b), el `<select>` de cambio de plan está siempre visible junto al botón "Cambiar plan". Si la sección crece (3 sub-bloques con formularios + confirmaciones), evaluar si conviene mover el `<select>` a un `<ConfirmDialog>` con el selector dentro (patrón compacto) o dejarlo como está. No es bug, es decisión de UX diferida.
+- **TODO(invoice-download-signed-url)** — En `InvoicesClient.tsx` (5.4.a), si `downloadUrl` es null no se muestra link. Cuando el backend exponga URL firmada siempre, la UI puede asumir no-null y simplificar. Hasta entonces, la UI maneja el caso null correctamente.
+- **TODO(certificates-eligibility-real-check)** — En `CertificateEligibility.tsx` (cerrado en Fase 3, movido en 5.3), los requisitos "Datos personales completos" y "Cuenta verificada" siguen con `comingSoon: true`. Ahora que existen `PersonalDataSection` (Fase 3) y `SecuritySection` (Fase 4), se puede cruzar la información real para computar esos dos requisitos. Fase 6 o un pase posterior.
+- **TODO(sidebar-sticky)** — Heredado de §10.6. La sección `billing` es larga (3 sub-bloques) y reabre la visibilidad del problema: con scroll, el sidebar del dashboard se va hacia arriba. `TODO(dashboard-layout)` en `dashboard/layout.tsx`. Fase 6.
