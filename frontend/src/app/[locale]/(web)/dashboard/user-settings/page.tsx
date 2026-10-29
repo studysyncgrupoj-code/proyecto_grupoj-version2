@@ -6,6 +6,7 @@ import {
 } from '@/config/user-settings-sections';
 import { getLocale, getTranslations } from 'next-intl/server';
 import { redirect } from 'next/navigation';
+import { AccountSection } from './AccountSection';
 import { PersonalDataSection } from './PersonalDataSection';
 import { PreferencesSection } from './PreferencesSection';
 import { PrivacySection } from './PrivacySection';
@@ -29,9 +30,11 @@ function renderSection(
     case 'security':
       return <SecuritySection />;
 
+    case 'account':
+      return <AccountSection />;
+
     // Fase 5 — secciones aún no implementadas.
     // Cuando se implementen, reemplazar `return null` por el componente real.
-    case 'account':
     case 'courses':
     case 'certificates':
     case 'billing':

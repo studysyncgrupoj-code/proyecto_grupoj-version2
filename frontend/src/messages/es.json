@@ -818,6 +818,54 @@
         "verified": "Cuenta verificada",
         "comingSoon": "Próximamente"
       },
+      "account": {
+        "title": "Cuenta",
+        "description": "Gestiona el ciclo de vida de tu cuenta. La desactivación es reversible hasta la fecha programada.",
+        "statuses": {
+          "active": {
+            "title": "Cuenta activa",
+            "description": "Puedes desactivar tu cuenta. Tendrás un período de gracia para cancelar antes de que se cierre definitivamente."
+          },
+          "pending_deactivation": {
+            "title": "Desactivación programada",
+            "description": "Tu cuenta se cerrará el {date}. Puedes cancelar la desactivación hasta esa fecha."
+          },
+          "suspended": {
+            "title": "Cuenta suspendida",
+            "description": "Tu cuenta fue suspendida por un administrador. Contacta a soporte para más información."
+          },
+          "inactive": {
+            "title": "Cuenta inactiva",
+            "description": "Esta cuenta fue cerrada. Si crees que es un error, por favor contacta a soporte."
+          }
+        },
+        "actions": {
+          "request": "Desactivar cuenta",
+          "requesting": "Desactivando...",
+          "cancel": "Cancelar desactivación",
+          "cancelling": "Cancelando..."
+        },
+        "confirmRequest": {
+          "title": "¿Desactivar tu cuenta?",
+          "description": "No podrás revertirlo cuando el período de gracia termine. Puedes cancelar en cualquier momento antes de la fecha programada.",
+          "confirm": "Desactivar cuenta",
+          "cancel": "Conservar mi cuenta"
+        },
+        "confirmCancel": {
+          "title": "¿Cancelar la desactivación?",
+          "description": "Tu cuenta volverá al estado activo y tu acceso se mantendrá.",
+          "confirm": "Cancelar desactivación",
+          "cancel": "Mantener desactivación"
+        },
+        "successRequest": "Desactivación solicitada. Recibirás un correo con los detalles.",
+        "successCancel": "Desactivación cancelada. Tu cuenta está activa de nuevo.",
+        "errors": {
+          "VALIDATION_ERROR": "Revisa los campos del formulario.",
+          "FORBIDDEN": "Esta acción no está permitida para tu cuenta.",
+          "CONFLICT": "La operación no se puede completar en el estado actual de la cuenta.",
+          "INTERNAL_ERROR": "Ocurrió un error inesperado. Inténtalo de nuevo."
+        }
+      },
       "personalData": {
         "title": "Datos personales",
         "description": "Gestiona tu identidad y tu información de contacto. Algunos campos pueden estar bloqueados.",
