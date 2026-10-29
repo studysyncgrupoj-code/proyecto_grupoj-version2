@@ -861,6 +861,23 @@
           "INTERNAL_ERROR": "An unexpected error occurred. Please try again."
         }
       },
+      "courses": {
+        "title": "My courses",
+        "description": "Courses you're enrolled in. Click on any course to open its detail.",
+        "empty": "You don't have any courses yet.",
+        "statuses": {
+          "active": "Active",
+          "completed": "Completed",
+          "paused": "Paused"
+        },
+        "progressLabel": "Progress",
+        "enrolledAt": "Enrolled: {date}",
+        "completedAt": "Completed: {date}",
+        "errors": {
+          "FORBIDDEN": "This section isn't available for your account.",
+          "INTERNAL_ERROR": "An unexpected error occurred. Please try again."
+        }
+      },
       "personalData": {
         "title": "Personal Data",
         "description": "Manage your identity and contact information. Some fields may be locked.",

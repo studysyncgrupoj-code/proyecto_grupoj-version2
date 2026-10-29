@@ -7,6 +7,7 @@ import {
 import { getLocale, getTranslations } from 'next-intl/server';
 import { redirect } from 'next/navigation';
 import { AccountSection } from './AccountSection';
+import { CoursesSection } from './CoursesSection';
 import { PersonalDataSection } from './PersonalDataSection';
 import { PreferencesSection } from './PreferencesSection';
 import { PrivacySection } from './PrivacySection';
@@ -33,9 +34,11 @@ function renderSection(
     case 'account':
       return <AccountSection />;
 
+    case 'courses':
+      return <CoursesSection />;
+
     // Fase 5 — secciones aún no implementadas.
     // Cuando se implementen, reemplazar `return null` por el componente real.
-    case 'courses':
     case 'certificates':
     case 'billing':
       return null;

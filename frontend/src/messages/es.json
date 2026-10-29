@@ -866,6 +866,23 @@
           "INTERNAL_ERROR": "Ocurrió un error inesperado. Inténtalo de nuevo."
         }
       },
+      "courses": {
+        "title": "Mis cursos",
+        "description": "Cursos en los que estás inscrito. Haz clic en cualquiera para abrir su detalle.",
+        "empty": "Aún no tienes cursos inscritos.",
+        "statuses": {
+          "active": "Activo",
+          "completed": "Completado",
+          "paused": "En pausa"
+        },
+        "progressLabel": "Progreso",
+        "enrolledAt": "Inscrito: {date}",
+        "completedAt": "Completado: {date}",
+        "errors": {
+          "FORBIDDEN": "Esta sección no está disponible para tu cuenta.",
+          "INTERNAL_ERROR": "Ocurrió un error inesperado. Inténtalo de nuevo."
+        }
+      },
       "personalData": {
         "title": "Datos personales",
         "description": "Gestiona tu identidad y tu información de contacto. Algunos campos pueden estar bloqueados.",
