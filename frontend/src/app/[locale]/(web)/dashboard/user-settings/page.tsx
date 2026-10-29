@@ -7,6 +7,7 @@ import {
 import { getLocale, getTranslations } from 'next-intl/server';
 import { redirect } from 'next/navigation';
 import { AccountSection } from './AccountSection';
+import { BillingSection } from './BillingSection';
 import { CertificatesSection } from './CertificatesSection';
 import { CoursesSection } from './CoursesSection';
 import { PersonalDataSection } from './PersonalDataSection';
@@ -38,10 +39,8 @@ function renderSection(id: UserSettingsSectionId): React.ReactNode {
     case 'certificates':
       return <CertificatesSection />;
 
-    // Fase 5 — secciones aún no implementadas.
-    // Cuando se implementen, reemplazar `return null` por el componente real.
     case 'billing':
-      return null;
+      return <BillingSection />;
 
     default:
       return null;

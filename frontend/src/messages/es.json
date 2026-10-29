@@ -895,6 +895,79 @@
           "INTERNAL_ERROR": "Ocurrió un error inesperado. Inténtalo de nuevo."
         }
       },
+      "billing": {
+        "title": "Facturación",
+        "description": "Gestiona tu suscripción, métodos de pago y facturas.",
+        "errors": {
+          "INTERNAL_ERROR": "Ocurrió un error inesperado. Inténtalo de nuevo."
+        },
+        "subscription": {
+          "title": "Suscripción",
+          "description": "Tu plan actual y fecha de renovación.",
+          "empty": "Aún no tienes una suscripción activa.",
+          "planLabels": {
+            "free": "Gratis",
+            "premium": "Premium",
+            "enterprise": "Empresarial"
+          },
+          "statusLabels": {
+            "trialing": "Período de prueba",
+            "active": "Activa",
+            "past_due": "Pago pendiente",
+            "canceled": "Cancelada",
+            "expired": "Expirada"
+          },
+          "fields": {
+            "currentPlan": "Plan actual",
+            "status": "Estado",
+            "startedAt": "Inicio",
+            "currentPeriodEnd": "Tu suscripción se cancelará el {date}",
+            "cancelAtPeriodEnd": "Cancelación programada",
+            "pastDueWarning": "Tu último pago falló. Revisa tus métodos de pago para mantener la suscripción activa.",
+            "trialingNotice": "Estás en período de prueba. El plan se cobrará al terminar la prueba."
+          },
+          "errors": {
+            "INTERNAL_ERROR": "Ocurrió un error inesperado. Inténtalo de nuevo."
+          }
+        },
+        "paymentMethods": {
+          "title": "Métodos de pago",
+          "description": "Tarjetas vinculadas a tu cuenta. No puedes eliminar la última tarjeta de una suscripción premium activa.",
+          "empty": "Aún no tienes métodos de pago registrados.",
+          "fields": {
+            "brand": "Marca",
+            "last4": "Últimos 4 dígitos",
+            "expiration": "Vence {date}",
+            "unknownBrand": "Tarjeta desconocida",
+            "unknownLast4": "••••"
+          },
+          "errors": {
+            "NOT_FOUND": "Este método de pago ya no existe.",
+            "CONFLICT": "No puedes eliminar el último método de pago de una suscripción premium activa.",
+            "INTERNAL_ERROR": "Ocurrió un error inesperado. Inténtalo de nuevo."
+          }
+        },
+        "invoices": {
+          "title": "Facturas",
+          "description": "Historial de facturación. Haz clic en descargar para abrir el enlace firmado en una nueva pestaña.",
+          "empty": "Aún no tienes facturas.",
+          "fields": {
+            "issuedAt": "Emitida el {date}",
+            "amount": "Monto"
+          },
+          "statusLabels": {
+            "draft": "Borrador",
+            "open": "Abierta",
+            "paid": "Pagada",
+            "void": "Anulada",
+            "uncollectible": "Incobrable"
+          },
+          "downloadLabel": "Descargar",
+          "errors": {
+            "INTERNAL_ERROR": "Ocurrió un error inesperado. Inténtalo de nuevo."
+          }
+        }
+      },
       "personalData": {
         "title": "Datos personales",
         "description": "Gestiona tu identidad y tu información de contacto. Algunos campos pueden estar bloqueados.",

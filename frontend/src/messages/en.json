@@ -890,6 +890,79 @@
           "INTERNAL_ERROR": "An unexpected error occurred. Please try again."
         }
       },
+      "billing": {
+        "title": "Billing",
+        "description": "Manage your subscription, payment methods, and invoices.",
+        "errors": {
+          "INTERNAL_ERROR": "An unexpected error occurred. Please try again."
+        },
+        "subscription": {
+          "title": "Subscription",
+          "description": "Your current plan and renewal date.",
+          "empty": "You don't have an active subscription yet.",
+          "planLabels": {
+            "free": "Free",
+            "premium": "Premium",
+            "enterprise": "Enterprise"
+          },
+          "statusLabels": {
+            "trialing": "Trial period",
+            "active": "Active",
+            "past_due": "Past due",
+            "canceled": "Canceled",
+            "expired": "Expired"
+          },
+          "fields": {
+            "currentPlan": "Current plan",
+            "status": "Status",
+            "startedAt": "Started at",
+            "currentPeriodEnd": "Your subscription will be canceled on {date}",
+            "cancelAtPeriodEnd": "Cancellation scheduled",
+            "pastDueWarning": "Your last payment failed. Please review your payment methods to keep your subscription active.",
+            "trialingNotice": "You're on a trial period. The plan will be charged when the trial ends."
+          },
+          "errors": {
+            "INTERNAL_ERROR": "An unexpected error occurred. Please try again."
+          }
+        },
+        "paymentMethods": {
+          "title": "Payment methods",
+          "description": "Cards linked to your account. Removing the last card of an active premium subscription isn't allowed.",
+          "empty": "You don't have any payment methods yet.",
+          "fields": {
+            "brand": "Brand",
+            "last4": "Last 4 digits",
+            "expiration": "Expires {date}",
+            "unknownBrand": "Unknown card",
+            "unknownLast4": "••••"
+          },
+          "errors": {
+            "NOT_FOUND": "This payment method no longer exists.",
+            "CONFLICT": "You can't remove the last payment method of an active premium subscription.",
+            "INTERNAL_ERROR": "An unexpected error occurred. Please try again."
+          }
+        },
+        "invoices": {
+          "title": "Invoices",
+          "description": "Your billing history. Click download to open the signed link in a new tab.",
+          "empty": "You don't have any invoices yet.",
+          "fields": {
+            "issuedAt": "Issued {date}",
+            "amount": "Amount"
+          },
+          "statusLabels": {
+            "draft": "Draft",
+            "open": "Open",
+            "paid": "Paid",
+            "void": "Void",
+            "uncollectible": "Uncollectible"
+          },
+          "downloadLabel": "Download",
+          "errors": {
+            "INTERNAL_ERROR": "An unexpected error occurred. Please try again."
+          }
+        }
+      },
       "personalData": {
         "title": "Personal Data",
         "description": "Manage your identity and contact information. Some fields may be locked.",
