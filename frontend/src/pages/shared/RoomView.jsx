@@ -13,15 +13,9 @@ import {
 
 import Sidebar from "../../components/dashboard/Sidebar";
 import RoomPomodoro from "../../components/dashboard/RoomPomodoro";
+import JitsiMeeting from "../../components/rooms/JitsiMeeting";
 
 import "../../styles/shared/RoomView.css";
-
-const participants = [
-  { name: "Ana", initials: "AN", status: "Estudiando" },
-  { name: "Luis", initials: "LU", status: "Resolviendo ejercicios" },
-  { name: "Carlos", initials: "CA", status: "Modo Focus" },
-  { name: "María", initials: "MA", status: "Tomando apuntes" },
-];
 
 const initialMessages = [
   {
@@ -39,12 +33,25 @@ const initialMessages = [
 ];
 
 const SESSION_API = "http://localhost:8080/api/sessions";
+const ROOMS_API = "http://localhost:8080/api/rooms";
 
 function RoomView() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const room = location.state?.room;
+  const initialRoom = location.state?.room;
+  const [room, setRoom] = useState(null);
+  const [checkingAccess, setCheckingAccess] = useState(true);
+  const [accessError, setAccessError] = useState("");
+  const [pendingRequests, setPendingRequests] = useState([]);
+  const [requestsError, setRequestsError] = useState("");
+  const [respondingRequestId, setRespondingRequestId] = useState(null);
+  const token = localStorage.getItem("token");
+
+  const [jitsiParticipants, setJitsiParticipants] = useState([]);
+  useEffect(() => {
+  console.log("Participantes reales de Jitsi:", jitsiParticipants);
+}, [jitsiParticipants]);
 
   const [messages, setMessages] = useState(initialMessages);
   const [messageText, setMessageText] = useState("");
@@ -64,42 +71,120 @@ function RoomView() {
   })();
 
   useEffect(() => {
-    if (!room?.id || !storedUser?.id) return;
-    if (sessionStartedRef.current) return;
+    let cancelled = false;
+    const checkAccess = async () => {
+      setCheckingAccess(true);
+      setAccessError("");
+      setRoom(null);
+      if (!initialRoom?.id || !token) {
+        if (!cancelled) {
+          setAccessError(!token ? "Debes iniciar sesión para acceder." : "Sala no encontrada.");
+          setCheckingAccess(false);
+        }
+        return;
+      }
+      try {
+        const response = await fetch(`${ROOMS_API}/${initialRoom.id}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!response.ok) throw new Error(`Error al consultar la sala: ${response.status}`);
+        const verifiedRoom = await response.json();
+        if (verifiedRoom.estado !== "ACTIVA") {
+          throw new Error("La sala no está activa.");
+        }
+        if (!verifiedRoom.meetingUrl) {
+          throw new Error("No tienes acceso a esta sala o su enlace no está disponible.");
+        }
+        if (!cancelled) setRoom(verifiedRoom);
+      } catch (error) {
+        if (!cancelled) setAccessError(error.message || "No fue posible acceder a la sala.");
+      } finally {
+        if (!cancelled) setCheckingAccess(false);
+      }
+    };
+    checkAccess();
+    return () => { cancelled = true; };
+  }, [initialRoom?.id, token]);
 
+  const isPrivateHost = Boolean(room?.privada) &&
+    Number(room?.creadorId) === Number(storedUser.id);
+
+  useEffect(() => {
+    if (!isPrivateHost || room?.estado !== "ACTIVA" || !token) {
+      setPendingRequests([]);
+      return;
+    }
+    let cancelled = false;
+    const fetchPendingRequests = async () => {
+      try {
+        const response = await fetch(`${ROOMS_API}/${room.id}/solicitudes`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!response.ok) throw new Error(`Error al consultar solicitudes: ${response.status}`);
+        const data = await response.json();
+        if (!cancelled) {
+          setPendingRequests(Array.isArray(data) ? data : []);
+          setRequestsError("");
+        }
+      } catch (error) {
+        if (!cancelled) setRequestsError(error.message || "No fue posible consultar las solicitudes.");
+      }
+    };
+    fetchPendingRequests();
+    const interval = setInterval(fetchPendingRequests, 10000);
+    return () => {
+      cancelled = true;
+      clearInterval(interval);
+    };
+  }, [isPrivateHost, room?.id, room?.estado, token]);
+
+  const handleRespondRequest = async (requestId, action) => {
+    if (!isPrivateHost || respondingRequestId !== null) return;
+    setRespondingRequestId(requestId);
+    setRequestsError("");
+    try {
+      const response = await fetch(
+        `${ROOMS_API}/${room.id}/solicitudes/${requestId}/${action}`,
+        { method: "PUT", headers: { Authorization: `Bearer ${token}` } }
+      );
+      if (!response.ok) throw new Error(`No fue posible responder a la solicitud: ${response.status}`);
+      setPendingRequests((current) => current.filter((request) => request.id !== requestId));
+    } catch (error) {
+      setRequestsError(error.message || "No fue posible responder a la solicitud.");
+    } finally {
+      setRespondingRequestId(null);
+    }
+  };
+
+  useEffect(() => {
+    if (!room?.id || !token || sessionStartedRef.current) return;
     sessionStartedRef.current = true;
-
+    let cancelled = false;
     const startStudySession = async () => {
       setStartingSession(true);
       setSessionError("");
-
       try {
         const response = await fetch(`${SESSION_API}/start`, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            userId: Number(storedUser.id),
-            roomId: Number(room.id),
-          }),
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ roomId: Number(room.id) }),
         });
-
-        if (!response.ok) {
-          throw new Error(`No fue posible iniciar la sesión: ${response.status}`);
-        }
-
+        if (!response.ok) throw new Error(`No fue posible iniciar la sesión: ${response.status}`);
         const session = await response.json();
-        setStudySessionId(session.id);
+        if (!cancelled) setStudySessionId(session.id);
       } catch (error) {
         console.error("Error iniciando sesión de estudio:", error);
-        sessionStartedRef.current = false;
-        setSessionError("No fue posible registrar el inicio de la sesión.");
+        if (!cancelled) setSessionError("No fue posible registrar el inicio de la sesión.");
       } finally {
-        setStartingSession(false);
+        if (!cancelled) setStartingSession(false);
       }
     };
-
     startStudySession();
-  }, [room?.id, storedUser?.id]);
+    return () => { cancelled = true; };
+  }, [room?.id, token]);
 
   const finishStudySession = async () => {
     if (!studySessionId) {
@@ -111,6 +196,7 @@ function RoomView() {
         `${SESSION_API}/${studySessionId}/finish`,
         {
           method: "PUT",
+          headers: { Authorization: `Bearer ${token}` },
         }
       );
 
@@ -160,11 +246,9 @@ function RoomView() {
                 Sesión colaborativa
               </span>
 
-              <h1>Sala no encontrada</h1>
+              <h1>{checkingAccess ? "Verificando acceso..." : "No se pudo acceder a la sala"}</h1>
 
-              <p>
-                No se recibió información de la sala seleccionada.
-              </p>
+              <p>{checkingAccess ? "Consultando permisos con StudySync." : accessError}</p>
 
               <button
                 type="button"
@@ -316,6 +400,51 @@ function RoomView() {
               </div>
             </article>
 
+            
+                
+            {isPrivateHost && room.estado === "ACTIVA" && (
+              <article className="room-session-card" aria-label="Solicitudes de acceso">
+                <div className="room-session-header">
+                  <div>
+                    <span className="room-section-label">Administración de sala privada</span>
+                    <h2>Solicitudes de acceso ({pendingRequests.length} pendientes)</h2>
+                  </div>
+                  <Users size={22} />
+                </div>
+                {requestsError && (
+                  <p role="alert" style={{ color: "#d9534f", marginTop: 12 }}>{requestsError}</p>
+                )}
+                {pendingRequests.length === 0 ? (
+                  <p className="room-session-description">No hay solicitudes pendientes.</p>
+                ) : pendingRequests.map((request) => (
+                  <div key={request.id} style={{ padding: "14px 0", borderTop: "1px solid #ddd" }}>
+                    <p>Estudiante (usuario {request.userId}) desea unirse a tu sala privada «{room.nombre}».</p>
+                    <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 12 }}>
+                      <button type="button" disabled={respondingRequestId !== null}
+                        onClick={() => handleRespondRequest(request.id, "aprobar")}
+                        style={{ padding: "10px 16px", cursor: "pointer" }}>
+                        {respondingRequestId === request.id ? "Procesando..." : "Aceptar solicitud"}
+                      </button>
+                      <button type="button" disabled={respondingRequestId !== null}
+                        onClick={() => handleRespondRequest(request.id, "rechazar")}
+                        style={{ padding: "10px 16px", cursor: "pointer" }}>
+                        Rechazar
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </article>
+            )}
+
+            {room.estado === "ACTIVA" && room.meetingUrl && (
+              <JitsiMeeting
+                meetingUrl={room.meetingUrl}
+                displayName={storedUser.name || "Participante StudySync"}
+                onParticipantsChange={setJitsiParticipants}
+              />
+            )}
+
+
             <article className="room-participants-card">
               <div className="room-card-header">
                 <div>
@@ -327,12 +456,12 @@ function RoomView() {
 
                 <span className="room-connected-count">
                   <Users size={16} />
-                  {participants.length} conectados
+                  {jitsiParticipants.length} conectados
                 </span>
               </div>
 
               <div className="room-participants-grid">
-                {participants.map((participant) => (
+                {jitsiParticipants.map((participant) => (
                   <article
                     className="room-participant-item"
                     key={participant.name}

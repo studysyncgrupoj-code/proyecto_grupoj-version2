@@ -23,6 +23,10 @@ function StudyRooms() {
   const [activeFilter, setActiveFilter] = useState("all");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [updatingRoomId, setUpdatingRoomId] = useState(null);
+  const [myRequests, setMyRequests] = useState([]);
+  const [requestingRoomId, setRequestingRoomId] = useState(null);
+  const [requestsLoaded, setRequestsLoaded] = useState(false);
 
   let storedUser = {};
 
@@ -32,12 +36,76 @@ function StudyRooms() {
     console.error("No fue posible leer el usuario:", storageError);
   }
 
+  const authHeaders = () => ({
+    ...((localStorage.getItem("token") || storedUser.token)
+      ? { Authorization: `Bearer ${localStorage.getItem("token") || storedUser.token}` }
+      : {}),
+  });
+
+  const checkAuthResponse = (response) => {
+    if (response.status === 401) {
+      throw new Error("Sesión vencida o no autorizada. Inicia sesión nuevamente.");
+    }
+    if (response.status === 403) {
+      throw new Error("No tienes permiso para realizar esta operación.");
+    }
+  };
+
+  const loadMyRequests = async () => {
+    try {
+      const response = await fetch(`${API_URL}/mis-solicitudes`, {
+        headers: authHeaders(),
+      });
+      checkAuthResponse(response);
+      if (!response.ok) throw new Error("No se pudieron consultar tus solicitudes");
+      const data = await response.json();
+      setMyRequests(Array.isArray(data) ? data : []);
+      setRequestsLoaded(true);
+    } catch (requestError) {
+      console.error("Error consultando solicitudes:", requestError);
+      setRequestsLoaded(false);
+    }
+  };
+
+  const refreshAccess = async () => {
+    try {
+      const response = await fetch(API_URL, { headers: authHeaders() });
+      checkAuthResponse(response);
+      if (!response.ok) throw new Error("No se pudieron actualizar las salas");
+      const data = await response.json();
+      const roomList = Array.isArray(data) ? data : [];
+      setRooms(roomList);
+      await loadMyRequests();
+    } catch (requestError) {
+      console.error("Error actualizando accesos:", requestError);
+    }
+  };
+
+  const handleRequestAccess = async (roomId) => {
+    if (requestingRoomId !== null) return;
+    try {
+      setRequestingRoomId(roomId);
+      const response = await fetch(`${API_URL}/${roomId}/solicitudes`, {
+        method: "POST",
+        headers: authHeaders(),
+      });
+      checkAuthResponse(response);
+      if (!response.ok) throw new Error("No fue posible solicitar acceso a la sala");
+      await refreshAccess();
+    } catch (requestError) {
+      alert(requestError.message || "No fue posible solicitar acceso");
+    } finally {
+      setRequestingRoomId(null);
+    }
+  };
+
   const loadRooms = async () => {
     try {
       setLoading(true);
       setError("");
 
-      const response = await fetch(API_URL);
+      const response = await fetch(API_URL, { headers: authHeaders() });
+      checkAuthResponse(response);
 
       if (!response.ok) {
         throw new Error("No fue posible consultar las salas");
@@ -45,10 +113,12 @@ function StudyRooms() {
 
       const data = await response.json();
 
-      setRooms(Array.isArray(data) ? data : []);
+      const roomList = Array.isArray(data) ? data : [];
+      setRooms(roomList);
+      await loadMyRequests();
     } catch (requestError) {
       console.error("Error cargando salas:", requestError);
-      setError("No fue posible cargar las salas de estudio.");
+      setError(requestError.message || "No fue posible cargar las salas de estudio.");
     } finally {
       setLoading(false);
     }
@@ -56,6 +126,8 @@ function StudyRooms() {
 
   useEffect(() => {
     loadRooms();
+    const interval = setInterval(refreshAccess, 10000);
+    return () => clearInterval(interval);
   }, []);
 
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -66,7 +138,7 @@ function StudyRooms() {
   });
 
   const openCreateModal = () => {
-    if (!storedUser.id) {
+    if (!storedUser.id || !(localStorage.getItem("token") || storedUser.token)) {
       alert("Debes iniciar sesión para crear una sala.");
       return;
     }
@@ -88,7 +160,7 @@ function StudyRooms() {
     try {
       const response = await fetch(API_URL, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...authHeaders() },
         body: JSON.stringify({
           nombre,
           descripcion,
@@ -97,6 +169,7 @@ function StudyRooms() {
         }),
       });
 
+      checkAuthResponse(response);
       if (!response.ok) {
         throw new Error("No fue posible crear la sala");
       }
@@ -108,11 +181,37 @@ function StudyRooms() {
       setRoomForm({ nombre: "", descripcion: "", privada: false });
     } catch (requestError) {
       console.error("Error creando sala:", requestError);
-      alert(
-        "No fue posible crear la sala. Verifica que el backend esté ejecutándose."
-      );
+      alert(requestError.message || "No fue posible crear la sala.");
     }
   };
+
+  const handleRoomStatus = async (roomId, action) => {
+      if (updatingRoomId !== null) return;
+
+      try {
+        setUpdatingRoomId(roomId);
+
+        const response = await fetch(
+          `${API_URL}/${roomId}/${action}`,
+          {
+            method: "PUT",
+            headers: authHeaders(),
+          }
+        );
+
+        checkAuthResponse(response);
+        if (!response.ok) {
+          throw new Error(`No fue posible ${action} la sala`);
+        }
+
+        await loadRooms();
+      } catch (requestError) {
+        console.error("Error actualizando sala:", requestError);
+        alert(requestError.message || `No fue posible ${action} la sala.`);
+      } finally {
+        setUpdatingRoomId(null);
+      }
+    };
 
   const filteredRooms = useMemo(() => {
     const normalizedSearch = searchTerm
@@ -357,6 +456,13 @@ function StudyRooms() {
                 Number(room.creadorId) ===
                 Number(storedUser.id);
 
+              const myRequest = myRequests.find(
+                (request) => Number(request.roomId) === Number(room.id)
+              );
+              const requestStatus = myRequest?.estado;
+              const canEnter = !room.privada || isCreator ||
+                (requestStatus === "APROBADA" && Boolean(room.meetingUrl));
+
               const creatorName = isCreator
                 ? storedUser.name || "Tú"
                 : `Usuario ${room.creadorId}`;
@@ -385,9 +491,15 @@ function StudyRooms() {
                       )}
 
                       <span className="room-badge room-badge-live">
-                        <span />
-                        Disponible
-                      </span>
+                      <span />
+                      {room.estado === "ACTIVA"
+                        ? "En vivo"
+                        : room.estado === "PROGRAMADA"
+                        ? "Programada"
+                        : room.estado === "FINALIZADA"
+                        ? "Finalizada"
+                        : "Estado desconocido"}
+                    </span>
                     </div>
                   </div>
 
@@ -443,14 +555,84 @@ function StudyRooms() {
                           : "Acceso disponible"}
                       </span>
 
-                      <Link
-                        to="/room"
-                        state={{ room }}
-                        className="room-join-button"
-                      >
-                        <DoorOpen size={18} />
-                        Entrar
-                      </Link>
+                      {isCreator && room.estado === "PROGRAMADA" && (
+                          <button
+                            type="button"
+                            className="room-join-button"
+                            onClick={() => handleRoomStatus(room.id, "activar")}
+                            disabled={updatingRoomId !== null}
+                          >
+                            <Video size={18} />
+                            {updatingRoomId === room.id
+                              ? "Activando..."
+                              : "Activar sala"}
+                          </button>
+                        )}
+
+                      {room.estado === "ACTIVA" && canEnter && (
+                        <Link
+                          to="/room"
+                          state={{ room }}
+                          className="room-join-button"
+                        >
+                          <DoorOpen size={18} />
+                          Entrar
+                        </Link>
+                      )}
+                      {room.estado === "ACTIVA" && room.privada && !isCreator &&
+                        !canEnter && requestStatus === "PENDIENTE" && (
+                          <div>
+                            <small>Esperando autorización del anfitrión</small>
+                            <button type="button" className="room-join-button" disabled>
+                              Solicitud pendiente
+                            </button>
+                          </div>
+                        )}
+                      {room.estado === "ACTIVA" && room.privada && !isCreator &&
+                        !canEnter && requestStatus === "APROBADA" && (
+                          <div>
+                            <small>Acceso aprobado. Actualizando enlace...</small>
+                            <button type="button" className="room-join-button" onClick={refreshAccess}>
+                              Actualizar acceso
+                            </button>
+                          </div>
+                        )}
+                      {room.estado === "ACTIVA" && room.privada && !isCreator &&
+                        !canEnter && requestStatus !== "PENDIENTE" &&
+                        requestStatus !== "APROBADA" && (
+                          <button
+                            type="button"
+                            className="room-join-button"
+                            onClick={() => handleRequestAccess(room.id)}
+                            disabled={!requestsLoaded || requestingRoomId !== null}
+                          >
+                            <DoorOpen size={18} />
+                            {requestingRoomId === room.id
+                              ? "Enviando solicitud..."
+                              : !requestsLoaded
+                              ? "Consultando acceso..."
+                              : requestStatus === "RECHAZADA"
+                              ? "Solicitar unirme nuevamente"
+                              : "Solicitar unirme"}
+                          </button>
+                        )}
+                      {isCreator && room.estado === "ACTIVA" && (
+                        <button
+                          type="button"
+                          className="room-join-button"
+                          onClick={() => {
+                            if (window.confirm("¿Deseas finalizar esta sala de estudio?")) {
+                              handleRoomStatus(room.id, "finalizar");
+                            }
+                          }}
+                          disabled={updatingRoomId !== null}
+                        >
+                          <Video size={18} />
+                          {updatingRoomId === room.id
+                            ? "Finalizando..."
+                            : "Finalizar sala"}
+                        </button>
+                      )}
                     </div>
                   </div>
                 </article>
