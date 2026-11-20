@@ -17,6 +17,9 @@ public class Course {
 
     private String professor;
 
+    @Column(name = "teacher_id")
+    private Long teacherId;
+
     private String duration;
 
     private Integer capacity;
@@ -61,6 +64,14 @@ public class Course {
 
     public void setProfessor(String professor) {
         this.professor = professor;
+    }
+
+    public Long getTeacherId() {
+        return teacherId;
+    }
+
+    public void setTeacherId(Long teacherId) {
+        this.teacherId = teacherId;
     }
 
     public String getDuration() {

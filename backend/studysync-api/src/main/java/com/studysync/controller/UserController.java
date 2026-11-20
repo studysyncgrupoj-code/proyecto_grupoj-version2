@@ -1,12 +1,16 @@
+
 package com.studysync.controller;
 
 import com.studysync.model.User;
 import com.studysync.service.UserService;
+import com.studysync.security.jwt.JwtService;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.LinkedHashMap;
 
 @RestController
 @RequestMapping("/api/users")
@@ -14,9 +18,14 @@ import java.util.Map;
 public class UserController {
 
     private final UserService userService;
+    private final JwtService jwtService;
 
-    public UserController(UserService userService) {
+    public UserController(
+            UserService userService,
+            JwtService jwtService
+    ) {
         this.userService = userService;
+        this.jwtService = jwtService;
     }
 
     @GetMapping
@@ -25,15 +34,21 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable Long id) {
+    public ResponseEntity<User> getUserById(
+            @PathVariable Long id
+    ) {
         return userService.getUserById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping
-    public ResponseEntity<User> createUser(@RequestBody User user) {
-        return ResponseEntity.ok(userService.saveUser(user));
+    public ResponseEntity<User> createUser(
+            @RequestBody User user
+    ) {
+        return ResponseEntity.ok(
+                userService.saveUser(user)
+        );
     }
 
     @PutMapping("/{id}")
@@ -47,7 +62,9 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteUser(
+            @PathVariable Long id
+    ) {
         if (!userService.deleteUser(id)) {
             return ResponseEntity.notFound().build();
         }
@@ -56,7 +73,9 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody Map<String, String> credentials) {
+    public ResponseEntity<?> login(
+            @RequestBody Map<String, String> credentials
+    ) {
         String email = credentials.get("email");
         String password = credentials.get("password");
 
@@ -65,9 +84,25 @@ public class UserController {
         if (user == null) {
             return ResponseEntity
                     .status(401)
-                    .body(Map.of("message", "Credenciales incorrectas"));
+                    .body(Map.of(
+                            "message",
+                            "Credenciales incorrectas"
+                    ));
         }
 
-        return ResponseEntity.ok(user);
+        String token = jwtService.generateToken(user);
+
+        Map<String, Object> response = new LinkedHashMap<>();
+
+        response.put("id", user.getId());
+        response.put("nombre", user.getNombre());
+        response.put("apellido", user.getApellido());
+        response.put("email", user.getEmail());
+        response.put("rol", user.getRol());
+        response.put("activo", user.getActivo());
+        response.put("fechaCreacion", user.getFechaCreacion());
+        response.put("token", token);
+
+        return ResponseEntity.ok(response);
     }
 }
