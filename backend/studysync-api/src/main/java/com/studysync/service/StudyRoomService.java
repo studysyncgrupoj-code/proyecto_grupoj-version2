@@ -419,7 +419,8 @@ public class StudyRoomService {
             }
 
             User user = (User) auth.getPrincipal();
-            boolean esAdmin = "ADMIN".equalsIgnoreCase(user.getRol());
+            boolean esAdmin = "ADMINISTRADOR".equalsIgnoreCase(user.getRol())
+        || "ADMIN".equalsIgnoreCase(user.getRol());
             boolean esProfesorDelCurso =
                     "PROFESOR".equalsIgnoreCase(user.getRol())
                     && course.getTeacherId() != null
