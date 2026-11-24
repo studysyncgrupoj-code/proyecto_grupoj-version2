@@ -60,7 +60,13 @@ function CursosAdmin() {
       setLoadError("");
 
       try {
-        const response = await fetch(COURSES_API);
+        const token = localStorage.getItem("token");
+
+        const response = await fetch(COURSES_API, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
 
         if (!response.ok) {
           throw new Error(`No fue posible cargar los cursos: ${response.status}`);

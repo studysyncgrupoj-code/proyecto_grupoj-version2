@@ -100,6 +100,7 @@ function Login() {
         "user",
         JSON.stringify(frontendUser)
       );
+      localStorage.setItem("token", user.token);
 
       if (role === "administrador") {
         navigate("/dashboard-admin");

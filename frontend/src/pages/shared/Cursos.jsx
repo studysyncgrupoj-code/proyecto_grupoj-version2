@@ -229,9 +229,136 @@ const defaultTasksByCourse = {
 const filters = ["Todos", "Premium", "Destacados", "En progreso"];
 
 function Cursos() {
+  const [realCourses, setRealCourses] = useState([]);
+  const [showCreate, setShowCreate] = useState(false);
+  const [savingCourse, setSavingCourse] = useState(false);
+  const [createError, setCreateError] = useState("");
+
+  const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
+  const isProfessor = currentUser.role === "Profesor";
+
+  const createCourse = async (event) => {
+    event.preventDefault();
+    setSavingCourse(true);
+    setCreateError("");
+
+    try {
+      const form = new FormData(event.currentTarget);
+      const payload = {
+        name: form.get("name").trim(),
+        category: form.get("category").trim(),
+        description: form.get("description").trim(),
+        duration: form.get("duration").trim(),
+        capacity: Number(form.get("capacity")),
+        professor: currentUser.name,
+        teacherId: currentUser.id,
+        progress: 0,
+        status: "Activo",
+      };
+
+      const response = await fetch("/api/courses", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+
+      const saved = await response.json();
+      setRealCourses((previous) => [saved, ...previous]);
+      setShowCreate(false);
+      setSearch("");
+      setFilter("Todos");
+    } catch (error) {
+      setCreateError(`No fue posible crear el curso: ${error.message}`);
+    } finally {
+      setSavingCourse(false);
+    }
+  };
+  const [coursesLoading, setCoursesLoading] = useState(true);
+  const [coursesError, setCoursesError] = useState("");
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("Todos");
   const [activeCourse, setActiveCourse] = useState(null);
+  const [courseLessons, setCourseLessons] = useState([]);
+  const [showLessonForm, setShowLessonForm] = useState(false);
+  const [lessonError, setLessonError] = useState("");
+  const [savingLesson, setSavingLesson] = useState(false);
+
+  const courseRequest = async (url, method = "GET", body) => {
+    const response = await fetch(url, {
+      method,
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+        "Content-Type": "application/json",
+      },
+      ...(body !== undefined ? { body: JSON.stringify(body) } : {}),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
+
+    return response.json();
+  };
+
+  useEffect(() => {
+    setCourseLessons([]);
+    setShowLessonForm(false);
+    setLessonError("");
+
+    if (!activeCourse) return;
+
+    let cancelled = false;
+
+    courseRequest(`/api/courses/${activeCourse.id}/lessons`)
+      .then((data) => {
+        if (!cancelled) setCourseLessons(data);
+      })
+      .catch((error) => {
+        if (!cancelled) setLessonError(error.message);
+      });
+
+    return () => { cancelled = true; };
+  }, [activeCourse?.id]);
+
+  const createLesson = async (event) => {
+    event.preventDefault();
+    setSavingLesson(true);
+    setLessonError("");
+
+    try {
+      const form = new FormData(event.currentTarget);
+
+      const payload = {
+        title: form.get("title").trim(),
+        description: form.get("description").trim(),
+        scheduledAt: form.get("scheduledAt"),
+        durationMinutes: Number(form.get("durationMinutes")),
+        lessonOrder: Math.max(0, ...courseLessons.map(
+          (lesson) => Number(lesson.lessonOrder) || 0
+        )) + 1,
+      };
+
+      const lesson = await courseRequest(
+        `/api/courses/${activeCourse.id}/lessons`,
+        "POST",
+        payload
+      );
+
+      setCourseLessons((previous) => [...previous, lesson]);
+      setShowLessonForm(false);
+    } catch (error) {
+      setLessonError(`No fue posible crear la clase: ${error.message}`);
+    } finally {
+      setSavingLesson(false);
+    }
+  };
   const [messages, setMessages] = useState(initialMessages);
   const [draft, setDraft] = useState("");
   const [tasks, setTasks] = useState([]);
@@ -239,13 +366,63 @@ function Cursos() {
   const chatEndRef = useRef(null);
 
   useEffect(() => {
+    const loadCourses = async () => {
+      try {
+        const token = localStorage.getItem("token");
+
+        const response = await fetch("/api/courses", {
+          cache: "no-store",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Cache-Control": "no-cache",
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+
+        const data = await response.json();
+        setRealCourses(data);
+        setCoursesError("");
+      } catch (error) {
+        console.error("Error cargando cursos:", error);
+        setCoursesError(`Error al cargar cursos: ${error.message}`);
+      } finally {
+        setCoursesLoading(false);
+      }
+    };
+
+    loadCourses();
+  }, []);
+
+  useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+
+  const displayedCourses = realCourses.map((course) => ({
+    id: course.id,
+    teacherId: course.teacherId,
+    title: course.name || "",
+    category: course.category || "",
+    objective: course.description || "Sin descripción.",
+    instructor: course.professor || "",
+    users: 0,
+    premium: false,
+    featured: false,
+    averageTime: course.duration || "Sin definir",
+    participation: 0,
+    lessons: 0,
+    progress: Number(course.progress ?? 0),
+    rating: "—",
+    level: course.status || "Activo",
+    members: [],
+  }));
 
   const filteredCourses = useMemo(() => {
     const query = search.trim().toLowerCase();
 
-    return courses.filter((course) => {
+    return displayedCourses.filter((course) => {
       const matchesSearch =
         course.title.toLowerCase().includes(query) ||
         course.category.toLowerCase().includes(query) ||
@@ -257,13 +434,13 @@ function Cursos() {
       if (filter === "En progreso") return course.progress > 0;
       return true;
     });
-  }, [search, filter]);
+  }, [search, filter, realCourses]);
 
-  const totalStudents = courses.reduce((sum, course) => sum + course.users, 0);
-  const premiumCourses = courses.filter((course) => course.premium).length;
+  const totalStudents = displayedCourses.reduce((sum, course) => sum + course.users, 0);
+  const premiumCourses = displayedCourses.filter((course) => course.premium).length;
   const averageParticipation = Math.round(
-    courses.reduce((sum, course) => sum + course.participation, 0) /
-      courses.length
+    displayedCourses.reduce((sum, course) => sum + course.participation, 0) /
+      (displayedCourses.length || 1)
   );
 
   const openCourse = (course) => {
@@ -376,58 +553,80 @@ function Cursos() {
                 <section className="course-task-card">
                   <div className="course-section-heading">
                     <div>
-                      <span>AGENDA DE ESTUDIO</span>
-                      <h2>
-                        {tasks.filter((task) => task.done).length}/{tasks.length} tareas completadas
-                      </h2>
+                      <span>CLASES DEL CURSO</span>
+                      <h2>{courseLessons.length} clases registradas</h2>
                     </div>
 
-                    <Check size={22} />
+                    {isProfessor &&
+                      Number(activeCourse.teacherId) === Number(currentUser.id) && (
+                      <button
+                        type="button"
+                        className="courses-create-button"
+                        onClick={() => setShowLessonForm(!showLessonForm)}
+                      >
+                        <Plus size={17} />
+                        Crear clase
+                      </button>
+                    )}
                   </div>
+
+                  {lessonError && (
+                    <p role="alert" style={{ color: "#ff8080" }}>
+                      {lessonError}
+                    </p>
+                  )}
+
+                  {showLessonForm && (
+                    <form onSubmit={createLesson}
+                      style={{ display: "grid", gap: 12, marginBottom: 20 }}>
+
+                      <label>Título de la clase</label>
+                      <input name="title" required placeholder="Nombre de la clase" />
+
+                      <label>Descripción</label>
+                      <textarea name="description" rows="3" />
+
+                      <label>Fecha y hora</label>
+                      <input name="scheduledAt" type="datetime-local" required />
+
+                      <label>Duración en minutos</label>
+                      <input name="durationMinutes" type="number"
+                        min="1" defaultValue="60" required />
+
+                      <button type="submit"
+                        className="courses-create-button"
+                        disabled={savingLesson}>
+                        {savingLesson ? "Guardando..." : "Guardar clase"}
+                      </button>
+                    </form>
+                  )}
+
+                  {courseLessons.length === 0 && (
+                    <p>Todavía no hay clases registradas.</p>
+                  )}
 
                   <div className="course-task-list">
-                    {tasks.map((task) => (
-                      <article
-                        key={task.id}
-                        className={`course-task-item ${
-                          task.done ? "course-task-item-done" : ""
-                        }`}
-                      >
-                        <button
-                          type="button"
-                          onClick={() => toggleTask(task.id)}
-                          aria-label={
-                            task.done
-                              ? "Marcar como pendiente"
-                              : "Marcar como completada"
-                          }
-                        >
-                          {task.done && <Check size={14} />}
-                        </button>
-
-                        <span>{task.text}</span>
+                    {courseLessons.map((lesson) => (
+                      <article key={lesson.id}
+                        className="course-task-item"
+                        style={{
+                          display: "flex",
+                          flexDirection: "column",
+                          alignItems: "stretch",
+                          padding: "18px",
+                          gap: "10px",
+                          overflowWrap: "break-word"
+                        }}>
+                        <div>
+                          <h3>{lesson.title}</h3>
+                          <p>{lesson.description}</p>
+                          <small>
+                            {lesson.scheduledAt?.replace("T", " ")}
+                            {" · "}{lesson.durationMinutes} minutos
+                          </small>
+                        </div>
                       </article>
                     ))}
-                  </div>
-
-                  <div className="course-task-input">
-                    <input
-                      type="text"
-                      value={newTask}
-                      onChange={(event) => setNewTask(event.target.value)}
-                      onKeyDown={(event) => {
-                        if (event.key === "Enter") {
-                          event.preventDefault();
-                          addTask();
-                        }
-                      }}
-                      placeholder="Añadir una tarea del curso..."
-                    />
-
-                    <button type="button" onClick={addTask}>
-                      <Plus size={17} />
-                      Agregar
-                    </button>
                   </div>
                 </section>
 
@@ -502,7 +701,7 @@ function Cursos() {
                   </div>
 
                   <div className="course-progress-data">
-                    <span>{activeCourse.lessons} lecciones</span>
+                    <span>{courseLessons.length} lecciones</span>
                     <span>{activeCourse.averageTime}</span>
                   </div>
                 </article>
@@ -557,18 +756,75 @@ function Cursos() {
                 </p>
               </div>
 
-              <button type="button" className="courses-create-button">
-                <Plus size={18} />
-                Crear curso
-              </button>
+              {isProfessor && (
+                <button
+                  type="button"
+                  className="courses-create-button"
+                  onClick={() => {
+                    setCreateError("");
+                    setShowCreate(true);
+                  }}
+                >
+                  <Plus size={18} />
+                  Crear curso
+                </button>
+              )}
             </header>
+
+            {coursesError && (
+              <p role="alert" style={{ color: "#ff8080", marginBottom: 16 }}>
+                {coursesError}
+              </p>
+            )}
+
+            {showCreate && (
+              <section className="course-objective-card" style={{ marginBottom: 24 }}>
+                <h2>Crear nuevo curso</h2>
+
+                <form onSubmit={createCourse} style={{ display: "grid", gap: 14, marginTop: 16 }}>
+                  <label>Nombre del curso *</label>
+                  <input name="name" required placeholder="Nombre del curso" />
+
+                  <label>Categoría *</label>
+                  <input name="category" required placeholder="Ej. Programación" />
+
+                  <label>Profesor responsable</label>
+                  <input value={currentUser.name || ""} readOnly />
+
+                  <label>Duración</label>
+                  <input name="duration" placeholder="Ej. 8 semanas" />
+
+                  <label>Cupos disponibles</label>
+                  <input name="capacity" type="number" min="1" defaultValue="30" required />
+
+                  <label>Descripción</label>
+                  <textarea name="description" rows="4" placeholder="Objetivo del curso" />
+
+                  {createError && (
+                    <p role="alert" style={{ color: "#ff8080" }}>{createError}</p>
+                  )}
+
+                  <div style={{ display: "flex", gap: 12 }}>
+                    <button type="submit" className="courses-create-button" disabled={savingCourse}>
+                      {savingCourse ? "Guardando..." : "Guardar curso"}
+                    </button>
+
+                    <button type="button" className="courses-create-button"
+                      disabled={savingCourse}
+                      onClick={() => setShowCreate(false)}>
+                      Cancelar
+                    </button>
+                  </div>
+                </form>
+              </section>
+            )}
 
             <section className="courses-summary-grid">
               <article>
                 <BookOpen size={21} />
                 <div>
                   <span>Cursos disponibles</span>
-                  <strong>{courses.length}</strong>
+                  <strong>{displayedCourses.length}</strong>
                   <small>Catálogo activo</small>
                 </div>
               </article>
