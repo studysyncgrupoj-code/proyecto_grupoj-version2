@@ -327,6 +327,191 @@ function Cursos() {
     return () => { cancelled = true; };
   }, [activeCourse?.id]);
 
+
+  const [meetingBusy, setMeetingBusy] = useState(false);
+
+  const [roomStates, setRoomStates] = useState({});
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const refreshRoomStates = async () => {
+      const entries = await Promise.all(
+        courseLessons.filter(lesson => lesson.roomId).map(async lesson => {
+          try {
+            const room = await courseRequest(`/api/rooms/${lesson.roomId}`);
+            return [lesson.roomId, room.estado];
+          } catch {
+            return [lesson.roomId, "DESCONOCIDA"];
+          }
+        })
+      );
+
+      if (!cancelled) {
+        setRoomStates(Object.fromEntries(entries));
+      }
+    };
+
+    refreshRoomStates();
+    const timer = setInterval(refreshRoomStates, 5000);
+
+    return () => {
+      cancelled = true;
+      clearInterval(timer);
+    };
+  }, [courseLessons]);
+
+
+  const [lessonRequests, setLessonRequests] = useState({});
+
+  const loadLessonRequests = async (roomId) => {
+    try {
+      const requests = await courseRequest(
+        `/api/rooms/${roomId}/solicitudes`
+      );
+
+      setLessonRequests((previous) => ({
+        ...previous,
+        [roomId]: requests,
+      }));
+    } catch (error) {
+      alert(error.message);
+    }
+  };
+
+  const respondLessonRequest = async (roomId, requestId, action) => {
+    setMeetingBusy(true);
+
+    try {
+      await courseRequest(
+        `/api/rooms/${roomId}/solicitudes/${requestId}/${action}`,
+        "PUT"
+      );
+
+      await loadLessonRequests(roomId);
+    } catch (error) {
+      alert(error.message);
+    } finally {
+      setMeetingBusy(false);
+    }
+  };
+
+
+
+  const manageMeeting = async (lesson, action) => {
+    setMeetingBusy(true);
+    setLessonError("");
+
+    try {
+      let roomId = lesson.roomId;
+
+      if (!roomId && action === "start") {
+        const room = await courseRequest(
+          "/api/rooms",
+          "POST",
+          {
+            nombre: lesson.title,
+            descripcion: lesson.description,
+            privada: true,
+            tipo: "CURSO",
+            courseId: activeCourse.id,
+            fechaProgramada: lesson.scheduledAt,
+          }
+        );
+
+        roomId = room.id;
+
+        let updatedLesson;
+
+        try {
+          updatedLesson = await courseRequest(
+            `/api/courses/${activeCourse.id}/lessons/${lesson.id}`,
+            "PUT",
+            {
+              ...lesson,
+              roomId,
+            }
+          );
+        } catch (error) {
+          await courseRequest(
+            `/api/rooms/${roomId}`,
+            "DELETE"
+          ).catch(() => {});
+          throw error;
+        }
+
+        setCourseLessons((previous) =>
+          previous.map((item) =>
+            item.id === lesson.id ? updatedLesson : item
+          )
+        );
+      }
+
+      if (!roomId) {
+        throw new Error("La clase no tiene videoconferencia");
+      }
+
+      let room = await courseRequest(`/api/rooms/${roomId}`);
+
+      if (action === "finish") {
+        if (room.estado !== "ACTIVA") {
+          throw new Error("La videoconferencia no está activa");
+        }
+
+        await courseRequest(
+          `/api/rooms/${roomId}/finalizar`,
+          "PUT"
+        );
+
+        setRoomStates(previous => ({
+          ...previous,
+          [roomId]: "FINALIZADA",
+        }));
+
+        alert("Videoconferencia finalizada correctamente");
+        return;
+      }
+
+      if (action === "start" && room.estado === "PROGRAMADA") {
+        room = await courseRequest(
+          `/api/rooms/${roomId}/activar`,
+          "PUT"
+        );
+      }
+
+      if (room.estado !== "ACTIVA") {
+        throw new Error("La videoconferencia no está activa");
+      }
+
+      if (!room.meetingUrl) {
+        if (action === "join" && room.privada) {
+          await courseRequest(
+            `/api/rooms/${roomId}/solicitudes`,
+            "POST"
+          );
+
+          alert("Solicitud enviada. Espera la autorización del profesor.");
+          return;
+        }
+
+        throw new Error("No tienes acceso a esta videoconferencia");
+      }
+
+      setRoomStates(previous => ({
+        ...previous,
+        [roomId]: room.estado,
+      }));
+
+      window.open(room.meetingUrl, "_blank", "noopener,noreferrer");
+
+    } catch (error) {
+      setLessonError(error.message);
+      alert(error.message);
+    } finally {
+      setMeetingBusy(false);
+    }
+  };
+
   const createLesson = async (event) => {
     event.preventDefault();
     setSavingLesson(true);
@@ -606,7 +791,15 @@ function Cursos() {
                   )}
 
                   <div className="course-task-list">
-                    {courseLessons.map((lesson) => (
+                    {courseLessons.map((lesson) => {
+                      const estado = lesson.roomId
+                        ? roomStates[lesson.roomId] || "CONSULTANDO"
+                        : "PROGRAMADA";
+
+                      const esPropietario = isProfessor &&
+                        Number(activeCourse.teacherId) === Number(currentUser.id);
+
+                      return (
                       <article key={lesson.id}
                         className="course-task-item"
                         style={{
@@ -625,8 +818,108 @@ function Cursos() {
                             {" · "}{lesson.durationMinutes} minutos
                           </small>
                         </div>
+                        <div style={{
+                          display: "flex",
+                          flexWrap: "wrap",
+                          alignItems: "center",
+                          gap: "10px",
+                          width: "100%"
+                        }}>
+                          <span style={{
+                            padding: "6px 12px",
+                            borderRadius: "8px",
+                            fontWeight: 600,
+                            color: estado === "ACTIVA" ? "#22c55e"
+                              : estado === "FINALIZADA" ? "#94a3b8"
+                              : "#eab308",
+                            border: "1px solid currentColor"
+                          }}>
+                            {estado === "ACTIVA" ? "En vivo"
+                              : estado === "FINALIZADA" ? "Clase finalizada"
+                              : estado === "PROGRAMADA" ? "Programada"
+                              : estado === "DESCONOCIDA" ? "Estado no disponible"
+                              : "Consultando estado..."}
+                          </span>
+
+                          {esPropietario && estado === "PROGRAMADA" && (
+                            <button type="button" disabled={meetingBusy}
+                              onClick={() => manageMeeting(lesson, "start")}>
+                              Iniciar videoconferencia
+                            </button>
+                          )}
+
+                          {esPropietario && estado === "ACTIVA" && (
+                            <>
+                              <button type="button" disabled={meetingBusy}
+                                onClick={() => manageMeeting(lesson, "finish")}>
+                                Finalizar clase
+                              </button>
+
+                              <button type="button" disabled={meetingBusy}
+                                onClick={() => loadLessonRequests(lesson.roomId)}>
+                                Ver solicitudes
+                              </button>
+                            </>
+                          )}
+
+                          {estado === "ACTIVA" && (
+                            <button type="button" disabled={meetingBusy}
+                              onClick={() => manageMeeting(lesson, "join")}>
+                              Entrar a videoconferencia
+                            </button>
+                          )}
+
+                          {!esPropietario && estado === "PROGRAMADA" && (
+                            <small>Esperando el inicio de la clase.</small>
+                          )}
+                        </div>
+                        {isProfessor &&
+                          Number(activeCourse.teacherId) === Number(currentUser.id) &&
+                          estado === "ACTIVA" &&
+                          lessonRequests[lesson.roomId] !== undefined && (
+                            <div style={{ width: "100%", marginTop: 12 }}>
+                              <h3>Solicitudes de acceso</h3>
+
+                              {lessonRequests[lesson.roomId].length === 0 && (
+                                <p>No hay solicitudes pendientes.</p>
+                              )}
+
+                              {lessonRequests[lesson.roomId].map((request) => (
+                                <div key={request.id} style={{
+                                  padding: "12px 0",
+                                  display: "flex",
+                                  flexWrap: "wrap",
+                                  alignItems: "center",
+                                  gap: "10px"
+                                }}>
+                                  <span>Estudiante ID: {request.userId}</span>
+
+                                  <button
+                                    type="button"
+                                    disabled={meetingBusy}
+                                    onClick={() => respondLessonRequest(
+                                      lesson.roomId, request.id, "aprobar"
+                                    )}
+                                  >
+                                    Aprobar
+                                  </button>
+
+                                  <button
+                                    type="button"
+                                    disabled={meetingBusy}
+                                    onClick={() => respondLessonRequest(
+                                      lesson.roomId, request.id, "rechazar"
+                                    )}
+                                  >
+                                    Rechazar
+                                  </button>
+                                </div>
+                              ))}
+                            </div>
+                          )}
                       </article>
-                    ))}
+                      );
+                    })}
                   </div>
                 </section>
 

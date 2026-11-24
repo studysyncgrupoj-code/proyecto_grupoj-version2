@@ -1381,3 +1381,25 @@
   color: #fff;
   background: rgba(37, 99, 235, 0.72);
 }
+/* Botones de videoconferencia de las clases */
+.course-task-item button {
+  width: auto !important;
+  height: auto !important;
+  min-height: 38px;
+  padding: 10px 16px !important;
+  white-space: nowrap;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.course-task-item button:hover {
+  background: rgba(14, 165, 233, 0.18);
+}
+
+.course-task-item button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
