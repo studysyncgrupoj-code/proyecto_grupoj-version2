@@ -329,6 +329,40 @@ function Cursos() {
 
 
   const [meetingBusy, setMeetingBusy] = useState(false);
+  const [activeMeeting, setActiveMeeting] = useState(null);
+
+  useEffect(() => {
+    if (!activeMeeting) return;
+
+    let cancelled = false;
+
+    const verifyMeeting = async () => {
+      try {
+        const room = await courseRequest(
+          `/api/rooms/${activeMeeting.roomId}`
+        );
+
+        if (!cancelled &&
+            (room.estado !== "ACTIVA" || !room.meetingUrl)) {
+          setActiveMeeting(null);
+          alert("La videoconferencia ha finalizado o el acceso fue retirado.");
+        }
+      } catch {
+        if (!cancelled) {
+          setActiveMeeting(null);
+          alert("No se pudo verificar el acceso a la videoconferencia.");
+        }
+      }
+    };
+
+    verifyMeeting();
+    const timer = setInterval(verifyMeeting, 3000);
+
+    return () => {
+      cancelled = true;
+      clearInterval(timer);
+    };
+  }, [activeMeeting]);
 
   const [roomStates, setRoomStates] = useState({});
 
@@ -468,6 +502,7 @@ function Cursos() {
           [roomId]: "FINALIZADA",
         }));
 
+        setActiveMeeting(null);
         alert("Videoconferencia finalizada correctamente");
         return;
       }
@@ -502,7 +537,10 @@ function Cursos() {
         [roomId]: room.estado,
       }));
 
-      window.open(room.meetingUrl, "_blank", "noopener,noreferrer");
+      setActiveMeeting({
+        roomId,
+        url: room.meetingUrl,
+      });
 
     } catch (error) {
       setLessonError(error.message);
@@ -681,6 +719,43 @@ function Cursos() {
       <Sidebar />
 
       <main className="courses-content">
+        {activeMeeting && (
+          <section style={{
+            padding: "16px",
+            marginBottom: "24px",
+            border: "1px solid #164e63",
+            borderRadius: "16px",
+            background: "#080f19"
+          }}>
+            <div style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              marginBottom: "16px"
+            }}>
+              <h2>Videoconferencia en vivo</h2>
+              <button
+                type="button"
+                className="course-back-button"
+                onClick={() => setActiveMeeting(null)}
+              >
+                Salir de videoconferencia
+              </button>
+            </div>
+            <iframe
+              title="Videoconferencia StudySync"
+              src={activeMeeting.url}
+              allow="camera; microphone; fullscreen; display-capture; autoplay"
+              allowFullScreen
+              style={{
+                width: "100%",
+                height: "65vh",
+                border: "none",
+                borderRadius: "12px"
+              }}
+            />
+          </section>
+        )}
         {activeCourse ? (
           <section className="course-detail-view">
             <header className="course-detail-header">

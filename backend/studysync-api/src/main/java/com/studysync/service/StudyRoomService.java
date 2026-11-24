@@ -113,7 +113,8 @@ public class StudyRoomService {
 
         Long usuarioId = obtenerUsuarioAutenticado();
 
-        if (tieneAcceso(original, usuarioId)) {
+        if ("ACTIVA".equals(original.getEstado())
+                && tieneAcceso(original, usuarioId)) {
             respuesta.setMeetingUrl(original.getMeetingUrl());
         }
 
@@ -211,6 +212,7 @@ public class StudyRoomService {
 
         room.setEstado("FINALIZADA");
         room.setFechaFinalizacion(LocalDateTime.now());
+        room.setMeetingUrl(null);
 
         return prepararSalaParaRespuesta(studyRoomRepository.save(room));
     }
