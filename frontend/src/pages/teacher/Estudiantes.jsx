@@ -1,152 +1,59 @@
-import "../../styles/teacher/Estudiantes.css";
 import Sidebar from "../../components/dashboard/Sidebar";
+import "../../styles/teacher/Estudiantes.css";
 
-import { Link, useNavigate } from 'react-router-dom'
-import { useMemo, useState } from 'react'
 
-const students = [
-  {
-    id: 1,
-    name: 'Ana Martínez',
-    email: 'ana.martinez@studysync.com',
-    initials: 'AM',
-    course: 'Matemáticas',
-    level: 'Avanzado',
-    status: 'En línea',
-    plan: 'Premium',
-    progress: 92,
-    focusTime: '38h 24m',
-    streak: 18,
-    rooms: 24,
-    lastActivity: 'Hace 3 min',
-    trend: '+12%',
-    tags: ['Cálculo', 'Álgebra'],
-  },
-  {
-    id: 2,
-    name: 'Luis González',
-    email: 'luis.gonzalez@studysync.com',
-    initials: 'LG',
-    course: 'Programación',
-    level: 'Intermedio',
-    status: 'En línea',
-    plan: 'Premium',
-    progress: 86,
-    focusTime: '31h 08m',
-    streak: 12,
-    rooms: 19,
-    lastActivity: 'Hace 8 min',
-    trend: '+9%',
-    tags: ['React', 'JavaScript'],
-  },
-  {
-    id: 3,
-    name: 'Camila Rodríguez',
-    email: 'camila.rodriguez@studysync.com',
-    initials: 'CR',
-    course: 'Física',
-    level: 'Avanzado',
-    status: 'Ausente',
-    plan: 'Estándar',
-    progress: 78,
-    focusTime: '24h 40m',
-    streak: 8,
-    rooms: 14,
-    lastActivity: 'Hace 1 h',
-    trend: '+6%',
-    tags: ['Mecánica', 'Energía'],
-  },
-  {
-    id: 4,
-    name: 'Mateo Sánchez',
-    email: 'mateo.sanchez@studysync.com',
-    initials: 'MS',
-    course: 'Idiomas',
-    level: 'Intermedio',
-    status: 'En línea',
-    plan: 'Estándar',
-    progress: 74,
-    focusTime: '22h 16m',
-    streak: 7,
-    rooms: 12,
-    lastActivity: 'Hace 12 min',
-    trend: '+4%',
-    tags: ['Inglés', 'Francés'],
-  },
-  {
-    id: 5,
-    name: 'Sofía Herrera',
-    email: 'sofia.herrera@studysync.com',
-    initials: 'SH',
-    course: 'Química',
-    level: 'Inicial',
-    status: 'Desconectado',
-    plan: 'Premium',
-    progress: 68,
-    focusTime: '18h 52m',
-    streak: 5,
-    rooms: 10,
-    lastActivity: 'Ayer',
-    trend: '+3%',
-    tags: ['Orgánica', 'Laboratorio'],
-  },
-  {
-    id: 6,
-    name: 'Daniel Vargas',
-    email: 'daniel.vargas@studysync.com',
-    initials: 'DV',
-    course: 'Historia',
-    level: 'Intermedio',
-    status: 'En línea',
-    plan: 'Estándar',
-    progress: 81,
-    focusTime: '27h 34m',
-    streak: 10,
-    rooms: 17,
-    lastActivity: 'Hace 6 min',
-    trend: '+7%',
-    tags: ['Historia XX', 'Ensayos'],
-  },
-  {
-    id: 7,
-    name: 'Paula Ramírez',
-    email: 'paula.ramirez@studysync.com',
-    initials: 'PR',
-    course: 'Programación',
-    level: 'Avanzado',
-    status: 'Ausente',
-    plan: 'Premium',
-    progress: 95,
-    focusTime: '42h 11m',
-    streak: 23,
-    rooms: 28,
-    lastActivity: 'Hace 42 min',
-    trend: '+15%',
-    tags: ['Node.js', 'React'],
-  },
-  {
-    id: 8,
-    name: 'Bruno Castillo',
-    email: 'bruno.castillo@studysync.com',
-    initials: 'BC',
-    course: 'Matemáticas',
-    level: 'Inicial',
-    status: 'Desconectado',
-    plan: 'Estándar',
-    progress: 61,
-    focusTime: '14h 05m',
-    streak: 3,
-    rooms: 8,
-    lastActivity: 'Hace 2 días',
-    trend: '+1%',
-    tags: ['Álgebra', 'Geometría'],
-  },
-]
+import { useEffect, useMemo, useState } from 'react'
 
-const filters = ['Todos', 'En línea', 'Premium', 'Alto progreso']
+const filters = ['Todos', 'Activos', 'Inactivos']
 
 function Estudiantes() {
-  const navigate = useNavigate()
+  const [students, setStudents] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+
+  useEffect(() => {
+    async function loadStudents() {
+      try {
+        const response = await fetch('/api/users/students', {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`
+          }
+        })
+
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`)
+        }
+
+        const data = await response.json()
+
+        setStudents(data.map(user => ({
+          id: user.id,
+          name: [user.nombre, user.apellido].filter(Boolean).join(' ') || user.email,
+          email: user.email || '',
+          initials: ((user.nombre || '').charAt(0) +
+                     (user.apellido || '').charAt(0)).toUpperCase() || 'E',
+          status: user.activo ? 'Activo' : 'Inactivo',
+          course: 'No disponible',
+          level: 'Sin datos',
+          plan: 'Sin datos',
+          progress: null,
+          focusTime: '—',
+          streak: '—',
+          rooms: '—',
+          lastActivity: 'Sin datos',
+          trend: '—',
+          tags: []
+        })))
+      } catch (err) {
+        setError('No fue posible cargar los estudiantes: ' + err.message)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    loadStudents()
+  }, [])
+
   const [search, setSearch] = useState('')
   const [filter, setFilter] = useState('Todos')
   const [selectedStudent, setSelectedStudent] = useState(null)
@@ -163,63 +70,23 @@ function Estudiantes() {
         student.tags.some((tag) => tag.toLowerCase().includes(query))
 
       if (!matchesSearch) return false
-      if (filter === 'En línea') return student.status === 'En línea'
-      if (filter === 'Premium') return student.plan === 'Premium'
-      if (filter === 'Alto progreso') return student.progress >= 85
+      if (filter === 'Activos') return student.status === 'Activo'
+      if (filter === 'Inactivos') return student.status === 'Inactivo'
       return true
     })
-  }, [search, filter])
+  }, [students, search, filter])
 
-  const onlineStudents = students.filter((student) => student.status === 'En línea').length
-  const premiumStudents = students.filter((student) => student.plan === 'Premium').length
+  const onlineStudents = students.filter((student) => student.status === 'Activo').length
+  const premiumStudents = students.filter((student) => student.status === 'Inactivo').length
   const averageProgress = Math.round(
     students.reduce((sum, student) => sum + student.progress, 0) / students.length
   )
 
   return (
     <div className="estudiantes-layout">
-      <Sidebar/>
-      <aside className="app-sidebar">
-        <div className="sidebar-brand">
-          <div className="sidebar-logo">S</div>
-          <div className="sidebar-brand-text">
-            <h2>StudySync</h2>
-            <span>Panel educativo</span>
-          </div>
-        </div>
+      <Sidebar />
 
-        <nav className="sidebar-menu">
-          <Link to="/" className="sidebar-link">Inicio</Link>
-          <Link to="/cursos" className="sidebar-link">Cursos</Link>
-          <Link to="/calendario" className="sidebar-link">Calendario</Link>
-          <Link to="/mensajes" className="sidebar-link">Mensajes</Link>
-          <Link to="/estudiantes" className="sidebar-link sidebar-link-active">Estudiantes</Link>
-          <Link to="/informes" className="sidebar-link">Informes</Link>
-          <Link to="/salas" className="sidebar-link">Salas de estudio</Link>
-        </nav>
 
-        <section className="sidebar-premium">
-          <div className="premium-icon">♛</div>
-          <h3>StudySync Premium</h3>
-          <p>Accede a métricas avanzadas y herramientas adicionales para docentes.</p>
-          <button type="button">Ver beneficios</button>
-        </section>
-
-        <div className="sidebar-bottom">
-          <Link to="/configuracion" className="sidebar-link">Configuración</Link>
-          <button className="sidebar-logout" type="button" onClick={() => navigate('/')}>
-            Cerrar sesión
-          </button>
-
-          <div className="sidebar-user">
-            <div className="sidebar-user-avatar">RV</div>
-            <div className="sidebar-user-info">
-              <strong>Profesor Richard</strong>
-              <span>Administrador</span>
-            </div>
-          </div>
-        </div>
-      </aside>
 
       <main className="estudiantes-content">
         <header className="estudiantes-topbar">
@@ -247,20 +114,20 @@ function Estudiantes() {
           </article>
 
           <article className="estudiantes-summary-card">
-            <span>En línea ahora</span>
+            <span>Estudiantes activos</span>
             <strong>{onlineStudents}</strong>
-            <small>Actividad en tiempo real</small>
+            <small>Cuentas habilitadas</small>
           </article>
 
           <article className="estudiantes-summary-card">
-            <span>Usuarios Premium</span>
+            <span>Estudiantes inactivos</span>
             <strong>{premiumStudents}</strong>
-            <small>Planes activos</small>
+            <small>Cuentas deshabilitadas</small>
           </article>
 
           <article className="estudiantes-summary-card">
             <span>Progreso promedio</span>
-            <strong>{averageProgress}%</strong>
+            <strong>—</strong>
             <small>Rendimiento global</small>
           </article>
         </section>
@@ -270,7 +137,7 @@ function Estudiantes() {
             <span aria-hidden="true">⌕</span>
             <input
               type="search"
-              placeholder="Buscar por nombre, correo, curso o habilidad..."
+              placeholder="Buscar por nombre o correo..."
               value={search}
               onChange={(event) => setSearch(event.target.value)}
             />
@@ -317,7 +184,11 @@ function Estudiantes() {
           <p>{filteredStudents.length} resultados</p>
         </section>
 
-        {filteredStudents.length === 0 ? (
+        {loading ? (
+          <p>Cargando estudiantes...</p>
+        ) : error ? (
+          <p role="alert">{error}</p>
+        ) : filteredStudents.length === 0 ? (
           <section className="estudiantes-empty-state">
             <div>⌕</div>
             <h3>No encontramos estudiantes</h3>
@@ -362,10 +233,10 @@ function Estudiantes() {
                 <div className="estudiante-progress">
                   <div className="estudiante-progress-label">
                     <span>Progreso académico</span>
-                    <strong>{student.progress}%</strong>
+                    <strong>—</strong>
                   </div>
                   <div className="estudiante-progress-track">
-                    <span style={{ width: `${student.progress}%` }} />
+                    <span style={{ width: `$—` }} />
                   </div>
                 </div>
 
@@ -376,7 +247,7 @@ function Estudiantes() {
                   </div>
                   <div>
                     <span>Racha</span>
-                    <strong>{student.streak} días</strong>
+                    <strong>{student.streak}</strong>
                   </div>
                   <div>
                     <span>Salas</span>
@@ -435,7 +306,7 @@ function Estudiantes() {
             <div className="estudiante-modal-summary">
               <article>
                 <span>Progreso</span>
-                <strong>{selectedStudent.progress}%</strong>
+                <strong>—</strong>
               </article>
               <article>
                 <span>Enfoque</span>
@@ -443,7 +314,7 @@ function Estudiantes() {
               </article>
               <article>
                 <span>Racha</span>
-                <strong>{selectedStudent.streak} días</strong>
+                <strong>{selectedStudent.streak}</strong>
               </article>
             </div>
 

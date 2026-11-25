@@ -33,6 +33,15 @@ public class UserController {
         return userService.getAllUsers();
     }
 
+
+    @GetMapping("/students")
+    public List<User> getStudents() {
+        return userService.getAllUsers()
+                .stream()
+                .filter(user -> "ESTUDIANTE".equalsIgnoreCase(user.getRol()))
+                .toList();
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<User> getUserById(
             @PathVariable Long id

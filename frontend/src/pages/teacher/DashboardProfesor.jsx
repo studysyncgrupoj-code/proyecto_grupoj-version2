@@ -138,12 +138,12 @@ function DashboardProfesor() {
           </div>
 
           <div className="dashboard-hero-actions">
-            <Button variant="secondary">
+            <Button variant="secondary" onClick={() => window.location.assign("/calendario")}>
               <CalendarDays size={18} />
               Ver calendario
             </Button>
 
-            <Button>
+            <Button onClick={() => window.location.assign("/salas?crear=1")}>
               <Video size={18} />
               Crear sala
             </Button>

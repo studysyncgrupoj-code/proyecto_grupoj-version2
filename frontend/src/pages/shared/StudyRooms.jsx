@@ -130,7 +130,9 @@ function StudyRooms() {
     return () => clearInterval(interval);
   }, []);
 
-  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showCreateModal, setShowCreateModal] = useState(
+    () => new URLSearchParams(window.location.search).get("crear") === "1"
+  );
   const [roomForm, setRoomForm] = useState({
     nombre: "",
     descripcion: "",

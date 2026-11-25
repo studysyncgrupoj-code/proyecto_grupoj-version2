@@ -124,8 +124,8 @@ const professorMenu = [
     icon: MessageCircle,
   },
   {
-    label: "Usuarios",
-    path: "/usuarios",
+    label: "Estudiantes",
+    path: "/estudiantes",
     icon: Users,
   },
   {
