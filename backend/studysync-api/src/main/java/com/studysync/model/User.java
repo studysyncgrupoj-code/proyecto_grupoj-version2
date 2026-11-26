@@ -16,6 +16,16 @@ public class User {
     private String nombre;
     private String apellido;
 
+    @Column(length = 50)
+    private String documento;
+
+    @Column(length = 30)
+    private String telefono;
+
+    @Column(length = 150)
+    private String especialidad;
+
+
     @Column(unique = true, nullable = false)
     private String email;
 
@@ -25,6 +35,30 @@ public class User {
     private String rol;
     private Boolean activo = true;
     private LocalDateTime fechaCreacion = LocalDateTime.now();
+
+    public String getDocumento() {
+        return documento;
+    }
+
+    public void setDocumento(String documento) {
+        this.documento = documento;
+    }
+
+    public String getTelefono() {
+        return telefono;
+    }
+
+    public void setTelefono(String telefono) {
+        this.telefono = telefono;
+    }
+
+    public String getEspecialidad() {
+        return especialidad;
+    }
+
+    public void setEspecialidad(String especialidad) {
+        this.especialidad = especialidad;
+    }
 
     public Long getId() {
         return id;

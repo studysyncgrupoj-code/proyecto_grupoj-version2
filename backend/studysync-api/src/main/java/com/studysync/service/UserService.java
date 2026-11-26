@@ -48,6 +48,18 @@ public class UserService {
                     user.setNombre(userDetails.getNombre());
                     user.setApellido(userDetails.getApellido());
                     user.setEmail(userDetails.getEmail());
+                    if (userDetails.getDocumento() != null) {
+                        user.setDocumento(userDetails.getDocumento());
+                    }
+
+                    if (userDetails.getTelefono() != null) {
+                        user.setTelefono(userDetails.getTelefono());
+                    }
+
+                    if (userDetails.getEspecialidad() != null) {
+                        user.setEspecialidad(userDetails.getEspecialidad());
+                    }
+
 
                     if (userDetails.getPassword() != null &&
                             !userDetails.getPassword().isBlank()) {

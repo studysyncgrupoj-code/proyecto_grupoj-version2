@@ -453,6 +453,7 @@ function Perfil() {
             method: "PUT",
 
             headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
               "Content-Type":
                 "application/json",
             },

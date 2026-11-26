@@ -6,6 +6,7 @@ import com.studysync.service.UserService;
 import com.studysync.security.jwt.JwtService;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -35,17 +36,37 @@ public class UserController {
 
 
     @GetMapping("/students")
-    public List<User> getStudents() {
+    public List<Map<String, Object>> getStudents() {
         return userService.getAllUsers()
                 .stream()
                 .filter(user -> "ESTUDIANTE".equalsIgnoreCase(user.getRol()))
+                .map(user -> {
+                    Map<String, Object> data = new LinkedHashMap<>();
+                    data.put("id", user.getId());
+                    data.put("nombre", user.getNombre());
+                    data.put("apellido", user.getApellido());
+                    data.put("email", user.getEmail());
+                    data.put("rol", user.getRol());
+                    data.put("activo", user.getActivo());
+                    return data;
+                })
                 .toList();
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<User> getUserById(
-            @PathVariable Long id
+            @PathVariable Long id,
+            @AuthenticationPrincipal User currentUser
     ) {
+        if (currentUser == null) {
+            return ResponseEntity.status(401).build();
+        }
+
+        if (!"ADMINISTRADOR".equalsIgnoreCase(currentUser.getRol())
+                && !currentUser.getId().equals(id)) {
+            return ResponseEntity.status(403).build();
+        }
+
         return userService.getUserById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
@@ -53,8 +74,19 @@ public class UserController {
 
     @PostMapping
     public ResponseEntity<User> createUser(
-            @RequestBody User user
+            @RequestBody User user,
+            @AuthenticationPrincipal User currentUser
     ) {
+        boolean isAdmin = currentUser != null &&
+                "ADMINISTRADOR".equalsIgnoreCase(currentUser.getRol());
+
+        user.setId(null);
+
+        if (!isAdmin) {
+            user.setRol("ESTUDIANTE");
+            user.setActivo(true);
+        }
+
         return ResponseEntity.ok(
                 userService.saveUser(user)
         );
@@ -63,8 +95,26 @@ public class UserController {
     @PutMapping("/{id}")
     public ResponseEntity<User> updateUser(
             @PathVariable Long id,
-            @RequestBody User userDetails
+            @RequestBody User userDetails,
+            @AuthenticationPrincipal User currentUser
     ) {
+        if (currentUser == null) {
+            return ResponseEntity.status(401).build();
+        }
+
+        boolean isAdmin = "ADMINISTRADOR".equalsIgnoreCase(
+                currentUser.getRol()
+        );
+
+        if (!isAdmin) {
+            if (!currentUser.getId().equals(id)) {
+                return ResponseEntity.status(403).build();
+            }
+
+            userDetails.setRol(currentUser.getRol());
+            userDetails.setActivo(currentUser.getActivo());
+        }
+
         return userService.updateUser(id, userDetails)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());

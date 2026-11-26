@@ -42,6 +42,12 @@ public class SecurityConfig {
 
                 .requestMatchers(HttpMethod.GET, "/api/users/students")
                     .hasAnyRole("PROFESOR", "ADMINISTRADOR")
+
+                .requestMatchers(HttpMethod.DELETE, "/api/users/**")
+                    .hasRole("ADMINISTRADOR")
+
+                .requestMatchers(HttpMethod.GET, "/api/users")
+                    .hasRole("ADMINISTRADOR")
                 .requestMatchers("/api/**").authenticated()
                 .anyRequest().denyAll()
             )

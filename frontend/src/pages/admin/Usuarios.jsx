@@ -80,9 +80,9 @@ function mapUserFromApi(user) {
   return {
     id: user.id,
     name: fullName || "Usuario sin nombre",
-    document: "No registrado",
+    document: user.documento || "No registrado",
     email: user.email ?? "",
-    phone: "No registrado",
+    phone: user.telefono || "No registrado",
     role: normalizeRole(user.rol),
     status: user.activo === false ? "Inactivo" : "Activo",
     lastAccess: "Sin información",
@@ -135,7 +135,11 @@ function Usuarios() {
     try {
       setIsLoading(true);
 
-      const response = await fetch(USERS_API);
+      const response = await fetch(USERS_API, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
 
       if (!response.ok) {
         throw new Error(
@@ -304,6 +308,8 @@ function Usuarios() {
       nombre,
       apellido,
       email: formData.email.trim(),
+      documento: formData.document.trim(),
+      telefono: formData.phone.trim(),
       rol: roleToApi(formData.role),
       activo: formData.status === "Activo",
     };
@@ -335,6 +341,7 @@ function Usuarios() {
             method: "PUT",
             headers: {
               "Content-Type": "application/json",
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
             },
             body: JSON.stringify(
               buildPayload(selectedUser),
@@ -376,6 +383,7 @@ function Usuarios() {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
           body: JSON.stringify(buildPayload()),
         });
@@ -446,6 +454,7 @@ function Usuarios() {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
           body: JSON.stringify(payload),
         },
@@ -516,6 +525,9 @@ function Usuarios() {
         `${USERS_API}/${selectedUser.id}`,
         {
           method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
         },
       );
 
