@@ -30,6 +30,7 @@ const emptyForm = {
   email: "",
   phone: "",
   specialty: "",
+  password: "",
   status: "Activo",
 };
 
@@ -62,8 +63,8 @@ function mapProfessorFromApi(user) {
     name: name || "Profesor sin nombre",
     initials: getInitials(name),
     email: user.email ?? "",
-    phone: "No registrado",
-    specialty: "No registrada",
+    phone: user.telefono || "No registrado",
+    specialty: user.especialidad || "No registrada",
     courses: 0,
     students: 0,
     reports: 0,
@@ -104,7 +105,11 @@ function Profesores() {
     try {
       setIsLoading(true);
 
-      const response = await fetch(USERS_API);
+      const response = await fetch(USERS_API, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
 
       if (!response.ok) {
         throw new Error(
@@ -114,13 +119,42 @@ function Profesores() {
 
       const data = await response.json();
 
+      const statsResponse = await fetch(
+        `${USERS_API}/professors/statistics`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+
+      if (!statsResponse.ok) {
+        throw new Error(`Error de estadísticas: ${statsResponse.status}`);
+      }
+
+      const statsData = await statsResponse.json();
+
+      const statsById = new Map(
+        statsData.map(item => [Number(item.id), item])
+      );
+
       const professorUsers = Array.isArray(data)
         ? data
             .filter(
               (user) =>
                 String(user.rol || "").toUpperCase() === "PROFESOR",
             )
-            .map(mapProfessorFromApi)
+            .map(user => {
+              const professor = mapProfessorFromApi(user);
+              const stats = statsById.get(Number(user.id));
+
+              return {
+                ...professor,
+                courses: Number(stats?.cursos ?? 0),
+                students: Number(stats?.estudiantes ?? 0),
+                reports: Number(stats?.informes ?? 0),
+              };
+            })
         : [];
 
       setProfessors(professorUsers);
@@ -241,6 +275,7 @@ function Profesores() {
           ? ""
           : professor.specialty,
       status: professor.status,
+      password: "",
     });
 
     setActiveMenu(null);
@@ -262,6 +297,12 @@ function Profesores() {
       !formData.specialty.trim()
     ) {
       return "Completa los campos obligatorios.";
+    }
+
+    if (!isEditing || formData.password) {
+      if (formData.password.trim().length < 8) {
+        return "La contraseña debe tener mínimo 8 caracteres.";
+      }
     }
 
     const duplicatedEmail = professors.some(
@@ -294,6 +335,11 @@ function Profesores() {
       nombre,
       apellido,
       email: formData.email.trim(),
+      telefono: formData.phone.trim(),
+      especialidad: formData.specialty.trim(),
+      ...(formData.password
+        ? { password: formData.password }
+        : {}),
       rol: "PROFESOR",
       activo: formData.status === "Activo",
     };
@@ -306,6 +352,7 @@ function Profesores() {
             method: "PUT",
             headers: {
               "Content-Type": "application/json",
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
             },
             body: JSON.stringify(payload),
           },
@@ -351,6 +398,7 @@ function Profesores() {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
           body: JSON.stringify(payload),
         });
@@ -437,6 +485,7 @@ function Profesores() {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
           body: JSON.stringify(payload),
         },
@@ -509,6 +558,9 @@ function Profesores() {
         `${USERS_API}/${selectedProfessor.id}`,
         {
           method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
         },
       );
 
@@ -966,6 +1018,25 @@ function Profesores() {
                     onChange={handleChange}
                     placeholder="Ej. Matemáticas"
                     required
+                  />
+                </label>
+
+                <label>
+                  <span>
+                    {isEditing
+                      ? "Nueva contraseña (opcional)"
+                      : "Contraseña *"}
+                  </span>
+
+                  <input
+                    type="password"
+                    name="password"
+                    value={formData.password || ""}
+                    onChange={handleChange}
+                    placeholder="Mínimo 8 caracteres"
+                    autoComplete="new-password"
+                    minLength={8}
+                    required={!isEditing}
                   />
                 </label>
 

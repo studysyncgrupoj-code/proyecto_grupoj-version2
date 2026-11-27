@@ -1,3 +1,13 @@
+function authenticatedFetch(url, options = {}) {
+  return fetch(url, {
+    ...options,
+    headers: {
+      ...options.headers,
+      Authorization: `Bearer ${localStorage.getItem("token")}`,
+    },
+  });
+}
+
 import { useEffect, useMemo, useState } from "react";
 import {
   CheckCheck,
@@ -188,7 +198,7 @@ function Mensajes() {
         setError("");
 
         const response =
-          await fetch(USERS_API);
+          await authenticatedFetch("/api/users/contacts");
 
         if (!response.ok) {
           throw new Error(
@@ -236,7 +246,11 @@ function Mensajes() {
   }, [currentUserId]);
 
   useEffect(() => {
-    const loadMessages = async () => {
+    let active = true;
+    let loading = false;
+
+    const loadMessages = async (silent = false) => {
+      if (!active || loading) return;
       if (
         !currentUserId ||
         !selectedConversationId
@@ -246,11 +260,14 @@ function Mensajes() {
       }
 
       try {
-        setIsLoadingMessages(true);
-        setError("");
+        loading = true;
+        if (!silent) {
+          setIsLoadingMessages(true);
+          setError("");
+        }
 
         const response =
-          await fetch(
+          await authenticatedFetch(
             `${MESSAGES_API}/conversation/${currentUserId}/${selectedConversationId}`,
           );
 
@@ -263,19 +280,22 @@ function Mensajes() {
         const data =
           await response.json();
 
+        if (!active) return;
+
         setMessages(
           Array.isArray(data)
             ? data
             : [],
         );
 
-        await fetch(
+        await authenticatedFetch(
           `${MESSAGES_API}/conversation/${currentUserId}/${selectedConversationId}/read`,
           {
             method: "PUT",
           },
         );
       } catch (loadError) {
+        if (!active || silent) return;
         console.error(
           "Error cargando mensajes:",
           loadError,
@@ -285,11 +305,21 @@ function Mensajes() {
           "No fue posible cargar los mensajes.",
         );
       } finally {
-        setIsLoadingMessages(false);
+        loading = false;
+        if (active) setIsLoadingMessages(false);
       }
     };
 
     loadMessages();
+
+    const interval = setInterval(() => {
+      loadMessages(true);
+    }, 3000);
+
+    return () => {
+      active = false;
+      clearInterval(interval);
+    };
   }, [
     currentUserId,
     selectedConversationId,
@@ -337,7 +367,7 @@ function Mensajes() {
       setError("");
 
       const response =
-        await fetch(
+        await authenticatedFetch(
           MESSAGES_API,
           {
             method: "POST",

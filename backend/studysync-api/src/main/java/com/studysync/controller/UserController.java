@@ -6,6 +6,7 @@ import com.studysync.service.UserService;
 import com.studysync.security.jwt.JwtService;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,13 +21,16 @@ public class UserController {
 
     private final UserService userService;
     private final JwtService jwtService;
+    private final JdbcTemplate jdbcTemplate;
 
     public UserController(
             UserService userService,
-            JwtService jwtService
+            JwtService jwtService,
+            JdbcTemplate jdbcTemplate
     ) {
         this.userService = userService;
         this.jwtService = jwtService;
+        this.jdbcTemplate = jdbcTemplate;
     }
 
     @GetMapping
@@ -34,6 +38,29 @@ public class UserController {
         return userService.getAllUsers();
     }
 
+
+
+    @GetMapping("/contacts")
+    public List<Map<String, Object>> getContacts(
+            @AuthenticationPrincipal User currentUser
+    ) {
+        return userService.getAllUsers()
+                .stream()
+                .filter(u -> Boolean.TRUE.equals(u.getActivo()))
+                .filter(u -> "PROFESOR".equalsIgnoreCase(u.getRol())
+                        || "ESTUDIANTE".equalsIgnoreCase(u.getRol()))
+                .filter(u -> !u.getId().equals(currentUser.getId()))
+                .map(u -> {
+                    Map<String, Object> data = new LinkedHashMap<>();
+                    data.put("id", u.getId());
+                    data.put("nombre", u.getNombre());
+                    data.put("apellido", u.getApellido());
+                    data.put("rol", u.getRol());
+                    data.put("activo", u.getActivo());
+                    return data;
+                })
+                .toList();
+    }
 
     @GetMapping("/students")
     public List<Map<String, Object>> getStudents() {
@@ -51,6 +78,34 @@ public class UserController {
                     return data;
                 })
                 .toList();
+    }
+
+
+    @GetMapping("/professors/statistics")
+    public ResponseEntity<?> getProfessorStatistics(
+            @AuthenticationPrincipal User currentUser
+    ) {
+        if (currentUser == null) {
+            return ResponseEntity.status(401).build();
+        }
+
+        if (!"ADMINISTRADOR".equalsIgnoreCase(currentUser.getRol())) {
+            return ResponseEntity.status(403).build();
+        }
+
+        return ResponseEntity.ok(jdbcTemplate.queryForList("""
+            SELECT u.id,
+                   COUNT(DISTINCT c.id) AS cursos,
+                   COUNT(DISTINCT sc.student_id) AS estudiantes,
+                   COUNT(DISTINCT ar.id) AS informes
+            FROM users u
+            LEFT JOIN courses c ON c.teacher_id = u.id
+            LEFT JOIN student_courses sc ON sc.course_id = c.id
+            LEFT JOIN academic_reports ar ON ar.teacher_id = u.id
+            WHERE u.rol = 'PROFESOR'
+            GROUP BY u.id
+            ORDER BY u.id
+            """));
     }
 
     @GetMapping("/{id}")

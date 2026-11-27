@@ -86,6 +86,14 @@ const activity = [
 ];
 
 function DashboardProfesor() {
+  const user = JSON.parse(localStorage.getItem("user") || "{}");
+  const fullName = user.name || "Profesor";
+  const firstName = fullName.trim().split(/\s+/)[0];
+  const initials = fullName.trim().split(/\s+/)
+    .slice(0, 2)
+    .map(word => word.charAt(0).toUpperCase())
+    .join("");
+
   return (
     <div className="teacher-dashboard-layout">
       <Sidebar />
@@ -112,10 +120,10 @@ function DashboardProfesor() {
             </button>
 
             <div className="dashboard-profile">
-              <div className="dashboard-profile-avatar">RV</div>
+              <div className="dashboard-profile-avatar">{initials}</div>
 
               <div>
-                <strong>Richard Villaparedes</strong>
+                <strong>{fullName}</strong>
                 <span>Profesor</span>
               </div>
             </div>
@@ -129,7 +137,7 @@ function DashboardProfesor() {
               Panel del profesor
             </Badge>
 
-            <h1>Buenos días, Richard</h1>
+            <h1>Buenos días, {firstName}</h1>
 
             <p>
               Administra tus clases, estudiantes y actividades desde un solo

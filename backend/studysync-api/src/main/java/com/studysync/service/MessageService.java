@@ -90,7 +90,7 @@ public class MessageService {
         return messageRepository.save(message);
     }
 
-    public Message markAsRead(Long messageId) {
+    public Message markAsRead(Long messageId, Long currentUserId) {
 
         Message message =
                 messageRepository
@@ -100,6 +100,13 @@ public class MessageService {
                                         "Mensaje no encontrado: " + messageId
                                 )
                         );
+
+        if (!message.getRecipientId().equals(currentUserId)) {
+            throw new org.springframework.web.server.ResponseStatusException(
+                    org.springframework.http.HttpStatus.FORBIDDEN,
+                    "Acceso no autorizado."
+            );
+        }
 
         message.setRead(true);
 

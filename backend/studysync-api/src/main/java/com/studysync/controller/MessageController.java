@@ -1,6 +1,10 @@
 package com.studysync.controller;
 
 import com.studysync.model.Message;
+import com.studysync.model.User;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.server.ResponseStatusException;
+import org.springframework.http.HttpStatus;
 import com.studysync.service.MessageService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,7 +28,10 @@ public class MessageController {
     @GetMapping("/conversation/{userId}/{otherUserId}")
     public ResponseEntity<List<Message>> getConversation(
             @PathVariable Long userId,
-            @PathVariable Long otherUserId) {
+            @PathVariable Long otherUserId,
+            @AuthenticationPrincipal User currentUser) {
+
+        validateOwner(userId, currentUser);
 
         return ResponseEntity.ok(
                 messageService.getConversation(
@@ -36,7 +43,10 @@ public class MessageController {
 
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<Message>> getUserMessages(
-            @PathVariable Long userId) {
+            @PathVariable Long userId,
+            @AuthenticationPrincipal User currentUser) {
+
+        validateOwner(userId, currentUser);
 
         return ResponseEntity.ok(
                 messageService.getUserMessages(userId)
@@ -45,7 +55,11 @@ public class MessageController {
 
     @PostMapping
     public ResponseEntity<Message> sendMessage(
-            @RequestBody Message message) {
+            @RequestBody Message message,
+            @AuthenticationPrincipal User currentUser) {
+
+        validateOwner(message.getSenderId(), currentUser);
+        message.setId(null);
 
         return ResponseEntity.ok(
                 messageService.sendMessage(message)
@@ -54,17 +68,21 @@ public class MessageController {
 
     @PutMapping("/{messageId}/read")
     public ResponseEntity<Message> markAsRead(
-            @PathVariable Long messageId) {
+            @PathVariable Long messageId,
+            @AuthenticationPrincipal User currentUser) {
 
         return ResponseEntity.ok(
-                messageService.markAsRead(messageId)
+                messageService.markAsRead(messageId, currentUser.getId())
         );
     }
 
     @PutMapping("/conversation/{userId}/{otherUserId}/read")
     public ResponseEntity<Void> markConversationAsRead(
             @PathVariable Long userId,
-            @PathVariable Long otherUserId) {
+            @PathVariable Long otherUserId,
+            @AuthenticationPrincipal User currentUser) {
+
+        validateOwner(userId, currentUser);
 
         messageService.markConversationAsRead(
                 userId,
@@ -76,7 +94,10 @@ public class MessageController {
 
     @GetMapping("/unread/{userId}")
     public ResponseEntity<Map<String, Long>> getUnreadCount(
-            @PathVariable Long userId) {
+            @PathVariable Long userId,
+            @AuthenticationPrincipal User currentUser) {
+
+        validateOwner(userId, currentUser);
 
         return ResponseEntity.ok(
                 Map.of(
@@ -84,5 +105,15 @@ public class MessageController {
                         messageService.getUnreadCount(userId)
                 )
         );
+    }
+
+    private void validateOwner(Long userId, User currentUser) {
+        if (currentUser == null ||
+                !currentUser.getId().equals(userId)) {
+            throw new ResponseStatusException(
+                    HttpStatus.FORBIDDEN,
+                    "Acceso no autorizado."
+            );
+        }
     }
 }

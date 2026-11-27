@@ -1,3 +1,18 @@
+
+function normalizeSessionUser(user) {
+  const roles = {
+    PROFESOR: "Profesor",
+    ESTUDIANTE: "Estudiante",
+    ADMINISTRADOR: "Administrador",
+  };
+
+  return {
+    ...user,
+    name: `${user.nombre ?? ""} ${user.apellido ?? ""}`.trim() || user.name,
+    role: roles[String(user.rol || "").toUpperCase()] || user.role,
+  };
+}
+
 import { useEffect, useState } from "react";
 import {
   Award,
@@ -310,6 +325,11 @@ function Perfil() {
         const response =
           await fetch(
             `${USERS_API}/${userId}`,
+            {
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
+              },
+            },
           );
 
         if (!response.ok) {
@@ -323,7 +343,7 @@ function Perfil() {
 
         setApiUser(user);
 
-        setStoredUser(user);
+        setStoredUser(normalizeSessionUser(user));
 
         const backendProfile =
           createProfileFromUser(
@@ -336,7 +356,7 @@ function Perfil() {
 
         localStorage.setItem(
           "user",
-          JSON.stringify(user),
+          JSON.stringify(normalizeSessionUser(user)),
         );
       } catch (loadError) {
         console.error(
@@ -487,7 +507,7 @@ function Perfil() {
         await response.json();
 
       setApiUser(updatedUser);
-      setStoredUser(updatedUser);
+      setStoredUser(normalizeSessionUser(updatedUser));
 
       const updatedProfile =
         createProfileFromUser(
@@ -516,9 +536,7 @@ function Perfil() {
 
       localStorage.setItem(
         "user",
-        JSON.stringify(
-          updatedUser,
-        ),
+        JSON.stringify(normalizeSessionUser(updatedUser)),
       );
 
       localStorage.setItem(
