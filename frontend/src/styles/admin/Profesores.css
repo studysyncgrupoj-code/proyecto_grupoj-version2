@@ -15,7 +15,7 @@
     radial-gradient(circle at top right,
     rgba(37,99,235,.18),
     transparent 28%),
-    #050914;
+    var(--ss-surface-050914);
 
 }
 
@@ -89,7 +89,7 @@
 
     max-width:700px;
 
-    color:#94a3b8;
+    color:var(--ss-adaptive-94a3b8);
 
     line-height:1.8;
 
@@ -164,8 +164,8 @@ KPIs
     background:
     linear-gradient(
     160deg,
-    rgba(18,28,45,.98),
-    rgba(6,10,20,.98));
+    rgba(var(--ss-rgb-18-28-45), .98),
+    rgba(var(--ss-rgb-6-10-20), .98));
 
     border:1px solid
     rgba(255,255,255,.07);
@@ -231,7 +231,7 @@ KPIs
 
     display:block;
 
-    color:#94a3b8;
+    color:var(--ss-adaptive-94a3b8);
 
     font-size:.80rem;
 
@@ -278,9 +278,9 @@ PANEL PRINCIPAL
 
     160deg,
 
-    rgba(17,24,39,.98),
+    rgba(var(--ss-rgb-17-24-39), .98),
 
-    rgba(7,10,18,.98));
+    rgba(var(--ss-rgb-7-10-18), .98));
 
     box-shadow:
 
@@ -325,7 +325,7 @@ TOOLBAR
 
     border-radius:16px;
 
-    background:#0f172a;
+    background:var(--ss-surface-0f172a);
 
     border:1px solid
     rgba(255,255,255,.05);
@@ -356,7 +356,7 @@ TOOLBAR
 
 .professors-search input::placeholder{
 
-    color:#64748b;
+    color:var(--ss-adaptive-64748b);
 
 }
 
@@ -374,7 +374,7 @@ TOOLBAR
 
     border-radius:14px;
 
-    background:#0f172a;
+    background:var(--ss-surface-0f172a);
 
     border:1px solid
     rgba(255,255,255,.05);
@@ -441,7 +441,7 @@ TOOLBAR
 }
 
 .professors-table-heading small {
-  color: #64748b;
+  color: var(--ss-adaptive-64748b);
   font-size: 0.72rem;
 }
 
@@ -466,7 +466,7 @@ TOOLBAR
 
 .professors-table thead th {
   padding: 0 14px 8px;
-  color: #64748b;
+  color: var(--ss-adaptive-64748b);
   font-size: 0.64rem;
   font-weight: 800;
   letter-spacing: 0.08em;
@@ -476,7 +476,7 @@ TOOLBAR
 
 .professors-table tbody tr {
   position: relative;
-  background: rgba(15, 23, 42, 0.74);
+  background: rgba(var(--ss-rgb-15-23-42), 0.74);
   transition:
     background 180ms ease,
     transform 180ms ease,
@@ -484,7 +484,7 @@ TOOLBAR
 }
 
 .professors-table tbody tr:hover {
-  background: #13203a;
+  background: var(--ss-surface-13203a);
   box-shadow: 0 15px 35px rgba(37, 99, 235, 0.12);
 }
 
@@ -549,7 +549,7 @@ TOOLBAR
   gap: 5px;
   margin-top: 5px;
   overflow: hidden;
-  color: #64748b;
+  color: var(--ss-adaptive-64748b);
   font-size: 0.65rem;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -578,7 +578,7 @@ TOOLBAR
 }
 
 .professors-secondary-text {
-  color: #8fa1b7;
+  color: var(--ss-adaptive-8fa1b7);
   font-size: 0.71rem;
 }
 
@@ -643,8 +643,8 @@ TOOLBAR
   margin-left: auto;
   border: 1px solid rgba(148, 163, 184, 0.12);
   border-radius: 11px;
-  color: #94a3b8;
-  background: rgba(4, 9, 18, 0.84);
+  color: var(--ss-adaptive-94a3b8);
+  background: rgba(var(--ss-rgb-4-9-18), 0.84);
   cursor: pointer;
   transition:
     color 180ms ease,
@@ -667,7 +667,7 @@ TOOLBAR
   padding: 7px;
   border: 1px solid rgba(148, 163, 184, 0.15);
   border-radius: 14px;
-  background: rgba(5, 11, 21, 0.98);
+  background: rgba(var(--ss-rgb-5-11-21), 0.98);
   box-shadow:
     0 24px 60px rgba(0, 0, 0, 0.58),
     inset 0 1px 0 rgba(255, 255, 255, 0.025);
@@ -737,7 +737,7 @@ TOOLBAR
 .professors-empty-state p {
   max-width: 380px;
   margin: 9px 0 0;
-  color: #64748b;
+  color: var(--ss-adaptive-64748b);
   font-size: 0.78rem;
 }
 
@@ -769,7 +769,7 @@ TOOLBAR
   border: 1px solid rgba(34, 197, 94, 0.28);
   border-radius: 13px;
   color: #dcfce7;
-  background: rgba(6, 24, 17, 0.97);
+  background: rgba(var(--ss-rgb-6-24-17), 0.97);
   box-shadow: 0 22px 50px rgba(0, 0, 0, 0.48);
   font-size: 0.75rem;
   font-weight: 700;
@@ -811,7 +811,7 @@ TOOLBAR
   place-items: center;
   padding: 20px;
   overflow-y: auto;
-  background: rgba(0, 3, 8, 0.82);
+  background: rgba(var(--ss-rgb-0-3-8), 0.82);
   backdrop-filter: blur(12px);
 }
 
@@ -834,8 +834,8 @@ TOOLBAR
     ),
     linear-gradient(
       155deg,
-      rgba(8, 15, 29, 0.99),
-      rgba(3, 8, 16, 0.99)
+      rgba(var(--ss-rgb-8-15-29), 0.99),
+      rgba(var(--ss-rgb-3-8-16), 0.99)
     );
   box-shadow:
     0 38px 90px rgba(0, 0, 0, 0.68),
@@ -876,7 +876,7 @@ TOOLBAR
 
 .professors-details-modal header p {
   margin: 6px 0 0;
-  color: #64748b;
+  color: var(--ss-adaptive-64748b);
   font-size: 0.72rem;
 }
 
@@ -889,8 +889,8 @@ TOOLBAR
   flex: 0 0 auto;
   border: 1px solid rgba(148, 163, 184, 0.13);
   border-radius: 11px;
-  color: #94a3b8;
-  background: rgba(4, 9, 18, 0.72);
+  color: var(--ss-adaptive-94a3b8);
+  background: rgba(var(--ss-rgb-4-9-18), 0.72);
   cursor: pointer;
   transition:
     color 180ms ease,
@@ -926,7 +926,7 @@ TOOLBAR
 }
 
 .professors-form-grid label > span {
-  color: #94a3b8;
+  color: var(--ss-adaptive-94a3b8);
   font-size: 0.71rem;
   font-weight: 700;
 }
@@ -941,7 +941,7 @@ TOOLBAR
   border-radius: 12px;
   outline: 0;
   color: #f8fafc;
-  background: #050a13;
+  background: var(--ss-surface-050a13);
   font: inherit;
   font-size: 0.76rem;
   transition:
@@ -958,7 +958,7 @@ TOOLBAR
 .professors-form-grid input:focus,
 .professors-form-grid select:focus {
   border-color: rgba(56, 189, 248, 0.55);
-  background: #07101c;
+  background: var(--ss-surface-07101c);
   box-shadow:
     0 0 0 3px rgba(14, 165, 233, 0.06),
     0 0 22px rgba(14, 165, 233, 0.09);
@@ -970,7 +970,7 @@ TOOLBAR
 
 .professors-form-grid select option {
   color: #ffffff;
-  background: #07101e;
+  background: var(--ss-surface-07101e);
 }
 
 .professors-form-error {
@@ -1031,14 +1031,14 @@ TOOLBAR
 
 .professors-secondary-button {
   border: 1px solid rgba(148, 163, 184, 0.15);
-  color: #cbd5e1;
-  background: rgba(4, 9, 18, 0.76);
+  color: var(--ss-adaptive-cbd5e1);
+  background: rgba(var(--ss-rgb-4-9-18), 0.76);
 }
 
 .professors-secondary-button:hover {
   border-color: rgba(148, 163, 184, 0.3);
   color: #ffffff;
-  background: rgba(15, 23, 42, 0.9);
+  background: rgba(var(--ss-rgb-15-23-42), 0.9);
 }
 
 .professors-delete-button {
@@ -1082,7 +1082,7 @@ TOOLBAR
   padding: 15px;
   border: 1px solid rgba(148, 163, 184, 0.1);
   border-radius: 13px;
-  background: rgba(5, 10, 19, 0.62);
+  background: rgba(var(--ss-rgb-5-10-19), 0.62);
   transition:
     border-color 180ms ease,
     background 180ms ease,
@@ -1092,7 +1092,7 @@ TOOLBAR
 .professors-details-grid article:hover {
   transform: translateY(-2px);
   border-color: rgba(56, 189, 248, 0.22);
-  background: rgba(9, 20, 35, 0.76);
+  background: rgba(var(--ss-rgb-9-20-35), 0.76);
 }
 
 .professors-details-grid span,
@@ -1101,7 +1101,7 @@ TOOLBAR
 }
 
 .professors-details-grid span {
-  color: #64748b;
+  color: var(--ss-adaptive-64748b);
   font-size: 0.66rem;
 }
 
@@ -1148,7 +1148,7 @@ TOOLBAR
 
 .professors-delete-modal p {
   margin: 11px 0 0;
-  color: #94a3b8;
+  color: var(--ss-adaptive-94a3b8);
   font-size: 0.8rem;
   line-height: 1.65;
 }

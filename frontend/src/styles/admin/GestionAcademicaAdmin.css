@@ -11,7 +11,7 @@
         radial-gradient(circle at top right,
         rgba(37,99,235,.18),
         transparent 28%),
-        #050914;
+        var(--ss-surface-050914);
 }
 
 .admin-academic-content{
@@ -71,7 +71,7 @@
 
     max-width:700px;
 
-    color:#94a3b8;
+    color:var(--ss-adaptive-94a3b8);
 
     line-height:1.8;
 
@@ -91,7 +91,7 @@
 
     border-radius:16px;
 
-    background:#0b1220;
+    background:var(--ss-surface-0b1220);
 
     border:1px solid rgba(255,255,255,.06);
 
@@ -103,7 +103,7 @@
 
     background:transparent;
 
-    color:#94a3b8;
+    color:var(--ss-adaptive-94a3b8);
 
     border:none;
 
@@ -168,8 +168,8 @@
     background:
     linear-gradient(
     160deg,
-    rgba(18,28,45,.98),
-    rgba(6,10,20,.98));
+    rgba(var(--ss-rgb-18-28-45), .98),
+    rgba(var(--ss-rgb-6-10-20), .98));
 
     transition:.25s;
 
@@ -237,7 +237,7 @@
 
     display:block;
 
-    color:#94a3b8;
+    color:var(--ss-adaptive-94a3b8);
 
     font-size:.80rem;
 
@@ -298,9 +298,9 @@
 
     160deg,
 
-    rgba(17,24,39,.98),
+    rgba(var(--ss-rgb-17-24-39), .98),
 
-    rgba(7,10,18,.98));
+    rgba(var(--ss-rgb-7-10-18), .98));
 
     padding:28px;
 
@@ -414,7 +414,7 @@
 
     border-radius:18px;
 
-    background:#0f172a;
+    background:var(--ss-surface-0f172a);
 
     color:white;
 
@@ -428,7 +428,7 @@
 
     transform:translateX(5px);
 
-    background:#13203a;
+    background:var(--ss-surface-13203a);
 
 }
 
@@ -465,7 +465,7 @@
 
 .admin-academic-student-list span{
 
-    color:#94a3b8;
+    color:var(--ss-adaptive-94a3b8);
 
 }
 /*=============================================================
@@ -486,7 +486,7 @@
 
     border-radius:18px;
 
-    background:#0f172a;
+    background:var(--ss-surface-0f172a);
 
     border:1px solid rgba(255,255,255,.06);
 
@@ -524,7 +524,7 @@
 
 .admin-academic-search input::placeholder{
 
-    color:#64748b;
+    color:var(--ss-adaptive-64748b);
 
 }
 
@@ -558,7 +558,7 @@
 
     padding:0 20px 14px;
 
-    color:#64748b;
+    color:var(--ss-adaptive-64748b);
 
     font-size:.75rem;
 
@@ -602,7 +602,7 @@
 
     border-radius:18px;
 
-    background:#111827;
+    background:var(--ss-surface-111827);
 
     color:white;
 
@@ -628,7 +628,7 @@
 
 .admin-academic-table-row span{
 
-    color:#cbd5e1;
+    color:var(--ss-adaptive-cbd5e1);
 
 }
 
@@ -732,7 +732,7 @@
 
     border-radius:18px;
 
-    background:#111827;
+    background:var(--ss-surface-111827);
 
     color:white;
 
@@ -800,7 +800,7 @@
 
 .admin-academic-report-list span{
 
-    color:#94a3b8;
+    color:var(--ss-adaptive-94a3b8);
 
     font-size:.82rem;
 
@@ -842,7 +842,7 @@
 
     border-radius:20px;
 
-    background:#111827;
+    background:var(--ss-surface-111827);
 
     border:1px solid rgba(255,255,255,.05);
 
@@ -874,7 +874,7 @@
 
 .admin-academic-alert-list p{
 
-    color:#94a3b8;
+    color:var(--ss-adaptive-94a3b8);
 
     line-height:1.7;
 
@@ -929,7 +929,7 @@
 
     inset:0;
 
-    background:rgba(2,6,23,.82);
+    background:rgba(var(--ss-rgb-2-6-23), .82);
 
     backdrop-filter:blur(12px);
 
@@ -953,8 +953,8 @@
 
     background:linear-gradient(
         160deg,
-        #111827,
-        #0b1220
+        var(--ss-surface-111827),
+        var(--ss-surface-0b1220)
     );
 
     border:1px solid rgba(255,255,255,.06);
@@ -1008,7 +1008,7 @@
 
     margin-top:10px;
 
-    color:#94a3b8;
+    color:var(--ss-adaptive-94a3b8);
 
 }
 
@@ -1060,7 +1060,7 @@
 
     border-radius:18px;
 
-    background:#0f172a;
+    background:var(--ss-surface-0f172a);
 
     border:1px solid rgba(255,255,255,.06);
 
@@ -1070,7 +1070,7 @@
 
     display:block;
 
-    color:#64748b;
+    color:var(--ss-adaptive-64748b);
 
     font-size:.78rem;
 
@@ -1156,7 +1156,7 @@
 
 .admin-academic-content::-webkit-scrollbar-track{
 
-    background:#08101d;
+    background:var(--ss-surface-08101d);
 
 }
 

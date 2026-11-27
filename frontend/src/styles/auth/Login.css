@@ -3,7 +3,7 @@
   display: grid;
   grid-template-columns: minmax(420px, 1.05fr) minmax(430px, 0.95fr);
   color: #f8fafc;
-  background: #000000;
+  background: var(--ss-surface-000000);
 }
 
 .login-showcase {
@@ -17,8 +17,8 @@
   background:
     linear-gradient(
       145deg,
-      rgba(2, 8, 18, 0.98),
-      rgba(0, 0, 0, 0.99) 68%
+      rgba(var(--ss-rgb-2-8-18), 0.98),
+      rgba(var(--ss-rgb-0-0-0), 0.99) 68%
     );
 }
 
@@ -93,7 +93,7 @@
 }
 
 .login-brand-copy small {
-  color: #718096;
+  color: var(--ss-adaptive-718096);
   font-size: 0.75rem;
 }
 
@@ -162,8 +162,8 @@
   background:
     linear-gradient(
       145deg,
-      rgba(8, 12, 18, 0.94),
-      rgba(3, 3, 3, 0.98)
+      rgba(var(--ss-rgb-8-12-18), 0.94),
+      rgba(var(--ss-rgb-3-3-3), 0.98)
     );
   box-shadow:
     0 18px 42px rgba(0, 0, 0, 0.42),
@@ -180,8 +180,8 @@
   background:
     linear-gradient(
       135deg,
-      rgba(3, 31, 52, 0.96),
-      rgba(3, 8, 18, 0.98)
+      rgba(var(--ss-rgb-3-31-52), 0.96),
+      rgba(var(--ss-rgb-3-8-18), 0.98)
     );
   box-shadow:
     0 24px 52px rgba(0, 0, 0, 0.62),
@@ -214,7 +214,7 @@
 
 .login-benefit-card small {
   margin-top: 4px;
-  color: #718096;
+  color: var(--ss-adaptive-718096);
   font-size: 0.75rem;
   line-height: 1.45;
 }
@@ -234,7 +234,7 @@
   display: grid;
   place-items: center;
   padding: 42px;
-  background: #000000;
+  background: var(--ss-surface-000000);
 }
 
 .login-form-wrapper {
@@ -245,8 +245,8 @@
   background:
     linear-gradient(
       180deg,
-      rgba(7, 7, 7, 0.99),
-      rgba(2, 2, 2, 0.99)
+      rgba(var(--ss-rgb-7-7-7), 0.99),
+      rgba(var(--ss-rgb-2-2-2), 0.99)
     );
   box-shadow:
     0 32px 75px rgba(0, 0, 0, 0.72),
@@ -279,7 +279,7 @@
 
 .login-form-header p {
   margin: 0;
-  color: #718096;
+  color: var(--ss-adaptive-718096);
   font-size: 0.91rem;
   line-height: 1.6;
 }
@@ -295,7 +295,7 @@
 }
 
 .login-field > span {
-  color: #cbd5e1;
+  color: var(--ss-adaptive-cbd5e1);
   font-size: 0.82rem;
   font-weight: 650;
 }
@@ -308,8 +308,8 @@
   padding: 0 14px;
   border: 1px solid rgba(148, 163, 184, 0.18);
   border-radius: 14px;
-  color: #64748b;
-  background: #050505;
+  color: var(--ss-adaptive-64748b);
+  background: var(--ss-surface-050505);
   box-shadow:
     0 12px 26px rgba(0, 0, 0, 0.34),
     inset 0 1px 0 rgba(255, 255, 255, 0.02);
@@ -328,8 +328,8 @@
   background:
     linear-gradient(
       135deg,
-      rgba(3, 27, 46, 0.98),
-      rgba(3, 7, 15, 0.98)
+      rgba(var(--ss-rgb-3-27-46), 0.98),
+      rgba(var(--ss-rgb-3-7-15), 0.98)
     );
   box-shadow:
     0 18px 38px rgba(0, 0, 0, 0.55),
@@ -356,7 +356,7 @@
   place-items: center;
   padding: 5px;
   border: 0;
-  color: #64748b;
+  color: var(--ss-adaptive-64748b);
   background: transparent;
   cursor: pointer;
 }
@@ -437,7 +437,7 @@
 .login-google-button {
   border: 1px solid rgba(148, 163, 184, 0.18);
   color: #dbe7f5;
-  background: #050505;
+  background: var(--ss-surface-050505);
   box-shadow: 0 13px 28px rgba(0, 0, 0, 0.38);
 }
 
@@ -447,8 +447,8 @@
   background:
     linear-gradient(
       135deg,
-      rgba(3, 27, 46, 0.98),
-      rgba(3, 7, 15, 0.98)
+      rgba(var(--ss-rgb-3-27-46), 0.98),
+      rgba(var(--ss-rgb-3-7-15), 0.98)
     );
   box-shadow:
     0 18px 38px rgba(0, 0, 0, 0.52),
@@ -488,12 +488,12 @@
 .login-divider span {
   position: relative;
   padding-inline: 12px;
-  background: #030303;
+  background: var(--ss-surface-030303);
 }
 
 .login-register-text {
   margin: 24px 0 0;
-  color: #718096;
+  color: var(--ss-adaptive-718096);
   font-size: 0.81rem;
   text-align: center;
 }

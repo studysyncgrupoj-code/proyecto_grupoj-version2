@@ -1,3 +1,5 @@
+import ssI18n from "i18next";
+import SSLocalized from "../../i18n/Localized.jsx";
 import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import {
@@ -243,7 +245,7 @@ function RoomView() {
             <div>
               <span className="room-view-eyebrow">
                 <Sparkles size={15} />
-                Sesión colaborativa
+                <SSLocalized text={"Sesión colaborativa"} />
               </span>
 
               <h1>{checkingAccess ? "Verificando acceso..." : "No se pudo acceder a la sala"}</h1>
@@ -254,7 +256,7 @@ function RoomView() {
                 type="button"
                 onClick={() => navigate("/salas")}
               >
-                Volver a salas
+                <SSLocalized text={"Volver a salas"} />
               </button>
             </div>
           </section>
@@ -294,7 +296,7 @@ function RoomView() {
           <div>
             <span className="room-view-eyebrow">
               <Sparkles size={15} />
-              Sesión colaborativa
+              <SSLocalized text={"Sesión colaborativa"} />
             </span>
 
             <h1>{room.nombre || "Sala StudySync"}</h1>
@@ -314,7 +316,7 @@ function RoomView() {
           <div className="room-view-statuses">
             <span className="room-view-badge room-view-badge-focus">
               <Focus size={14} />
-              Focus
+              <SSLocalized text={"Focus"} />
             </span>
 
             <span className="room-view-badge room-view-badge-live">
@@ -333,7 +335,7 @@ function RoomView() {
               disabled={startingSession}
             >
               <LogOut size={14} />
-              Salir de sala
+              <SSLocalized text={"Salir de sala"} />
             </button>
           </div>
         </section>
@@ -344,9 +346,9 @@ function RoomView() {
               <div className="room-session-header">
                 <div>
                   <span className="room-section-label">
-                    Objetivo
+                    <SSLocalized text={"Objetivo"} />
                   </span>
-                  <h2>Información de la sala</h2>
+                  <h2><SSLocalized text={"Información de la sala"} /></h2>
                 </div>
 
                 <div className="room-session-icon">
@@ -365,7 +367,7 @@ function RoomView() {
                     <Users size={19} />
                   </div>
 
-                  <span>Tipo de acceso</span>
+                  <span><SSLocalized text={"Tipo de acceso"} /></span>
                   <strong>
                     {room.privada ? "Privada" : "Pública"}
                   </strong>
@@ -376,7 +378,7 @@ function RoomView() {
                     <Video size={19} />
                   </div>
 
-                  <span>Estado</span>
+                  <span><SSLocalized text={"Estado"} /></span>
                   <strong>
                     {studySessionId
                       ? "Sesión activa"
@@ -389,7 +391,7 @@ function RoomView() {
                     <Focus size={19} />
                   </div>
 
-                  <span>Creador</span>
+                  <span><SSLocalized text={"Creador"} /></span>
                   <strong>
                     {Number(room.creadorId) ===
                     Number(storedUser.id)
@@ -403,11 +405,11 @@ function RoomView() {
             
                 
             {isPrivateHost && room.estado === "ACTIVA" && (
-              <article className="room-session-card" aria-label="Solicitudes de acceso">
+              <article className="room-session-card" aria-label={ssI18n.t("Solicitudes de acceso")}>
                 <div className="room-session-header">
                   <div>
-                    <span className="room-section-label">Administración de sala privada</span>
-                    <h2>Solicitudes de acceso ({pendingRequests.length} pendientes)</h2>
+                    <span className="room-section-label"><SSLocalized text={"Administración de sala privada"} /></span>
+                    <h2><SSLocalized text={"Solicitudes de acceso ("} />{pendingRequests.length} <SSLocalized text={"pendientes)"} /></h2>
                   </div>
                   <Users size={22} />
                 </div>
@@ -415,10 +417,10 @@ function RoomView() {
                   <p role="alert" style={{ color: "#d9534f", marginTop: 12 }}>{requestsError}</p>
                 )}
                 {pendingRequests.length === 0 ? (
-                  <p className="room-session-description">No hay solicitudes pendientes.</p>
+                  <p className="room-session-description"><SSLocalized text={"No hay solicitudes pendientes."} /></p>
                 ) : pendingRequests.map((request) => (
                   <div key={request.id} style={{ padding: "14px 0", borderTop: "1px solid #ddd" }}>
-                    <p>Estudiante (usuario {request.userId}) desea unirse a tu sala privada «{room.nombre}».</p>
+                    <p><SSLocalized text={"Estudiante (usuario"} /> {request.userId}<SSLocalized text={") desea unirse a tu sala privada «"} />{room.nombre}».</p>
                     <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 12 }}>
                       <button type="button" disabled={respondingRequestId !== null}
                         onClick={() => handleRespondRequest(request.id, "aprobar")}
@@ -428,7 +430,7 @@ function RoomView() {
                       <button type="button" disabled={respondingRequestId !== null}
                         onClick={() => handleRespondRequest(request.id, "rechazar")}
                         style={{ padding: "10px 16px", cursor: "pointer" }}>
-                        Rechazar
+                        <SSLocalized text={"Rechazar"} />
                       </button>
                     </div>
                   </div>
@@ -449,14 +451,14 @@ function RoomView() {
               <div className="room-card-header">
                 <div>
                   <span className="room-section-label">
-                    Participantes
+                    <SSLocalized text={"Participantes"} />
                   </span>
-                  <h2>Estudiantes conectados</h2>
+                  <h2><SSLocalized text={"Estudiantes conectados"} /></h2>
                 </div>
 
                 <span className="room-connected-count">
                   <Users size={16} />
-                  {jitsiParticipants.length} conectados
+                  {jitsiParticipants.length} <SSLocalized text={"conectados"} />
                 </span>
               </div>
 
@@ -482,9 +484,9 @@ function RoomView() {
               <div className="room-card-header">
                 <div>
                   <span className="room-section-label">
-                    Conversación
+                    <SSLocalized text={"Conversación"} />
                   </span>
-                  <h2>Chat de estudio</h2>
+                  <h2><SSLocalized text={"Chat de estudio"} /></h2>
                 </div>
 
                 <div className="room-chat-icon">
@@ -522,7 +524,7 @@ function RoomView() {
               >
                 <input
                   type="text"
-                  placeholder="Escribe un mensaje..."
+                  placeholder={ssI18n.t("Escribe un mensaje...")}
                   value={messageText}
                   onChange={(event) =>
                     setMessageText(event.target.value)
@@ -531,10 +533,10 @@ function RoomView() {
 
                 <button
                   type="submit"
-                  aria-label="Enviar mensaje"
+                  aria-label={ssI18n.t("Enviar mensaje")}
                 >
                   <Send size={18} />
-                  Enviar
+                  <SSLocalized text={"Enviar"} />
                 </button>
               </form>
             </article>
@@ -545,7 +547,7 @@ function RoomView() {
               <div className="room-live-card-header">
                 <div>
                   <span className="room-section-label">
-                    Estado
+                    <SSLocalized text={"Estado"} />
                   </span>
 
                   <h2>

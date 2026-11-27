@@ -31,7 +31,7 @@
   background:
     radial-gradient(circle at 86% -8%, rgba(37, 99, 235, 0.18), transparent 32%),
     radial-gradient(circle at 32% 16%, rgba(14, 165, 233, 0.07), transparent 28%),
-    linear-gradient(180deg, #02050b 0%, #010308 100%);
+    linear-gradient(180deg, var(--ss-surface-02050b) 0%, var(--ss-surface-010308) 100%);
 }
 
 .estudiantes-layout,
@@ -76,7 +76,7 @@
   border-right: 1px solid rgba(148, 163, 184, 0.12);
   background:
     radial-gradient(circle at 20% 0%, rgba(14, 165, 233, 0.08), transparent 27%),
-    linear-gradient(180deg, rgba(4, 8, 16, 0.99), rgba(2, 5, 11, 0.99));
+    linear-gradient(180deg, rgba(var(--ss-rgb-4-8-16), 0.99), rgba(var(--ss-rgb-2-5-11), 0.99));
   box-shadow:
     18px 0 45px rgba(0, 0, 0, 0.28),
     inset -1px 0 0 rgba(255, 255, 255, 0.015);
@@ -131,7 +131,7 @@
 .estudiantes-layout .sidebar-brand-text span {
   display: block;
   margin-top: 3px;
-  color: #64748b;
+  color: var(--ss-adaptive-64748b);
   font-size: 0.73rem;
 }
 
@@ -151,7 +151,7 @@
   padding: 0 14px;
   border: 1px solid transparent;
   border-radius: 13px;
-  color: #8492a6;
+  color: var(--ss-adaptive-8492a6);
   background: transparent;
   font-size: 0.9rem;
   font-weight: 650;
@@ -196,7 +196,7 @@
   border-radius: 18px;
   background:
     radial-gradient(circle at 100% 0%, rgba(37, 99, 235, 0.18), transparent 43%),
-    linear-gradient(145deg, rgba(8, 17, 31, 0.95), rgba(3, 8, 17, 0.98));
+    linear-gradient(145deg, rgba(var(--ss-rgb-8-17-31), 0.95), rgba(var(--ss-rgb-3-8-17), 0.98));
   box-shadow:
     0 18px 40px rgba(0, 0, 0, 0.38),
     inset 0 1px 0 rgba(255, 255, 255, 0.035);
@@ -221,7 +221,7 @@
 
 .estudiantes-layout .sidebar-premium p {
   margin: 8px 0 14px;
-  color: #7f8ea3;
+  color: var(--ss-adaptive-7f8ea3);
   font-size: 0.75rem;
   line-height: 1.55;
 }
@@ -232,7 +232,7 @@
   border: 1px solid rgba(56, 189, 248, 0.25);
   border-radius: 11px;
   color: #dff6ff;
-  background: rgba(6, 17, 26, 0.86);
+  background: rgba(var(--ss-rgb-6-17-26), 0.86);
   font-size: 0.78rem;
   font-weight: 750;
   cursor: pointer;
@@ -258,7 +258,7 @@
   padding: 12px;
   border: 1px solid rgba(148, 163, 184, 0.11);
   border-radius: 14px;
-  background: linear-gradient(145deg, rgba(9, 15, 27, 0.9), rgba(4, 8, 15, 0.96));
+  background: linear-gradient(145deg, rgba(var(--ss-rgb-9-15-27), 0.9), rgba(var(--ss-rgb-4-8-15), 0.96));
 }
 
 .estudiantes-layout .sidebar-user-avatar {
@@ -292,7 +292,7 @@
 
 .estudiantes-layout .sidebar-user-info span {
   margin-top: 3px;
-  color: #64748b;
+  color: var(--ss-adaptive-64748b);
   font-size: 0.69rem;
 }
 
@@ -382,8 +382,8 @@
 
 .estudiantes-secondary-button {
   border: 1px solid rgba(148, 163, 184, 0.17);
-  color: #cbd5e1;
-  background: linear-gradient(145deg, rgba(10, 17, 30, 0.86), rgba(5, 9, 17, 0.92));
+  color: var(--ss-adaptive-cbd5e1);
+  background: linear-gradient(145deg, rgba(var(--ss-rgb-10-17-30), 0.86), rgba(var(--ss-rgb-5-9-17), 0.92));
 }
 
 .estudiantes-primary-button {
@@ -420,7 +420,7 @@
   overflow: hidden;
   border: 1px solid var(--students-border);
   border-radius: 19px;
-  background: linear-gradient(145deg, rgba(10, 17, 31, 0.91), rgba(4, 9, 18, 0.96));
+  background: linear-gradient(145deg, rgba(var(--ss-rgb-10-17-31), 0.91), rgba(var(--ss-rgb-4-9-18), 0.96));
   box-shadow:
     0 20px 48px rgba(0, 0, 0, 0.34),
     inset 0 1px 0 rgba(255, 255, 255, 0.035);
@@ -439,7 +439,7 @@
 }
 
 .estudiantes-summary-card span {
-  color: #8fa1b7;
+  color: var(--ss-adaptive-8fa1b7);
   font-size: 0.76rem;
 }
 
@@ -466,7 +466,7 @@
   padding: 7px;
   border: 1px solid rgba(148, 163, 184, 0.1);
   border-radius: 18px;
-  background: linear-gradient(145deg, rgba(8, 14, 26, 0.78), rgba(4, 8, 16, 0.84));
+  background: linear-gradient(145deg, rgba(var(--ss-rgb-8-14-26), 0.78), rgba(var(--ss-rgb-4-8-16), 0.84));
 }
 
 .estudiantes-search {
@@ -477,8 +477,8 @@
   padding: 0 15px;
   border: 1px solid transparent;
   border-radius: 13px;
-  color: #64748b;
-  background: rgba(2, 6, 14, 0.6);
+  color: var(--ss-adaptive-64748b);
+  background: rgba(var(--ss-rgb-2-6-14), 0.6);
 }
 
 .estudiantes-search:focus-within {
@@ -498,7 +498,7 @@
 }
 
 .estudiantes-search input::placeholder {
-  color: #64748b;
+  color: var(--ss-adaptive-64748b);
 }
 
 .estudiantes-filter-group,
@@ -574,7 +574,7 @@
   border: 1px solid rgba(148, 163, 184, 0.11);
   border-radius: var(--students-radius-pill);
   color: #8191a6;
-  background: rgba(8, 14, 25, 0.66);
+  background: rgba(var(--ss-rgb-8-14-25), 0.66);
   font-size: 0.7rem;
 }
 
@@ -597,7 +597,7 @@
   overflow: hidden;
   border: 1px solid rgba(148, 163, 184, 0.14);
   border-radius: 21px;
-  background: linear-gradient(165deg, rgba(9, 16, 29, 0.95), rgba(3, 8, 16, 0.99));
+  background: linear-gradient(165deg, rgba(var(--ss-rgb-9-16-29), 0.95), rgba(var(--ss-rgb-3-8-16), 0.99));
   box-shadow:
     0 22px 50px rgba(0, 0, 0, 0.38),
     inset 0 1px 0 rgba(255, 255, 255, 0.03);
@@ -670,7 +670,7 @@
 }
 
 .estudiante-status-desconectado {
-  color: #cbd5e1;
+  color: var(--ss-adaptive-cbd5e1);
   border: 1px solid rgba(148, 163, 184, 0.18);
   background: rgba(148, 163, 184, 0.08);
 }
@@ -694,7 +694,7 @@
 .estudiante-profile p {
   margin: 6px 0 0;
   overflow: hidden;
-  color: #718096;
+  color: var(--ss-adaptive-718096);
   font-size: 0.73rem;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -708,14 +708,14 @@
   padding: 12px;
   border: 1px solid rgba(148, 163, 184, 0.09);
   border-radius: 12px;
-  background: rgba(5, 10, 19, 0.64);
+  background: rgba(var(--ss-rgb-5-10-19), 0.64);
 }
 
 .estudiante-course-row div span,
 .estudiante-metrics span,
 .estudiante-card-footer span {
   display: block;
-  color: #64748b;
+  color: var(--ss-adaptive-64748b);
   font-size: 0.61rem;
 }
 
@@ -724,7 +724,7 @@
 .estudiante-card-footer strong {
   display: block;
   margin-top: 4px;
-  color: #cbd5e1;
+  color: var(--ss-adaptive-cbd5e1);
   font-size: 0.72rem;
 }
 
@@ -745,7 +745,7 @@
 }
 
 .estudiante-progress-label span {
-  color: #718096;
+  color: var(--ss-adaptive-718096);
   font-size: 0.67rem;
 }
 
@@ -759,7 +759,7 @@
   margin-top: 9px;
   overflow: hidden;
   border-radius: var(--students-radius-pill);
-  background: rgba(15, 23, 42, 0.78);
+  background: rgba(var(--ss-rgb-15-23-42), 0.78);
 }
 
 .estudiante-progress-track span {
@@ -782,7 +782,7 @@
   padding: 10px;
   border: 1px solid rgba(148, 163, 184, 0.08);
   border-radius: 11px;
-  background: rgba(5, 10, 19, 0.54);
+  background: rgba(var(--ss-rgb-5-10-19), 0.54);
 }
 
 .estudiante-tags {
@@ -865,7 +865,7 @@
   border: 1px dashed rgba(56, 189, 248, 0.27);
   border-radius: 22px;
   text-align: center;
-  background: linear-gradient(145deg, rgba(8, 15, 27, 0.82), rgba(3, 8, 16, 0.94));
+  background: linear-gradient(145deg, rgba(var(--ss-rgb-8-15-27), 0.82), rgba(var(--ss-rgb-3-8-16), 0.94));
 }
 
 .estudiantes-empty-state > div {
@@ -886,7 +886,7 @@
 
 .estudiantes-empty-state p {
   margin: 0;
-  color: #718096;
+  color: var(--ss-adaptive-718096);
   font-size: 0.79rem;
 }
 
@@ -901,7 +901,7 @@
   display: grid;
   place-items: center;
   padding: 24px;
-  background: rgba(0, 3, 10, 0.78);
+  background: rgba(var(--ss-rgb-0-3-10), 0.78);
   backdrop-filter: blur(14px);
 }
 
@@ -915,7 +915,7 @@
   border-radius: 24px;
   background:
     radial-gradient(circle at 100% 0%, rgba(37, 99, 235, 0.2), transparent 34%),
-    linear-gradient(160deg, rgba(9, 16, 29, 0.99), rgba(3, 8, 16, 0.99));
+    linear-gradient(160deg, rgba(var(--ss-rgb-9-16-29), 0.99), rgba(var(--ss-rgb-3-8-16), 0.99));
   box-shadow:
     0 35px 90px rgba(0, 0, 0, 0.65),
     0 0 45px rgba(14, 165, 233, 0.12);
@@ -929,8 +929,8 @@
   height: 38px;
   border: 1px solid rgba(148, 163, 184, 0.16);
   border-radius: 11px;
-  color: #cbd5e1;
-  background: rgba(5, 10, 19, 0.72);
+  color: var(--ss-adaptive-cbd5e1);
+  background: rgba(var(--ss-rgb-5-10-19), 0.72);
   font-size: 1.3rem;
   cursor: pointer;
 }
@@ -968,7 +968,7 @@
 
 .estudiante-modal-header p {
   margin: 5px 0 0;
-  color: #718096;
+  color: var(--ss-adaptive-718096);
   font-size: 0.78rem;
 }
 
@@ -992,13 +992,13 @@
   padding: 16px;
   border: 1px solid rgba(148, 163, 184, 0.1);
   border-radius: 14px;
-  background: rgba(5, 10, 19, 0.58);
+  background: rgba(var(--ss-rgb-5-10-19), 0.58);
 }
 
 .estudiante-modal-summary span,
 .estudiante-modal-details span {
   display: block;
-  color: #64748b;
+  color: var(--ss-adaptive-64748b);
   font-size: 0.66rem;
 }
 

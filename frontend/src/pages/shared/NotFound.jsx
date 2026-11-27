@@ -1,3 +1,4 @@
+import SSLocalized from "../../i18n/Localized.jsx";
 import { ArrowLeft, GraduationCap, Home, Search } from "lucide-react";
 import { Link } from "react-router-dom";
 
@@ -15,29 +16,26 @@ function NotFound() {
         </div>
 
         <span className="notfound-tag">
-          STUDYSYNC PLATFORM
+          <SSLocalized text={"STUDYSYNC PLATFORM"} />
         </span>
 
         <h1>404</h1>
 
-        <h2>Página no encontrada</h2>
+        <h2><SSLocalized text={"Página no encontrada"} /></h2>
 
         <p>
-          Lo sentimos, la página que intentas visitar no existe,
-          fue movida o el enlace ya no está disponible.
+          <SSLocalized text={"Lo sentimos, la página que intentas visitar no existe, fue movida o el enlace ya no está disponible."} />
         </p>
 
         <div className="notfound-actions">
 
           <Link to="/" className="primary-btn">
             <Home size={18}/>
-            Inicio
+            <SSLocalized text={"Inicio"} />
           </Link>
 
           <Link to="/dashboard" className="secondary-btn">
-            <ArrowLeft size={18}/>
-            Dashboard
-          </Link>
+            <ArrowLeft size={18}/><SSLocalized text={"Dashboard"} /></Link>
 
         </div>
 
@@ -45,12 +43,12 @@ function NotFound() {
 
           <div>
             <Search size={18}/>
-            <span>Verifica la dirección URL.</span>
+            <span><SSLocalized text={"Verifica la dirección URL."} /></span>
           </div>
 
           <div>
             <GraduationCap size={18}/>
-            <span>Continúa aprendiendo con StudySync.</span>
+            <span><SSLocalized text={"Continúa aprendiendo con StudySync."} /></span>
           </div>
 
         </div>

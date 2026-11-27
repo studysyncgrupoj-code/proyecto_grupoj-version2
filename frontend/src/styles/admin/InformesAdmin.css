@@ -10,7 +10,7 @@
   background:
     radial-gradient(circle at 92% 0%, rgba(37,99,235,.13), transparent 30%),
     radial-gradient(circle at 70% 100%, rgba(14,165,233,.06), transparent 34%),
-    #02050b;
+    var(--ss-surface-02050b);
 }
 
 .reports-admin-layout,
@@ -87,7 +87,7 @@ max-width:720px;
 
 line-height:1.7;
 
-color:#94a3b8;
+color:var(--ss-adaptive-94a3b8);
 
 }
 
@@ -167,9 +167,9 @@ linear-gradient(
 
 160deg,
 
-rgba(11,18,30,.95),
+rgba(var(--ss-rgb-11-18-30), .95),
 
-rgba(5,9,18,.98));
+rgba(var(--ss-rgb-5-9-18), .98));
 
 box-shadow:
 
@@ -217,7 +217,7 @@ display:block;
 
 font-size:.74rem;
 
-color:#94a3b8;
+color:var(--ss-adaptive-94a3b8);
 
 }
 
@@ -263,9 +263,9 @@ linear-gradient(
 
 160deg,
 
-rgba(9,15,28,.96),
+rgba(var(--ss-rgb-9-15-28), .96),
 
-rgba(4,8,15,.99));
+rgba(var(--ss-rgb-4-8-15), .99));
 
 box-shadow:
 
@@ -305,11 +305,11 @@ height:48px;
 
 border-radius:14px;
 
-background:#09111d;
+background:var(--ss-surface-09111d);
 
 border:1px solid rgba(255,255,255,.06);
 
-color:#64748b;
+color:var(--ss-adaptive-64748b);
 
 }
 
@@ -331,7 +331,7 @@ font:inherit;
 
 .reports-admin-search input::placeholder{
 
-color:#64748b;
+color:var(--ss-adaptive-64748b);
 
 }
 
@@ -349,7 +349,7 @@ border:none;
 
 border-radius:14px;
 
-background:#0f172a;
+background:var(--ss-surface-0f172a);
 
 color:white;
 
@@ -361,7 +361,7 @@ transition:.25s;
 
 .reports-admin-filter-button:hover{
 
-background:#1e293b;
+background:var(--ss-surface-1e293b);
 
 }
 
@@ -403,7 +403,7 @@ color:white;
 
 .reports-admin-table-heading small{
 
-color:#64748b;
+color:var(--ss-adaptive-64748b);
 
 font-size:.75rem;
 
@@ -428,7 +428,7 @@ font-size:.75rem;
 
 .reports-admin-table thead th {
   padding: 0 13px 8px;
-  color: #64748b;
+  color: var(--ss-adaptive-64748b);
   font-size: 0.64rem;
   font-weight: 800;
   letter-spacing: 0.08em;
@@ -437,14 +437,14 @@ font-size:.75rem;
 }
 
 .reports-admin-table tbody tr {
-  background: rgba(5, 10, 19, 0.68);
+  background: rgba(var(--ss-rgb-5-10-19), 0.68);
   transition:
     background 180ms ease,
     box-shadow 180ms ease;
 }
 
 .reports-admin-table tbody tr:hover {
-  background: rgba(9, 22, 39, 0.9);
+  background: rgba(var(--ss-rgb-9-22-39), 0.9);
   box-shadow: 0 15px 35px rgba(37, 99, 235, 0.11);
 }
 
@@ -452,7 +452,7 @@ font-size:.75rem;
   padding: 14px 13px;
   border-top: 1px solid rgba(148, 163, 184, 0.09);
   border-bottom: 1px solid rgba(148, 163, 184, 0.09);
-  color: #cbd5e1;
+  color: var(--ss-adaptive-cbd5e1);
   font-size: 0.72rem;
   vertical-align: middle;
 }
@@ -503,7 +503,7 @@ font-size:.75rem;
 
 .reports-admin-file span {
   margin-top: 5px;
-  color: #64748b;
+  color: var(--ss-adaptive-64748b);
   font-size: 0.64rem;
 }
 
@@ -552,8 +552,8 @@ font-size:.75rem;
   margin-left: auto;
   border: 1px solid rgba(148, 163, 184, 0.12);
   border-radius: 10px;
-  color: #94a3b8;
-  background: rgba(4, 9, 18, 0.84);
+  color: var(--ss-adaptive-94a3b8);
+  background: rgba(var(--ss-rgb-4-9-18), 0.84);
   cursor: pointer;
   transition:
     color 180ms ease,
@@ -581,7 +581,7 @@ font-size:.75rem;
 }
 
 .reports-admin-table-wrapper::-webkit-scrollbar-track {
-  background: rgba(4, 9, 18, 0.7);
+  background: rgba(var(--ss-rgb-4-9-18), 0.7);
 }
 
 .reports-admin-table-wrapper::-webkit-scrollbar-thumb {
@@ -614,7 +614,7 @@ font-size:.75rem;
 .reports-admin-empty-state p {
   max-width: 380px;
   margin: 9px 0 0;
-  color: #64748b;
+  color: var(--ss-adaptive-64748b);
   font-size: 0.78rem;
 }
 
@@ -738,7 +738,7 @@ font-size:.75rem;
 .reports-admin-search:focus-within {
   color: #38bdf8;
   border-color: rgba(56, 189, 248, 0.48);
-  background: rgba(5, 14, 25, 0.96);
+  background: rgba(var(--ss-rgb-5-14-25), 0.96);
   box-shadow:
     0 0 0 3px rgba(14, 165, 233, 0.05),
     0 0 24px rgba(14, 165, 233, 0.09);
@@ -1075,7 +1075,7 @@ font-size:.75rem;
 }
 
 .reports-admin-filter-panel span{
-    color:#94a3b8;
+    color:var(--ss-adaptive-94a3b8);
     font-size:.74rem;
 }
 
@@ -1090,7 +1090,7 @@ font-size:.75rem;
 
     border:1px solid rgba(255,255,255,.08);
 
-    background:#09111d;
+    background:var(--ss-surface-09111d);
 
     color:white;
 
@@ -1114,7 +1114,7 @@ font-size:.75rem;
 
     border-radius:14px;
 
-    background:#1e293b;
+    background:var(--ss-surface-1e293b);
 
     color:white;
 
@@ -1158,7 +1158,7 @@ font-size:.75rem;
 
     border:1px solid rgba(255,255,255,.08);
 
-    background:#07101c;
+    background:var(--ss-surface-07101c);
 
     box-shadow:0 30px 60px rgba(0,0,0,.45);
 
@@ -1180,7 +1180,7 @@ font-size:.75rem;
 
     background:none;
 
-    color:#cbd5e1;
+    color:var(--ss-adaptive-cbd5e1);
 
     cursor:pointer;
 
@@ -1190,7 +1190,7 @@ font-size:.75rem;
 
 .reports-admin-actions-menu button:hover{
 
-    background:#0f172a;
+    background:var(--ss-surface-0f172a);
 
     color:white;
 
@@ -1274,7 +1274,7 @@ place-items:center;
 
 padding:30px;
 
-background:rgba(0,0,0,.82);
+background:rgba(var(--ss-rgb-0-0-0), .82);
 
 backdrop-filter:blur(8px);
 
@@ -1291,7 +1291,7 @@ border-radius:24px;
 
 overflow: hidden;
 
-background:#08111f;
+background:var(--ss-surface-08111f);
 
 border:1px solid rgba(255,255,255,.08);
 
@@ -1326,7 +1326,7 @@ color:white;
 
 margin-top:8px;
 
-color:#94a3b8;
+color:var(--ss-adaptive-94a3b8);
 
 }
 
@@ -1341,7 +1341,7 @@ border:none;
 
 border-radius:12px;
 
-background:#0f172a;
+background:var(--ss-surface-0f172a);
 
 color:white;
 
@@ -1379,7 +1379,7 @@ gap:8px;
 
 .reports-admin-form-grid span{
 
-color:#94a3b8;
+color:var(--ss-adaptive-94a3b8);
 
 font-size:.74rem;
 
@@ -1395,7 +1395,7 @@ border-radius:14px;
 
 border:1px solid rgba(255,255,255,.08);
 
-background:#0f172a;
+background:var(--ss-surface-0f172a);
 
 color:white;
 
@@ -1481,7 +1481,7 @@ color:white;
 
 .reports-admin-secondary-button{
 
-background:#1e293b;
+background:var(--ss-surface-1e293b);
 
 color:white;
 
@@ -1517,13 +1517,13 @@ padding:18px;
 
 border-radius:16px;
 
-background:#0f172a;
+background:var(--ss-surface-0f172a);
 
 }
 
 .reports-admin-details-grid span{
 
-color:#64748b;
+color:var(--ss-adaptive-64748b);
 
 font-size:.72rem;
 
@@ -1561,7 +1561,7 @@ margin-top:12px;
 
 line-height:1.8;
 
-color:#cbd5e1;
+color:var(--ss-adaptive-cbd5e1);
 
 }
 
@@ -1577,7 +1577,7 @@ padding:30px;
 
 border-radius:24px;
 
-background:#08111f;
+background:var(--ss-surface-08111f);
 
 text-align:center;
 
@@ -1615,7 +1615,7 @@ color:white;
 
 line-height:1.7;
 
-color:#94a3b8;
+color:var(--ss-adaptive-94a3b8);
 
 }
 

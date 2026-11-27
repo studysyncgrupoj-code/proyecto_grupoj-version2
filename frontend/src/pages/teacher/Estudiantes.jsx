@@ -1,3 +1,5 @@
+import ssI18n from "i18next";
+import SSLocalized from "../../i18n/Localized.jsx";
 import Sidebar from "../../components/dashboard/Sidebar";
 import "../../styles/teacher/Estudiantes.css";
 
@@ -91,44 +93,44 @@ function Estudiantes() {
       <main className="estudiantes-content">
         <header className="estudiantes-topbar">
           <div>
-            <span className="estudiantes-eyebrow">GESTIÓN ACADÉMICA</span>
-            <h1>Estudiantes</h1>
-            <p>Supervisa el progreso, la actividad y el rendimiento de tu comunidad.</p>
+            <span className="estudiantes-eyebrow"><SSLocalized text={"GESTIÓN ACADÉMICA"} /></span>
+            <h1><SSLocalized text={"Estudiantes"} /></h1>
+            <p><SSLocalized text={"Supervisa el progreso, la actividad y el rendimiento de tu comunidad."} /></p>
           </div>
 
           <div className="estudiantes-topbar-actions">
             <button className="estudiantes-secondary-button" type="button">
-              Exportar
+              <SSLocalized text={"Exportar"} />
             </button>
             <button className="estudiantes-primary-button" type="button">
-              + Agregar estudiante
+              <SSLocalized text={"+ Agregar estudiante"} />
             </button>
           </div>
         </header>
 
         <section className="estudiantes-summary-grid">
           <article className="estudiantes-summary-card">
-            <span>Total de estudiantes</span>
+            <span><SSLocalized text={"Total de estudiantes"} /></span>
             <strong>{students.length}</strong>
-            <small>Comunidad registrada</small>
+            <small><SSLocalized text={"Comunidad registrada"} /></small>
           </article>
 
           <article className="estudiantes-summary-card">
-            <span>Estudiantes activos</span>
+            <span><SSLocalized text={"Estudiantes activos"} /></span>
             <strong>{onlineStudents}</strong>
-            <small>Cuentas habilitadas</small>
+            <small><SSLocalized text={"Cuentas habilitadas"} /></small>
           </article>
 
           <article className="estudiantes-summary-card">
-            <span>Estudiantes inactivos</span>
+            <span><SSLocalized text={"Estudiantes inactivos"} /></span>
             <strong>{premiumStudents}</strong>
-            <small>Cuentas deshabilitadas</small>
+            <small><SSLocalized text={"Cuentas deshabilitadas"} /></small>
           </article>
 
           <article className="estudiantes-summary-card">
-            <span>Progreso promedio</span>
+            <span><SSLocalized text={"Progreso promedio"} /></span>
             <strong>—</strong>
-            <small>Rendimiento global</small>
+            <small><SSLocalized text={"Rendimiento global"} /></small>
           </article>
         </section>
 
@@ -137,7 +139,7 @@ function Estudiantes() {
             <span aria-hidden="true">⌕</span>
             <input
               type="search"
-              placeholder="Buscar por nombre o correo..."
+              placeholder={ssI18n.t("Buscar por nombre o correo...")}
               value={search}
               onChange={(event) => setSearch(event.target.value)}
             />
@@ -161,7 +163,7 @@ function Estudiantes() {
               type="button"
               className={viewMode === 'grid' ? 'active' : ''}
               onClick={() => setViewMode('grid')}
-              aria-label="Vista en cuadrícula"
+              aria-label={ssI18n.t("Vista en cuadrícula")}
             >
               ▦
             </button>
@@ -169,7 +171,7 @@ function Estudiantes() {
               type="button"
               className={viewMode === 'list' ? 'active' : ''}
               onClick={() => setViewMode('list')}
-              aria-label="Vista en lista"
+              aria-label={ssI18n.t("Vista en lista")}
             >
               ☷
             </button>
@@ -178,21 +180,21 @@ function Estudiantes() {
 
         <section className="estudiantes-section-heading">
           <div>
-            <span>DIRECTORIO</span>
-            <h2>Comunidad de estudiantes</h2>
+            <span><SSLocalized text={"DIRECTORIO"} /></span>
+            <h2><SSLocalized text={"Comunidad de estudiantes"} /></h2>
           </div>
-          <p>{filteredStudents.length} resultados</p>
+          <p>{filteredStudents.length} <SSLocalized text={"resultados"} /></p>
         </section>
 
         {loading ? (
-          <p>Cargando estudiantes...</p>
+          <p><SSLocalized text={"Cargando estudiantes..."} /></p>
         ) : error ? (
           <p role="alert">{error}</p>
         ) : filteredStudents.length === 0 ? (
           <section className="estudiantes-empty-state">
             <div>⌕</div>
-            <h3>No encontramos estudiantes</h3>
-            <p>Prueba con otro término de búsqueda o cambia los filtros seleccionados.</p>
+            <h3><SSLocalized text={"No encontramos estudiantes"} /></h3>
+            <p><SSLocalized text={"Prueba con otro término de búsqueda o cambia los filtros seleccionados."} /></p>
           </section>
         ) : (
           <section
@@ -212,7 +214,7 @@ function Estudiantes() {
                       {student.status}
                     </span>
                     {student.plan === 'Premium' && (
-                      <span className="estudiante-premium-badge">Premium</span>
+                      <span className="estudiante-premium-badge"><SSLocalized text={"Premium"} /></span>
                     )}
                   </div>
                 </div>
@@ -224,7 +226,7 @@ function Estudiantes() {
 
                 <div className="estudiante-course-row">
                   <div>
-                    <span>Curso principal</span>
+                    <span><SSLocalized text={"Curso principal"} /></span>
                     <strong>{student.course}</strong>
                   </div>
                   <span className="estudiante-level">{student.level}</span>
@@ -232,7 +234,7 @@ function Estudiantes() {
 
                 <div className="estudiante-progress">
                   <div className="estudiante-progress-label">
-                    <span>Progreso académico</span>
+                    <span><SSLocalized text={"Progreso académico"} /></span>
                     <strong>—</strong>
                   </div>
                   <div className="estudiante-progress-track">
@@ -242,15 +244,15 @@ function Estudiantes() {
 
                 <div className="estudiante-metrics">
                   <div>
-                    <span>Tiempo de enfoque</span>
+                    <span><SSLocalized text={"Tiempo de enfoque"} /></span>
                     <strong>{student.focusTime}</strong>
                   </div>
                   <div>
-                    <span>Racha</span>
+                    <span><SSLocalized text={"Racha"} /></span>
                     <strong>{student.streak}</strong>
                   </div>
                   <div>
-                    <span>Salas</span>
+                    <span><SSLocalized text={"Salas"} /></span>
                     <strong>{student.rooms}</strong>
                   </div>
                 </div>
@@ -263,11 +265,11 @@ function Estudiantes() {
 
                 <footer className="estudiante-card-footer">
                   <div>
-                    <span>Última actividad</span>
+                    <span><SSLocalized text={"Última actividad"} /></span>
                     <strong>{student.lastActivity}</strong>
                   </div>
                   <button type="button" onClick={() => setSelectedStudent(student)}>
-                    Ver perfil
+                    <SSLocalized text={"Ver perfil"} />
                   </button>
                 </footer>
               </article>
@@ -289,7 +291,7 @@ function Estudiantes() {
               className="estudiante-modal-close"
               type="button"
               onClick={() => setSelectedStudent(null)}
-              aria-label="Cerrar"
+              aria-label={ssI18n.t("Cerrar")}
             >
               ×
             </button>
@@ -305,44 +307,44 @@ function Estudiantes() {
 
             <div className="estudiante-modal-summary">
               <article>
-                <span>Progreso</span>
+                <span><SSLocalized text={"Progreso"} /></span>
                 <strong>—</strong>
               </article>
               <article>
-                <span>Enfoque</span>
+                <span><SSLocalized text={"Enfoque"} /></span>
                 <strong>{selectedStudent.focusTime}</strong>
               </article>
               <article>
-                <span>Racha</span>
+                <span><SSLocalized text={"Racha"} /></span>
                 <strong>{selectedStudent.streak}</strong>
               </article>
             </div>
 
             <div className="estudiante-modal-details">
               <div>
-                <span>Curso principal</span>
+                <span><SSLocalized text={"Curso principal"} /></span>
                 <strong>{selectedStudent.course}</strong>
               </div>
               <div>
-                <span>Nivel</span>
+                <span><SSLocalized text={"Nivel"} /></span>
                 <strong>{selectedStudent.level}</strong>
               </div>
               <div>
-                <span>Estado</span>
+                <span><SSLocalized text={"Estado"} /></span>
                 <strong>{selectedStudent.status}</strong>
               </div>
               <div>
-                <span>Tendencia</span>
+                <span><SSLocalized text={"Tendencia"} /></span>
                 <strong>{selectedStudent.trend}</strong>
               </div>
             </div>
 
             <div className="estudiante-modal-actions">
               <button type="button" className="estudiantes-secondary-button">
-                Enviar mensaje
+                <SSLocalized text={"Enviar mensaje"} />
               </button>
               <button type="button" className="estudiantes-primary-button">
-                Ver reporte completo
+                <SSLocalized text={"Ver reporte completo"} />
               </button>
             </div>
           </section>

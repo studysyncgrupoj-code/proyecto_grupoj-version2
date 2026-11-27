@@ -1,3 +1,5 @@
+import ssI18n from "i18next";
+import SSLocalized from "../../i18n/Localized.jsx";
 import {
   Bell,
   BookOpen,
@@ -105,7 +107,7 @@ function DashboardProfesor() {
 
             <input
               type="search"
-              placeholder="Buscar cursos, estudiantes o salas..."
+              placeholder={ssI18n.t("Buscar cursos, estudiantes o salas...")}
             />
           </div>
 
@@ -113,7 +115,7 @@ function DashboardProfesor() {
             <button
               type="button"
               className="dashboard-icon-button"
-              aria-label="Notificaciones"
+              aria-label={ssI18n.t("Notificaciones")}
             >
               <Bell size={20} />
               <span className="notification-dot" />
@@ -124,7 +126,7 @@ function DashboardProfesor() {
 
               <div>
                 <strong>{fullName}</strong>
-                <span>Profesor</span>
+                <span><SSLocalized text={"Profesor"} /></span>
               </div>
             </div>
           </div>
@@ -134,26 +136,25 @@ function DashboardProfesor() {
           <div className="dashboard-hero-copy">
             <Badge variant="blue">
               <Sparkles size={14} />
-              Panel del profesor
+              <SSLocalized text={"Panel del profesor"} />
             </Badge>
 
-            <h1>Buenos días, {firstName}</h1>
+            <h1><SSLocalized text={"Buenos días,"} /> {firstName}</h1>
 
             <p>
-              Administra tus clases, estudiantes y actividades desde un solo
-              lugar.
+              <SSLocalized text={"Administra tus clases, estudiantes y actividades desde un solo lugar."} />
             </p>
           </div>
 
           <div className="dashboard-hero-actions">
             <Button variant="secondary" onClick={() => window.location.assign("/calendario")}>
               <CalendarDays size={18} />
-              Ver calendario
+              <SSLocalized text={"Ver calendario"} />
             </Button>
 
             <Button onClick={() => window.location.assign("/salas?crear=1")}>
               <Video size={18} />
-              Crear sala
+              <SSLocalized text={"Crear sala"} />
             </Button>
           </div>
         </section>
@@ -187,17 +188,17 @@ function DashboardProfesor() {
             <div className="dashboard-panel-header">
               <div>
                 <span className="dashboard-panel-eyebrow">
-                  Agenda
+                  <SSLocalized text={"Agenda"} />
                 </span>
 
-                <h2>Próximas clases</h2>
+                <h2><SSLocalized text={"Próximas clases"} /></h2>
               </div>
 
               <button
                 type="button"
                 className="dashboard-panel-link"
               >
-                Ver todas
+                <SSLocalized text={"Ver todas"} />
                 <ChevronRight size={17} />
               </button>
             </div>
@@ -237,17 +238,17 @@ function DashboardProfesor() {
             <div className="dashboard-panel-header">
               <div>
                 <span className="dashboard-panel-eyebrow">
-                  Seguimiento
+                  <SSLocalized text={"Seguimiento"} />
                 </span>
 
-                <h2>Actividad reciente</h2>
+                <h2><SSLocalized text={"Actividad reciente"} /></h2>
               </div>
 
               <button
                 type="button"
                 className="dashboard-panel-link"
               >
-                Ver todo
+                <SSLocalized text={"Ver todo"} />
                 <ChevronRight size={17} />
               </button>
             </div>

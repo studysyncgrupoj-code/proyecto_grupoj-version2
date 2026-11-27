@@ -100,4 +100,32 @@ public class UserService {
                 ))
                 .orElse(null);
     }
+
+    @org.springframework.transaction.annotation.Transactional
+    public void changePassword(Long userId,
+                               String currentPassword,
+                               String newPassword) {
+
+        User user = userRepository.findById(userId)
+            .orElseThrow(() -> new org.springframework.web.server.ResponseStatusException(
+                org.springframework.http.HttpStatus.NOT_FOUND));
+
+        if (currentPassword == null ||
+            !passwordEncoder.matches(currentPassword, user.getPassword())) {
+            throw new org.springframework.web.server.ResponseStatusException(
+                org.springframework.http.HttpStatus.BAD_REQUEST,
+                "La contraseña actual es incorrecta");
+        }
+
+        if (newPassword == null || newPassword.length() < 8 ||
+            newPassword.getBytes(java.nio.charset.StandardCharsets.UTF_8).length > 72) {
+            throw new org.springframework.web.server.ResponseStatusException(
+                org.springframework.http.HttpStatus.BAD_REQUEST,
+                "La nueva contraseña no cumple los requisitos");
+        }
+
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+    }
+
 }

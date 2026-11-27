@@ -9,7 +9,7 @@
       rgba(37, 99, 235, 0.14),
       transparent 30%
     ),
-    #02050b;
+    var(--ss-surface-02050b);
 }
 
 .admin-placeholder-layout,
@@ -40,8 +40,8 @@
     ),
     linear-gradient(
       155deg,
-      rgba(8, 15, 29, 0.96),
-      rgba(3, 8, 16, 0.99)
+      rgba(var(--ss-rgb-8-15-29), 0.96),
+      rgba(var(--ss-rgb-3-8-16), 0.99)
     );
   box-shadow:
     0 30px 70px rgba(0, 0, 0, 0.52),
@@ -87,7 +87,7 @@
 .admin-placeholder-card p {
   max-width: 620px;
   margin: 16px auto 0;
-  color: #94a3b8;
+  color: var(--ss-adaptive-94a3b8);
   line-height: 1.7;
 }
 

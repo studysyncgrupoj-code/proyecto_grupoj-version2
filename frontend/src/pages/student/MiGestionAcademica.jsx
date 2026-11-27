@@ -1,3 +1,5 @@
+import ssI18n from "i18next";
+import SSLocalized from "../../i18n/Localized.jsx";
 import { useMemo, useState } from "react";
 import {
   AlertTriangle,
@@ -151,15 +153,12 @@ function MiGestionAcademica() {
         <header className="student-academic-header">
           <div>
             <span className="student-academic-eyebrow">
-              <GraduationCap size={15} />
-              Mi gestión académica
-            </span>
+              <GraduationCap size={15} /><SSLocalized text={"Mi gestión académica"} /></span>
 
-            <h1>Progreso académico</h1>
+            <h1><SSLocalized text={"Progreso académico"} /></h1>
 
             <p>
-              Consulta tus notas, asistencia, informes, alertas y
-              evidencias.
+              <SSLocalized text={"Consulta tus notas, asistencia, informes, alertas y evidencias."} />
             </p>
           </div>
         </header>
@@ -194,9 +193,9 @@ function MiGestionAcademica() {
                   <TrendingUp size={22} />
                 </div>
 
-                <span>Promedio general</span>
+                <span><SSLocalized text={"Promedio general"} /></span>
                 <strong>{average}%</strong>
-                <small>Rendimiento acumulado</small>
+                <small><SSLocalized text={"Rendimiento acumulado"} /></small>
               </article>
 
               <article>
@@ -204,9 +203,9 @@ function MiGestionAcademica() {
                   <CalendarDays size={22} />
                 </div>
 
-                <span>Asistencia</span>
+                <span><SSLocalized text={"Asistencia"} /></span>
                 <strong>{attendanceAverage}%</strong>
-                <small>Promedio de asistencia</small>
+                <small><SSLocalized text={"Promedio de asistencia"} /></small>
               </article>
 
               <article>
@@ -214,9 +213,9 @@ function MiGestionAcademica() {
                   <BookOpen size={22} />
                 </div>
 
-                <span>Asignaturas</span>
+                <span><SSLocalized text={"Asignaturas"} /></span>
                 <strong>{subjects.length}</strong>
-                <small>Cursos activos</small>
+                <small><SSLocalized text={"Cursos activos"} /></small>
               </article>
 
               <article>
@@ -224,9 +223,9 @@ function MiGestionAcademica() {
                   <FileText size={22} />
                 </div>
 
-                <span>Informes</span>
+                <span><SSLocalized text={"Informes"} /></span>
                 <strong>{reports.length}</strong>
-                <small>Documentos disponibles</small>
+                <small><SSLocalized text={"Documentos disponibles"} /></small>
               </article>
             </section>
 
@@ -234,15 +233,15 @@ function MiGestionAcademica() {
               <article className="student-academic-panel">
                 <header>
                   <div>
-                    <span>Rendimiento</span>
-                    <h2>Mis asignaturas</h2>
+                    <span><SSLocalized text={"Rendimiento"} /></span>
+                    <h2><SSLocalized text={"Mis asignaturas"} /></h2>
                   </div>
 
                   <button
                     type="button"
                     onClick={() => setActiveTab("asignaturas")}
                   >
-                    Ver todas
+                    <SSLocalized text={"Ver todas"} />
                     <ChevronRight size={17} />
                   </button>
                 </header>
@@ -261,7 +260,7 @@ function MiGestionAcademica() {
 
                       <div className="student-subject-score">
                         <strong>{subject.grade}%</strong>
-                        <span>Promedio</span>
+                        <span><SSLocalized text={"Promedio"} /></span>
                       </div>
 
                       <span
@@ -277,15 +276,15 @@ function MiGestionAcademica() {
               <article className="student-academic-panel">
                 <header>
                   <div>
-                    <span>Novedades</span>
-                    <h2>Alertas recientes</h2>
+                    <span><SSLocalized text={"Novedades"} /></span>
+                    <h2><SSLocalized text={"Alertas recientes"} /></h2>
                   </div>
 
                   <button
                     type="button"
                     onClick={() => setActiveTab("alertas")}
                   >
-                    Ver todas
+                    <SSLocalized text={"Ver todas"} />
                     <ChevronRight size={17} />
                   </button>
                 </header>
@@ -318,8 +317,8 @@ function MiGestionAcademica() {
           <section className="student-academic-panel">
             <header>
               <div>
-                <span>Asignaturas activas</span>
-                <h2>Notas y asistencia</h2>
+                <span><SSLocalized text={"Asignaturas activas"} /></span>
+                <h2><SSLocalized text={"Notas y asistencia"} /></h2>
               </div>
             </header>
 
@@ -332,18 +331,18 @@ function MiGestionAcademica() {
                 onChange={(event) =>
                   setSearchTerm(event.target.value)
                 }
-                placeholder="Buscar asignatura o profesor..."
+                placeholder={ssI18n.t("Buscar asignatura o profesor...")}
               />
             </div>
 
             <div className="student-subject-table">
               <div className="student-subject-table-header">
-                <span>Asignatura</span>
-                <span>Profesor</span>
-                <span>Nota</span>
-                <span>Asistencia</span>
-                <span>Actividades</span>
-                <span>Estado</span>
+                <span><SSLocalized text={"Asignatura"} /></span>
+                <span><SSLocalized text={"Profesor"} /></span>
+                <span><SSLocalized text={"Nota"} /></span>
+                <span><SSLocalized text={"Asistencia"} /></span>
+                <span><SSLocalized text={"Actividades"} /></span>
+                <span><SSLocalized text={"Estado"} /></span>
               </div>
 
               {filteredSubjects.map((subject) => (
@@ -372,11 +371,11 @@ function MiGestionAcademica() {
           <section className="student-academic-panel">
             <header>
               <div>
-                <span>Expediente digital</span>
-                <h2>Informes académicos</h2>
+                <span><SSLocalized text={"Expediente digital"} /></span>
+                <h2><SSLocalized text={"Informes académicos"} /></h2>
               </div>
 
-              <small>{reports.length} documentos</small>
+              <small>{reports.length} <SSLocalized text={"documentos"} /></small>
             </header>
 
             <div className="student-report-list">
@@ -420,8 +419,8 @@ function MiGestionAcademica() {
           <section className="student-academic-panel">
             <header>
               <div>
-                <span>Seguimiento académico</span>
-                <h2>Alertas y reconocimientos</h2>
+                <span><SSLocalized text={"Seguimiento académico"} /></span>
+                <h2><SSLocalized text={"Alertas y reconocimientos"} /></h2>
               </div>
             </header>
 
@@ -450,7 +449,7 @@ function MiGestionAcademica() {
                       )
                     }
                   >
-                    Marcar como revisada
+                    <SSLocalized text={"Marcar como revisada"} />
                   </button>
                 </article>
               ))}
@@ -464,7 +463,7 @@ function MiGestionAcademica() {
           <section className="student-report-modal">
             <header>
               <div>
-                <span>Informe académico</span>
+                <span><SSLocalized text={"Informe académico"} /></span>
                 <h2>{selectedReport.title}</h2>
                 <p>
                   {selectedReport.subject} · {selectedReport.date}
@@ -473,7 +472,7 @@ function MiGestionAcademica() {
 
               <button
                 type="button"
-                aria-label="Cerrar informe"
+                aria-label={ssI18n.t("Cerrar informe")}
                 onClick={() => setSelectedReport(null)}
               >
                 <X size={20} />
@@ -482,17 +481,17 @@ function MiGestionAcademica() {
 
             <div className="student-report-content">
               <article>
-                <span>Profesor responsable</span>
+                <span><SSLocalized text={"Profesor responsable"} /></span>
                 <strong>{selectedReport.author}</strong>
               </article>
 
               <article>
-                <span>Estado</span>
+                <span><SSLocalized text={"Estado"} /></span>
                 <strong>{selectedReport.status}</strong>
               </article>
 
               <div className="student-report-observation">
-                <span>Observación académica</span>
+                <span><SSLocalized text={"Observación académica"} /></span>
                 <p>{selectedReport.observation}</p>
               </div>
 
@@ -507,7 +506,7 @@ function MiGestionAcademica() {
 
                 <span>
                   <strong>{selectedReport.evidence}</strong>
-                  <small>Evidencia adjunta</small>
+                  <small><SSLocalized text={"Evidencia adjunta"} /></small>
                 </span>
 
                 <Download size={18} />
@@ -520,7 +519,7 @@ function MiGestionAcademica() {
                 className="student-secondary-button"
                 onClick={() => setSelectedReport(null)}
               >
-                Cerrar
+                <SSLocalized text={"Cerrar"} />
               </button>
 
               <button
@@ -531,7 +530,7 @@ function MiGestionAcademica() {
                 }
               >
                 <Download size={17} />
-                Descargar informe
+                <SSLocalized text={"Descargar informe"} />
               </button>
             </footer>
           </section>

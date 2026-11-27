@@ -20,7 +20,7 @@
     radial-gradient(circle at 50% 20%, rgba(37, 99, 235, 0.2), transparent 32%),
     radial-gradient(circle at 15% 85%, rgba(14, 165, 233, 0.09), transparent 28%),
     radial-gradient(circle at 90% 78%, rgba(37, 99, 235, 0.08), transparent 26%),
-    linear-gradient(180deg, #02050b 0%, #010308 100%);
+    linear-gradient(180deg, var(--ss-surface-02050b) 0%, var(--ss-surface-010308) 100%);
 }
 
 .notfound-page,
@@ -79,7 +79,7 @@
   text-align: center;
   background:
     radial-gradient(circle at 100% 0%, rgba(37, 99, 235, 0.15), transparent 38%),
-    linear-gradient(155deg, rgba(8, 15, 29, 0.92), rgba(3, 8, 16, 0.97));
+    linear-gradient(155deg, rgba(var(--ss-rgb-8-15-29), 0.92), rgba(var(--ss-rgb-3-8-16), 0.97));
   box-shadow:
     0 34px 90px rgba(0, 0, 0, 0.62),
     0 0 46px rgba(14, 165, 233, 0.08),
@@ -203,8 +203,8 @@
 
 .notfound-actions .secondary-btn {
   border: 1px solid rgba(148, 163, 184, 0.16);
-  color: #cbd5e1;
-  background: rgba(5, 10, 19, 0.72);
+  color: var(--ss-adaptive-cbd5e1);
+  background: rgba(var(--ss-rgb-5-10-19), 0.72);
 }
 
 .notfound-actions .secondary-btn:hover {
@@ -232,8 +232,8 @@
   padding: 12px;
   border: 1px solid rgba(148, 163, 184, 0.09);
   border-radius: 13px;
-  color: #718096;
-  background: rgba(5, 10, 19, 0.5);
+  color: var(--ss-adaptive-718096);
+  background: rgba(var(--ss-rgb-5-10-19), 0.5);
   font-size: 0.72rem;
 }
 

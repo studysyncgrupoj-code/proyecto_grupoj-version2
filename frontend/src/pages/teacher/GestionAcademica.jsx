@@ -1,3 +1,5 @@
+import ssI18n from "i18next";
+import SSLocalized from "../../i18n/Localized.jsx";
 import { useEffect, useMemo, useState } from "react";
 import {
   AlertCircle,
@@ -466,13 +468,13 @@ function GestionAcademica() {
             <Users size={22} />
           </div>
 
-          <span>Estudiantes</span>
+          <span><SSLocalized text={"Estudiantes"} /></span>
 
           <strong>
             {isLoading ? "..." : students.length}
           </strong>
 
-          <small>Activos en StudySync</small>
+          <small><SSLocalized text={"Activos en StudySync"} /></small>
         </article>
 
         <article className="academic-stat-card">
@@ -480,13 +482,13 @@ function GestionAcademica() {
             <BookOpen size={22} />
           </div>
 
-          <span>Cursos</span>
+          <span><SSLocalized text={"Cursos"} /></span>
 
           <strong>
             {isLoading ? "..." : courses.length}
           </strong>
 
-          <small>Registrados actualmente</small>
+          <small><SSLocalized text={"Registrados actualmente"} /></small>
         </article>
 
         <article className="academic-stat-card">
@@ -494,13 +496,13 @@ function GestionAcademica() {
             <ClipboardCheck size={22} />
           </div>
 
-          <span>Por calificar</span>
+          <span><SSLocalized text={"Por calificar"} /></span>
 
           <strong>
             {isLoading ? "..." : totalPending}
           </strong>
 
-          <small>Entregas pendientes</small>
+          <small><SSLocalized text={"Entregas pendientes"} /></small>
         </article>
 
         <article className="academic-stat-card">
@@ -508,13 +510,13 @@ function GestionAcademica() {
             <TrendingUp size={22} />
           </div>
 
-          <span>Promedio general</span>
+          <span><SSLocalized text={"Promedio general"} /></span>
 
           <strong>
             {isLoading ? "..." : `${averageGrade}%`}
           </strong>
 
-          <small>Rendimiento académico</small>
+          <small><SSLocalized text={"Rendimiento académico"} /></small>
         </article>
       </section>
 
@@ -522,22 +524,22 @@ function GestionAcademica() {
         <article className="academic-panel academic-students-panel">
           <div className="academic-panel-heading">
             <div>
-              <span>Seguimiento</span>
-              <h2>Estudiantes destacados y alertas</h2>
+              <span><SSLocalized text={"Seguimiento"} /></span>
+              <h2><SSLocalized text={"Estudiantes destacados y alertas"} /></h2>
             </div>
 
             <button
               type="button"
               onClick={() => setActiveTab("estudiantes")}
             >
-              Ver todos
+              <SSLocalized text={"Ver todos"} />
               <ChevronRight size={17} />
             </button>
           </div>
 
           <div className="academic-student-list">
             {students.length === 0 && !isLoading ? (
-              <p>No hay estudiantes registrados.</p>
+              <p><SSLocalized text={"No hay estudiantes registrados."} /></p>
             ) : (
               students.slice(0, 4).map((student) => (
                 <button
@@ -557,7 +559,7 @@ function GestionAcademica() {
 
                   <div className="academic-student-score">
                     <strong>{student.grade}%</strong>
-                    <span>Promedio</span>
+                    <span><SSLocalized text={"Promedio"} /></span>
                   </div>
 
                   <span
@@ -578,22 +580,22 @@ function GestionAcademica() {
         <article className="academic-panel academic-activities-panel">
           <div className="academic-panel-heading">
             <div>
-              <span>Evaluaciones</span>
-              <h2>Actividades pendientes</h2>
+              <span><SSLocalized text={"Evaluaciones"} /></span>
+              <h2><SSLocalized text={"Actividades pendientes"} /></h2>
             </div>
 
             <button
               type="button"
               onClick={() => setActiveTab("notas")}
             >
-              Gestionar
+              <SSLocalized text={"Gestionar"} />
               <ChevronRight size={17} />
             </button>
           </div>
 
           <div className="academic-activity-list">
             {activities.length === 0 && !isLoading ? (
-              <p>No hay actividades registradas.</p>
+              <p><SSLocalized text={"No hay actividades registradas."} /></p>
             ) : (
               activities.map((activity) => {
                 const total = Number(activity.total || 0);
@@ -628,7 +630,7 @@ function GestionAcademica() {
 
                     <div className="academic-progress-meta">
                       <span>
-                        {completed} de {total} calificadas
+                        {completed} <SSLocalized text={"de"} /> {total} <SSLocalized text={"calificadas"} />
                       </span>
 
                       <strong>{progress}%</strong>
@@ -659,15 +661,14 @@ function GestionAcademica() {
             <ClipboardCheck size={23} />
           </div>
 
-          <h2>Notas y evaluaciones</h2>
+          <h2><SSLocalized text={"Notas y evaluaciones"} /></h2>
 
           <p>
-            Registra calificaciones, observaciones y resultados por
-            curso.
+            <SSLocalized text={"Registra calificaciones, observaciones y resultados por curso."} />
           </p>
 
           <span>
-            Gestionar notas
+            <SSLocalized text={"Gestionar notas"} />
             <ChevronRight size={17} />
           </span>
         </button>
@@ -681,14 +682,14 @@ function GestionAcademica() {
             <Users size={23} />
           </div>
 
-          <h2>Asistencia</h2>
+          <h2><SSLocalized text={"Asistencia"} /></h2>
 
           <p>
-            Controla asistencia, retrasos, ausencias y novedades.
+            <SSLocalized text={"Controla asistencia, retrasos, ausencias y novedades."} />
           </p>
 
           <span>
-            Ver asistencia
+            <SSLocalized text={"Ver asistencia"} />
             <ChevronRight size={17} />
           </span>
         </button>
@@ -702,15 +703,14 @@ function GestionAcademica() {
             <FileText size={23} />
           </div>
 
-          <h2>Informes académicos</h2>
+          <h2><SSLocalized text={"Informes académicos"} /></h2>
 
           <p>
-            Genera reportes, adjunta evidencias y prepara envíos por
-            correo.
+            <SSLocalized text={"Genera reportes, adjunta evidencias y prepara envíos por correo."} />
           </p>
 
           <span>
-            Crear informe
+            <SSLocalized text={"Crear informe"} />
             <ChevronRight size={17} />
           </span>
         </button>
@@ -722,11 +722,11 @@ function GestionAcademica() {
     <section className="academic-panel academic-directory-panel">
       <div className="academic-panel-heading">
         <div>
-          <span>Directorio académico</span>
-          <h2>Estudiantes asignados</h2>
+          <span><SSLocalized text={"Directorio académico"} /></span>
+          <h2><SSLocalized text={"Estudiantes asignados"} /></h2>
         </div>
 
-        <small>{filteredStudents.length} resultados</small>
+        <small>{filteredStudents.length} <SSLocalized text={"resultados"} /></small>
       </div>
 
       <div className="academic-search">
@@ -736,17 +736,17 @@ function GestionAcademica() {
           type="search"
           value={searchTerm}
           onChange={(event) => setSearchTerm(event.target.value)}
-          placeholder="Buscar estudiante, curso o correo..."
+          placeholder={ssI18n.t("Buscar estudiante, curso o correo...")}
         />
       </div>
 
       <div className="academic-students-table">
         <div className="academic-table-header">
-          <span>Estudiante</span>
-          <span>Curso</span>
-          <span>Promedio</span>
-          <span>Asistencia</span>
-          <span>Estado</span>
+          <span><SSLocalized text={"Estudiante"} /></span>
+          <span><SSLocalized text={"Curso"} /></span>
+          <span><SSLocalized text={"Promedio"} /></span>
+          <span><SSLocalized text={"Asistencia"} /></span>
+          <span><SSLocalized text={"Estado"} /></span>
           <span />
         </div>
 
@@ -793,15 +793,15 @@ function GestionAcademica() {
         <ClipboardCheck size={30} />
       </div>
 
-      <h2>Notas y evaluaciones</h2>
+      <h2><SSLocalized text={"Notas y evaluaciones"} /></h2>
 
       <p>
-        Consulta las actividades académicas registradas por el profesor.
+        <SSLocalized text={"Consulta las actividades académicas registradas por el profesor."} />
       </p>
 
       <div className="academic-activity-list academic-grades-list">
         {activities.length === 0 ? (
-          <p>No hay actividades registradas.</p>
+          <p><SSLocalized text={"No hay actividades registradas."} /></p>
         ) : (
           activities.map((activity) => {
             const course = courses.find(
@@ -821,7 +821,7 @@ function GestionAcademica() {
                   </div>
 
                   <small>
-                    {Number(activity.pending || 0)} pendientes
+                    {Number(activity.pending || 0)} <SSLocalized text={"pendientes"} />
                   </small>
                 </div>
 
@@ -835,7 +835,7 @@ function GestionAcademica() {
                     )
                   }
                 >
-                  Ver actividad
+                  <SSLocalized text={"Ver actividad"} />
                   <ChevronRight size={16} />
                 </button>
               </article>
@@ -852,11 +852,10 @@ function GestionAcademica() {
         <Users size={30} />
       </div>
 
-      <h2>Control de asistencia</h2>
+      <h2><SSLocalized text={"Control de asistencia"} /></h2>
 
       <p>
-        Consulta la asistencia general y registra novedades por
-        estudiante.
+        <SSLocalized text={"Consulta la asistencia general y registra novedades por estudiante."} />
       </p>
 
       <div className="academic-attendance-grid">
@@ -879,7 +878,7 @@ function GestionAcademica() {
                 handleUpdateAttendance(student)
               }
             >
-              Registrar
+              <SSLocalized text={"Registrar"} />
             </button>
           </article>
         ))}
@@ -895,15 +894,12 @@ function GestionAcademica() {
         <header className="academic-page-header">
           <div>
             <span className="academic-page-eyebrow">
-              <GraduationCap size={15} />
-              Gestión académica
-            </span>
+              <GraduationCap size={15} /><SSLocalized text={"Gestión académica"} /></span>
 
-            <h1>Centro académico</h1>
+            <h1><SSLocalized text={"Centro académico"} /></h1>
 
             <p>
-              Administra notas, asistencia, evidencias e informes de
-              tus estudiantes.
+              <SSLocalized text={"Administra notas, asistencia, evidencias e informes de tus estudiantes."} />
             </p>
           </div>
 
@@ -913,7 +909,7 @@ function GestionAcademica() {
             onClick={() => openReportModal()}
           >
             <Plus size={18} />
-            Crear informe
+            <SSLocalized text={"Crear informe"} />
           </button>
         </header>
 
@@ -964,7 +960,7 @@ function GestionAcademica() {
               </div>
 
               <div>
-                <span>Expediente académico</span>
+                <span><SSLocalized text={"Expediente académico"} /></span>
                 <h2>{selectedStudent.name}</h2>
                 <p>{selectedStudent.course}</p>
               </div>
@@ -979,22 +975,22 @@ function GestionAcademica() {
 
             <div className="academic-student-details">
               <article>
-                <span>Promedio</span>
+                <span><SSLocalized text={"Promedio"} /></span>
                 <strong>{selectedStudent.grade}%</strong>
               </article>
 
               <article>
-                <span>Asistencia</span>
+                <span><SSLocalized text={"Asistencia"} /></span>
                 <strong>{selectedStudent.attendance}%</strong>
               </article>
 
               <article>
-                <span>Informes</span>
+                <span><SSLocalized text={"Informes"} /></span>
                 <strong>{selectedStudent.reports}</strong>
               </article>
 
               <article>
-                <span>Estado</span>
+                <span><SSLocalized text={"Estado"} /></span>
                 <strong>{selectedStudent.status}</strong>
               </article>
             </div>
@@ -1003,8 +999,7 @@ function GestionAcademica() {
               <AlertCircle size={18} />
 
               <p>
-                Los datos mostrados provienen de los registros
-                académicos guardados para este estudiante.
+                <SSLocalized text={"Los datos mostrados provienen de los registros académicos guardados para este estudiante."} />
               </p>
             </div>
 
@@ -1014,7 +1009,7 @@ function GestionAcademica() {
                 className="academic-secondary-button"
                 onClick={() => setSelectedStudent(null)}
               >
-                Cerrar
+                <SSLocalized text={"Cerrar"} />
               </button>
 
               <button
@@ -1027,7 +1022,7 @@ function GestionAcademica() {
                 }}
               >
                 <FileText size={17} />
-                Crear informe
+                <SSLocalized text={"Crear informe"} />
               </button>
             </footer>
           </section>
@@ -1039,8 +1034,8 @@ function GestionAcademica() {
           <section className="academic-report-modal">
             <header>
               <div>
-                <span>Nuevo documento</span>
-                <h2>Informe académico</h2>
+                <span><SSLocalized text={"Nuevo documento"} /></span>
+                <h2><SSLocalized text={"Informe académico"} /></h2>
               </div>
 
               <button
@@ -1056,7 +1051,7 @@ function GestionAcademica() {
 
             <form onSubmit={handleReportSubmit}>
               <label>
-                <span>Estudiante</span>
+                <span><SSLocalized text={"Estudiante"} /></span>
 
                 <select
                   value={reportForm.studentId}
@@ -1079,7 +1074,7 @@ function GestionAcademica() {
                   required
                 >
                   <option value="">
-                    Selecciona un estudiante
+                    <SSLocalized text={"Selecciona un estudiante"} />
                   </option>
 
                   {students.map((student) => (
@@ -1094,7 +1089,7 @@ function GestionAcademica() {
               </label>
 
               <label>
-                <span>Curso o asignatura</span>
+                <span><SSLocalized text={"Curso o asignatura"} /></span>
 
                 <select
                   value={reportForm.courseId}
@@ -1106,7 +1101,7 @@ function GestionAcademica() {
                   }
                 >
                   <option value="">
-                    Sin curso específico
+                    <SSLocalized text={"Sin curso específico"} />
                   </option>
 
                   {courses.map((course) => (
@@ -1121,7 +1116,7 @@ function GestionAcademica() {
               </label>
 
               <label>
-                <span>Observación académica</span>
+                <span><SSLocalized text={"Observación académica"} /></span>
 
                 <textarea
                   value={reportForm.observation}
@@ -1131,7 +1126,7 @@ function GestionAcademica() {
                       observation: event.target.value,
                     }))
                   }
-                  placeholder="Describe el desempeño, novedades y recomendaciones..."
+                  placeholder={ssI18n.t("Describe el desempeño, novedades y recomendaciones...")}
                   required
                 />
               </label>
@@ -1146,7 +1141,7 @@ function GestionAcademica() {
                 }
               >
                 <Paperclip size={17} />
-                Adjuntar evidencia
+                <SSLocalized text={"Adjuntar evidencia"} />
                 <Upload size={16} />
               </button>
 
@@ -1164,7 +1159,7 @@ function GestionAcademica() {
 
                 <span>
                   <Mail size={17} />
-                  Preparar este informe para envío por correo
+                  <SSLocalized text={"Preparar este informe para envío por correo"} />
                 </span>
               </label>
 
@@ -1180,7 +1175,7 @@ function GestionAcademica() {
                     setError("");
                   }}
                 >
-                  Cancelar
+                  <SSLocalized text={"Cancelar"} />
                 </button>
 
                 <button

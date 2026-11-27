@@ -31,7 +31,7 @@
   background:
     radial-gradient(circle at 86% -8%, rgba(37, 99, 235, 0.18), transparent 32%),
     radial-gradient(circle at 28% 14%, rgba(14, 165, 233, 0.07), transparent 26%),
-    linear-gradient(180deg, #02050b 0%, #010308 100%);
+    linear-gradient(180deg, var(--ss-surface-02050b) 0%, var(--ss-surface-010308) 100%);
 }
 
 .calendar-layout,
@@ -76,7 +76,7 @@
   border-right: 1px solid rgba(148, 163, 184, 0.12);
   background:
     radial-gradient(circle at 20% 0%, rgba(14, 165, 233, 0.08), transparent 27%),
-    linear-gradient(180deg, rgba(4, 8, 16, 0.99), rgba(2, 5, 11, 0.99));
+    linear-gradient(180deg, rgba(var(--ss-rgb-4-8-16), 0.99), rgba(var(--ss-rgb-2-5-11), 0.99));
   box-shadow:
     18px 0 45px rgba(0, 0, 0, 0.28),
     inset -1px 0 0 rgba(255, 255, 255, 0.015);
@@ -130,7 +130,7 @@
 .calendar-layout .sidebar-brand-text span {
   display: block;
   margin-top: 3px;
-  color: #64748b;
+  color: var(--ss-adaptive-64748b);
   font-size: 0.73rem;
 }
 
@@ -150,7 +150,7 @@
   padding: 0 14px;
   border: 1px solid transparent;
   border-radius: 13px;
-  color: #8492a6;
+  color: var(--ss-adaptive-8492a6);
   background: transparent;
   font-size: 0.9rem;
   font-weight: 650;
@@ -195,7 +195,7 @@
   border-radius: 18px;
   background:
     radial-gradient(circle at 100% 0%, rgba(37, 99, 235, 0.18), transparent 43%),
-    linear-gradient(145deg, rgba(8, 17, 31, 0.95), rgba(3, 8, 17, 0.98));
+    linear-gradient(145deg, rgba(var(--ss-rgb-8-17-31), 0.95), rgba(var(--ss-rgb-3-8-17), 0.98));
   box-shadow:
     0 18px 40px rgba(0, 0, 0, 0.38),
     inset 0 1px 0 rgba(255, 255, 255, 0.035);
@@ -220,7 +220,7 @@
 
 .calendar-layout .sidebar-premium p {
   margin: 8px 0 14px;
-  color: #7f8ea3;
+  color: var(--ss-adaptive-7f8ea3);
   font-size: 0.75rem;
   line-height: 1.55;
 }
@@ -231,7 +231,7 @@
   border: 1px solid rgba(56, 189, 248, 0.25);
   border-radius: 11px;
   color: #dff6ff;
-  background: rgba(6, 17, 26, 0.86);
+  background: rgba(var(--ss-rgb-6-17-26), 0.86);
   font-size: 0.78rem;
   font-weight: 750;
   cursor: pointer;
@@ -257,7 +257,7 @@
   padding: 12px;
   border: 1px solid rgba(148, 163, 184, 0.11);
   border-radius: 14px;
-  background: linear-gradient(145deg, rgba(9, 15, 27, 0.9), rgba(4, 8, 15, 0.96));
+  background: linear-gradient(145deg, rgba(var(--ss-rgb-9-15-27), 0.9), rgba(var(--ss-rgb-4-8-15), 0.96));
 }
 
 .calendar-layout .sidebar-user-avatar {
@@ -291,7 +291,7 @@
 
 .calendar-layout .sidebar-user-info span {
   margin-top: 3px;
-  color: #64748b;
+  color: var(--ss-adaptive-64748b);
   font-size: 0.69rem;
 }
 
@@ -416,7 +416,7 @@
   padding: 21px;
   border: 1px solid var(--calendar-border);
   border-radius: 19px;
-  background: linear-gradient(145deg, rgba(10, 17, 31, 0.91), rgba(4, 9, 18, 0.96));
+  background: linear-gradient(145deg, rgba(var(--ss-rgb-10-17-31), 0.91), rgba(var(--ss-rgb-4-9-18), 0.96));
   box-shadow:
     0 20px 48px rgba(0, 0, 0, 0.34),
     inset 0 1px 0 rgba(255, 255, 255, 0.035);
@@ -441,7 +441,7 @@
 }
 
 .calendar-stat-card span {
-  color: #8fa1b7;
+  color: var(--ss-adaptive-8fa1b7);
   font-size: 0.76rem;
 }
 
@@ -471,7 +471,7 @@
   padding: 22px;
   border: 1px solid rgba(148, 163, 184, 0.12);
   border-radius: 20px;
-  background: linear-gradient(155deg, rgba(8, 15, 29, 0.82), rgba(3, 8, 16, 0.94));
+  background: linear-gradient(155deg, rgba(var(--ss-rgb-8-15-29), 0.82), rgba(var(--ss-rgb-3-8-16), 0.94));
   box-shadow:
     0 18px 42px rgba(0, 0, 0, 0.3),
     inset 0 1px 0 rgba(255, 255, 255, 0.025);
@@ -528,8 +528,8 @@
   place-items: center;
   border: 1px solid rgba(148, 163, 184, 0.16);
   border-radius: 10px;
-  color: #cbd5e1;
-  background: rgba(5, 10, 19, 0.76);
+  color: var(--ss-adaptive-cbd5e1);
+  background: rgba(var(--ss-rgb-5-10-19), 0.76);
   cursor: pointer;
   transition:
     color var(--calendar-transition),
@@ -566,7 +566,7 @@
 
 .calendar-weekdays span {
   padding: 8px 0;
-  color: #64748b;
+  color: var(--ss-adaptive-64748b);
   font-size: 0.69rem;
   font-weight: 800;
   text-align: center;
@@ -592,7 +592,7 @@
   border: 1px solid rgba(148, 163, 184, 0.1);
   border-radius: 13px;
   color: #e2e8f0;
-  background: rgba(5, 10, 19, 0.58);
+  background: rgba(var(--ss-rgb-5-10-19), 0.58);
   cursor: pointer;
   transition:
     border-color var(--calendar-transition),
@@ -617,7 +617,7 @@
 
 .calendar-day:hover {
   border-color: rgba(56, 189, 248, 0.48);
-  background: rgba(5, 17, 31, 0.76);
+  background: rgba(var(--ss-rgb-5-17-31), 0.76);
   box-shadow: 0 0 24px rgba(14, 165, 233, 0.1);
   transform: translateY(-2px);
 }
@@ -633,7 +633,7 @@
 .calendar-day.current {
   color: #fff;
   border-color: rgba(56, 189, 248, 0.64);
-  background: linear-gradient(135deg, rgba(3, 43, 70, 0.98), rgba(4, 12, 26, 0.98));
+  background: linear-gradient(135deg, rgba(3, 43, 70, 0.98), rgba(var(--ss-rgb-4-12-26), 0.98));
   box-shadow:
     0 0 28px rgba(14, 165, 233, 0.15),
     inset 0 1px 0 rgba(255, 255, 255, 0.04);
@@ -688,7 +688,7 @@
   padding: 13px;
   border: 1px solid rgba(148, 163, 184, 0.1);
   border-radius: 14px;
-  background: rgba(5, 10, 19, 0.58);
+  background: rgba(var(--ss-rgb-5-10-19), 0.58);
   transition:
     border-color var(--calendar-transition),
     background var(--calendar-transition),
@@ -697,7 +697,7 @@
 
 .calendar-event-item:hover {
   border-color: rgba(56, 189, 248, 0.28);
-  background: rgba(5, 17, 31, 0.72);
+  background: rgba(var(--ss-rgb-5-17-31), 0.72);
   transform: translateY(-2px);
 }
 
@@ -732,7 +732,7 @@
 
 .calendar-event-info > span {
   margin-top: 4px;
-  color: #64748b;
+  color: var(--ss-adaptive-64748b);
   font-size: 0.67rem;
 }
 
@@ -747,7 +747,7 @@
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  color: #8492a6;
+  color: var(--ss-adaptive-8492a6);
   font-size: 0.64rem;
 }
 
@@ -761,7 +761,7 @@
 
 .calendar-focus-panel > p {
   margin: 14px 0 0;
-  color: #8492a6;
+  color: var(--ss-adaptive-8492a6);
   font-size: 0.78rem;
   line-height: 1.55;
 }
@@ -771,7 +771,7 @@
   margin-top: 18px;
   overflow: hidden;
   border-radius: 999px;
-  background: rgba(15, 23, 42, 0.78);
+  background: rgba(var(--ss-rgb-15-23-42), 0.78);
   box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.34);
 }
 

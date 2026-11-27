@@ -1,3 +1,5 @@
+import ssI18n from "i18next";
+import SSLocalized from "../../i18n/Localized.jsx";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
@@ -18,6 +20,8 @@ function Login() {
   const navigate = useNavigate();
 
   const [showPassword, setShowPassword] = useState(false);
+  const [mfaRequired, setMfaRequired] = useState(false);
+  const [otp, setOtp] = useState("");
 
   const [formData, setFormData] = useState({
     email: "",
@@ -39,7 +43,7 @@ function Login() {
 
     try {
       const response = await fetch(
-        "http://localhost:8080/api/users/login",
+        "/api/users/login",
         {
           method: "POST",
           headers: {
@@ -48,12 +52,27 @@ function Login() {
           body: JSON.stringify({
             email: formData.email.trim(),
             password: formData.password,
+            otp: otp,
           }),
         }
       );
 
       if (response.status === 401) {
-        alert("Correo o contraseña incorrectos.");
+        const data = await response.json().catch(() => ({}));
+
+        if (data.code === "MFA_REQUIRED" || data.code === "MFA_INVALID") {
+          setMfaRequired(true);
+          setOtp("");
+
+          if (data.code === "MFA_INVALID") {
+            alert(ssI18n.t("Código inválido, expirado o utilizado."));
+          }
+          return;
+        }
+
+        setMfaRequired(false);
+        setOtp("");
+        alert(ssI18n.t("Correo o contraseña incorrectos."));
         return;
       }
 
@@ -134,25 +153,24 @@ function Login() {
           </span>
 
           <span className="login-brand-copy">
-            <strong>StudySync</strong>
-            <small>Study Together</small>
+            <strong><SSLocalized text={"StudySync"} /></strong>
+            <small><SSLocalized text={"Study Together"} /></small>
           </span>
         </Link>
 
         <div className="login-showcase-content">
           <span className="login-eyebrow">
             <Sparkles size={15} />
-            Tu espacio de aprendizaje
+            <SSLocalized text={"Tu espacio de aprendizaje"} />
           </span>
 
           <h1>
-            Estudia mejor.
-            <span> Avanza acompañado.</span>
+            <SSLocalized text={"Estudia mejor."} />
+            <span> <SSLocalized text={"Avanza acompañado."} /></span>
           </h1>
 
           <p>
-            Organiza tus cursos, participa en salas de estudio y mejora tu
-            rendimiento desde una sola plataforma.
+            <SSLocalized text={"Organiza tus cursos, participa en salas de estudio y mejora tu rendimiento desde una sola plataforma."} />
           </p>
 
           <div className="login-benefits">
@@ -162,8 +180,8 @@ function Login() {
               </div>
 
               <span>
-                <strong>Salas colaborativas</strong>
-                <small>Aprende junto a tu comunidad.</small>
+                <strong><SSLocalized text={"Salas colaborativas"} /></strong>
+                <small><SSLocalized text={"Aprende junto a tu comunidad."} /></small>
               </span>
             </article>
 
@@ -173,16 +191,16 @@ function Login() {
               </div>
 
               <span>
-                <strong>Progreso centralizado</strong>
-                <small>Consulta tu actividad y resultados.</small>
+                <strong><SSLocalized text={"Progreso centralizado"} /></strong>
+                <small><SSLocalized text={"Consulta tu actividad y resultados."} /></small>
               </span>
             </article>
           </div>
         </div>
 
         <div className="login-showcase-footer">
-          <span>© 2026 StudySync</span>
-          <span>Aprende. Colabora. Crece.</span>
+          <span><SSLocalized text={"© 2026 StudySync"} /></span>
+          <span><SSLocalized text={"Aprende. Colabora. Crece."} /></span>
         </div>
       </section>
 
@@ -193,18 +211,18 @@ function Login() {
               <GraduationCap size={24} />
             </span>
 
-            <strong>StudySync</strong>
+            <strong><SSLocalized text={"StudySync"} /></strong>
           </div>
 
           <header className="login-form-header">
             <span className="login-form-label">
-              Bienvenido de nuevo
+              <SSLocalized text={"Bienvenido de nuevo"} />
             </span>
 
-            <h2>Inicia sesión</h2>
+            <h2><SSLocalized text={"Inicia sesión"} /></h2>
 
             <p>
-              Ingresa tus datos para continuar a tu espacio de trabajo.
+              <SSLocalized text={"Ingresa tus datos para continuar a tu espacio de trabajo."} />
             </p>
           </header>
 
@@ -213,7 +231,7 @@ function Login() {
             onSubmit={handleSubmit}
           >
             <label className="login-field">
-              <span>Correo electrónico</span>
+              <span><SSLocalized text={"Correo electrónico"} /></span>
 
               <div className="login-input-wrapper">
                 <Mail size={18} />
@@ -223,7 +241,7 @@ function Login() {
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
-                  placeholder="nombre@correo.com"
+                  placeholder={ssI18n.t("nombre@correo.com")}
                   autoComplete="email"
                   required
                 />
@@ -231,7 +249,7 @@ function Login() {
             </label>
 
             <label className="login-field">
-              <span>Tipo de usuario</span>
+              <span><SSLocalized text={"Tipo de usuario"} /></span>
 
               <div className="login-input-wrapper">
                 <Users size={18} />
@@ -243,22 +261,22 @@ function Login() {
                   required
                 >
                   <option value="estudiante">
-                    Estudiante
+                    <SSLocalized text={"Estudiante"} />
                   </option>
 
                   <option value="profesor">
-                    Profesor
+                    <SSLocalized text={"Profesor"} />
                   </option>
 
                   <option value="administrador">
-                    Administrador
+                    <SSLocalized text={"Administrador"} />
                   </option>
                 </select>
               </div>
             </label>
 
             <label className="login-field">
-              <span>Contraseña</span>
+              <span><SSLocalized text={"Contraseña"} /></span>
 
               <div className="login-input-wrapper">
                 <LockKeyhole size={18} />
@@ -268,7 +286,7 @@ function Login() {
                   name="password"
                   value={formData.password}
                   onChange={handleChange}
-                  placeholder="Ingresa tu contraseña"
+                  placeholder={ssI18n.t("Ingresa tu contraseña")}
                   autoComplete="current-password"
                   required
                 />
@@ -294,14 +312,37 @@ function Login() {
               </div>
             </label>
 
+            {mfaRequired && (
+              <label className="login-field">
+                <span><SSLocalized text="Código de autenticación" /></span>
+                <div className="login-input-wrapper">
+                  <ShieldCheck size={18} />
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    autoComplete="one-time-code"
+                    value={otp}
+                    onChange={(e) => setOtp(
+                      e.target.value.replace(/[^0-9]/g, "").slice(0, 6)
+                    )}
+                    pattern="[0-9]{6}"
+                    maxLength={6}
+                    placeholder="000000"
+                    required
+                    autoFocus
+                  />
+                </div>
+              </label>
+            )}
+
             <div className="login-form-options">
               <label className="login-remember">
                 <input type="checkbox" />
-                <span>Recordarme</span>
+                <span><SSLocalized text={"Recordarme"} /></span>
               </label>
 
               <Link to="/recuperar-password">
-                ¿Olvidaste tu contraseña?
+                <SSLocalized text={"¿Olvidaste tu contraseña?"} />
               </Link>
             </div>
 
@@ -309,12 +350,12 @@ function Login() {
               type="submit"
               className="login-submit-button"
             >
-              <span>Iniciar sesión</span>
+              <span><SSLocalized text={"Iniciar sesión"} /></span>
               <ArrowRight size={19} />
             </button>
 
             <div className="login-divider">
-              <span>o continúa con</span>
+              <span><SSLocalized text={"o continúa con"} /></span>
             </div>
 
             <button
@@ -322,17 +363,17 @@ function Login() {
               className="login-google-button"
             >
               <span className="login-google-icon">
-                G
+                <SSLocalized text={"G"} />
               </span>
 
-              Continuar con Google
+              <SSLocalized text={"Continuar con Google"} />
             </button>
           </form>
 
           <p className="login-register-text">
-            ¿Todavía no tienes una cuenta?
+            <SSLocalized text={"¿Todavía no tienes una cuenta?"} />
             <Link to="/register">
-              Crear cuenta
+              <SSLocalized text={"Crear cuenta"} />
             </Link>
           </p>
         </div>

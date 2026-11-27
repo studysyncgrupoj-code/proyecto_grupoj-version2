@@ -7,7 +7,7 @@
     min-height: 100vh;
     display:grid;
     grid-template-columns:270px 1fr;
-    background:#02050b;
+    background:var(--ss-surface-02050b);
     color:#fff;
 }
 
@@ -70,7 +70,7 @@ HEADER
     height:48px;
     border-radius:14px;
     border:1px solid rgba(148,163,184,.15);
-    background:#05080d;
+    background:var(--ss-surface-05080d);
 }
 
 .reports-period-select svg{
@@ -123,8 +123,8 @@ KPIs
     border:1px solid rgba(148,163,184,.14);
     background:
         linear-gradient(180deg,
-        rgba(8,10,16,.96),
-        rgba(4,6,11,.98));
+        rgba(var(--ss-rgb-8-10-16), .96),
+        rgba(var(--ss-rgb-4-6-11), .98));
     box-shadow:
         0 18px 45px rgba(0,0,0,.45),
         inset 0 1px 0 rgba(255,255,255,.03);
@@ -198,8 +198,8 @@ GRID PRINCIPAL
     background:
         linear-gradient(
             180deg,
-            rgba(8,10,16,.96),
-            rgba(4,6,11,.98)
+            rgba(var(--ss-rgb-8-10-16), .96),
+            rgba(var(--ss-rgb-4-6-11), .98)
         );
     box-shadow:
         0 20px 45px rgba(0,0,0,.45),
@@ -276,7 +276,7 @@ GRÁFICA SEMANAL
     height:250px;
     border-radius:25px;
     overflow: hidden;
-    background:#0b1320;
+    background:var(--ss-surface-0b1320);
     display:flex;
     align-items:flex-end;
 }
@@ -323,8 +323,8 @@ RESUMEN
         conic-gradient(
             #38bdf8 0deg,
             #2563eb 313deg,
-            #111827 313deg,
-            #111827 360deg
+            var(--ss-surface-111827) 313deg,
+            var(--ss-surface-111827) 360deg
         );
 }
 /*==========================================================
@@ -344,7 +344,7 @@ RESUMEN CIRCULAR
     flex-direction:column;
     justify-content:center;
     align-items:center;
-    background:#030712;
+    background:var(--ss-surface-030712);
     box-shadow:
         inset 0 0 35px rgba(0,0,0,.55);
 }
@@ -370,7 +370,7 @@ RESUMEN CIRCULAR
     align-items:center;
     padding:15px 18px;
     border-radius:14px;
-    background:#050b15;
+    background:var(--ss-surface-050b15);
     border:1px solid rgba(148,163,184,.12);
 }
 
@@ -406,7 +406,7 @@ CURSOS
     padding:20px;
     border-radius:18px;
     border:1px solid rgba(148,163,184,.12);
-    background:#050912;
+    background:var(--ss-surface-050912);
     transition:.3s;
 }
 
@@ -458,7 +458,7 @@ CURSOS
     height:8px;
     border-radius:30px;
     overflow: hidden;
-    background:#101827;
+    background:var(--ss-surface-101827);
 }
 
 .reports-progress-track span{
@@ -504,7 +504,7 @@ ACTIVIDAD
     gap:14px;
     padding:16px;
     border-radius:16px;
-    background:#050912;
+    background:var(--ss-surface-050912);
     border:1px solid rgba(148,163,184,.12);
     transition:.25s;
 }
@@ -537,7 +537,7 @@ ACTIVIDAD
 }
 
 .reports-feed-list span{
-    color:#64748b;
+    color:var(--ss-adaptive-64748b);
     font-size:.68rem;
 }
 
@@ -576,7 +576,7 @@ TABLA
     height:48px;
     padding:0 15px;
     border-radius:14px;
-    background:#050912;
+    background:var(--ss-surface-050912);
     border:1px solid rgba(148,163,184,.12);
 }
 
@@ -602,7 +602,7 @@ TABLA
 }
 
 .reports-table thead{
-    background:#07111d;
+    background:var(--ss-surface-07111d);
 }
 
 .reports-table th{
@@ -664,7 +664,7 @@ TABLA
     height:7px;
     border-radius:30px;
     overflow: hidden;
-    background:#111827;
+    background:var(--ss-surface-111827);
 }
 
 .reports-table-progress div span{
@@ -765,7 +765,7 @@ SCROLL
 }
 
 .reports-table-wrapper::-webkit-scrollbar-track{
-    background:#050912;
+    background:var(--ss-surface-050912);
 }
 
 /*==========================

@@ -14,8 +14,8 @@
     ),
     linear-gradient(
       155deg,
-      rgba(8, 15, 29, 0.96),
-      rgba(3, 8, 16, 0.99)
+      rgba(var(--ss-rgb-8-15-29), 0.96),
+      rgba(var(--ss-rgb-3-8-16), 0.99)
     );
   box-shadow:
     0 22px 50px rgba(0, 0, 0, 0.5),
@@ -60,8 +60,8 @@
   padding: 6px 9px;
   border: 1px solid rgba(148, 163, 184, 0.15);
   border-radius: 999px;
-  color: #64748b;
-  background: rgba(5, 10, 19, 0.75);
+  color: var(--ss-adaptive-64748b);
+  background: rgba(var(--ss-rgb-5-10-19), 0.75);
   font-size: 0.62rem;
   font-weight: 750;
 }
@@ -85,8 +85,8 @@
     conic-gradient(
       #38bdf8 0deg,
       #2563eb var(--room-timer-progress),
-      rgba(30, 41, 59, 0.58) var(--room-timer-progress),
-      rgba(30, 41, 59, 0.58) 360deg
+      rgba(var(--ss-rgb-30-41-59), 0.58) var(--room-timer-progress),
+      rgba(var(--ss-rgb-30-41-59), 0.58) 360deg
     );
   box-shadow:
     0 0 0 1px rgba(56, 189, 248, 0.14),
@@ -107,7 +107,7 @@
       rgba(14, 165, 233, 0.09),
       transparent 44%
     ),
-    #030711;
+    var(--ss-surface-030711);
 }
 
 .room-compact-timer-ring strong {
@@ -119,7 +119,7 @@
 
 .room-compact-timer-ring span {
   margin-top: 9px;
-  color: #718096;
+  color: var(--ss-adaptive-718096);
   font-size: 0.7rem;
 }
 
@@ -131,7 +131,7 @@
 .room-compact-progress > div:first-child {
   display: flex;
   justify-content: space-between;
-  color: #718096;
+  color: var(--ss-adaptive-718096);
   font-size: 0.68rem;
 }
 
@@ -143,7 +143,7 @@
   height: 7px;
   overflow: hidden;
   border-radius: 999px;
-  background: #111827;
+  background: var(--ss-surface-111827);
 }
 
 .room-compact-progress-track span {
@@ -181,8 +181,8 @@
 
 .room-compact-actions button:last-child {
   border: 1px solid rgba(148, 163, 184, 0.16);
-  color: #cbd5e1;
-  background: rgba(5, 10, 19, 0.78);
+  color: var(--ss-adaptive-cbd5e1);
+  background: rgba(var(--ss-rgb-5-10-19), 0.78);
 }
 
 @media (max-width: 420px) {

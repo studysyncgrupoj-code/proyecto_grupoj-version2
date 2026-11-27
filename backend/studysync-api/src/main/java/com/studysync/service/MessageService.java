@@ -13,13 +13,16 @@ public class MessageService {
 
     private final MessageRepository messageRepository;
     private final UserRepository userRepository;
+    private final UserSettingsService settingsService;
 
     public MessageService(
             MessageRepository messageRepository,
-            UserRepository userRepository) {
+            UserRepository userRepository,
+            UserSettingsService settingsService) {
 
         this.messageRepository = messageRepository;
         this.userRepository = userRepository;
+        this.settingsService = settingsService;
     }
 
     public List<Message> getConversation(
@@ -149,6 +152,12 @@ public class MessageService {
     public long getUnreadCount(Long userId) {
 
         validateUser(userId);
+
+        if (Boolean.FALSE.equals(
+                settingsService.getByUserId(userId)
+                    .getMessageNotifications())) {
+            return 0L;
+        }
 
         return messageRepository
                 .findByRecipientIdAndReadFalse(userId)

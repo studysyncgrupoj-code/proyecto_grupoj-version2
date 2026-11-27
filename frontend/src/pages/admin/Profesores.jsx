@@ -1,3 +1,5 @@
+import ssI18n from "i18next";
+import SSLocalized from "../../i18n/Localized.jsx";
 import { useEffect, useMemo, useState } from "react";
 import {
   BookOpen,
@@ -610,14 +612,13 @@ function Profesores() {
           <div>
             <span className="professors-page-eyebrow">
               <ShieldCheck size={15} />
-              Gestión institucional
+              <SSLocalized text={"Gestión institucional"} />
             </span>
 
-            <h1>Profesores</h1>
+            <h1><SSLocalized text={"Profesores"} /></h1>
 
             <p>
-              Administra docentes, especialidades, cursos asignados,
-              estudiantes e informes académicos.
+              <SSLocalized text={"Administra docentes, especialidades, cursos asignados, estudiantes e informes académicos."} />
             </p>
           </div>
 
@@ -627,7 +628,7 @@ function Profesores() {
             onClick={openCreateModal}
           >
             <Plus size={18} />
-            Nuevo profesor
+            <SSLocalized text={"Nuevo profesor"} />
           </button>
         </header>
 
@@ -637,9 +638,9 @@ function Profesores() {
               <GraduationCap size={22} />
             </div>
 
-            <span>Total profesores</span>
+            <span><SSLocalized text={"Total profesores"} /></span>
             <strong>{statistics.total}</strong>
-            <small>Docentes registrados</small>
+            <small><SSLocalized text={"Docentes registrados"} /></small>
           </article>
 
           <article className="professors-stat-card">
@@ -647,9 +648,9 @@ function Profesores() {
               <UserCheck size={22} />
             </div>
 
-            <span>Profesores activos</span>
+            <span><SSLocalized text={"Profesores activos"} /></span>
             <strong>{statistics.active}</strong>
-            <small>Disponibles actualmente</small>
+            <small><SSLocalized text={"Disponibles actualmente"} /></small>
           </article>
 
           <article className="professors-stat-card">
@@ -657,9 +658,9 @@ function Profesores() {
               <BookOpen size={22} />
             </div>
 
-            <span>Cursos asignados</span>
+            <span><SSLocalized text={"Cursos asignados"} /></span>
             <strong>{statistics.courses}</strong>
-            <small>En toda la plataforma</small>
+            <small><SSLocalized text={"En toda la plataforma"} /></small>
           </article>
 
           <article className="professors-stat-card">
@@ -667,9 +668,9 @@ function Profesores() {
               <Users size={22} />
             </div>
 
-            <span>Estudiantes atendidos</span>
+            <span><SSLocalized text={"Estudiantes atendidos"} /></span>
             <strong>{statistics.students}</strong>
-            <small>Participación académica</small>
+            <small><SSLocalized text={"Participación académica"} /></small>
           </article>
         </section>
 
@@ -684,7 +685,7 @@ function Profesores() {
                 onChange={(event) =>
                   setSearchTerm(event.target.value)
                 }
-                placeholder="Buscar profesor, correo o especialidad..."
+                placeholder={ssI18n.t("Buscar profesor, correo o especialidad...")}
               />
             </div>
 
@@ -714,15 +715,15 @@ function Profesores() {
                 }
               >
                 <option value="Todos">
-                  Todos los estados
+                  <SSLocalized text={"Todos los estados"} />
                 </option>
 
                 <option value="Activo">
-                  Activo
+                  <SSLocalized text={"Activo"} />
                 </option>
 
                 <option value="Inactivo">
-                  Inactivo
+                  <SSLocalized text={"Inactivo"} />
                 </option>
               </select>
 
@@ -735,7 +736,7 @@ function Profesores() {
                   onClick={clearFilters}
                 >
                   <X size={16} />
-                  Limpiar
+                  <SSLocalized text={"Limpiar"} />
                 </button>
               )}
             </div>
@@ -743,8 +744,8 @@ function Profesores() {
 
           <div className="professors-table-heading">
             <div>
-              <span>Directorio docente</span>
-              <h2>Profesores registrados</h2>
+              <span><SSLocalized text={"Directorio docente"} /></span>
+              <h2><SSLocalized text={"Profesores registrados"} /></h2>
             </div>
 
             <small>
@@ -762,13 +763,13 @@ function Profesores() {
             <table className="professors-table">
               <thead>
                 <tr>
-                  <th>Profesor</th>
-                  <th>Especialidad</th>
-                  <th>Cursos</th>
-                  <th>Estudiantes</th>
-                  <th>Informes</th>
-                  <th>Estado</th>
-                  <th>Último acceso</th>
+                  <th><SSLocalized text={"Profesor"} /></th>
+                  <th><SSLocalized text={"Especialidad"} /></th>
+                  <th><SSLocalized text={"Cursos"} /></th>
+                  <th><SSLocalized text={"Estudiantes"} /></th>
+                  <th><SSLocalized text={"Informes"} /></th>
+                  <th><SSLocalized text={"Estado"} /></th>
+                  <th><SSLocalized text={"Último acceso"} /></th>
                   <th />
                 </tr>
               </thead>
@@ -863,7 +864,7 @@ function Profesores() {
                             }
                           >
                             <Eye size={16} />
-                            Ver detalles
+                            <SSLocalized text={"Ver detalles"} />
                           </button>
 
                           <button
@@ -873,7 +874,7 @@ function Profesores() {
                             }
                           >
                             <Edit3 size={16} />
-                            Editar profesor
+                            <SSLocalized text={"Editar profesor"} />
                           </button>
 
                           <button
@@ -901,7 +902,7 @@ function Profesores() {
                             }
                           >
                             <Trash2 size={16} />
-                            Eliminar profesor
+                            <SSLocalized text={"Eliminar profesor"} />
                           </button>
                         </div>
                       )}
@@ -916,18 +917,17 @@ function Profesores() {
                 <div className="professors-empty-state">
                   <GraduationCap size={36} />
 
-                  <h3>No encontramos profesores</h3>
+                  <h3><SSLocalized text={"No encontramos profesores"} /></h3>
 
                   <p>
-                    Cambia los filtros o utiliza otro término de
-                    búsqueda.
+                    <SSLocalized text={"Cambia los filtros o utiliza otro término de búsqueda."} />
                   </p>
 
                   <button
                     type="button"
                     onClick={clearFilters}
                   >
-                    Limpiar filtros
+                    <SSLocalized text={"Limpiar filtros"} />
                   </button>
                 </div>
               )}
@@ -971,33 +971,33 @@ function Profesores() {
             <form onSubmit={handleSubmit}>
               <div className="professors-form-grid">
                 <label>
-                  <span>Nombre completo *</span>
+                  <span><SSLocalized text={"Nombre completo *"} /></span>
 
                   <input
                     type="text"
                     name="name"
                     value={formData.name}
                     onChange={handleChange}
-                    placeholder="Nombre y apellidos"
+                    placeholder={ssI18n.t("Nombre y apellidos")}
                     required
                   />
                 </label>
 
                 <label>
-                  <span>Correo electrónico *</span>
+                  <span><SSLocalized text={"Correo electrónico *"} /></span>
 
                   <input
                     type="email"
                     name="email"
                     value={formData.email}
                     onChange={handleChange}
-                    placeholder="profesor@correo.com"
+                    placeholder={ssI18n.t("profesor@correo.com")}
                     required
                   />
                 </label>
 
                 <label>
-                  <span>Teléfono</span>
+                  <span><SSLocalized text={"Teléfono"} /></span>
 
                   <input
                     type="tel"
@@ -1009,14 +1009,14 @@ function Profesores() {
                 </label>
 
                 <label>
-                  <span>Especialidad *</span>
+                  <span><SSLocalized text={"Especialidad *"} /></span>
 
                   <input
                     type="text"
                     name="specialty"
                     value={formData.specialty}
                     onChange={handleChange}
-                    placeholder="Ej. Matemáticas"
+                    placeholder={ssI18n.t("Ej. Matemáticas")}
                     required
                   />
                 </label>
@@ -1033,7 +1033,7 @@ function Profesores() {
                     name="password"
                     value={formData.password || ""}
                     onChange={handleChange}
-                    placeholder="Mínimo 8 caracteres"
+                    placeholder={ssI18n.t("Mínimo 8 caracteres")}
                     autoComplete="new-password"
                     minLength={8}
                     required={!isEditing}
@@ -1041,7 +1041,7 @@ function Profesores() {
                 </label>
 
                 <label>
-                  <span>Estado *</span>
+                  <span><SSLocalized text={"Estado *"} /></span>
 
                   <select
                     name="status"
@@ -1049,11 +1049,11 @@ function Profesores() {
                     onChange={handleChange}
                   >
                     <option value="Activo">
-                      Activo
+                      <SSLocalized text={"Activo"} />
                     </option>
 
                     <option value="Inactivo">
-                      Inactivo
+                      <SSLocalized text={"Inactivo"} />
                     </option>
                   </select>
                 </label>
@@ -1071,7 +1071,7 @@ function Profesores() {
                   className="professors-secondary-button"
                   onClick={closeModal}
                 >
-                  Cancelar
+                  <SSLocalized text={"Cancelar"} />
                 </button>
 
                 <button
@@ -1099,7 +1099,7 @@ function Profesores() {
               </div>
 
               <div>
-                <span>Perfil docente</span>
+                <span><SSLocalized text={"Perfil docente"} /></span>
 
                 <h2>{selectedProfessor.name}</h2>
 
@@ -1116,7 +1116,7 @@ function Profesores() {
 
             <div className="professors-details-grid">
               <article>
-                <span>Correo</span>
+                <span><SSLocalized text={"Correo"} /></span>
 
                 <strong>
                   {selectedProfessor.email}
@@ -1124,7 +1124,7 @@ function Profesores() {
               </article>
 
               <article>
-                <span>Teléfono</span>
+                <span><SSLocalized text={"Teléfono"} /></span>
 
                 <strong>
                   {selectedProfessor.phone ||
@@ -1133,7 +1133,7 @@ function Profesores() {
               </article>
 
               <article>
-                <span>Cursos asignados</span>
+                <span><SSLocalized text={"Cursos asignados"} /></span>
 
                 <strong>
                   {selectedProfessor.courses}
@@ -1141,7 +1141,7 @@ function Profesores() {
               </article>
 
               <article>
-                <span>Estudiantes</span>
+                <span><SSLocalized text={"Estudiantes"} /></span>
 
                 <strong>
                   {selectedProfessor.students}
@@ -1149,7 +1149,7 @@ function Profesores() {
               </article>
 
               <article>
-                <span>Informes enviados</span>
+                <span><SSLocalized text={"Informes enviados"} /></span>
 
                 <strong>
                   {selectedProfessor.reports}
@@ -1157,7 +1157,7 @@ function Profesores() {
               </article>
 
               <article>
-                <span>Estado</span>
+                <span><SSLocalized text={"Estado"} /></span>
 
                 <strong>
                   {selectedProfessor.status}
@@ -1165,7 +1165,7 @@ function Profesores() {
               </article>
 
               <article>
-                <span>Último acceso</span>
+                <span><SSLocalized text={"Último acceso"} /></span>
 
                 <strong>
                   {selectedProfessor.lastAccess}
@@ -1186,7 +1186,7 @@ function Profesores() {
                 }}
               >
                 <Edit3 size={17} />
-                Editar profesor
+                <SSLocalized text={"Editar profesor"} />
               </button>
             </footer>
           </section>
@@ -1200,14 +1200,14 @@ function Profesores() {
               <Trash2 size={25} />
             </div>
 
-            <h2>Eliminar profesor</h2>
+            <h2><SSLocalized text={"Eliminar profesor"} /></h2>
 
             <p>
-              Vas a eliminar a{" "}
+              <SSLocalized text={"Vas a eliminar a"} />{" "}
               <strong>
                 {selectedProfessor.name}
               </strong>
-              . Esta acción no se puede deshacer.
+              <SSLocalized text={". Esta acción no se puede deshacer."} />
             </p>
 
             <footer>
@@ -1218,7 +1218,7 @@ function Profesores() {
                   setIsDeleteOpen(false)
                 }
               >
-                Cancelar
+                <SSLocalized text={"Cancelar"} />
               </button>
 
               <button
@@ -1227,7 +1227,7 @@ function Profesores() {
                 onClick={handleDelete}
               >
                 <Trash2 size={17} />
-                Eliminar
+                <SSLocalized text={"Eliminar"} />
               </button>
             </footer>
           </section>

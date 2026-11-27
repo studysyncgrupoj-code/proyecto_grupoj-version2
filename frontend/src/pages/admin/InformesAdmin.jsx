@@ -1,3 +1,5 @@
+import ssI18n from "i18next";
+import SSLocalized from "../../i18n/Localized.jsx";
 import { useMemo, useState } from "react";
 import {
   BarChart3,
@@ -310,14 +312,13 @@ function InformesAdmin() {
           <div>
             <span className="reports-admin-eyebrow">
               <ShieldCheck size={15} />
-              Centro de informes
+              <SSLocalized text={"Centro de informes"} />
             </span>
 
-            <h1>Informes académicos</h1>
+            <h1><SSLocalized text={"Informes académicos"} /></h1>
 
             <p>
-              Consulta, organiza y administra todos los informes
-              generados dentro de StudySync.
+              <SSLocalized text={"Consulta, organiza y administra todos los informes generados dentro de StudySync."} />
             </p>
           </div>
 
@@ -327,7 +328,7 @@ function InformesAdmin() {
             onClick={openCreateModal}
           >
             <Plus size={18} />
-            Nuevo informe
+            <SSLocalized text={"Nuevo informe"} />
           </button>
         </header>
 
@@ -337,9 +338,9 @@ function InformesAdmin() {
               <ClipboardList size={22} />
             </div>
 
-            <span>Total informes</span>
+            <span><SSLocalized text={"Total informes"} /></span>
             <strong>{statistics.total}</strong>
-            <small>Documentos registrados</small>
+            <small><SSLocalized text={"Documentos registrados"} /></small>
           </article>
 
           <article>
@@ -347,9 +348,9 @@ function InformesAdmin() {
               <CheckCircle2 size={22} />
             </div>
 
-            <span>Enviados</span>
+            <span><SSLocalized text={"Enviados"} /></span>
             <strong>{statistics.sent}</strong>
-            <small>Completados correctamente</small>
+            <small><SSLocalized text={"Completados correctamente"} /></small>
           </article>
 
           <article>
@@ -357,9 +358,9 @@ function InformesAdmin() {
               <Users size={22} />
             </div>
 
-            <span>Profesores</span>
+            <span><SSLocalized text={"Profesores"} /></span>
             <strong>{statistics.professors}</strong>
-            <small>Con actividad registrada</small>
+            <small><SSLocalized text={"Con actividad registrada"} /></small>
           </article>
 
           <article>
@@ -367,9 +368,9 @@ function InformesAdmin() {
               <BarChart3 size={22} />
             </div>
 
-            <span>Pendientes</span>
+            <span><SSLocalized text={"Pendientes"} /></span>
             <strong>{statistics.pending}</strong>
-            <small>Requieren revisión</small>
+            <small><SSLocalized text={"Requieren revisión"} /></small>
           </article>
         </section>
 
@@ -380,7 +381,7 @@ function InformesAdmin() {
 
               <input
                 type="search"
-                placeholder="Buscar informe, estudiante, profesor o curso..."
+                placeholder={ssI18n.t("Buscar informe, estudiante, profesor o curso...")}
                 value={search}
                 onChange={(event) =>
                   setSearch(event.target.value)
@@ -396,14 +397,14 @@ function InformesAdmin() {
               }
             >
               <Filter size={17} />
-              Filtros
+              <SSLocalized text={"Filtros"} />
             </button>
           </div>
 
           {showFilters && (
             <div className="reports-admin-filter-panel">
               <label>
-                <span>Estado del informe</span>
+                <span><SSLocalized text={"Estado del informe"} /></span>
 
                 <select
                   value={statusFilter}
@@ -412,19 +413,19 @@ function InformesAdmin() {
                   }
                 >
                   <option value="Todos">
-                    Todos los estados
+                    <SSLocalized text={"Todos los estados"} />
                   </option>
 
                   <option value="Enviado">
-                    Enviado
+                    <SSLocalized text={"Enviado"} />
                   </option>
 
                   <option value="Pendiente">
-                    Pendiente
+                    <SSLocalized text={"Pendiente"} />
                   </option>
 
                   <option value="Borrador">
-                    Borrador
+                    <SSLocalized text={"Borrador"} />
                   </option>
                 </select>
               </label>
@@ -435,7 +436,7 @@ function InformesAdmin() {
                   onClick={clearFilters}
                 >
                   <X size={16} />
-                  Limpiar filtros
+                  <SSLocalized text={"Limpiar filtros"} />
                 </button>
               )}
             </div>
@@ -443,12 +444,12 @@ function InformesAdmin() {
 
           <div className="reports-admin-table-heading">
             <div>
-              <span>Gestión documental</span>
-              <h2>Listado de informes</h2>
+              <span><SSLocalized text={"Gestión documental"} /></span>
+              <h2><SSLocalized text={"Listado de informes"} /></h2>
             </div>
 
             <small>
-              {filteredReports.length} resultado
+              {filteredReports.length} <SSLocalized text={"resultado"} />
               {filteredReports.length === 1 ? "" : "s"}
             </small>
           </div>
@@ -457,12 +458,12 @@ function InformesAdmin() {
             <table className="reports-admin-table">
               <thead>
                 <tr>
-                  <th>Informe</th>
-                  <th>Estudiante</th>
-                  <th>Profesor</th>
-                  <th>Curso</th>
-                  <th>Fecha</th>
-                  <th>Estado</th>
+                  <th><SSLocalized text={"Informe"} /></th>
+                  <th><SSLocalized text={"Estudiante"} /></th>
+                  <th><SSLocalized text={"Profesor"} /></th>
+                  <th><SSLocalized text={"Curso"} /></th>
+                  <th><SSLocalized text={"Fecha"} /></th>
+                  <th><SSLocalized text={"Estado"} /></th>
                   <th />
                 </tr>
               </thead>
@@ -478,7 +479,7 @@ function InformesAdmin() {
 
                         <div>
                           <strong>{report.title}</strong>
-                          <span>ID #{report.id}</span>
+                          <span><SSLocalized text={"ID #"} />{report.id}</span>
                         </div>
                       </div>
                     </td>
@@ -521,7 +522,7 @@ function InformesAdmin() {
                             }
                           >
                             <Eye size={16} />
-                            Ver detalles
+                            <SSLocalized text={"Ver detalles"} />
                           </button>
 
                           <button
@@ -531,7 +532,7 @@ function InformesAdmin() {
                             }
                           >
                             <Edit3 size={16} />
-                            Editar informe
+                            <SSLocalized text={"Editar informe"} />
                           </button>
 
                           {report.status !== "Enviado" && (
@@ -542,7 +543,7 @@ function InformesAdmin() {
                               }
                             >
                               <Send size={16} />
-                              Marcar como enviado
+                              <SSLocalized text={"Marcar como enviado"} />
                             </button>
                           )}
 
@@ -554,7 +555,7 @@ function InformesAdmin() {
                             }
                           >
                             <Trash2 size={16} />
-                            Eliminar informe
+                            <SSLocalized text={"Eliminar informe"} />
                           </button>
                         </div>
                       )}
@@ -568,18 +569,17 @@ function InformesAdmin() {
               <div className="reports-admin-empty-state">
                 <FileText size={36} />
 
-                <h3>No encontramos informes</h3>
+                <h3><SSLocalized text={"No encontramos informes"} /></h3>
 
                 <p>
-                  Cambia los filtros o utiliza otro término de
-                  búsqueda.
+                  <SSLocalized text={"Cambia los filtros o utiliza otro término de búsqueda."} />
                 </p>
 
                 <button
                   type="button"
                   onClick={clearFilters}
                 >
-                  Limpiar filtros
+                  <SSLocalized text={"Limpiar filtros"} />
                 </button>
               </div>
             )}
@@ -615,7 +615,7 @@ function InformesAdmin() {
               <button
                 type="button"
                 onClick={closeFormModal}
-                aria-label="Cerrar formulario"
+                aria-label={ssI18n.t("Cerrar formulario")}
               >
                 <X size={20} />
               </button>
@@ -624,59 +624,59 @@ function InformesAdmin() {
             <form onSubmit={handleSubmit}>
               <div className="reports-admin-form-grid">
                 <label>
-                  <span>Título del informe *</span>
+                  <span><SSLocalized text={"Título del informe *"} /></span>
 
                   <input
                     type="text"
                     name="title"
                     value={formData.title}
                     onChange={handleChange}
-                    placeholder="Nombre del informe"
+                    placeholder={ssI18n.t("Nombre del informe")}
                     required
                   />
                 </label>
 
                 <label>
-                  <span>Estudiante *</span>
+                  <span><SSLocalized text={"Estudiante *"} /></span>
 
                   <input
                     type="text"
                     name="student"
                     value={formData.student}
                     onChange={handleChange}
-                    placeholder="Nombre del estudiante"
+                    placeholder={ssI18n.t("Nombre del estudiante")}
                     required
                   />
                 </label>
 
                 <label>
-                  <span>Profesor *</span>
+                  <span><SSLocalized text={"Profesor *"} /></span>
 
                   <input
                     type="text"
                     name="professor"
                     value={formData.professor}
                     onChange={handleChange}
-                    placeholder="Profesor responsable"
+                    placeholder={ssI18n.t("Profesor responsable")}
                     required
                   />
                 </label>
 
                 <label>
-                  <span>Curso *</span>
+                  <span><SSLocalized text={"Curso *"} /></span>
 
                   <input
                     type="text"
                     name="course"
                     value={formData.course}
                     onChange={handleChange}
-                    placeholder="Curso relacionado"
+                    placeholder={ssI18n.t("Curso relacionado")}
                     required
                   />
                 </label>
 
                 <label>
-                  <span>Fecha *</span>
+                  <span><SSLocalized text={"Fecha *"} /></span>
 
                   <input
                     type="date"
@@ -688,7 +688,7 @@ function InformesAdmin() {
                 </label>
 
                 <label>
-                  <span>Estado</span>
+                  <span><SSLocalized text={"Estado"} /></span>
 
                   <select
                     name="status"
@@ -696,27 +696,27 @@ function InformesAdmin() {
                     onChange={handleChange}
                   >
                     <option value="Borrador">
-                      Borrador
+                      <SSLocalized text={"Borrador"} />
                     </option>
 
                     <option value="Pendiente">
-                      Pendiente
+                      <SSLocalized text={"Pendiente"} />
                     </option>
 
                     <option value="Enviado">
-                      Enviado
+                      <SSLocalized text={"Enviado"} />
                     </option>
                   </select>
                 </label>
 
                 <label className="reports-admin-observation-field">
-                  <span>Observación académica</span>
+                  <span><SSLocalized text={"Observación académica"} /></span>
 
                   <textarea
                     name="observation"
                     value={formData.observation}
                     onChange={handleChange}
-                    placeholder="Describe el rendimiento, novedades y recomendaciones..."
+                    placeholder={ssI18n.t("Describe el rendimiento, novedades y recomendaciones...")}
                   />
                 </label>
               </div>
@@ -733,7 +733,7 @@ function InformesAdmin() {
                   className="reports-admin-secondary-button"
                   onClick={closeFormModal}
                 >
-                  Cancelar
+                  <SSLocalized text={"Cancelar"} />
                 </button>
 
                 <button
@@ -761,7 +761,7 @@ function InformesAdmin() {
               </div>
 
               <div>
-                <span>Ficha documental</span>
+                <span><SSLocalized text={"Ficha documental"} /></span>
                 <h2>{selectedReport.title}</h2>
                 <p>
                   {selectedReport.student} ·{" "}
@@ -772,7 +772,7 @@ function InformesAdmin() {
               <button
                 type="button"
                 onClick={() => setIsDetailsOpen(false)}
-                aria-label="Cerrar detalles"
+                aria-label={ssI18n.t("Cerrar detalles")}
               >
                 <X size={20} />
               </button>
@@ -780,38 +780,38 @@ function InformesAdmin() {
 
             <div className="reports-admin-details-grid">
               <article>
-                <span>Estudiante</span>
+                <span><SSLocalized text={"Estudiante"} /></span>
                 <strong>{selectedReport.student}</strong>
               </article>
 
               <article>
-                <span>Profesor</span>
+                <span><SSLocalized text={"Profesor"} /></span>
                 <strong>{selectedReport.professor}</strong>
               </article>
 
               <article>
-                <span>Curso</span>
+                <span><SSLocalized text={"Curso"} /></span>
                 <strong>{selectedReport.course}</strong>
               </article>
 
               <article>
-                <span>Fecha</span>
+                <span><SSLocalized text={"Fecha"} /></span>
                 <strong>{selectedReport.date}</strong>
               </article>
 
               <article>
-                <span>Estado</span>
+                <span><SSLocalized text={"Estado"} /></span>
                 <strong>{selectedReport.status}</strong>
               </article>
 
               <article>
-                <span>Identificador</span>
+                <span><SSLocalized text={"Identificador"} /></span>
                 <strong>#{selectedReport.id}</strong>
               </article>
             </div>
 
             <div className="reports-admin-observation">
-              <span>Observación académica</span>
+              <span><SSLocalized text={"Observación académica"} /></span>
 
               <p>
                 {selectedReport.observation ||
@@ -830,7 +830,7 @@ function InformesAdmin() {
                 }}
               >
                 <Edit3 size={17} />
-                Editar informe
+                <SSLocalized text={"Editar informe"} />
               </button>
             </footer>
           </section>
@@ -844,12 +844,11 @@ function InformesAdmin() {
               <Trash2 size={25} />
             </div>
 
-            <h2>Eliminar informe</h2>
+            <h2><SSLocalized text={"Eliminar informe"} /></h2>
 
             <p>
-              Vas a eliminar{" "}
-              <strong>{selectedReport.title}</strong>. Esta acción
-              no se puede deshacer.
+              <SSLocalized text={"Vas a eliminar"} />{" "}
+              <strong>{selectedReport.title}</strong><SSLocalized text={". Esta acción no se puede deshacer."} />
             </p>
 
             <footer>
@@ -858,7 +857,7 @@ function InformesAdmin() {
                 className="reports-admin-secondary-button"
                 onClick={() => setIsDeleteOpen(false)}
               >
-                Cancelar
+                <SSLocalized text={"Cancelar"} />
               </button>
 
               <button
@@ -867,7 +866,7 @@ function InformesAdmin() {
                 onClick={handleDelete}
               >
                 <Trash2 size={17} />
-                Eliminar
+                <SSLocalized text={"Eliminar"} />
               </button>
             </footer>
           </section>

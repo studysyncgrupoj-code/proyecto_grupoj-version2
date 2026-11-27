@@ -1,3 +1,5 @@
+import ssI18n from "i18next";
+import SSLocalized from "../../i18n/Localized.jsx";
 import { useMemo, useState } from "react";
 import {
   Activity,
@@ -86,13 +88,12 @@ function Reportes() {
           <div>
             <span className="reports-eyebrow">
               <BarChart3 size={15} />
-              Inteligencia académica
+              <SSLocalized text={"Inteligencia académica"} />
             </span>
 
-            <h1>Reportes</h1>
+            <h1><SSLocalized text={"Reportes"} /></h1>
             <p>
-              Analiza el rendimiento, la participación y el progreso de tus
-              estudiantes en un solo lugar.
+              <SSLocalized text={"Analiza el rendimiento, la participación y el progreso de tus estudiantes en un solo lugar."} />
             </p>
           </div>
 
@@ -108,7 +109,7 @@ function Reportes() {
 
             <button type="button" className="reports-export-button">
               <Download size={18} />
-              Exportar reporte
+              <SSLocalized text={"Exportar reporte"} />
             </button>
           </div>
         </header>
@@ -117,36 +118,36 @@ function Reportes() {
           <article className="reports-summary-card">
             <div className="reports-summary-icon"><Users size={21} /></div>
             <div>
-              <span>Estudiantes activos</span>
+              <span><SSLocalized text={"Estudiantes activos"} /></span>
               <strong>{totalStudents}</strong>
-              <small className="positive"><ArrowUpRight size={14} />12% frente al periodo anterior</small>
+              <small className="positive"><ArrowUpRight size={14} /><SSLocalized text={"12% frente al periodo anterior"} /></small>
             </div>
           </article>
 
           <article className="reports-summary-card">
             <div className="reports-summary-icon"><TrendingUp size={21} /></div>
             <div>
-              <span>Progreso promedio</span>
+              <span><SSLocalized text={"Progreso promedio"} /></span>
               <strong>{averageProgress}%</strong>
-              <small className="positive"><ArrowUpRight size={14} />6% de crecimiento</small>
+              <small className="positive"><ArrowUpRight size={14} /><SSLocalized text={"6% de crecimiento"} /></small>
             </div>
           </article>
 
           <article className="reports-summary-card">
             <div className="reports-summary-icon"><Clock3 size={21} /></div>
             <div>
-              <span>Horas de estudio</span>
-              <strong>{totalHours}h</strong>
-              <small className="positive"><ArrowUpRight size={14} />9h adicionales</small>
+              <span><SSLocalized text={"Horas de estudio"} /></span>
+              <strong>{totalHours}<SSLocalized text={"h"} /></strong>
+              <small className="positive"><ArrowUpRight size={14} /><SSLocalized text={"9h adicionales"} /></small>
             </div>
           </article>
 
           <article className="reports-summary-card">
             <div className="reports-summary-icon"><Activity size={21} /></div>
             <div>
-              <span>Sesiones completadas</span>
+              <span><SSLocalized text={"Sesiones completadas"} /></span>
               <strong>{totalSessions}</strong>
-              <small className="negative"><ArrowDownRight size={14} />2% menos esta semana</small>
+              <small className="negative"><ArrowDownRight size={14} /><SSLocalized text={"2% menos esta semana"} /></small>
             </div>
           </article>
         </section>
@@ -155,13 +156,13 @@ function Reportes() {
           <article className="reports-panel reports-activity-chart">
             <div className="reports-panel-header">
               <div>
-                <span>ACTIVIDAD SEMANAL</span>
-                <h2>Tiempo de estudio</h2>
+                <span><SSLocalized text={"ACTIVIDAD SEMANAL"} /></span>
+                <h2><SSLocalized text={"Tiempo de estudio"} /></h2>
               </div>
 
               <div className="reports-panel-highlight">
                 <Sparkles size={16} />
-                Mejor día: jueves
+                <SSLocalized text={"Mejor día: jueves"} />
               </div>
             </div>
 
@@ -187,8 +188,8 @@ function Reportes() {
           <aside className="reports-panel reports-overview-card">
             <div className="reports-panel-header">
               <div>
-                <span>RESUMEN</span>
-                <h2>Rendimiento general</h2>
+                <span><SSLocalized text={"RESUMEN"} /></span>
+                <h2><SSLocalized text={"Rendimiento general"} /></h2>
               </div>
               <LineChart size={22} />
             </div>
@@ -196,14 +197,14 @@ function Reportes() {
             <div className="reports-score-ring">
               <div>
                 <strong>87</strong>
-                <span>de 100</span>
+                <span><SSLocalized text={"de 100"} /></span>
               </div>
             </div>
 
             <div className="reports-overview-list">
-              <article><span>Participación</span><strong>91%</strong></article>
-              <article><span>Retención</span><strong>86%</strong></article>
-              <article><span>Entrega de tareas</span><strong>84%</strong></article>
+              <article><span><SSLocalized text={"Participación"} /></span><strong>91%</strong></article>
+              <article><span><SSLocalized text={"Retención"} /></span><strong>86%</strong></article>
+              <article><span><SSLocalized text={"Entrega de tareas"} /></span><strong>84%</strong></article>
             </div>
           </aside>
         </section>
@@ -212,8 +213,8 @@ function Reportes() {
           <article className="reports-panel reports-course-performance">
             <div className="reports-panel-header">
               <div>
-                <span>CURSOS</span>
-                <h2>Rendimiento por curso</h2>
+                <span><SSLocalized text={"CURSOS"} /></span>
+                <h2><SSLocalized text={"Rendimiento por curso"} /></h2>
               </div>
               <GraduationCap size={22} />
             </div>
@@ -224,7 +225,7 @@ function Reportes() {
                   <div className="reports-course-copy">
                     <div>
                       <h3>{course.name}</h3>
-                      <p>{course.students} estudiantes activos</p>
+                      <p>{course.students} <SSLocalized text={"estudiantes activos"} /></p>
                     </div>
 
                     <span className={course.trend >= 0 ? "reports-trend-positive" : "reports-trend-negative"}>
@@ -234,8 +235,8 @@ function Reportes() {
                   </div>
 
                   <div className="reports-course-metrics">
-                    <div><span>Progreso</span><strong>{course.progress}%</strong></div>
-                    <div><span>Participación</span><strong>{course.participation}%</strong></div>
+                    <div><span><SSLocalized text={"Progreso"} /></span><strong>{course.progress}%</strong></div>
+                    <div><span><SSLocalized text={"Participación"} /></span><strong>{course.participation}%</strong></div>
                   </div>
 
                   <div className="reports-progress-track">
@@ -249,8 +250,8 @@ function Reportes() {
           <aside className="reports-panel reports-feed-panel">
             <div className="reports-panel-header">
               <div>
-                <span>ACTIVIDAD</span>
-                <h2>Movimientos recientes</h2>
+                <span><SSLocalized text={"ACTIVIDAD"} /></span>
+                <h2><SSLocalized text={"Movimientos recientes"} /></h2>
               </div>
               <Activity size={22} />
             </div>
@@ -276,15 +277,15 @@ function Reportes() {
         <section className="reports-panel reports-students-table-panel">
           <div className="reports-table-header">
             <div>
-              <span>ESTUDIANTES</span>
-              <h2>Rendimiento individual</h2>
+              <span><SSLocalized text={"ESTUDIANTES"} /></span>
+              <h2><SSLocalized text={"Rendimiento individual"} /></h2>
             </div>
 
             <label className="reports-search">
               <Search size={17} />
               <input
                 type="search"
-                placeholder="Buscar estudiante, curso o estado..."
+                placeholder={ssI18n.t("Buscar estudiante, curso o estado...")}
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
               />
@@ -295,12 +296,12 @@ function Reportes() {
             <table className="reports-table">
               <thead>
                 <tr>
-                  <th>Estudiante</th>
-                  <th>Curso</th>
-                  <th>Progreso</th>
-                  <th>Tiempo de enfoque</th>
-                  <th>Sesiones</th>
-                  <th>Estado</th>
+                  <th><SSLocalized text={"Estudiante"} /></th>
+                  <th><SSLocalized text={"Curso"} /></th>
+                  <th><SSLocalized text={"Progreso"} /></th>
+                  <th><SSLocalized text={"Tiempo de enfoque"} /></th>
+                  <th><SSLocalized text={"Sesiones"} /></th>
+                  <th><SSLocalized text={"Estado"} /></th>
                 </tr>
               </thead>
 
@@ -340,8 +341,8 @@ function Reportes() {
           {filteredStudents.length === 0 && (
             <div className="reports-empty-state">
               <Search size={26} />
-              <h3>No encontramos estudiantes</h3>
-              <p>Prueba con otro término de búsqueda.</p>
+              <h3><SSLocalized text={"No encontramos estudiantes"} /></h3>
+              <p><SSLocalized text={"Prueba con otro término de búsqueda."} /></p>
             </div>
           )}
         </section>

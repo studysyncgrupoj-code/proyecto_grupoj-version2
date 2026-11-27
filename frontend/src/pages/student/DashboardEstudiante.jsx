@@ -1,3 +1,4 @@
+import SSLocalized from "../../i18n/Localized.jsx";
 import { useEffect, useState } from "react";
 import {
   ArrowRight,
@@ -141,15 +142,15 @@ function DashboardEstudiante() {
           <div>
             <span className="student-dashboard-eyebrow">
               <TrendingUp size={15} />
-              Panel del estudiante
+              <SSLocalized text={"Panel del estudiante"} />
             </span>
 
             <h1>
-              Buenos días, <span>{firstName}</span>
+              <SSLocalized text={"Buenos días,"} /> <span>{firstName}</span>
             </h1>
 
             <p>
-              Continúa aprendiendo y completa tus objetivos de estudio de hoy.
+              <SSLocalized text={"Continúa aprendiendo y completa tus objetivos de estudio de hoy."} />
             </p>
           </div>
 
@@ -159,7 +160,7 @@ function DashboardEstudiante() {
               className="student-secondary-button"
             >
               <CalendarDays size={18} />
-              Ver calendario
+              <SSLocalized text={"Ver calendario"} />
             </Link>
 
             <Link
@@ -167,7 +168,7 @@ function DashboardEstudiante() {
               className="student-primary-button"
             >
               <Users size={18} />
-              Buscar sala
+              <SSLocalized text={"Buscar sala"} />
             </Link>
           </div>
         </header>
@@ -176,19 +177,19 @@ function DashboardEstudiante() {
           <div className="student-welcome-copy">
             <span className="student-banner-label">
               <Flame size={15} />
-              Racha activa
+              <SSLocalized text={"Racha activa"} />
             </span>
 
-            <h2>¡Llevas 7 días estudiando sin detenerte!</h2>
+            <h2><SSLocalized text={"¡Llevas 7 días estudiando sin detenerte!"} /></h2>
 
             <p>
-              Completa una sesión hoy para conservar tu racha semanal.
+              <SSLocalized text={"Completa una sesión hoy para conservar tu racha semanal."} />
             </p>
           </div>
 
           <div className="student-streak-number">
             <strong>7</strong>
-            <span>días</span>
+            <span><SSLocalized text={"días"} /></span>
           </div>
         </section>
 
@@ -199,7 +200,7 @@ function DashboardEstudiante() {
             </div>
 
             <div>
-              <span>Tiempo estudiado</span>
+              <span><SSLocalized text={"Tiempo estudiado"} /></span>
 
               <strong>
                 {loadingData
@@ -210,7 +211,7 @@ function DashboardEstudiante() {
               </strong>
 
               <small>
-                {statistics.completedSessions} sesiones completadas
+                {statistics.completedSessions} <SSLocalized text={"sesiones completadas"} />
               </small>
             </div>
           </article>
@@ -221,7 +222,7 @@ function DashboardEstudiante() {
             </div>
 
             <div>
-              <span>Objetivos completados</span>
+              <span><SSLocalized text={"Objetivos completados"} /></span>
 
               <strong>
                 {loadingData
@@ -230,7 +231,7 @@ function DashboardEstudiante() {
               </strong>
 
               <small>
-                {statistics.pendingGoals} pendientes
+                {statistics.pendingGoals} <SSLocalized text={"pendientes"} />
               </small>
             </div>
           </article>
@@ -241,9 +242,9 @@ function DashboardEstudiante() {
             </div>
 
             <div>
-              <span>Cursos activos</span>
+              <span><SSLocalized text={"Cursos activos"} /></span>
               <strong>3</strong>
-              <small>1 lección nueva</small>
+              <small><SSLocalized text={"1 lección nueva"} /></small>
             </div>
           </article>
 
@@ -253,7 +254,7 @@ function DashboardEstudiante() {
             </div>
 
             <div>
-              <span>Pomodoros completados</span>
+              <span><SSLocalized text={"Pomodoros completados"} /></span>
 
               <strong>
                 {loadingData
@@ -261,7 +262,7 @@ function DashboardEstudiante() {
                   : statistics.totalPomodoros}
               </strong>
 
-              <small>Sesiones de concentración</small>
+              <small><SSLocalized text={"Sesiones de concentración"} /></small>
             </div>
           </article>
         </section>
@@ -272,13 +273,13 @@ function DashboardEstudiante() {
               <div className="student-panel-header">
                 <div>
                   <span className="student-section-label">
-                    Tu aprendizaje
+                    <SSLocalized text={"Tu aprendizaje"} />
                   </span>
-                  <h2>Continúa tus cursos</h2>
+                  <h2><SSLocalized text={"Continúa tus cursos"} /></h2>
                 </div>
 
                 <Link to="/cursos">
-                  Ver todos
+                  <SSLocalized text={"Ver todos"} />
                   <ArrowRight size={16} />
                 </Link>
               </div>
@@ -313,12 +314,12 @@ function DashboardEstudiante() {
 
                       <div className="student-course-footer">
                         <span>
-                          Próxima lección: {course.nextLesson}
+                          <SSLocalized text={"Próxima lección:"} /> {course.nextLesson}
                         </span>
 
                         <button type="button">
                           <Play size={15} />
-                          Continuar
+                          <SSLocalized text={"Continuar"} />
                         </button>
                       </div>
                     </div>
@@ -331,13 +332,13 @@ function DashboardEstudiante() {
               <div className="student-panel-header">
                 <div>
                   <span className="student-section-label">
-                    Organización
+                    <SSLocalized text={"Organización"} />
                   </span>
-                  <h2>Objetivos de estudio</h2>
+                  <h2><SSLocalized text={"Objetivos de estudio"} /></h2>
                 </div>
 
                 <span className="student-task-counter">
-                  {completedGoals} de {goals.length} completados
+                  {completedGoals} <SSLocalized text={"de"} /> {goals.length} <SSLocalized text={"completados"} />
                 </span>
               </div>
 
@@ -345,15 +346,15 @@ function DashboardEstudiante() {
                 {loadingData ? (
                   <article className="student-task-item">
                     <div>
-                      <strong>Cargando objetivos...</strong>
+                      <strong><SSLocalized text={"Cargando objetivos..."} /></strong>
                     </div>
                   </article>
                 ) : goals.length === 0 ? (
                   <article className="student-task-item">
                     <div>
-                      <strong>No tienes objetivos registrados</strong>
+                      <strong><SSLocalized text={"No tienes objetivos registrados"} /></strong>
                       <span>
-                        Crea una meta para comenzar a medir tu progreso.
+                        <SSLocalized text={"Crea una meta para comenzar a medir tu progreso."} />
                       </span>
                     </div>
                   </article>
@@ -375,8 +376,8 @@ function DashboardEstudiante() {
                         <strong>{goal.title}</strong>
 
                         <span>
-                          {goal.currentHours || 0} de{" "}
-                          {goal.targetHours || 0} horas
+                          {goal.currentHours || 0} <SSLocalized text={"de"} />{" "}
+                          {goal.targetHours || 0} <SSLocalized text={"horas"} />
                         </span>
                       </div>
                     </article>
@@ -386,8 +387,8 @@ function DashboardEstudiante() {
 
               {!loadingData && goals.length > 0 && (
                 <small>
-                  {pendingGoals} objetivo
-                  {pendingGoals !== 1 ? "s" : ""} pendiente
+                  {pendingGoals} <SSLocalized text={"objetivo"} />
+                  {pendingGoals !== 1 ? "s" : ""} <SSLocalized text={"pendiente"} />
                   {pendingGoals !== 1 ? "s" : ""}
                 </small>
               )}
@@ -399,34 +400,33 @@ function DashboardEstudiante() {
               <div className="student-panel-header">
                 <div>
                   <span className="student-section-label">
-                    Próxima sesión
+                    <SSLocalized text={"Próxima sesión"} />
                   </span>
-                  <h2>Sala de React</h2>
+                  <h2><SSLocalized text={"Sala de React"} /></h2>
                 </div>
 
                 <div className="student-live-dot" />
               </div>
 
               <p>
-                Componentes, hooks y trabajo colaborativo con otros
-                estudiantes.
+                <SSLocalized text={"Componentes, hooks y trabajo colaborativo con otros estudiantes."} />
               </p>
 
               <div className="student-room-meta">
                 <span>
                   <Clock3 size={16} />
-                  Comienza en 14 minutos
+                  <SSLocalized text={"Comienza en 14 minutos"} />
                 </span>
 
                 <span>
                   <Users size={16} />
-                  12 participantes
+                  <SSLocalized text={"12 participantes"} />
                 </span>
               </div>
 
               <Link to="/room" className="student-room-button">
                 <Play size={17} />
-                Entrar a la sala
+                <SSLocalized text={"Entrar a la sala"} />
               </Link>
             </article>
 
@@ -434,13 +434,13 @@ function DashboardEstudiante() {
               <div className="student-panel-header">
                 <div>
                   <span className="student-section-label">
-                    Comunidad
+                    <SSLocalized text={"Comunidad"} />
                   </span>
-                  <h2>Amigos conectados</h2>
+                  <h2><SSLocalized text={"Amigos conectados"} /></h2>
                 </div>
 
                 <span className="student-online-count">
-                  {friends.length} en línea
+                  {friends.length} <SSLocalized text={"en línea"} />
                 </span>
               </div>
 

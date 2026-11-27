@@ -5,7 +5,7 @@
   color: #fff;
   background:
     radial-gradient(circle at 92% 0%, rgba(37, 99, 235, 0.13), transparent 30%),
-    #02050b;
+    var(--ss-surface-02050b);
 }
 
 .academic-page-layout,
@@ -52,7 +52,7 @@
 
 .academic-page-header p {
   margin: 14px 0 0;
-  color: #94a3b8;
+  color: var(--ss-adaptive-94a3b8);
 }
 
 .academic-create-report,
@@ -79,7 +79,7 @@
   padding: 6px;
   border: 1px solid rgba(148, 163, 184, 0.12);
   border-radius: 14px;
-  background: rgba(5, 10, 19, 0.72);
+  background: rgba(var(--ss-rgb-5-10-19), 0.72);
 }
 
 .academic-tabs button {
@@ -87,7 +87,7 @@
   padding: 0 15px;
   border: 0;
   border-radius: 10px;
-  color: #718096;
+  color: var(--ss-adaptive-718096);
   background: transparent;
   cursor: pointer;
   font-weight: 700;
@@ -112,7 +112,7 @@
   border: 1px solid rgba(148, 163, 184, 0.13);
   background:
     radial-gradient(circle at 100% 0%, rgba(37, 99, 235, 0.07), transparent 38%),
-    linear-gradient(155deg, rgba(8, 15, 29, 0.93), rgba(3, 8, 16, 0.98));
+    linear-gradient(155deg, rgba(var(--ss-rgb-8-15-29), 0.93), rgba(var(--ss-rgb-3-8-16), 0.98));
   box-shadow: 0 22px 52px rgba(0, 0, 0, 0.38);
 }
 
@@ -143,7 +143,7 @@
 
 .academic-stat-card span {
   margin-top: 14px;
-  color: #8fa1b7;
+  color: var(--ss-adaptive-8fa1b7);
   font-size: 0.74rem;
 }
 
@@ -219,7 +219,7 @@
   border: 1px solid rgba(148, 163, 184, 0.09);
   border-radius: 13px;
   color: inherit;
-  background: rgba(4, 9, 18, 0.65);
+  background: rgba(var(--ss-rgb-4-9-18), 0.65);
   cursor: pointer;
   text-align: left;
 }
@@ -227,7 +227,7 @@
 .academic-student-row:hover,
 .academic-table-row:hover {
   border-color: rgba(56, 189, 248, 0.3);
-  background: rgba(9, 22, 39, 0.9);
+  background: rgba(var(--ss-rgb-9-22-39), 0.9);
 }
 
 .academic-student-avatar {
@@ -263,7 +263,7 @@
 .academic-student-main span,
 .academic-table-student span {
   margin-top: 4px;
-  color: #64748b;
+  color: var(--ss-adaptive-64748b);
   font-size: 0.66rem;
 }
 
@@ -282,7 +282,7 @@
 
 .academic-student-score span {
   margin-top: 4px;
-  color: #64748b;
+  color: var(--ss-adaptive-64748b);
   font-size: 0.62rem;
 }
 
@@ -318,7 +318,7 @@
   padding: 14px;
   border: 1px solid rgba(148, 163, 184, 0.09);
   border-radius: 13px;
-  background: rgba(4, 9, 18, 0.65);
+  background: rgba(var(--ss-rgb-4-9-18), 0.65);
 }
 
 .academic-activity-top,
@@ -340,13 +340,13 @@
 .academic-activity-top span,
 .academic-activity-top small {
   margin-top: 4px;
-  color: #64748b;
+  color: var(--ss-adaptive-64748b);
   font-size: 0.64rem;
 }
 
 .academic-progress-meta {
   margin-top: 13px;
-  color: #718096;
+  color: var(--ss-adaptive-718096);
   font-size: 0.64rem;
 }
 
@@ -359,7 +359,7 @@
   margin-top: 7px;
   overflow: hidden;
   border-radius: 999px;
-  background: #0b1422;
+  background: var(--ss-surface-0b1422);
 }
 
 .academic-progress-bar span {
@@ -398,7 +398,7 @@
 .academic-module-card p {
   min-height: 52px;
   margin: 10px 0 0;
-  color: #94a3b8;
+  color: var(--ss-adaptive-94a3b8);
   line-height: 1.6;
 }
 
@@ -420,8 +420,8 @@
   padding: 0 14px;
   border: 1px solid rgba(148, 163, 184, 0.13);
   border-radius: 12px;
-  color: #64748b;
-  background: rgba(4, 9, 18, 0.8);
+  color: var(--ss-adaptive-64748b);
+  background: rgba(var(--ss-rgb-4-9-18), 0.8);
 }
 
 .academic-search input {
@@ -446,7 +446,7 @@
 
 .academic-table-header {
   padding: 0 13px 9px;
-  color: #64748b;
+  color: var(--ss-adaptive-64748b);
   font-size: 0.63rem;
   font-weight: 800;
   text-transform: uppercase;
@@ -459,7 +459,7 @@
   border: 1px solid rgba(148, 163, 184, 0.09);
   border-radius: 13px;
   color: inherit;
-  background: rgba(4, 9, 18, 0.65);
+  background: rgba(var(--ss-rgb-4-9-18), 0.65);
   cursor: pointer;
   text-align: left;
 }
@@ -490,7 +490,7 @@
 
 .academic-placeholder-panel > p {
   margin: 8px auto 0;
-  color: #94a3b8;
+  color: var(--ss-adaptive-94a3b8);
 }
 
 .academic-grades-list {
@@ -526,14 +526,14 @@
   padding: 12px;
   border: 1px solid rgba(148, 163, 184, 0.09);
   border-radius: 13px;
-  background: rgba(4, 9, 18, 0.65);
+  background: rgba(var(--ss-rgb-4-9-18), 0.65);
   text-align: left;
 }
 
 .academic-attendance-grid article span {
   display: block;
   margin-top: 4px;
-  color: #64748b;
+  color: var(--ss-adaptive-64748b);
   font-size: 0.65rem;
 }
 
@@ -553,7 +553,7 @@
   display: grid;
   place-items: center;
   padding: 20px;
-  background: rgba(0, 3, 8, 0.8);
+  background: rgba(var(--ss-rgb-0-3-8), 0.8);
   backdrop-filter: blur(11px);
 }
 
@@ -565,7 +565,7 @@
   border-radius: 21px;
   background:
     radial-gradient(circle at 100% 0%, rgba(37, 99, 235, 0.12), transparent 38%),
-    #050b15;
+    var(--ss-surface-050b15);
   box-shadow: 0 38px 90px rgba(0, 0, 0, 0.68);
 }
 
@@ -598,7 +598,7 @@
 
 .academic-student-modal header p {
   margin: 5px 0 0;
-  color: #64748b;
+  color: var(--ss-adaptive-64748b);
 }
 
 .academic-student-modal header > button,
@@ -609,8 +609,8 @@
   place-items: center;
   border: 1px solid rgba(148, 163, 184, 0.13);
   border-radius: 11px;
-  color: #94a3b8;
-  background: rgba(4, 9, 18, 0.72);
+  color: var(--ss-adaptive-94a3b8);
+  background: rgba(var(--ss-rgb-4-9-18), 0.72);
   cursor: pointer;
 }
 
@@ -625,7 +625,7 @@
   padding: 13px;
   border: 1px solid rgba(148, 163, 184, 0.1);
   border-radius: 12px;
-  background: rgba(4, 9, 18, 0.68);
+  background: rgba(var(--ss-rgb-4-9-18), 0.68);
 }
 
 .academic-student-details span,
@@ -634,7 +634,7 @@
 }
 
 .academic-student-details span {
-  color: #64748b;
+  color: var(--ss-adaptive-64748b);
   font-size: 0.64rem;
 }
 
@@ -672,8 +672,8 @@
   padding: 0 16px;
   border: 1px solid rgba(148, 163, 184, 0.15);
   border-radius: 12px;
-  color: #cbd5e1;
-  background: rgba(4, 9, 18, 0.76);
+  color: var(--ss-adaptive-cbd5e1);
+  background: rgba(var(--ss-rgb-4-9-18), 0.76);
   cursor: pointer;
   font-weight: 750;
 }
@@ -690,7 +690,7 @@
 }
 
 .academic-report-modal label > span {
-  color: #94a3b8;
+  color: var(--ss-adaptive-94a3b8);
   font-size: 0.7rem;
   font-weight: 700;
 }
@@ -703,7 +703,7 @@
   border-radius: 11px;
   outline: 0;
   color: #fff;
-  background: #050a13;
+  background: var(--ss-surface-050a13);
   font: inherit;
 }
 
@@ -763,7 +763,7 @@
   border: 1px solid rgba(34, 197, 94, 0.28);
   border-radius: 13px;
   color: #dcfce7;
-  background: rgba(6, 24, 17, 0.97);
+  background: rgba(var(--ss-rgb-6-24-17), 0.97);
   box-shadow: 0 22px 50px rgba(0, 0, 0, 0.48);
 }
 

@@ -1,3 +1,4 @@
+import SSLocalized from "../i18n/Localized.jsx";
 import { Link } from "react-router-dom";
 
 function MainLayout({ children }) {
@@ -11,16 +12,16 @@ function MainLayout({ children }) {
           <div className="flex items-center gap-3">
 
             <div className="w-10 h-10 rounded-xl bg-cyan-400 flex items-center justify-center text-slate-950 font-bold text-xl">
-              S
+              <SSLocalized text={"S"} />
             </div>
 
             <div>
               <h1 className="text-xl font-bold text-cyan-400">
-                StudySync
+                <SSLocalized text={"StudySync"} />
               </h1>
 
               <p className="text-xs text-slate-500">
-                Study Together
+                <SSLocalized text={"Study Together"} />
               </p>
             </div>
 
@@ -29,19 +30,15 @@ function MainLayout({ children }) {
           <nav className="hidden md:flex gap-8 text-sm items-center">
 
             <Link to="/" className="hover:text-cyan-400 transition">
-              Inicio
+              <SSLocalized text={"Inicio"} />
             </Link>
 
-            <Link to="/" className="hover:text-cyan-400 transition">
-              Salas
-            </Link>
+            <Link to="/" className="hover:text-cyan-400 transition"><SSLocalized text={"Salas"} /></Link>
+
+            <Link to="/" className="hover:text-cyan-400 transition"><SSLocalized text={"Pomodoro"} /></Link>
 
             <Link to="/" className="hover:text-cyan-400 transition">
-              Pomodoro
-            </Link>
-
-            <Link to="/" className="hover:text-cyan-400 transition">
-              Coach IA
+              <SSLocalized text={"Coach IA"} />
             </Link>
 
           </nav>
@@ -52,14 +49,14 @@ function MainLayout({ children }) {
               to="/login"
               className="border border-slate-700 hover:border-cyan-400 transition px-5 py-2 rounded-xl text-sm"
             >
-              Login
+              <SSLocalized text={"Login"} />
             </Link>
 
             <Link
               to="/register"
               className="bg-cyan-400 hover:bg-cyan-300 transition text-slate-950 px-5 py-2 rounded-xl text-sm font-semibold"
             >
-              Registrarse
+              <SSLocalized text={"Registrarse"} />
             </Link>
 
           </div>
@@ -77,21 +74,21 @@ function MainLayout({ children }) {
         <div className="max-w-7xl mx-auto px-6 py-6 flex flex-col md:flex-row items-center justify-between gap-4">
 
           <p className="text-slate-400 text-sm">
-            © 2026 StudySync. Plataforma virtual de estudio colaborativo.
+            <SSLocalized text={"© 2026 StudySync. Plataforma virtual de estudio colaborativo."} />
           </p>
 
           <div className="flex gap-5 text-sm text-slate-400">
 
             <Link to="/" className="hover:text-cyan-400 transition">
-              Inicio
+              <SSLocalized text={"Inicio"} />
             </Link>
 
             <Link to="/login" className="hover:text-cyan-400 transition">
-              Login
+              <SSLocalized text={"Login"} />
             </Link>
 
             <Link to="/register" className="hover:text-cyan-400 transition">
-              Registro
+              <SSLocalized text={"Registro"} />
             </Link>
 
           </div>

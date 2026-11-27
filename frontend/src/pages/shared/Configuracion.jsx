@@ -1,3 +1,6 @@
+import ssI18n from "i18next";
+import SSLocalized from "../../i18n/Localized.jsx";
+import i18n from "../../i18n/index.js";
 import { useEffect, useState } from "react";
 import {
   Bell,
@@ -23,8 +26,7 @@ import Sidebar from "../../components/dashboard/Sidebar";
 
 import "../../styles/shared/Configuracion.css";
 
-const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
+const API_BASE_URL = "";
 
 function getStoredUser() {
   try {
@@ -57,6 +59,12 @@ function Configuracion() {
 
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [mfaPassword, setMfaPassword] = useState("");
+  const [mfaSecret, setMfaSecret] = useState("");
+  const [mfaCode, setMfaCode] = useState("");
+  const [mfaOpen, setMfaOpen] = useState(false);
+  const [mfaBusy, setMfaBusy] = useState(false);
+  const [mfaMessage, setMfaMessage] = useState("");
 
   const storedUser = getStoredUser();
   const userId = storedUser?.id;
@@ -76,6 +84,11 @@ function Configuracion() {
 
         const response = await fetch(
           `${API_BASE_URL}/api/settings/user/${userId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          },
         );
 
         if (!response.ok) {
@@ -130,6 +143,35 @@ function Configuracion() {
     loadSettings();
   }, [userId]);
 
+  useEffect(() => {
+    if (isLoading) return;
+
+    const media = window.matchMedia(
+      "(prefers-color-scheme: dark)"
+    );
+
+    const applyTheme = () => {
+      const theme = settings.theme === "system"
+        ? (media.matches ? "dark" : "light")
+        : settings.theme;
+
+      document.documentElement.dataset.theme = theme;
+    };
+
+    applyTheme();
+    media.addEventListener("change", applyTheme);
+
+    return () => {
+      media.removeEventListener("change", applyTheme);
+    };
+  }, [settings.theme, isLoading]);
+
+  useEffect(() => {
+    if (!isLoading) {
+      i18n.changeLanguage(settings.language);
+    }
+  }, [settings.language, isLoading]);
+
   const handleChange = (event) => {
     const {
       name,
@@ -147,6 +189,54 @@ function Configuracion() {
     }));
 
     setSavedMessage("");
+  };
+
+  const handleMfa = async (action) => {
+    setMfaBusy(true);
+    setMfaMessage("");
+
+    try {
+      const response = await fetch(`/api/mfa/${action}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify({
+          password: mfaPassword,
+          code: mfaCode,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("MFA_ERROR");
+      }
+
+      const data = await response.json();
+
+      if (action === "setup") {
+        setMfaSecret(data.secret);
+      } else {
+        setSettings(current => ({
+          ...current,
+          twoFactorAuthentication: data.enabled,
+        }));
+
+        setMfaSecret("");
+        setMfaPassword("");
+        setMfaCode("");
+        setMfaOpen(false);
+        setMfaMessage(data.enabled
+          ? "Autenticación en dos pasos activada."
+          : "Autenticación en dos pasos desactivada.");
+      }
+    } catch {
+      setMfaMessage(
+        "No fue posible completar la operación. Verifica la contraseña y el código."
+      );
+    } finally {
+      setMfaBusy(false);
+    }
   };
 
   const handleSubmit = async (event) => {
@@ -217,6 +307,7 @@ function Configuracion() {
 
           headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
 
           body: JSON.stringify(payload),
@@ -267,8 +358,37 @@ function Configuracion() {
       }));
 
       if (settings.newPassword) {
+        const passwordResponse = await fetch(
+          `${API_BASE_URL}/api/users/me/password`,
+          {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+            body: JSON.stringify({
+              currentPassword: settings.currentPassword,
+              newPassword: settings.newPassword,
+            }),
+          }
+        );
+
+        if (!passwordResponse.ok) {
+          setSavedMessage(
+            "Preferencias guardadas. No fue posible cambiar la contraseña. Verifica la contraseña actual y los requisitos."
+          );
+          return;
+        }
+
+        setSettings(current => ({
+          ...current,
+          currentPassword: "",
+          newPassword: "",
+          confirmPassword: "",
+        }));
+
         setSavedMessage(
-          "Configuración guardada. El cambio de contraseña todavía requiere conectar su endpoint de seguridad.",
+          "Configuración y contraseña actualizadas correctamente."
         );
       } else {
         setSavedMessage(
@@ -301,15 +421,12 @@ function Configuracion() {
         <header className="settings-page-header">
           <div>
             <span className="settings-eyebrow">
-              <Settings size={15} />
-              Preferencias del sistema
-            </span>
+              <Settings size={15} /><SSLocalized text={"Preferencias del sistema"} /></span>
 
-            <h1>Configuración</h1>
+            <h1><SSLocalized text={"Configuración"} /></h1>
 
             <p>
-              Administra tus preferencias, seguridad, notificaciones y
-              privacidad dentro de StudySync.
+              <SSLocalized text={"Administra tus preferencias, seguridad, notificaciones y privacidad dentro de StudySync."} />
             </p>
           </div>
         </header>
@@ -323,14 +440,14 @@ function Configuracion() {
                 </div>
 
                 <div>
-                  <span>Experiencia visual</span>
-                  <h2>Apariencia</h2>
+                  <span><SSLocalized text={"Experiencia visual"} /></span>
+                  <h2><SSLocalized text={"Apariencia"} /></h2>
                 </div>
               </header>
 
               <div className="settings-card-body">
                 <div className="settings-field">
-                  <label>Tema de la aplicación</label>
+                  <label><SSLocalized text={"Tema de la aplicación"} /></label>
 
                   <div className="settings-theme-grid">
                     <label
@@ -349,8 +466,8 @@ function Configuracion() {
                       <Moon size={22} />
 
                       <div>
-                        <strong>Oscuro</strong>
-                        <span>Diseño actual de StudySync</span>
+                        <strong><SSLocalized text={"Oscuro"} /></strong>
+                        <span><SSLocalized text={"Diseño actual de StudySync"} /></span>
                       </div>
 
                       {settings.theme === "dark" && <Check size={17} />}
@@ -372,8 +489,8 @@ function Configuracion() {
                       <Sun size={22} />
 
                       <div>
-                        <strong>Claro</strong>
-                        <span>Fondo blanco y tonos suaves</span>
+                        <strong><SSLocalized text={"Claro"} /></strong>
+                        <span><SSLocalized text={"Fondo blanco y tonos suaves"} /></span>
                       </div>
 
                       {settings.theme === "light" && <Check size={17} />}
@@ -395,8 +512,8 @@ function Configuracion() {
                       <Monitor size={22} />
 
                       <div>
-                        <strong>Sistema</strong>
-                        <span>Usar la configuración del equipo</span>
+                        <strong><SSLocalized text={"Sistema"} /></strong>
+                        <span><SSLocalized text={"Usar la configuración del equipo"} /></span>
                       </div>
 
                       {settings.theme === "system" && <Check size={17} />}
@@ -405,7 +522,7 @@ function Configuracion() {
                 </div>
 
                 <div className="settings-field">
-                  <label htmlFor="language">Idioma</label>
+                  <label htmlFor="language"><SSLocalized text={"Idioma"} /></label>
 
                   <div className="settings-input-wrapper">
                     <Globe2 size={18} />
@@ -416,9 +533,9 @@ function Configuracion() {
                       value={settings.language}
                       onChange={handleChange}
                     >
-                      <option value="es">Español</option>
-                      <option value="en">English</option>
-                      <option value="pt">Português</option>
+                      <option value="es"><SSLocalized text={"Español"} /></option>
+                      <option value="en"><SSLocalized text={"English"} /></option>
+                      <option value="pt"><SSLocalized text={"Português"} /></option>
                     </select>
                   </div>
                 </div>
@@ -432,8 +549,8 @@ function Configuracion() {
                 </div>
 
                 <div>
-                  <span>Centro de alertas</span>
-                  <h2>Notificaciones</h2>
+                  <span><SSLocalized text={"Centro de alertas"} /></span>
+                  <h2><SSLocalized text={"Notificaciones"} /></h2>
                 </div>
               </header>
 
@@ -445,9 +562,9 @@ function Configuracion() {
                     </div>
 
                     <span>
-                      <strong>Correos electrónicos</strong>
+                      <strong><SSLocalized text={"Correos electrónicos"} /></strong>
                       <small>
-                        Recibe novedades importantes en tu correo.
+                        <SSLocalized text={"Recibe novedades importantes en tu correo."} />
                       </small>
                     </span>
                   </div>
@@ -469,9 +586,9 @@ function Configuracion() {
                     </div>
 
                     <span>
-                      <strong>Cursos y actividades</strong>
+                      <strong><SSLocalized text={"Cursos y actividades"} /></strong>
                       <small>
-                        Nuevas entregas, tareas y actualizaciones.
+                        <SSLocalized text={"Nuevas entregas, tareas y actualizaciones."} />
                       </small>
                     </span>
                   </div>
@@ -493,9 +610,9 @@ function Configuracion() {
                     </div>
 
                     <span>
-                      <strong>Mensajes directos</strong>
+                      <strong><SSLocalized text={"Mensajes directos"} /></strong>
                       <small>
-                        Avisos cuando recibas una conversación nueva.
+                        <SSLocalized text={"Avisos cuando recibas una conversación nueva."} />
                       </small>
                     </span>
                   </div>
@@ -517,9 +634,9 @@ function Configuracion() {
                     </div>
 
                     <span>
-                      <strong>Salas de estudio</strong>
+                      <strong><SSLocalized text={"Salas de estudio"} /></strong>
                       <small>
-                        Invitaciones y recordatorios de sesiones.
+                        <SSLocalized text={"Invitaciones y recordatorios de sesiones."} />
                       </small>
                     </span>
                   </div>
@@ -543,8 +660,8 @@ function Configuracion() {
                 </div>
 
                 <div>
-                  <span>Control de cuenta</span>
-                  <h2>Seguridad</h2>
+                  <span><SSLocalized text={"Control de cuenta"} /></span>
+                  <h2><SSLocalized text={"Seguridad"} /></h2>
                 </div>
               </header>
 
@@ -556,9 +673,9 @@ function Configuracion() {
                     </div>
 
                     <span>
-                      <strong>Autenticación en dos pasos</strong>
+                      <strong><SSLocalized text={"Autenticación en dos pasos"} /></strong>
                       <small>
-                        Agrega una capa adicional de protección.
+                        <SSLocalized text={"Agrega una capa adicional de protección."} />
                       </small>
                     </span>
                   </div>
@@ -567,27 +684,126 @@ function Configuracion() {
                     type="checkbox"
                     name="twoFactorAuthentication"
                     checked={settings.twoFactorAuthentication}
-                    onChange={handleChange}
+                    disabled={isLoading || isSaving || mfaBusy}
+                    onChange={() => {
+                      setMfaOpen(current => !current);
+                      setMfaPassword("");
+                      setMfaSecret("");
+                      setMfaCode("");
+                      setMfaMessage("");
+                    }}
                   />
 
                   <span className="settings-switch" />
                 </label>
+
+                {mfaOpen && (
+                  <div className="settings-password-section">
+                    <div className="settings-field">
+                      <label><SSLocalized text="Contraseña actual" /></label>
+                      <div className="settings-input-wrapper">
+                        <LockKeyhole size={17} />
+                        <input
+                          type="password"
+                          autoComplete="current-password"
+                          value={mfaPassword}
+                          onChange={e => setMfaPassword(e.target.value)}
+                        />
+                      </div>
+                    </div>
+
+                    {!settings.twoFactorAuthentication && !mfaSecret && (
+                      <button
+                        type="button"
+                        className="settings-save-button"
+                        disabled={mfaBusy || !mfaPassword}
+                        onClick={() => handleMfa("setup")}
+                      >
+                        <SSLocalized text="Generar clave de autenticación" />
+                      </button>
+                    )}
+
+                    {mfaSecret && (
+                      <div className="settings-field">
+                        <p>
+                          <SSLocalized text="Agrega esta clave manualmente en Google Authenticator o Microsoft Authenticator. Selecciona la opción basada en tiempo." />
+                        </p>
+                        <div className="settings-input-wrapper">
+                          <input
+                            type="text"
+                            readOnly
+                            value={mfaSecret}
+                            autoComplete="off"
+                          />
+                        </div>
+                      </div>
+                    )}
+
+                    {(mfaSecret || settings.twoFactorAuthentication) && (
+                      <div className="settings-field">
+                        <label><SSLocalized text="Código de autenticación" /></label>
+                        <div className="settings-input-wrapper">
+                          <ShieldCheck size={17} />
+                          <input
+                            type="text"
+                            inputMode="numeric"
+                            autoComplete="one-time-code"
+                            value={mfaCode}
+                            maxLength={6}
+                            placeholder="000000"
+                            onChange={e => setMfaCode(
+                              e.target.value.replace(/[^0-9]/g, "").slice(0, 6)
+                            )}
+                          />
+                        </div>
+                        <button
+                          type="button"
+                          className="settings-save-button"
+                          disabled={mfaBusy || !mfaPassword || mfaCode.length !== 6}
+                          onClick={() => handleMfa(
+                            settings.twoFactorAuthentication ? "disable" : "enable"
+                          )}
+                        >
+                          <SSLocalized text={settings.twoFactorAuthentication
+                            ? "Desactivar 2FA" : "Activar 2FA"} />
+                        </button>
+                      </div>
+                    )}
+
+                    <button
+                      type="button"
+                      disabled={mfaBusy}
+                      onClick={() => {
+                        setMfaOpen(false);
+                        setMfaSecret("");
+                        setMfaPassword("");
+                        setMfaCode("");
+                      }}
+                    >
+                      <SSLocalized text="Cancelar" />
+                    </button>
+                  </div>
+                )}
+
+                {mfaMessage && (
+                  <p role="status">{ssI18n.t(mfaMessage)}</p>
+                )}
 
                 <div className="settings-password-section">
                   <div className="settings-password-title">
                     <KeyRound size={19} />
 
                     <div>
-                      <strong>Cambiar contraseña</strong>
+                      <strong><SSLocalized text={"Cambiar contraseña"} /></strong>
                       <span>
-                        Utiliza al menos ocho caracteres para mayor seguridad.
+                        <SSLocalized text={"Utiliza al menos ocho caracteres para mayor seguridad."} />
                       </span>
                     </div>
                   </div>
 
                   <div className="settings-password-grid">
                     <label>
-                      <span>Contraseña actual</span>
+                      <span><SSLocalized text={"Contraseña actual"} /></span>
 
                       <div className="settings-input-wrapper">
                         <LockKeyhole size={17} />
@@ -597,12 +813,12 @@ function Configuracion() {
                           name="currentPassword"
                           value={settings.currentPassword}
                           onChange={handleChange}
-                          placeholder="Contraseña actual"
+                          placeholder={ssI18n.t("Contraseña actual")}
                         />
 
                         <button
                           type="button"
-                          aria-label="Mostrar u ocultar contraseña"
+                          aria-label={ssI18n.t("Mostrar u ocultar contraseña")}
                           onClick={() =>
                             setShowPassword((current) => !current)
                           }
@@ -617,7 +833,7 @@ function Configuracion() {
                     </label>
 
                     <label>
-                      <span>Nueva contraseña</span>
+                      <span><SSLocalized text={"Nueva contraseña"} /></span>
 
                       <div className="settings-input-wrapper">
                         <LockKeyhole size={17} />
@@ -627,13 +843,13 @@ function Configuracion() {
                           name="newPassword"
                           value={settings.newPassword}
                           onChange={handleChange}
-                          placeholder="Nueva contraseña"
+                          placeholder={ssI18n.t("Nueva contraseña")}
                         />
                       </div>
                     </label>
 
                     <label>
-                      <span>Confirmar contraseña</span>
+                      <span><SSLocalized text={"Confirmar contraseña"} /></span>
 
                       <div className="settings-input-wrapper">
                         <LockKeyhole size={17} />
@@ -643,7 +859,7 @@ function Configuracion() {
                           name="confirmPassword"
                           value={settings.confirmPassword}
                           onChange={handleChange}
-                          placeholder="Confirmar contraseña"
+                          placeholder={ssI18n.t("Confirmar contraseña")}
                         />
                       </div>
                     </label>
@@ -659,16 +875,14 @@ function Configuracion() {
                 </div>
 
                 <div>
-                  <span>Información visible</span>
-                  <h2>Privacidad</h2>
+                  <span><SSLocalized text={"Información visible"} /></span>
+                  <h2><SSLocalized text={"Privacidad"} /></h2>
                 </div>
               </header>
 
               <div className="settings-card-body">
                 <div className="settings-field">
-                  <label htmlFor="profileVisibility">
-                    Visibilidad del perfil
-                  </label>
+                  <label htmlFor="profileVisibility"><SSLocalized text={"Visibilidad del perfil"} /></label>
 
                   <div className="settings-input-wrapper">
                     <UserRound size={18} />
@@ -679,17 +893,11 @@ function Configuracion() {
                       value={settings.profileVisibility}
                       onChange={handleChange}
                     >
-                      <option value="public">
-                        Visible para todos los usuarios
-                      </option>
+                      <option value="public"><SSLocalized text={"Visible para todos los usuarios"} /></option>
 
-                      <option value="students">
-                        Solo estudiantes vinculados
-                      </option>
+                      <option value="students"><SSLocalized text={"Solo estudiantes vinculados"} /></option>
 
-                      <option value="private">
-                        Perfil privado
-                      </option>
+                      <option value="private"><SSLocalized text={"Perfil privado"} /></option>
                     </select>
                   </div>
                 </div>
@@ -698,11 +906,10 @@ function Configuracion() {
                   <ShieldCheck size={21} />
 
                   <div>
-                    <strong>Tus datos están protegidos</strong>
+                    <strong><SSLocalized text={"Tus datos están protegidos"} /></strong>
 
                     <p>
-                      StudySync utiliza tu información únicamente para operar
-                      las funciones de la plataforma educativa.
+                      <SSLocalized text={"StudySync utiliza tu información únicamente para operar las funciones de la plataforma educativa."} />
                     </p>
                   </div>
                 </div>

@@ -3,6 +3,7 @@ package com.studysync.controller;
 
 import com.studysync.model.User;
 import com.studysync.service.UserService;
+import com.studysync.service.MfaService;
 import com.studysync.security.jwt.JwtService;
 
 import org.springframework.http.ResponseEntity;
@@ -22,15 +23,18 @@ public class UserController {
     private final UserService userService;
     private final JwtService jwtService;
     private final JdbcTemplate jdbcTemplate;
+    private final MfaService mfaService;
 
     public UserController(
             UserService userService,
             JwtService jwtService,
-            JdbcTemplate jdbcTemplate
+            JdbcTemplate jdbcTemplate,
+            MfaService mfaService
     ) {
         this.userService = userService;
         this.jwtService = jwtService;
         this.jdbcTemplate = jdbcTemplate;
+        this.mfaService = mfaService;
     }
 
     @GetMapping
@@ -50,6 +54,32 @@ public class UserController {
                 .filter(u -> "PROFESOR".equalsIgnoreCase(u.getRol())
                         || "ESTUDIANTE".equalsIgnoreCase(u.getRol()))
                 .filter(u -> !u.getId().equals(currentUser.getId()))
+                .filter(u -> Boolean.TRUE.equals(
+                    jdbcTemplate.queryForObject("""
+                        SELECT CASE
+                            WHEN COALESCE(
+                                (SELECT profile_visibility
+                                 FROM user_settings
+                                 WHERE user_id = ?), 'public'
+                            ) = 'public' THEN true
+                            WHEN EXISTS (
+                                SELECT 1 FROM user_settings
+                                WHERE user_id = ?
+                                AND profile_visibility = 'students'
+                            ) THEN EXISTS (
+                                SELECT 1
+                                FROM courses c
+                                JOIN student_courses sc
+                                  ON sc.course_id = c.id
+                                WHERE c.teacher_id = ?
+                                  AND sc.student_id = ?
+                            )
+                            ELSE false
+                        END
+                        """, Boolean.class,
+                        u.getId(), u.getId(),
+                        u.getId(), currentUser.getId())
+                ))
                 .map(u -> {
                     Map<String, Object> data = new LinkedHashMap<>();
                     data.put("id", u.getId());
@@ -166,6 +196,7 @@ public class UserController {
                 return ResponseEntity.status(403).build();
             }
 
+            userDetails.setPassword(null);
             userDetails.setRol(currentUser.getRol());
             userDetails.setActivo(currentUser.getActivo());
         }
@@ -204,6 +235,24 @@ public class UserController {
                     ));
         }
 
+        if (mfaService.isEnabled(user.getId())) {
+            String code = credentials.get("otp");
+
+            if (code == null || code.isBlank()) {
+                return ResponseEntity.status(401).body(Map.of(
+                    "code", "MFA_REQUIRED",
+                    "message", "Código de autenticación requerido"
+                ));
+            }
+
+            if (!mfaService.verify(user.getId(), code, true)) {
+                return ResponseEntity.status(401).body(Map.of(
+                    "code", "MFA_INVALID",
+                    "message", "Código inválido, expirado o utilizado"
+                ));
+            }
+        }
+
         String token = jwtService.generateToken(user);
 
         Map<String, Object> response = new LinkedHashMap<>();
@@ -219,4 +268,25 @@ public class UserController {
 
         return ResponseEntity.ok(response);
     }
+
+    @PutMapping("/me/password")
+    public ResponseEntity<?> changePassword(
+            @AuthenticationPrincipal User currentUser,
+            @RequestBody Map<String, String> payload) {
+
+        if (currentUser == null) {
+            return ResponseEntity.status(401).build();
+        }
+
+        userService.changePassword(
+            currentUser.getId(),
+            payload.get("currentPassword"),
+            payload.get("newPassword")
+        );
+
+        return ResponseEntity.ok(
+            Map.of("message", "Contraseña actualizada correctamente")
+        );
+    }
+
 }

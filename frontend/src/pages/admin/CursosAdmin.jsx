@@ -1,3 +1,5 @@
+import ssI18n from "i18next";
+import SSLocalized from "../../i18n/Localized.jsx";
 import { useEffect, useMemo, useState } from "react";
 import {
   BookOpen,
@@ -390,14 +392,13 @@ function CursosAdmin() {
           <div>
             <span className="courses-admin-eyebrow">
               <ShieldCheck size={15} />
-              Gestión institucional
+              <SSLocalized text={"Gestión institucional"} />
             </span>
 
-            <h1>Cursos</h1>
+            <h1><SSLocalized text={"Cursos"} /></h1>
 
             <p>
-              Administra cursos, profesores responsables, cupos,
-              estudiantes, estados y progreso académico.
+              <SSLocalized text={"Administra cursos, profesores responsables, cupos, estudiantes, estados y progreso académico."} />
             </p>
           </div>
 
@@ -407,7 +408,7 @@ function CursosAdmin() {
             onClick={openCreateModal}
           >
             <Plus size={18} />
-            Nuevo curso
+            <SSLocalized text={"Nuevo curso"} />
           </button>
         </header>
 
@@ -416,36 +417,36 @@ function CursosAdmin() {
             <div>
               <BookOpen size={22} />
             </div>
-            <span>Total cursos</span>
+            <span><SSLocalized text={"Total cursos"} /></span>
             <strong>{statistics.total}</strong>
-            <small>Registrados en StudySync</small>
+            <small><SSLocalized text={"Registrados en StudySync"} /></small>
           </article>
 
           <article>
             <div>
               <UserCheck size={22} />
             </div>
-            <span>Cursos activos</span>
+            <span><SSLocalized text={"Cursos activos"} /></span>
             <strong>{statistics.active}</strong>
-            <small>Disponibles actualmente</small>
+            <small><SSLocalized text={"Disponibles actualmente"} /></small>
           </article>
 
           <article>
             <div>
               <Users size={22} />
             </div>
-            <span>Estudiantes inscritos</span>
+            <span><SSLocalized text={"Estudiantes inscritos"} /></span>
             <strong>{statistics.students}</strong>
-            <small>En toda la plataforma</small>
+            <small><SSLocalized text={"En toda la plataforma"} /></small>
           </article>
 
           <article>
             <div>
               <GraduationCap size={22} />
             </div>
-            <span>Profesores asignados</span>
+            <span><SSLocalized text={"Profesores asignados"} /></span>
             <strong>{statistics.professors}</strong>
-            <small>Responsables académicos</small>
+            <small><SSLocalized text={"Responsables académicos"} /></small>
           </article>
         </section>
 
@@ -460,7 +461,7 @@ function CursosAdmin() {
                 onChange={(event) =>
                   setSearchTerm(event.target.value)
                 }
-                placeholder="Buscar curso, profesor o categoría..."
+                placeholder={ssI18n.t("Buscar curso, profesor o categoría...")}
               />
             </div>
 
@@ -490,12 +491,12 @@ function CursosAdmin() {
                 }
               >
                 <option value="Todos">
-                  Todos los estados
+                  <SSLocalized text={"Todos los estados"} />
                 </option>
-                <option value="Activo">Activo</option>
-                <option value="Borrador">Borrador</option>
+                <option value="Activo"><SSLocalized text={"Activo"} /></option>
+                <option value="Borrador"><SSLocalized text={"Borrador"} /></option>
                 <option value="Finalizado">
-                  Finalizado
+                  <SSLocalized text={"Finalizado"} />
                 </option>
               </select>
 
@@ -508,7 +509,7 @@ function CursosAdmin() {
                   onClick={clearFilters}
                 >
                   <X size={16} />
-                  Limpiar
+                  <SSLocalized text={"Limpiar"} />
                 </button>
               )}
             </div>
@@ -517,27 +518,27 @@ function CursosAdmin() {
           {loading && (
             <div className="courses-admin-empty-state">
               <BookOpen size={36} />
-              <h3>Cargando cursos...</h3>
-              <p>Consultando información del backend.</p>
+              <h3><SSLocalized text={"Cargando cursos..."} /></h3>
+              <p><SSLocalized text={"Consultando información del backend."} /></p>
             </div>
           )}
 
           {loadError && !loading && (
             <div className="courses-admin-empty-state">
               <BookOpen size={36} />
-              <h3>No fue posible cargar los cursos</h3>
+              <h3><SSLocalized text={"No fue posible cargar los cursos"} /></h3>
               <p>{loadError}</p>
             </div>
           )}
 
           <div className="courses-admin-table-heading">
             <div>
-              <span>Directorio académico</span>
-              <h2>Cursos registrados</h2>
+              <span><SSLocalized text={"Directorio académico"} /></span>
+              <h2><SSLocalized text={"Cursos registrados"} /></h2>
             </div>
 
             <small>
-              {filteredCourses.length} resultado
+              {filteredCourses.length} <SSLocalized text={"resultado"} />
               {filteredCourses.length === 1 ? "" : "s"}
             </small>
           </div>
@@ -546,13 +547,13 @@ function CursosAdmin() {
             <table className="courses-admin-table">
               <thead>
                 <tr>
-                  <th>Curso</th>
-                  <th>Profesor</th>
-                  <th>Categoría</th>
-                  <th>Duración</th>
-                  <th>Estudiantes</th>
-                  <th>Progreso</th>
-                  <th>Estado</th>
+                  <th><SSLocalized text={"Curso"} /></th>
+                  <th><SSLocalized text={"Profesor"} /></th>
+                  <th><SSLocalized text={"Categoría"} /></th>
+                  <th><SSLocalized text={"Duración"} /></th>
+                  <th><SSLocalized text={"Estudiantes"} /></th>
+                  <th><SSLocalized text={"Progreso"} /></th>
+                  <th><SSLocalized text={"Estado"} /></th>
                   <th />
                 </tr>
               </thead>
@@ -576,7 +577,7 @@ function CursosAdmin() {
                           <div>
                             <strong>{course.name}</strong>
                             <span>
-                              Cupo: {course.students}/
+                              <SSLocalized text={"Cupo:"} /> {course.students}/
                               {course.capacity} · {occupancy}%
                             </span>
                           </div>
@@ -659,7 +660,7 @@ function CursosAdmin() {
                               }
                             >
                               <Eye size={16} />
-                              Ver detalles
+                              <SSLocalized text={"Ver detalles"} />
                             </button>
 
                             <button
@@ -669,7 +670,7 @@ function CursosAdmin() {
                               }
                             >
                               <Edit3 size={16} />
-                              Editar curso
+                              <SSLocalized text={"Editar curso"} />
                             </button>
 
                             <button
@@ -680,7 +681,7 @@ function CursosAdmin() {
                               }
                             >
                               <Trash2 size={16} />
-                              Eliminar curso
+                              <SSLocalized text={"Eliminar curso"} />
                             </button>
                           </div>
                         )}
@@ -695,18 +696,17 @@ function CursosAdmin() {
               <div className="courses-admin-empty-state">
                 <BookOpen size={36} />
 
-                <h3>No encontramos cursos</h3>
+                <h3><SSLocalized text={"No encontramos cursos"} /></h3>
 
                 <p>
-                  Cambia los filtros o utiliza otro término de
-                  búsqueda.
+                  <SSLocalized text={"Cambia los filtros o utiliza otro término de búsqueda."} />
                 </p>
 
                 <button
                   type="button"
                   onClick={clearFilters}
                 >
-                  Limpiar filtros
+                  <SSLocalized text={"Limpiar filtros"} />
                 </button>
               </div>
             )}
@@ -750,58 +750,58 @@ function CursosAdmin() {
             <form onSubmit={handleSubmit}>
               <div className="courses-admin-form-grid">
                 <label>
-                  <span>Nombre del curso *</span>
+                  <span><SSLocalized text={"Nombre del curso *"} /></span>
 
                   <input
                     type="text"
                     name="name"
                     value={formData.name}
                     onChange={handleChange}
-                    placeholder="Nombre del curso"
+                    placeholder={ssI18n.t("Nombre del curso")}
                     required
                   />
                 </label>
 
                 <label>
-                  <span>Categoría *</span>
+                  <span><SSLocalized text={"Categoría *"} /></span>
 
                   <input
                     type="text"
                     name="category"
                     value={formData.category}
                     onChange={handleChange}
-                    placeholder="Ej. Matemáticas"
+                    placeholder={ssI18n.t("Ej. Matemáticas")}
                     required
                   />
                 </label>
 
                 <label>
-                  <span>Profesor responsable *</span>
+                  <span><SSLocalized text={"Profesor responsable *"} /></span>
 
                   <input
                     type="text"
                     name="professor"
                     value={formData.professor}
                     onChange={handleChange}
-                    placeholder="Nombre del profesor"
+                    placeholder={ssI18n.t("Nombre del profesor")}
                     required
                   />
                 </label>
 
                 <label>
-                  <span>Duración</span>
+                  <span><SSLocalized text={"Duración"} /></span>
 
                   <input
                     type="text"
                     name="duration"
                     value={formData.duration}
                     onChange={handleChange}
-                    placeholder="Ej. 12 semanas"
+                    placeholder={ssI18n.t("Ej. 12 semanas")}
                   />
                 </label>
 
                 <label>
-                  <span>Cupos</span>
+                  <span><SSLocalized text={"Cupos"} /></span>
 
                   <input
                     type="number"
@@ -809,36 +809,36 @@ function CursosAdmin() {
                     min="1"
                     value={formData.capacity}
                     onChange={handleChange}
-                    placeholder="Cantidad máxima"
+                    placeholder={ssI18n.t("Cantidad máxima")}
                   />
                 </label>
 
                 <label>
-                  <span>Estado</span>
+                  <span><SSLocalized text={"Estado"} /></span>
 
                   <select
                     name="status"
                     value={formData.status}
                     onChange={handleChange}
                   >
-                    <option value="Activo">Activo</option>
+                    <option value="Activo"><SSLocalized text={"Activo"} /></option>
                     <option value="Borrador">
-                      Borrador
+                      <SSLocalized text={"Borrador"} />
                     </option>
                     <option value="Finalizado">
-                      Finalizado
+                      <SSLocalized text={"Finalizado"} />
                     </option>
                   </select>
                 </label>
 
                 <label className="courses-admin-description-field">
-                  <span>Descripción</span>
+                  <span><SSLocalized text={"Descripción"} /></span>
 
                   <textarea
                     name="description"
                     value={formData.description}
                     onChange={handleChange}
-                    placeholder="Describe el objetivo y contenido del curso..."
+                    placeholder={ssI18n.t("Describe el objetivo y contenido del curso...")}
                   />
                 </label>
               </div>
@@ -855,7 +855,7 @@ function CursosAdmin() {
                   className="courses-admin-secondary-button"
                   onClick={closeModal}
                 >
-                  Cancelar
+                  <SSLocalized text={"Cancelar"} />
                 </button>
 
                 <button
@@ -883,7 +883,7 @@ function CursosAdmin() {
               </div>
 
               <div>
-                <span>Ficha del curso</span>
+                <span><SSLocalized text={"Ficha del curso"} /></span>
                 <h2>{selectedCourse.name}</h2>
                 <p>
                   {selectedCourse.category} ·{" "}
@@ -901,14 +901,14 @@ function CursosAdmin() {
 
             <div className="courses-admin-details-grid">
               <article>
-                <span>Profesor</span>
+                <span><SSLocalized text={"Profesor"} /></span>
                 <strong>
                   {selectedCourse.professor}
                 </strong>
               </article>
 
               <article>
-                <span>Duración</span>
+                <span><SSLocalized text={"Duración"} /></span>
                 <strong>
                   {selectedCourse.duration ||
                     "No definida"}
@@ -916,28 +916,28 @@ function CursosAdmin() {
               </article>
 
               <article>
-                <span>Estudiantes</span>
+                <span><SSLocalized text={"Estudiantes"} /></span>
                 <strong>
                   {selectedCourse.students}
                 </strong>
               </article>
 
               <article>
-                <span>Cupos</span>
+                <span><SSLocalized text={"Cupos"} /></span>
                 <strong>
                   {selectedCourse.capacity}
                 </strong>
               </article>
 
               <article>
-                <span>Progreso</span>
+                <span><SSLocalized text={"Progreso"} /></span>
                 <strong>
                   {selectedCourse.progress}%
                 </strong>
               </article>
 
               <article>
-                <span>Estado</span>
+                <span><SSLocalized text={"Estado"} /></span>
                 <strong>
                   {selectedCourse.status}
                 </strong>
@@ -945,7 +945,7 @@ function CursosAdmin() {
             </div>
 
             <div className="courses-admin-description">
-              <span>Descripción</span>
+              <span><SSLocalized text={"Descripción"} /></span>
               <p>
                 {selectedCourse.description ||
                   "No se ha registrado una descripción."}
@@ -963,7 +963,7 @@ function CursosAdmin() {
                 }}
               >
                 <Edit3 size={17} />
-                Editar curso
+                <SSLocalized text={"Editar curso"} />
               </button>
             </footer>
           </section>
@@ -977,12 +977,11 @@ function CursosAdmin() {
               <Trash2 size={25} />
             </div>
 
-            <h2>Eliminar curso</h2>
+            <h2><SSLocalized text={"Eliminar curso"} /></h2>
 
             <p>
-              Vas a eliminar{" "}
-              <strong>{selectedCourse.name}</strong>. Esta acción
-              no se puede deshacer.
+              <SSLocalized text={"Vas a eliminar"} />{" "}
+              <strong>{selectedCourse.name}</strong><SSLocalized text={". Esta acción no se puede deshacer."} />
             </p>
 
             <footer>
@@ -991,7 +990,7 @@ function CursosAdmin() {
                 className="courses-admin-secondary-button"
                 onClick={() => setIsDeleteOpen(false)}
               >
-                Cancelar
+                <SSLocalized text={"Cancelar"} />
               </button>
 
               <button
@@ -1000,7 +999,7 @@ function CursosAdmin() {
                 onClick={handleDelete}
               >
                 <Trash2 size={17} />
-                Eliminar
+                <SSLocalized text={"Eliminar"} />
               </button>
             </footer>
           </section>

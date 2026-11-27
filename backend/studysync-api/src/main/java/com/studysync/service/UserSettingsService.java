@@ -81,11 +81,6 @@ public class UserSettingsService {
             );
         }
 
-        if (incomingSettings.getTwoFactorAuthentication() != null) {
-            currentSettings.setTwoFactorAuthentication(
-                    incomingSettings.getTwoFactorAuthentication()
-            );
-        }
 
         if (incomingSettings.getProfileVisibility() != null) {
             currentSettings.setProfileVisibility(

@@ -1,3 +1,5 @@
+import ssI18n from "i18next";
+import SSLocalized from "../../i18n/Localized.jsx";
 import { useMemo, useState } from "react";
 import {
   Activity,
@@ -222,15 +224,13 @@ function AuditoriaAdmin() {
           <div>
             <span className="audit-admin-eyebrow">
               <ShieldCheck size={15} />
-              Seguridad y trazabilidad
+              <SSLocalized text={"Seguridad y trazabilidad"} />
             </span>
 
-            <h1>Auditoría</h1>
+            <h1><SSLocalized text={"Auditoría"} /></h1>
 
             <p>
-              Consulta accesos, cambios administrativos,
-              acciones de usuarios y eventos relevantes del
-              sistema.
+              <SSLocalized text={"Consulta accesos, cambios administrativos, acciones de usuarios y eventos relevantes del sistema."} />
             </p>
           </div>
         </header>
@@ -241,9 +241,9 @@ function AuditoriaAdmin() {
               <Activity size={22} />
             </div>
 
-            <span>Eventos registrados</span>
+            <span><SSLocalized text={"Eventos registrados"} /></span>
             <strong>{statistics.total}</strong>
-            <small>Actividad disponible</small>
+            <small><SSLocalized text={"Actividad disponible"} /></small>
           </article>
 
           <article>
@@ -251,9 +251,9 @@ function AuditoriaAdmin() {
               <Check size={22} />
             </div>
 
-            <span>Operaciones exitosas</span>
+            <span><SSLocalized text={"Operaciones exitosas"} /></span>
             <strong>{statistics.successful}</strong>
-            <small>Procesadas correctamente</small>
+            <small><SSLocalized text={"Procesadas correctamente"} /></small>
           </article>
 
           <article>
@@ -261,9 +261,9 @@ function AuditoriaAdmin() {
               <KeyRound size={22} />
             </div>
 
-            <span>Eventos de seguridad</span>
+            <span><SSLocalized text={"Eventos de seguridad"} /></span>
             <strong>{statistics.security}</strong>
-            <small>Requieren trazabilidad</small>
+            <small><SSLocalized text={"Requieren trazabilidad"} /></small>
           </article>
 
           <article>
@@ -271,9 +271,9 @@ function AuditoriaAdmin() {
               <ShieldCheck size={22} />
             </div>
 
-            <span>Accesos rechazados</span>
+            <span><SSLocalized text={"Accesos rechazados"} /></span>
             <strong>{statistics.rejected}</strong>
-            <small>Intentos bloqueados</small>
+            <small><SSLocalized text={"Intentos bloqueados"} /></small>
           </article>
         </section>
 
@@ -288,7 +288,7 @@ function AuditoriaAdmin() {
                 onChange={(event) =>
                   setSearchTerm(event.target.value)
                 }
-                placeholder="Buscar usuario, acción, IP o descripción..."
+                placeholder={ssI18n.t("Buscar usuario, acción, IP o descripción...")}
               />
             </div>
 
@@ -322,13 +322,13 @@ function AuditoriaAdmin() {
                 }
               >
                 <option value="Todos">
-                  Todos los estados
+                  <SSLocalized text={"Todos los estados"} />
                 </option>
                 <option value="Exitoso">
-                  Exitoso
+                  <SSLocalized text={"Exitoso"} />
                 </option>
                 <option value="Rechazado">
-                  Rechazado
+                  <SSLocalized text={"Rechazado"} />
                 </option>
               </select>
 
@@ -341,7 +341,7 @@ function AuditoriaAdmin() {
                   onClick={clearFilters}
                 >
                   <X size={16} />
-                  Limpiar
+                  <SSLocalized text={"Limpiar"} />
                 </button>
               )}
             </div>
@@ -349,12 +349,12 @@ function AuditoriaAdmin() {
 
           <div className="audit-admin-table-heading">
             <div>
-              <span>Registro de actividad</span>
-              <h2>Eventos del sistema</h2>
+              <span><SSLocalized text={"Registro de actividad"} /></span>
+              <h2><SSLocalized text={"Eventos del sistema"} /></h2>
             </div>
 
             <small>
-              {filteredLogs.length} resultado
+              {filteredLogs.length} <SSLocalized text={"resultado"} />
               {filteredLogs.length === 1 ? "" : "s"}
             </small>
           </div>
@@ -363,13 +363,13 @@ function AuditoriaAdmin() {
             <table className="audit-admin-table">
               <thead>
                 <tr>
-                  <th>Usuario</th>
-                  <th>Acción</th>
-                  <th>Módulo</th>
-                  <th>Fecha</th>
-                  <th>IP</th>
-                  <th>Nivel</th>
-                  <th>Estado</th>
+                  <th><SSLocalized text={"Usuario"} /></th>
+                  <th><SSLocalized text={"Acción"} /></th>
+                  <th><SSLocalized text={"Módulo"} /></th>
+                  <th><SSLocalized text={"Fecha"} /></th>
+                  <th><SSLocalized text={"IP"} /></th>
+                  <th><SSLocalized text={"Nivel"} /></th>
+                  <th><SSLocalized text={"Estado"} /></th>
                   <th />
                 </tr>
               </thead>
@@ -457,7 +457,7 @@ function AuditoriaAdmin() {
                             }
                           >
                             <Eye size={16} />
-                            Ver detalles
+                            <SSLocalized text={"Ver detalles"} />
                           </button>
 
                           <button
@@ -468,7 +468,7 @@ function AuditoriaAdmin() {
                             }
                           >
                             <Trash2 size={16} />
-                            Eliminar registro
+                            <SSLocalized text={"Eliminar registro"} />
                           </button>
                         </div>
                       )}
@@ -482,18 +482,17 @@ function AuditoriaAdmin() {
               <div className="audit-admin-empty-state">
                 <FileClock size={36} />
 
-                <h3>No encontramos registros</h3>
+                <h3><SSLocalized text={"No encontramos registros"} /></h3>
 
                 <p>
-                  Cambia los filtros o utiliza otro término de
-                  búsqueda.
+                  <SSLocalized text={"Cambia los filtros o utiliza otro término de búsqueda."} />
                 </p>
 
                 <button
                   type="button"
                   onClick={clearFilters}
                 >
-                  Limpiar filtros
+                  <SSLocalized text={"Limpiar filtros"} />
                 </button>
               </div>
             )}
@@ -517,7 +516,7 @@ function AuditoriaAdmin() {
               </div>
 
               <div>
-                <span>Registro de auditoría</span>
+                <span><SSLocalized text={"Registro de auditoría"} /></span>
                 <h2>{selectedLog.action}</h2>
                 <p>{selectedLog.user}</p>
               </div>
@@ -532,48 +531,48 @@ function AuditoriaAdmin() {
 
             <div className="audit-admin-details-grid">
               <article>
-                <span>Usuario</span>
+                <span><SSLocalized text={"Usuario"} /></span>
                 <strong>{selectedLog.user}</strong>
               </article>
 
               <article>
-                <span>Rol</span>
+                <span><SSLocalized text={"Rol"} /></span>
                 <strong>{selectedLog.role}</strong>
               </article>
 
               <article>
-                <span>Módulo</span>
+                <span><SSLocalized text={"Módulo"} /></span>
                 <strong>{selectedLog.module}</strong>
               </article>
 
               <article>
-                <span>Estado</span>
+                <span><SSLocalized text={"Estado"} /></span>
                 <strong>{selectedLog.status}</strong>
               </article>
 
               <article>
-                <span>Fecha</span>
+                <span><SSLocalized text={"Fecha"} /></span>
                 <strong>{selectedLog.date}</strong>
               </article>
 
               <article>
-                <span>Hora</span>
+                <span><SSLocalized text={"Hora"} /></span>
                 <strong>{selectedLog.time}</strong>
               </article>
 
               <article>
-                <span>Dirección IP</span>
+                <span><SSLocalized text={"Dirección IP"} /></span>
                 <strong>{selectedLog.ip}</strong>
               </article>
 
               <article>
-                <span>Nivel</span>
+                <span><SSLocalized text={"Nivel"} /></span>
                 <strong>{selectedLog.level}</strong>
               </article>
             </div>
 
             <div className="audit-admin-description">
-              <span>Descripción del evento</span>
+              <span><SSLocalized text={"Descripción del evento"} /></span>
               <p>{selectedLog.description}</p>
             </div>
           </section>
@@ -587,12 +586,11 @@ function AuditoriaAdmin() {
               <Trash2 size={25} />
             </div>
 
-            <h2>Eliminar registro</h2>
+            <h2><SSLocalized text={"Eliminar registro"} /></h2>
 
             <p>
-              Vas a eliminar el registro de{" "}
-              <strong>{selectedLog.action}</strong>. Esta acción
-              no se puede deshacer.
+              <SSLocalized text={"Vas a eliminar el registro de"} />{" "}
+              <strong>{selectedLog.action}</strong><SSLocalized text={". Esta acción no se puede deshacer."} />
             </p>
 
             <footer>
@@ -601,7 +599,7 @@ function AuditoriaAdmin() {
                 className="audit-admin-secondary-button"
                 onClick={() => setIsDeleteOpen(false)}
               >
-                Cancelar
+                <SSLocalized text={"Cancelar"} />
               </button>
 
               <button
@@ -610,7 +608,7 @@ function AuditoriaAdmin() {
                 onClick={handleDelete}
               >
                 <Trash2 size={17} />
-                Eliminar
+                <SSLocalized text={"Eliminar"} />
               </button>
             </footer>
           </section>

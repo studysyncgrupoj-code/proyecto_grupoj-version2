@@ -1,3 +1,5 @@
+import ssI18n from "i18next";
+import SSLocalized from "../../i18n/Localized.jsx";
 
 function normalizeSessionUser(user) {
   const roles = {
@@ -617,11 +619,11 @@ function Perfil() {
           <div>
             <span className="profile-eyebrow">
               <UserRound size={15} />
-              Perfil profesional
+              <SSLocalized text={"Perfil profesional"} />
             </span>
 
             <h1>
-              Mi perfil
+              <SSLocalized text={"Mi perfil"} />
             </h1>
 
             <p>
@@ -639,7 +641,7 @@ function Perfil() {
               disabled={isLoading}
             >
               <Edit3 size={18} />
-              Editar perfil
+              <SSLocalized text={"Editar perfil"} />
             </button>
           )}
         </header>
@@ -668,7 +670,7 @@ function Perfil() {
 
                 <button
                   type="button"
-                  aria-label="Cambiar foto de perfil"
+                  aria-label={ssI18n.t("Cambiar foto de perfil")}
                 >
                   <Camera size={17} />
                 </button>
@@ -697,7 +699,7 @@ function Perfil() {
 
                 <span className="profile-status">
                   <span />
-                  Disponible
+                  <SSLocalized text={"Disponible"} />
                 </span>
               </div>
 
@@ -707,7 +709,7 @@ function Perfil() {
 
                   <div>
                     <span>
-                      Correo electrónico
+                      <SSLocalized text={"Correo electrónico"} />
                     </span>
 
                     <strong>
@@ -721,7 +723,7 @@ function Perfil() {
 
                   <div>
                     <span>
-                      Ubicación
+                      <SSLocalized text={"Ubicación"} />
                     </span>
 
                     <strong>
@@ -755,7 +757,7 @@ function Perfil() {
 
               <div className="profile-biography">
                 <span>
-                  Acerca de mí
+                  <SSLocalized text={"Acerca de mí"} />
                 </span>
 
                 <p>
@@ -792,7 +794,7 @@ function Perfil() {
               <div className="profile-level-progress">
                 <div>
                   <span>
-                    Progreso al siguiente nivel
+                    <SSLocalized text={"Progreso al siguiente nivel"} />
                   </span>
 
                   <strong>
@@ -832,11 +834,11 @@ function Perfil() {
             <section className="profile-card profile-statistics-card">
               <div className="profile-card-title">
                 <h3>
-                  Estadísticas
+                  <SSLocalized text={"Estadísticas"} />
                 </h3>
 
                 <span>
-                  Este semestre
+                  <SSLocalized text={"Este semestre"} />
                 </span>
               </div>
 
@@ -845,10 +847,10 @@ function Perfil() {
                   <>
                     <article>
                       <strong>
-                        18h
+                        <SSLocalized text={"18h"} />
                       </strong>
                       <span>
-                        Tiempo estudiado
+                        <SSLocalized text={"Tiempo estudiado"} />
                       </span>
                     </article>
 
@@ -857,7 +859,7 @@ function Perfil() {
                         3
                       </strong>
                       <span>
-                        Cursos activos
+                        <SSLocalized text={"Cursos activos"} />
                       </span>
                     </article>
 
@@ -866,7 +868,7 @@ function Perfil() {
                         24
                       </strong>
                       <span>
-                        Sesiones Focus
+                        <SSLocalized text={"Sesiones Focus"} />
                       </span>
                     </article>
 
@@ -875,7 +877,7 @@ function Perfil() {
                         8
                       </strong>
                       <span>
-                        Logros
+                        <SSLocalized text={"Logros"} />
                       </span>
                     </article>
                   </>
@@ -885,18 +887,14 @@ function Perfil() {
                       <strong>
                         128
                       </strong>
-                      <span>
-                        Estudiantes
-                      </span>
+                      <span><SSLocalized text={"Estudiantes"} /></span>
                     </article>
 
                     <article>
                       <strong>
                         12
                       </strong>
-                      <span>
-                        Cursos
-                      </span>
+                      <span><SSLocalized text={"Cursos"} /></span>
                     </article>
 
                     <article>
@@ -904,7 +902,7 @@ function Perfil() {
                         46
                       </strong>
                       <span>
-                        Salas creadas
+                        <SSLocalized text={"Salas creadas"} />
                       </span>
                     </article>
 
@@ -913,7 +911,7 @@ function Perfil() {
                         4.9
                       </strong>
                       <span>
-                        Calificación
+                        <SSLocalized text={"Calificación"} />
                       </span>
                     </article>
                   </>
@@ -928,11 +926,11 @@ function Perfil() {
             <div className="profile-section-heading">
               <div>
                 <span>
-                  Reconocimientos
+                  <SSLocalized text={"Reconocimientos"} />
                 </span>
 
                 <h2>
-                  Logros destacados
+                  <SSLocalized text={"Logros destacados"} />
                 </h2>
               </div>
 
@@ -981,11 +979,11 @@ function Perfil() {
             <div className="profile-section-heading">
               <div>
                 <span>
-                  Historial reciente
+                  <SSLocalized text={"Historial reciente"} />
                 </span>
 
                 <h2>
-                  Actividad
+                  <SSLocalized text={"Actividad"} />
                 </h2>
               </div>
 
@@ -1033,17 +1031,17 @@ function Perfil() {
             <header>
               <div>
                 <span>
-                  Configuración personal
+                  <SSLocalized text={"Configuración personal"} />
                 </span>
 
                 <h2>
-                  Editar perfil
+                  <SSLocalized text={"Editar perfil"} />
                 </h2>
               </div>
 
               <button
                 type="button"
-                aria-label="Cerrar formulario"
+                aria-label={ssI18n.t("Cerrar formulario")}
                 onClick={handleCancel}
               >
                 <X size={20} />
@@ -1056,7 +1054,7 @@ function Perfil() {
               <div className="profile-form-grid">
                 <label>
                   <span>
-                    Nombre completo
+                    <SSLocalized text={"Nombre completo"} />
                   </span>
 
                   <input
@@ -1074,7 +1072,7 @@ function Perfil() {
 
                 <label>
                   <span>
-                    Cargo o rol
+                    <SSLocalized text={"Cargo o rol"} />
                   </span>
 
                   <input
@@ -1089,7 +1087,7 @@ function Perfil() {
 
                 <label>
                   <span>
-                    Correo electrónico
+                    <SSLocalized text={"Correo electrónico"} />
                   </span>
 
                   <input
@@ -1107,7 +1105,7 @@ function Perfil() {
 
                 <label>
                   <span>
-                    Ubicación
+                    <SSLocalized text={"Ubicación"} />
                   </span>
 
                   <input
@@ -1145,7 +1143,7 @@ function Perfil() {
 
                 <label className="profile-form-full-width">
                   <span>
-                    Biografía
+                    <SSLocalized text={"Biografía"} />
                   </span>
 
                   <textarea
@@ -1184,7 +1182,7 @@ function Perfil() {
                     isSaving
                   }
                 >
-                  Cancelar
+                  <SSLocalized text={"Cancelar"} />
                 </button>
 
                 <button

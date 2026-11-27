@@ -1,3 +1,4 @@
+import SSLocalized from "../../i18n/Localized.jsx";
 import { useEffect, useMemo, useState } from "react";
 import {
   Focus,
@@ -60,10 +61,10 @@ function RoomPomodoro() {
         <div>
           <span>
             <Focus size={14} />
-            Sesión Focus
+            <SSLocalized text={"Sesión Focus"} />
           </span>
 
-          <h2>Pomodoro</h2>
+          <h2><SSLocalized text={"Pomodoro"} /></h2>
         </div>
 
         <small className={isRunning ? "active" : ""}>
@@ -80,13 +81,13 @@ function RoomPomodoro() {
             {minutes}:{seconds}
           </strong>
 
-          <span>Tiempo de enfoque</span>
+          <span><SSLocalized text={"Tiempo de enfoque"} /></span>
         </div>
       </div>
 
       <div className="room-compact-progress">
         <div>
-          <span>Progreso</span>
+          <span><SSLocalized text={"Progreso"} /></span>
           <strong>{Math.round(progress)}%</strong>
         </div>
 
@@ -103,7 +104,7 @@ function RoomPomodoro() {
 
         <button type="button" onClick={handleReset}>
           <RotateCcw size={17} />
-          Reiniciar
+          <SSLocalized text={"Reiniciar"} />
         </button>
       </div>
     </article>

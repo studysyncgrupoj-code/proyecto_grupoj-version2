@@ -31,7 +31,7 @@
   background:
     radial-gradient(circle at 88% -8%, rgba(37, 99, 235, 0.18), transparent 32%),
     radial-gradient(circle at 30% 16%, rgba(14, 165, 233, 0.07), transparent 28%),
-    linear-gradient(180deg, #02050b 0%, #010308 100%);
+    linear-gradient(180deg, var(--ss-surface-02050b) 0%, var(--ss-surface-010308) 100%);
 }
 
 .courses-layout,
@@ -76,7 +76,7 @@
   border-right: 1px solid rgba(148, 163, 184, 0.12);
   background:
     radial-gradient(circle at 20% 0%, rgba(14, 165, 233, 0.08), transparent 27%),
-    linear-gradient(180deg, rgba(4, 8, 16, 0.99), rgba(2, 5, 11, 0.99));
+    linear-gradient(180deg, rgba(var(--ss-rgb-4-8-16), 0.99), rgba(var(--ss-rgb-2-5-11), 0.99));
   box-shadow:
     18px 0 45px rgba(0, 0, 0, 0.28),
     inset -1px 0 0 rgba(255, 255, 255, 0.015);
@@ -130,7 +130,7 @@
 .courses-layout .sidebar-brand-text span {
   display: block;
   margin-top: 3px;
-  color: #64748b;
+  color: var(--ss-adaptive-64748b);
   font-size: 0.73rem;
 }
 
@@ -150,7 +150,7 @@
   padding: 0 14px;
   border: 1px solid transparent;
   border-radius: 13px;
-  color: #8492a6;
+  color: var(--ss-adaptive-8492a6);
   background: transparent;
   font-size: 0.9rem;
   font-weight: 650;
@@ -195,7 +195,7 @@
   border-radius: 18px;
   background:
     radial-gradient(circle at 100% 0%, rgba(37, 99, 235, 0.18), transparent 43%),
-    linear-gradient(145deg, rgba(8, 17, 31, 0.95), rgba(3, 8, 17, 0.98));
+    linear-gradient(145deg, rgba(var(--ss-rgb-8-17-31), 0.95), rgba(var(--ss-rgb-3-8-17), 0.98));
   box-shadow:
     0 18px 40px rgba(0, 0, 0, 0.38),
     inset 0 1px 0 rgba(255, 255, 255, 0.035);
@@ -220,7 +220,7 @@
 
 .courses-layout .sidebar-premium p {
   margin: 8px 0 14px;
-  color: #7f8ea3;
+  color: var(--ss-adaptive-7f8ea3);
   font-size: 0.75rem;
   line-height: 1.55;
 }
@@ -231,7 +231,7 @@
   border: 1px solid rgba(56, 189, 248, 0.25);
   border-radius: 11px;
   color: #dff6ff;
-  background: rgba(6, 17, 26, 0.86);
+  background: rgba(var(--ss-rgb-6-17-26), 0.86);
   font-size: 0.78rem;
   font-weight: 750;
   cursor: pointer;
@@ -257,7 +257,7 @@
   padding: 12px;
   border: 1px solid rgba(148, 163, 184, 0.11);
   border-radius: 14px;
-  background: linear-gradient(145deg, rgba(9, 15, 27, 0.9), rgba(4, 8, 15, 0.96));
+  background: linear-gradient(145deg, rgba(var(--ss-rgb-9-15-27), 0.9), rgba(var(--ss-rgb-4-8-15), 0.96));
 }
 
 .courses-layout .sidebar-user-avatar {
@@ -291,7 +291,7 @@
 
 .courses-layout .sidebar-user-info span {
   margin-top: 3px;
-  color: #64748b;
+  color: var(--ss-adaptive-64748b);
   font-size: 0.69rem;
 }
 
@@ -408,7 +408,7 @@
   padding: 21px;
   border: 1px solid var(--courses-border);
   border-radius: 19px;
-  background: linear-gradient(145deg, rgba(10, 17, 31, 0.91), rgba(4, 9, 18, 0.96));
+  background: linear-gradient(145deg, rgba(var(--ss-rgb-10-17-31), 0.91), rgba(var(--ss-rgb-4-9-18), 0.96));
   box-shadow:
     0 20px 48px rgba(0, 0, 0, 0.34),
     inset 0 1px 0 rgba(255, 255, 255, 0.035);
@@ -438,7 +438,7 @@
 }
 
 .courses-summary-grid span {
-  color: #8fa1b7;
+  color: var(--ss-adaptive-8fa1b7);
   font-size: 0.76rem;
 }
 
@@ -467,7 +467,7 @@
   padding: 7px;
   border: 1px solid rgba(148, 163, 184, 0.1);
   border-radius: 18px;
-  background: linear-gradient(145deg, rgba(8, 14, 26, 0.78), rgba(4, 8, 16, 0.84));
+  background: linear-gradient(145deg, rgba(var(--ss-rgb-8-14-26), 0.78), rgba(var(--ss-rgb-4-8-16), 0.84));
 }
 
 .courses-search {
@@ -478,8 +478,8 @@
   padding: 0 15px;
   border: 1px solid transparent;
   border-radius: 13px;
-  color: #64748b;
-  background: rgba(2, 6, 14, 0.6);
+  color: var(--ss-adaptive-64748b);
+  background: rgba(var(--ss-rgb-2-6-14), 0.6);
 }
 
 .courses-search:focus-within {
@@ -499,7 +499,7 @@
 }
 
 .courses-search input::placeholder {
-  color: #64748b;
+  color: var(--ss-adaptive-64748b);
 }
 
 .courses-filter-group {
@@ -560,7 +560,7 @@
   border: 1px solid rgba(148, 163, 184, 0.11);
   border-radius: var(--courses-radius-pill);
   color: #8191a6;
-  background: rgba(8, 14, 25, 0.66);
+  background: rgba(var(--ss-rgb-8-14-25), 0.66);
   font-size: 0.7rem;
 }
 
@@ -579,7 +579,7 @@
   overflow: hidden;
   border: 1px solid rgba(148, 163, 184, 0.14);
   border-radius: 21px;
-  background: linear-gradient(165deg, rgba(9, 16, 29, 0.95), rgba(3, 8, 16, 0.99));
+  background: linear-gradient(165deg, rgba(var(--ss-rgb-9-16-29), 0.95), rgba(var(--ss-rgb-3-8-16), 0.99));
   box-shadow:
     0 22px 50px rgba(0, 0, 0, 0.38),
     inset 0 1px 0 rgba(255, 255, 255, 0.03);
@@ -608,7 +608,7 @@
   overflow: hidden;
   background:
     radial-gradient(circle at 78% 20%, rgba(56, 189, 248, 0.28), transparent 31%),
-    linear-gradient(135deg, #031523, #061b30 50%, #02050a);
+    linear-gradient(135deg, var(--ss-surface-031523), var(--ss-surface-061b30) 50%, var(--ss-surface-02050a));
 }
 
 .course-card-cover::before {
@@ -712,7 +712,7 @@
 .course-card-body > p {
   min-height: 42px;
   margin: 12px 0 0;
-  color: #718096;
+  color: var(--ss-adaptive-718096);
   font-size: 0.77rem;
   line-height: 1.55;
 }
@@ -731,7 +731,7 @@
 
 .course-card-progress span,
 .course-progress-data span {
-  color: #64748b;
+  color: var(--ss-adaptive-64748b);
   font-size: 0.65rem;
 }
 
@@ -745,7 +745,7 @@
   margin-top: 9px;
   overflow: hidden;
   border-radius: var(--courses-radius-pill);
-  background: rgba(15, 23, 42, 0.78);
+  background: rgba(var(--ss-rgb-15-23-42), 0.78);
 }
 
 .course-progress-track span {
@@ -773,8 +773,8 @@
   padding: 0 8px;
   border: 1px solid rgba(148, 163, 184, 0.08);
   border-radius: 10px;
-  color: #8fa1b7;
-  background: rgba(5, 10, 19, 0.54);
+  color: var(--ss-adaptive-8fa1b7);
+  background: rgba(var(--ss-rgb-5-10-19), 0.54);
   font-size: 0.65rem;
 }
 
@@ -794,13 +794,13 @@
 }
 
 .course-card-footer span {
-  color: #64748b;
+  color: var(--ss-adaptive-64748b);
   font-size: 0.61rem;
 }
 
 .course-card-footer strong {
   margin-top: 4px;
-  color: #cbd5e1;
+  color: var(--ss-adaptive-cbd5e1);
   font-size: 0.72rem;
 }
 
@@ -832,7 +832,7 @@
   border: 1px dashed rgba(56, 189, 248, 0.27);
   border-radius: 22px;
   text-align: center;
-  background: linear-gradient(145deg, rgba(8, 15, 27, 0.82), rgba(3, 8, 16, 0.94));
+  background: linear-gradient(145deg, rgba(var(--ss-rgb-8-15-27), 0.82), rgba(var(--ss-rgb-3-8-16), 0.94));
 }
 
 .courses-empty-state svg {
@@ -845,7 +845,7 @@
 
 .courses-empty-state p {
   margin: 0;
-  color: #718096;
+  color: var(--ss-adaptive-718096);
   font-size: 0.79rem;
 }
 
@@ -872,8 +872,8 @@
   padding: 0 14px;
   border: 1px solid rgba(148, 163, 184, 0.16);
   border-radius: 12px;
-  color: #cbd5e1;
-  background: rgba(5, 10, 19, 0.76);
+  color: var(--ss-adaptive-cbd5e1);
+  background: rgba(var(--ss-rgb-5-10-19), 0.76);
   cursor: pointer;
 }
 
@@ -933,7 +933,7 @@
 .course-metrics-card {
   border: 1px solid rgba(148, 163, 184, 0.12);
   border-radius: 20px;
-  background: linear-gradient(155deg, rgba(8, 15, 29, 0.82), rgba(3, 8, 16, 0.94));
+  background: linear-gradient(155deg, rgba(var(--ss-rgb-8-15-29), 0.82), rgba(var(--ss-rgb-3-8-16), 0.94));
   box-shadow:
     0 18px 42px rgba(0, 0, 0, 0.3),
     inset 0 1px 0 rgba(255, 255, 255, 0.025);
@@ -979,7 +979,7 @@
 
 .course-objective-card > p {
   margin: 16px 0 0;
-  color: #94a3b8;
+  color: var(--ss-adaptive-94a3b8);
   line-height: 1.75;
 }
 
@@ -997,7 +997,7 @@
   padding: 10px;
   border: 1px solid rgba(148, 163, 184, 0.09);
   border-radius: 12px;
-  background: rgba(5, 10, 19, 0.58);
+  background: rgba(var(--ss-rgb-5-10-19), 0.58);
 }
 
 .course-task-item button {
@@ -1014,7 +1014,7 @@
 
 .course-task-item > span {
   min-width: 0;
-  color: #cbd5e1;
+  color: var(--ss-adaptive-cbd5e1);
   font-size: 0.74rem;
 }
 
@@ -1023,7 +1023,7 @@
 }
 
 .course-task-item-done > span {
-  color: #64748b;
+  color: var(--ss-adaptive-64748b);
   text-decoration: line-through;
 }
 
@@ -1044,7 +1044,7 @@
   border-radius: 11px;
   outline: 0;
   color: #fff;
-  background: rgba(3, 8, 16, 0.72);
+  background: rgba(var(--ss-rgb-3-8-16), 0.72);
   font-size: 0.74rem;
 }
 
@@ -1085,7 +1085,7 @@
   padding: 13px;
   border: 1px solid rgba(148, 163, 184, 0.1);
   border-radius: 14px;
-  background: linear-gradient(145deg, rgba(8, 15, 27, 0.74), rgba(3, 8, 16, 0.9));
+  background: linear-gradient(145deg, rgba(var(--ss-rgb-8-15-27), 0.74), rgba(var(--ss-rgb-3-8-16), 0.9));
 }
 
 .course-member-card > div:first-child {
@@ -1112,7 +1112,7 @@
 
 .course-member-card p {
   margin-top: 4px;
-  color: #718096;
+  color: var(--ss-adaptive-718096);
   font-size: 0.68rem;
 }
 
@@ -1128,7 +1128,7 @@
   padding: 12px;
   border: 1px solid rgba(148, 163, 184, 0.09);
   border-radius: 12px;
-  background: rgba(5, 10, 19, 0.58);
+  background: rgba(var(--ss-rgb-5-10-19), 0.58);
 }
 
 .course-chat-messages strong {
@@ -1138,7 +1138,7 @@
 
 .course-chat-messages p {
   margin: 5px 0 0;
-  color: #cbd5e1;
+  color: var(--ss-adaptive-cbd5e1);
   font-size: 0.76rem;
   line-height: 1.5;
 }
@@ -1187,7 +1187,7 @@
 
 .course-instructor-card p {
   margin-top: 4px;
-  color: #718096;
+  color: var(--ss-adaptive-718096);
   font-size: 0.7rem;
 }
 
@@ -1204,7 +1204,7 @@
   padding: 10px;
   border: 1px solid rgba(148, 163, 184, 0.08);
   border-radius: 11px;
-  background: rgba(5, 10, 19, 0.54);
+  background: rgba(var(--ss-rgb-5-10-19), 0.54);
 }
 
 .course-metrics-card svg {
@@ -1212,7 +1212,7 @@
 }
 
 .course-metrics-card span {
-  color: #718096;
+  color: var(--ss-adaptive-718096);
   font-size: 0.72rem;
 }
 

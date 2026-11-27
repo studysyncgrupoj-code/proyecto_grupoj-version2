@@ -1,3 +1,4 @@
+import SSLocalized from "../../i18n/Localized.jsx";
 import { ArrowLeft, Construction, ShieldCheck } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
@@ -19,7 +20,7 @@ function AdminModulePlaceholder({
         <section className="admin-placeholder-card">
           <span className="admin-placeholder-eyebrow">
             <ShieldCheck size={15} />
-            Módulo administrativo
+            <SSLocalized text={"Módulo administrativo"} />
           </span>
 
           <div className="admin-placeholder-icon">
@@ -32,7 +33,7 @@ function AdminModulePlaceholder({
 
           <div className="admin-placeholder-status">
             <span />
-            {moduleName} está conectado y listo para desarrollo
+            {moduleName} <SSLocalized text={"está conectado y listo para desarrollo"} />
           </div>
 
           <button
@@ -40,7 +41,7 @@ function AdminModulePlaceholder({
             onClick={() => navigate("/dashboard-admin")}
           >
             <ArrowLeft size={18} />
-            Volver al dashboard
+            <SSLocalized text={"Volver al dashboard"} />
           </button>
         </section>
       </main>

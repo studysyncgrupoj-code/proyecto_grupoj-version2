@@ -1,3 +1,5 @@
+import ssI18n from "i18next";
+import SSLocalized from "../../i18n/Localized.jsx";
 import { useMemo, useState } from "react";
 import {
   AlertTriangle,
@@ -359,15 +361,13 @@ function CorreosAdmin() {
           <div>
             <span className="emails-admin-eyebrow">
               <ShieldCheck size={15} />
-              Centro de comunicaciones
+              <SSLocalized text={"Centro de comunicaciones"} />
             </span>
 
-            <h1>Correos</h1>
+            <h1><SSLocalized text={"Correos"} /></h1>
 
             <p>
-              Supervisa comunicaciones institucionales, entregas,
-              errores, mensajes programados y notificaciones
-              académicas.
+              <SSLocalized text={"Supervisa comunicaciones institucionales, entregas, errores, mensajes programados y notificaciones académicas."} />
             </p>
           </div>
 
@@ -377,7 +377,7 @@ function CorreosAdmin() {
             onClick={openComposeModal}
           >
             <Plus size={18} />
-            Nuevo correo
+            <SSLocalized text={"Nuevo correo"} />
           </button>
         </header>
 
@@ -387,9 +387,9 @@ function CorreosAdmin() {
               <Mail size={22} />
             </div>
 
-            <span>Total procesados</span>
+            <span><SSLocalized text={"Total procesados"} /></span>
             <strong>{statistics.total}</strong>
-            <small>Registros actuales</small>
+            <small><SSLocalized text={"Registros actuales"} /></small>
           </article>
 
           <article>
@@ -397,9 +397,9 @@ function CorreosAdmin() {
               <Check size={22} />
             </div>
 
-            <span>Enviados</span>
+            <span><SSLocalized text={"Enviados"} /></span>
             <strong>{statistics.sent}</strong>
-            <small>Entrega completada</small>
+            <small><SSLocalized text={"Entrega completada"} /></small>
           </article>
 
           <article>
@@ -407,12 +407,12 @@ function CorreosAdmin() {
               <Clock3 size={22} />
             </div>
 
-            <span>Pendientes</span>
+            <span><SSLocalized text={"Pendientes"} /></span>
             <strong>
               {statistics.pending + statistics.scheduled}
             </strong>
             <small>
-              {statistics.scheduled} programados
+              {statistics.scheduled} <SSLocalized text={"programados"} />
             </small>
           </article>
 
@@ -421,9 +421,9 @@ function CorreosAdmin() {
               <AlertTriangle size={22} />
             </div>
 
-            <span>Fallidos</span>
+            <span><SSLocalized text={"Fallidos"} /></span>
             <strong>{statistics.failed}</strong>
-            <small>Requieren revisión</small>
+            <small><SSLocalized text={"Requieren revisión"} /></small>
           </article>
         </section>
 
@@ -438,7 +438,7 @@ function CorreosAdmin() {
                 onChange={(event) =>
                   setSearchTerm(event.target.value)
                 }
-                placeholder="Buscar destinatario, correo o asunto..."
+                placeholder={ssI18n.t("Buscar destinatario, correo o asunto...")}
               />
             </div>
 
@@ -468,23 +468,23 @@ function CorreosAdmin() {
                 }
               >
                 <option value="Todos">
-                  Todos los estados
+                  <SSLocalized text={"Todos los estados"} />
                 </option>
 
                 <option value="Enviado">
-                  Enviado
+                  <SSLocalized text={"Enviado"} />
                 </option>
 
                 <option value="Pendiente">
-                  Pendiente
+                  <SSLocalized text={"Pendiente"} />
                 </option>
 
                 <option value="Programado">
-                  Programado
+                  <SSLocalized text={"Programado"} />
                 </option>
 
                 <option value="Fallido">
-                  Fallido
+                  <SSLocalized text={"Fallido"} />
                 </option>
               </select>
 
@@ -497,7 +497,7 @@ function CorreosAdmin() {
                   onClick={clearFilters}
                 >
                   <X size={16} />
-                  Limpiar
+                  <SSLocalized text={"Limpiar"} />
                 </button>
               )}
             </div>
@@ -505,12 +505,12 @@ function CorreosAdmin() {
 
           <div className="emails-admin-table-heading">
             <div>
-              <span>Actividad de correo</span>
-              <h2>Historial de comunicaciones</h2>
+              <span><SSLocalized text={"Actividad de correo"} /></span>
+              <h2><SSLocalized text={"Historial de comunicaciones"} /></h2>
             </div>
 
             <small>
-              {filteredEmails.length} resultado
+              {filteredEmails.length} <SSLocalized text={"resultado"} />
               {filteredEmails.length === 1 ? "" : "s"}
             </small>
           </div>
@@ -519,11 +519,11 @@ function CorreosAdmin() {
             <table className="emails-admin-table">
               <thead>
                 <tr>
-                  <th>Destinatario</th>
-                  <th>Asunto</th>
-                  <th>Categoría</th>
-                  <th>Fecha</th>
-                  <th>Estado</th>
+                  <th><SSLocalized text={"Destinatario"} /></th>
+                  <th><SSLocalized text={"Asunto"} /></th>
+                  <th><SSLocalized text={"Categoría"} /></th>
+                  <th><SSLocalized text={"Fecha"} /></th>
+                  <th><SSLocalized text={"Estado"} /></th>
                   <th />
                 </tr>
               </thead>
@@ -610,7 +610,7 @@ function CorreosAdmin() {
                             }
                           >
                             <Eye size={16} />
-                            Ver correo
+                            <SSLocalized text={"Ver correo"} />
                           </button>
 
                           {(email.status === "Fallido" ||
@@ -622,7 +622,7 @@ function CorreosAdmin() {
                               }
                             >
                               <RefreshCw size={16} />
-                              Reenviar
+                              <SSLocalized text={"Reenviar"} />
                             </button>
                           )}
 
@@ -635,7 +635,7 @@ function CorreosAdmin() {
                               }
                             >
                               <Send size={16} />
-                              Enviar ahora
+                              <SSLocalized text={"Enviar ahora"} />
                             </button>
                           )}
 
@@ -647,7 +647,7 @@ function CorreosAdmin() {
                             }
                           >
                             <Trash2 size={16} />
-                            Eliminar
+                            <SSLocalized text={"Eliminar"} />
                           </button>
                         </div>
                       )}
@@ -661,18 +661,17 @@ function CorreosAdmin() {
               <div className="emails-admin-empty-state">
                 <Mail size={36} />
 
-                <h3>No encontramos correos</h3>
+                <h3><SSLocalized text={"No encontramos correos"} /></h3>
 
                 <p>
-                  Cambia los filtros o utiliza otro término de
-                  búsqueda.
+                  <SSLocalized text={"Cambia los filtros o utiliza otro término de búsqueda."} />
                 </p>
 
                 <button
                   type="button"
                   onClick={clearFilters}
                 >
-                  Limpiar filtros
+                  <SSLocalized text={"Limpiar filtros"} />
                 </button>
               </div>
             )}
@@ -692,14 +691,14 @@ function CorreosAdmin() {
           <section className="emails-admin-modal">
             <header>
               <div>
-                <span>Nueva comunicación</span>
-                <h2>Enviar correo</h2>
+                <span><SSLocalized text={"Nueva comunicación"} /></span>
+                <h2><SSLocalized text={"Enviar correo"} /></h2>
               </div>
 
               <button
                 type="button"
                 onClick={closeComposeModal}
-                aria-label="Cerrar formulario"
+                aria-label={ssI18n.t("Cerrar formulario")}
               >
                 <X size={20} />
               </button>
@@ -708,33 +707,33 @@ function CorreosAdmin() {
             <form onSubmit={handleSubmit}>
               <div className="emails-admin-form-grid">
                 <label>
-                  <span>Nombre del destinatario *</span>
+                  <span><SSLocalized text={"Nombre del destinatario *"} /></span>
 
                   <input
                     type="text"
                     name="recipientName"
                     value={formData.recipientName}
                     onChange={handleChange}
-                    placeholder="Nombre completo"
+                    placeholder={ssI18n.t("Nombre completo")}
                     required
                   />
                 </label>
 
                 <label>
-                  <span>Correo electrónico *</span>
+                  <span><SSLocalized text={"Correo electrónico *"} /></span>
 
                   <input
                     type="email"
                     name="recipient"
                     value={formData.recipient}
                     onChange={handleChange}
-                    placeholder="correo@studysync.com"
+                    placeholder={ssI18n.t("correo@studysync.com")}
                     required
                   />
                 </label>
 
                 <label>
-                  <span>Categoría</span>
+                  <span><SSLocalized text={"Categoría"} /></span>
 
                   <select
                     name="category"
@@ -742,29 +741,27 @@ function CorreosAdmin() {
                     onChange={handleChange}
                   >
                     <option value="Académico">
-                      Académico
+                      <SSLocalized text={"Académico"} />
                     </option>
 
                     <option value="Seguimiento">
-                      Seguimiento
+                      <SSLocalized text={"Seguimiento"} />
                     </option>
 
                     <option value="Profesor">
-                      Profesor
+                      <SSLocalized text={"Profesor"} />
                     </option>
 
                     <option value="Recordatorio">
-                      Recordatorio
+                      <SSLocalized text={"Recordatorio"} />
                     </option>
 
-                    <option value="Sistema">
-                      Sistema
-                    </option>
+                    <option value="Sistema"><SSLocalized text={"Sistema"} /></option>
                   </select>
                 </label>
 
                 <label>
-                  <span>Tipo de envío</span>
+                  <span><SSLocalized text={"Tipo de envío"} /></span>
 
                   <select
                     name="status"
@@ -772,40 +769,40 @@ function CorreosAdmin() {
                     onChange={handleChange}
                   >
                     <option value="Enviado">
-                      Enviar ahora
+                      <SSLocalized text={"Enviar ahora"} />
                     </option>
 
                     <option value="Programado">
-                      Programar
+                      <SSLocalized text={"Programar"} />
                     </option>
 
                     <option value="Pendiente">
-                      Guardar pendiente
+                      <SSLocalized text={"Guardar pendiente"} />
                     </option>
                   </select>
                 </label>
 
                 <label className="emails-admin-full-field">
-                  <span>Asunto *</span>
+                  <span><SSLocalized text={"Asunto *"} /></span>
 
                   <input
                     type="text"
                     name="subject"
                     value={formData.subject}
                     onChange={handleChange}
-                    placeholder="Asunto del correo"
+                    placeholder={ssI18n.t("Asunto del correo")}
                     required
                   />
                 </label>
 
                 <label className="emails-admin-full-field">
-                  <span>Mensaje *</span>
+                  <span><SSLocalized text={"Mensaje *"} /></span>
 
                   <textarea
                     name="body"
                     value={formData.body}
                     onChange={handleChange}
-                    placeholder="Escribe el mensaje..."
+                    placeholder={ssI18n.t("Escribe el mensaje...")}
                     required
                   />
                 </label>
@@ -823,7 +820,7 @@ function CorreosAdmin() {
                   className="emails-admin-secondary-button"
                   onClick={closeComposeModal}
                 >
-                  Cancelar
+                  <SSLocalized text={"Cancelar"} />
                 </button>
 
                 <button
@@ -831,7 +828,7 @@ function CorreosAdmin() {
                   className="emails-admin-primary-button"
                 >
                   <Send size={17} />
-                  Procesar correo
+                  <SSLocalized text={"Procesar correo"} />
                 </button>
               </footer>
             </form>
@@ -848,17 +845,17 @@ function CorreosAdmin() {
               </div>
 
               <div>
-                <span>Detalle de comunicación</span>
+                <span><SSLocalized text={"Detalle de comunicación"} /></span>
                 <h2>{selectedEmail.subject}</h2>
                 <p>
-                  Para {selectedEmail.recipientName}
+                  <SSLocalized text={"Para"} /> {selectedEmail.recipientName}
                 </p>
               </div>
 
               <button
                 type="button"
                 onClick={() => setIsDetailsOpen(false)}
-                aria-label="Cerrar detalles"
+                aria-label={ssI18n.t("Cerrar detalles")}
               >
                 <X size={20} />
               </button>
@@ -866,42 +863,42 @@ function CorreosAdmin() {
 
             <div className="emails-admin-details-grid">
               <article>
-                <span>Destinatario</span>
+                <span><SSLocalized text={"Destinatario"} /></span>
                 <strong>
                   {selectedEmail.recipientName}
                 </strong>
               </article>
 
               <article>
-                <span>Correo</span>
+                <span><SSLocalized text={"Correo"} /></span>
                 <strong>
                   {selectedEmail.recipient}
                 </strong>
               </article>
 
               <article>
-                <span>Fecha</span>
+                <span><SSLocalized text={"Fecha"} /></span>
                 <strong>
                   {selectedEmail.date}
                 </strong>
               </article>
 
               <article>
-                <span>Hora</span>
+                <span><SSLocalized text={"Hora"} /></span>
                 <strong>
                   {selectedEmail.time}
                 </strong>
               </article>
 
               <article>
-                <span>Categoría</span>
+                <span><SSLocalized text={"Categoría"} /></span>
                 <strong>
                   {selectedEmail.category}
                 </strong>
               </article>
 
               <article>
-                <span>Estado</span>
+                <span><SSLocalized text={"Estado"} /></span>
                 <strong>
                   {selectedEmail.status}
                 </strong>
@@ -909,7 +906,7 @@ function CorreosAdmin() {
             </div>
 
             <div className="emails-admin-message-body">
-              <span>Mensaje</span>
+              <span><SSLocalized text={"Mensaje"} /></span>
 
               <p>{selectedEmail.body}</p>
             </div>
@@ -925,7 +922,7 @@ function CorreosAdmin() {
                 }}
               >
                 <RefreshCw size={17} />
-                Reenviar correo
+                <SSLocalized text={"Reenviar correo"} />
               </button>
             </footer>
           </section>
@@ -939,12 +936,11 @@ function CorreosAdmin() {
               <Trash2 size={25} />
             </div>
 
-            <h2>Eliminar correo</h2>
+            <h2><SSLocalized text={"Eliminar correo"} /></h2>
 
             <p>
-              Vas a eliminar el correo{" "}
-              <strong>{selectedEmail.subject}</strong>. Esta acción
-              no se puede deshacer.
+              <SSLocalized text={"Vas a eliminar el correo"} />{" "}
+              <strong>{selectedEmail.subject}</strong><SSLocalized text={". Esta acción no se puede deshacer."} />
             </p>
 
             <footer>
@@ -953,7 +949,7 @@ function CorreosAdmin() {
                 className="emails-admin-secondary-button"
                 onClick={() => setIsDeleteOpen(false)}
               >
-                Cancelar
+                <SSLocalized text={"Cancelar"} />
               </button>
 
               <button
@@ -962,7 +958,7 @@ function CorreosAdmin() {
                 onClick={handleDelete}
               >
                 <Trash2 size={17} />
-                Eliminar
+                <SSLocalized text={"Eliminar"} />
               </button>
             </footer>
           </section>

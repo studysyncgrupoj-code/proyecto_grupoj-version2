@@ -10,7 +10,7 @@
   color: #f8fafc;
   background:
     radial-gradient(circle at 88% 0%, rgba(37, 99, 235, 0.12), transparent 28%),
-    #02050b;
+    var(--ss-surface-02050b);
 }
 
 .room-view-layout,
@@ -64,7 +64,7 @@
 
 .room-view-hero p {
   margin: 13px 0 0;
-  color: #8492a6;
+  color: var(--ss-adaptive-8492a6);
   font-size: 1rem;
 }
 
@@ -144,7 +144,7 @@
   border-radius: 21px;
   background:
     radial-gradient(circle at 100% 0%, rgba(37, 99, 235, 0.06), transparent 35%),
-    linear-gradient(180deg, rgba(8, 12, 20, 0.98), rgba(3, 6, 12, 0.99));
+    linear-gradient(180deg, rgba(var(--ss-rgb-8-12-20), 0.98), rgba(var(--ss-rgb-3-6-12), 0.99));
   box-shadow:
     0 22px 50px rgba(0, 0, 0, 0.5),
     inset 0 1px 0 rgba(255, 255, 255, 0.025);
@@ -220,7 +220,7 @@
   padding: 16px;
   border: 1px solid rgba(148, 163, 184, 0.11);
   border-radius: 15px;
-  background: rgba(5, 10, 19, 0.72);
+  background: rgba(var(--ss-rgb-5-10-19), 0.72);
 }
 
 .room-session-stats article > div {
@@ -240,7 +240,7 @@
 }
 
 .room-session-stats span {
-  color: #718096;
+  color: var(--ss-adaptive-718096);
   font-size: 0.73rem;
 }
 
@@ -275,7 +275,7 @@
   padding: 17px 12px;
   border: 1px solid rgba(148, 163, 184, 0.11);
   border-radius: 15px;
-  background: rgba(5, 10, 19, 0.72);
+  background: rgba(var(--ss-rgb-5-10-19), 0.72);
   text-align: center;
 }
 
@@ -319,7 +319,7 @@
 
 .room-participant-item small {
   margin-top: 5px;
-  color: #718096;
+  color: var(--ss-adaptive-718096);
   font-size: 0.67rem;
 }
 
@@ -344,7 +344,7 @@
   padding: 14px;
   border: 1px solid rgba(148, 163, 184, 0.1);
   border-radius: 14px;
-  background: rgba(5, 10, 19, 0.72);
+  background: rgba(var(--ss-rgb-5-10-19), 0.72);
 }
 
 .room-chat-avatar {
@@ -378,7 +378,7 @@
 
 .room-chat-message p {
   margin: 6px 0 0;
-  color: #cbd5e1;
+  color: var(--ss-adaptive-cbd5e1);
   font-size: 0.83rem;
   line-height: 1.55;
 }
@@ -398,7 +398,7 @@
   border-radius: 13px;
   outline: 0;
   color: #f8fafc;
-  background: #050914;
+  background: var(--ss-surface-050914);
 }
 
 .room-chat-form button {
@@ -446,7 +446,7 @@
 
 .room-live-card p {
   margin: 14px 0 0;
-  color: #718096;
+  color: var(--ss-adaptive-718096);
   font-size: 0.79rem;
   line-height: 1.6;
 }

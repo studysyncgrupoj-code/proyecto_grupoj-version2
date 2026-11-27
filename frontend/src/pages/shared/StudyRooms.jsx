@@ -1,3 +1,5 @@
+import ssI18n from "i18next";
+import SSLocalized from "../../i18n/Localized.jsx";
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import {
@@ -258,14 +260,13 @@ function StudyRooms() {
           <div>
             <span className="rooms-eyebrow">
               <Sparkles size={15} />
-              Comunidad StudySync
+              <SSLocalized text={"Comunidad StudySync"} />
             </span>
 
-            <h1>Salas de estudio</h1>
+            <h1><SSLocalized text={"Salas de estudio"} /></h1>
 
             <p>
-              Encuentra una comunidad, activa tu concentración
-              y estudia en tiempo real.
+              <SSLocalized text={"Encuentra una comunidad, activa tu concentración y estudia en tiempo real."} />
             </p>
           </div>
 
@@ -275,7 +276,7 @@ function StudyRooms() {
               className="rooms-secondary-button"
             >
               <Focus size={18} />
-              Focus Mode
+              <SSLocalized text={"Focus Mode"} />
             </Link>
 
             <button
@@ -284,7 +285,7 @@ function StudyRooms() {
               onClick={openCreateModal}
             >
               <Video size={18} />
-              Crear sala
+              <SSLocalized text={"Crear sala"} />
             </button>
           </div>
         </header>
@@ -295,12 +296,12 @@ function StudyRooms() {
 
             <div>
               <strong>
-                Salas disponibles en StudySync
+                <SSLocalized text={"Salas disponibles en StudySync"} />
               </strong>
 
               <span>
-                {rooms.length} sala
-                {rooms.length !== 1 ? "s" : ""} registrada
+                {rooms.length} <SSLocalized text={"sala"} />
+                {rooms.length !== 1 ? "s" : ""} <SSLocalized text={"registrada"} />
                 {rooms.length !== 1 ? "s" : ""}
               </span>
             </div>
@@ -309,12 +310,12 @@ function StudyRooms() {
           <div className="rooms-live-meta">
             <span>
               <Video size={16} />
-              {publicRooms} públicas
+              {publicRooms} <SSLocalized text={"públicas"} />
             </span>
 
             <span>
               <Crown size={16} />
-              {privateRooms} privadas
+              {privateRooms} <SSLocalized text={"privadas"} />
             </span>
           </div>
         </section>
@@ -326,9 +327,9 @@ function StudyRooms() {
             </div>
 
             <div>
-              <span>Salas registradas</span>
+              <span><SSLocalized text={"Salas registradas"} /></span>
               <strong>{rooms.length}</strong>
-              <small>Datos reales del backend</small>
+              <small><SSLocalized text={"Datos reales del backend"} /></small>
             </div>
           </article>
 
@@ -338,9 +339,9 @@ function StudyRooms() {
             </div>
 
             <div>
-              <span>Salas públicas</span>
+              <span><SSLocalized text={"Salas públicas"} /></span>
               <strong>{publicRooms}</strong>
-              <small>Acceso abierto</small>
+              <small><SSLocalized text={"Acceso abierto"} /></small>
             </div>
           </article>
 
@@ -350,9 +351,9 @@ function StudyRooms() {
             </div>
 
             <div>
-              <span>Salas privadas</span>
+              <span><SSLocalized text={"Salas privadas"} /></span>
               <strong>{privateRooms}</strong>
-              <small>Acceso restringido</small>
+              <small><SSLocalized text={"Acceso restringido"} /></small>
             </div>
           </article>
         </section>
@@ -363,7 +364,7 @@ function StudyRooms() {
 
             <input
               type="search"
-              placeholder="Buscar por nombre o descripción..."
+              placeholder={ssI18n.t("Buscar por nombre o descripción...")}
               value={searchTerm}
               onChange={(event) =>
                 setSearchTerm(event.target.value)
@@ -381,7 +382,7 @@ function StudyRooms() {
                 setActiveFilter("all")
               }
             >
-              Todas
+              <SSLocalized text={"Todas"} />
             </button>
 
             <button
@@ -394,7 +395,7 @@ function StudyRooms() {
               }
             >
               <Users size={16} />
-              Públicas
+              <SSLocalized text={"Públicas"} />
             </button>
 
             <button
@@ -407,20 +408,20 @@ function StudyRooms() {
               }
             >
               <Crown size={16} />
-              Privadas
+              <SSLocalized text={"Privadas"} />
             </button>
           </div>
         </section>
 
         <section className="rooms-section-header">
           <div>
-            <span>Explorar salas</span>
-            <h2>Encuentra tu próxima sesión</h2>
+            <span><SSLocalized text={"Explorar salas"} /></span>
+            <h2><SSLocalized text={"Encuentra tu próxima sesión"} /></h2>
           </div>
 
           <p>
-            {filteredRooms.length} sala
-            {filteredRooms.length !== 1 ? "s" : ""} disponible
+            {filteredRooms.length} <SSLocalized text={"sala"} />
+            {filteredRooms.length !== 1 ? "s" : ""} <SSLocalized text={"disponible"} />
             {filteredRooms.length !== 1 ? "s" : ""}
           </p>
         </section>
@@ -428,9 +429,9 @@ function StudyRooms() {
         {loading && (
           <section className="rooms-empty-state">
             <Video size={34} />
-            <h3>Cargando salas...</h3>
+            <h3><SSLocalized text={"Cargando salas..."} /></h3>
             <p>
-              Consultando información de StudySync.
+              <SSLocalized text={"Consultando información de StudySync."} />
             </p>
           </section>
         )}
@@ -438,7 +439,7 @@ function StudyRooms() {
         {!loading && error && (
           <section className="rooms-empty-state">
             <Search size={34} />
-            <h3>No fue posible cargar las salas</h3>
+            <h3><SSLocalized text={"No fue posible cargar las salas"} /></h3>
             <p>{error}</p>
 
             <button
@@ -446,7 +447,7 @@ function StudyRooms() {
               className="rooms-primary-button"
               onClick={loadRooms}
             >
-              Intentar nuevamente
+              <SSLocalized text={"Intentar nuevamente"} />
             </button>
           </section>
         )}
@@ -483,23 +484,23 @@ function StudyRooms() {
                       {room.privada ? (
                         <span className="room-badge room-badge-premium">
                           <Crown size={13} />
-                          Privada
+                          <SSLocalized text={"Privada"} />
                         </span>
                       ) : (
                         <span className="room-badge room-badge-focus">
                           <Users size={13} />
-                          Pública
+                          <SSLocalized text={"Pública"} />
                         </span>
                       )}
 
                       <span className="room-badge room-badge-live">
                       <span />
                       {room.estado === "ACTIVA"
-                        ? "En vivo"
+                        ? ssI18n.t("En vivo")
                         : room.estado === "PROGRAMADA"
-                        ? "Programada"
+                        ? ssI18n.t("Programada")
                         : room.estado === "FINALIZADA"
-                        ? "Finalizada"
+                        ? ssI18n.t("Finalizada")
                         : "Estado desconocido"}
                     </span>
                     </div>
@@ -524,7 +525,7 @@ function StudyRooms() {
                         <Users size={16} />
 
                         <span>
-                          <small>Creador</small>
+                          <small><SSLocalized text={"Creador"} /></small>
                           <strong>{creatorName}</strong>
                         </span>
                       </div>
@@ -533,7 +534,7 @@ function StudyRooms() {
                         <Video size={16} />
 
                         <span>
-                          <small>Acceso</small>
+                          <small><SSLocalized text={"Acceso"} /></small>
                           <strong>
                             {room.privada
                               ? "Privado"
@@ -578,24 +579,24 @@ function StudyRooms() {
                           className="room-join-button"
                         >
                           <DoorOpen size={18} />
-                          Entrar
+                          <SSLocalized text={"Entrar"} />
                         </Link>
                       )}
                       {room.estado === "ACTIVA" && room.privada && !isCreator &&
                         !canEnter && requestStatus === "PENDIENTE" && (
                           <div>
-                            <small>Esperando autorización del anfitrión</small>
+                            <small><SSLocalized text={"Esperando autorización del anfitrión"} /></small>
                             <button type="button" className="room-join-button" disabled>
-                              Solicitud pendiente
+                              <SSLocalized text={"Solicitud pendiente"} />
                             </button>
                           </div>
                         )}
                       {room.estado === "ACTIVA" && room.privada && !isCreator &&
                         !canEnter && requestStatus === "APROBADA" && (
                           <div>
-                            <small>Acceso aprobado. Actualizando enlace...</small>
+                            <small><SSLocalized text={"Acceso aprobado. Actualizando enlace..."} /></small>
                             <button type="button" className="room-join-button" onClick={refreshAccess}>
-                              Actualizar acceso
+                              <SSLocalized text={"Actualizar acceso"} />
                             </button>
                           </div>
                         )}
@@ -648,10 +649,9 @@ function StudyRooms() {
           filteredRooms.length === 0 && (
             <section className="rooms-empty-state">
               <Search size={34} />
-              <h3>No encontramos salas</h3>
+              <h3><SSLocalized text={"No encontramos salas"} /></h3>
               <p>
-                Prueba con otra búsqueda, cambia el filtro
-                o crea una nueva sala.
+                <SSLocalized text={"Prueba con otra búsqueda, cambia el filtro o crea una nueva sala."} />
               </p>
             </section>
           )}
@@ -672,17 +672,17 @@ function StudyRooms() {
                 <div>
                   <span className="rooms-eyebrow">
                     <Sparkles size={15} />
-                    Nueva sala
+                    <SSLocalized text={"Nueva sala"} />
                   </span>
-                  <h2 id="create-room-title">Crear sala de estudio</h2>
-                  <p>Configura tu espacio y empieza una nueva sesión.</p>
+                  <h2 id="create-room-title"><SSLocalized text={"Crear sala de estudio"} /></h2>
+                  <p><SSLocalized text={"Configura tu espacio y empieza una nueva sesión."} /></p>
                 </div>
 
                 <button
                   type="button"
                   className="rooms-modal-close"
                   onClick={closeCreateModal}
-                  aria-label="Cerrar"
+                  aria-label={ssI18n.t("Cerrar")}
                 >
                   ×
                 </button>
@@ -690,12 +690,12 @@ function StudyRooms() {
 
               <form className="rooms-create-form" onSubmit={handleCreateRoom}>
                 <label>
-                  <span>Nombre de la sala</span>
+                  <span><SSLocalized text={"Nombre de la sala"} /></span>
                   <input
                     type="text"
                     autoFocus
                     maxLength={80}
-                    placeholder="Escribe el nombre de la sala"
+                    placeholder={ssI18n.t("Escribe el nombre de la sala")}
                     value={roomForm.nombre}
                     onChange={(event) =>
                       setRoomForm((current) => ({
@@ -708,11 +708,11 @@ function StudyRooms() {
                 </label>
 
                 <label>
-                  <span>Descripción</span>
+                  <span><SSLocalized text={"Descripción"} /></span>
                   <textarea
                     rows={4}
                     maxLength={220}
-                    placeholder="Describe el objetivo de esta sala"
+                    placeholder={ssI18n.t("Describe el objetivo de esta sala")}
                     value={roomForm.descripcion}
                     onChange={(event) =>
                       setRoomForm((current) => ({
@@ -725,8 +725,8 @@ function StudyRooms() {
 
                 <label className="rooms-private-option">
                   <div>
-                    <strong>Sala privada</strong>
-                    <small>Actívala si quieres restringir el acceso.</small>
+                    <strong><SSLocalized text={"Sala privada"} /></strong>
+                    <small><SSLocalized text={"Actívala si quieres restringir el acceso."} /></small>
                   </div>
                   <input
                     type="checkbox"
@@ -746,7 +746,7 @@ function StudyRooms() {
                     className="rooms-secondary-button"
                     onClick={closeCreateModal}
                   >
-                    Cancelar
+                    <SSLocalized text={"Cancelar"} />
                   </button>
                   <button
                     type="submit"
@@ -754,7 +754,7 @@ function StudyRooms() {
                     disabled={!roomForm.nombre.trim()}
                   >
                     <Video size={18} />
-                    Crear sala
+                    <SSLocalized text={"Crear sala"} />
                   </button>
                 </div>
               </form>

@@ -1,3 +1,5 @@
+import ssI18n from "i18next";
+import SSLocalized from "../../i18n/Localized.jsx";
 import { useEffect, useMemo, useState } from "react";
 import {
   Check,
@@ -577,14 +579,13 @@ function Usuarios() {
           <div>
             <span className="users-page-eyebrow">
               <ShieldCheck size={15} />
-              Administración de usuarios
+              <SSLocalized text={"Administración de usuarios"} />
             </span>
 
-            <h1>Usuarios</h1>
+            <h1><SSLocalized text={"Usuarios"} /></h1>
 
             <p>
-              Gestiona administradores, profesores y estudiantes
-              registrados en StudySync.
+              <SSLocalized text={"Gestiona administradores, profesores y estudiantes registrados en StudySync."} />
             </p>
           </div>
 
@@ -594,7 +595,7 @@ function Usuarios() {
             onClick={openCreateModal}
           >
             <Plus size={18} />
-            Nuevo usuario
+            <SSLocalized text={"Nuevo usuario"} />
           </button>
         </header>
 
@@ -603,36 +604,36 @@ function Usuarios() {
             <div>
               <Users size={21} />
             </div>
-            <span>Total usuarios</span>
+            <span><SSLocalized text={"Total usuarios"} /></span>
             <strong>{statistics.total}</strong>
-            <small>Registrados en la plataforma</small>
+            <small><SSLocalized text={"Registrados en la plataforma"} /></small>
           </article>
 
           <article className="users-stat-card">
             <div>
               <ShieldCheck size={21} />
             </div>
-            <span>Administradores</span>
+            <span><SSLocalized text={"Administradores"} /></span>
             <strong>{statistics.administrators}</strong>
-            <small>Control institucional</small>
+            <small><SSLocalized text={"Control institucional"} /></small>
           </article>
 
           <article className="users-stat-card">
             <div>
               <UserRound size={21} />
             </div>
-            <span>Profesores</span>
+            <span><SSLocalized text={"Profesores"} /></span>
             <strong>{statistics.professors}</strong>
-            <small>Personal docente</small>
+            <small><SSLocalized text={"Personal docente"} /></small>
           </article>
 
           <article className="users-stat-card">
             <div>
               <UserCheck size={21} />
             </div>
-            <span>Estudiantes</span>
+            <span><SSLocalized text={"Estudiantes"} /></span>
             <strong>{statistics.students}</strong>
-            <small>{statistics.active} usuarios activos</small>
+            <small>{statistics.active} <SSLocalized text={"usuarios activos"} /></small>
           </article>
         </section>
 
@@ -647,7 +648,7 @@ function Usuarios() {
                 onChange={(event) =>
                   setSearchTerm(event.target.value)
                 }
-                placeholder="Buscar por nombre, correo o documento..."
+                placeholder={ssI18n.t("Buscar por nombre, correo o documento...")}
               />
             </div>
 
@@ -660,14 +661,14 @@ function Usuarios() {
                   onChange={(event) =>
                     setRoleFilter(event.target.value)
                   }
-                  aria-label="Filtrar por rol"
+                  aria-label={ssI18n.t("Filtrar por rol")}
                 >
-                  <option value="Todos">Todos los roles</option>
+                  <option value="Todos"><SSLocalized text={"Todos los roles"} /></option>
                   <option value="Administrador">
-                    Administrador
+                    <SSLocalized text={"Administrador"} />
                   </option>
-                  <option value="Profesor">Profesor</option>
-                  <option value="Estudiante">Estudiante</option>
+                  <option value="Profesor"><SSLocalized text={"Profesor"} /></option>
+                  <option value="Estudiante"><SSLocalized text={"Estudiante"} /></option>
                 </select>
               </div>
 
@@ -679,13 +680,13 @@ function Usuarios() {
                   onChange={(event) =>
                     setStatusFilter(event.target.value)
                   }
-                  aria-label="Filtrar por estado"
+                  aria-label={ssI18n.t("Filtrar por estado")}
                 >
                   <option value="Todos">
-                    Todos los estados
+                    <SSLocalized text={"Todos los estados"} />
                   </option>
-                  <option value="Activo">Activo</option>
-                  <option value="Inactivo">Inactivo</option>
+                  <option value="Activo"><SSLocalized text={"Activo"} /></option>
+                  <option value="Inactivo"><SSLocalized text={"Inactivo"} /></option>
                 </select>
               </div>
 
@@ -698,7 +699,7 @@ function Usuarios() {
                   onClick={clearFilters}
                 >
                   <X size={16} />
-                  Limpiar
+                  <SSLocalized text={"Limpiar"} />
                 </button>
               )}
             </div>
@@ -706,8 +707,8 @@ function Usuarios() {
 
           <div className="users-table-header">
             <div>
-              <span>Directorio institucional</span>
-              <h2>Usuarios registrados</h2>
+              <span><SSLocalized text={"Directorio institucional"} /></span>
+              <h2><SSLocalized text={"Usuarios registrados"} /></h2>
             </div>
 
             <small>
@@ -723,13 +724,13 @@ function Usuarios() {
             <table className="users-table">
               <thead>
                 <tr>
-                  <th>Usuario</th>
-                  <th>Documento</th>
-                  <th>Rol</th>
-                  <th>Estado</th>
-                  <th>Último acceso</th>
-                  <th>Creación</th>
-                  <th aria-label="Acciones" />
+                  <th><SSLocalized text={"Usuario"} /></th>
+                  <th><SSLocalized text={"Documento"} /></th>
+                  <th><SSLocalized text={"Rol"} /></th>
+                  <th><SSLocalized text={"Estado"} /></th>
+                  <th><SSLocalized text={"Último acceso"} /></th>
+                  <th><SSLocalized text={"Creación"} /></th>
+                  <th aria-label={ssI18n.t("Acciones")} />
                 </tr>
               </thead>
 
@@ -816,7 +817,7 @@ function Usuarios() {
                             }
                           >
                             <Eye size={16} />
-                            Ver detalles
+                            <SSLocalized text={"Ver detalles"} />
                           </button>
 
                           <button
@@ -826,7 +827,7 @@ function Usuarios() {
                             }
                           >
                             <Edit3 size={16} />
-                            Editar usuario
+                            <SSLocalized text={"Editar usuario"} />
                           </button>
 
                           <button
@@ -853,7 +854,7 @@ function Usuarios() {
                             }
                           >
                             <KeyRound size={16} />
-                            Restablecer contraseña
+                            <SSLocalized text={"Restablecer contraseña"} />
                           </button>
 
                           <button
@@ -864,7 +865,7 @@ function Usuarios() {
                             }
                           >
                             <Trash2 size={16} />
-                            Eliminar usuario
+                            <SSLocalized text={"Eliminar usuario"} />
                           </button>
                         </div>
                       )}
@@ -877,17 +878,16 @@ function Usuarios() {
             {!isLoading && filteredUsers.length === 0 && (
               <div className="users-empty-state">
                 <Users size={34} />
-                <h3>No encontramos usuarios</h3>
+                <h3><SSLocalized text={"No encontramos usuarios"} /></h3>
                 <p>
-                  Cambia los filtros o utiliza otro término de
-                  búsqueda.
+                  <SSLocalized text={"Cambia los filtros o utiliza otro término de búsqueda."} />
                 </p>
 
                 <button
                   type="button"
                   onClick={clearFilters}
                 >
-                  Limpiar filtros
+                  <SSLocalized text={"Limpiar filtros"} />
                 </button>
               </div>
             )}
@@ -922,7 +922,7 @@ function Usuarios() {
 
               <button
                 type="button"
-                aria-label="Cerrar formulario"
+                aria-label={ssI18n.t("Cerrar formulario")}
                 onClick={closeUserModal}
               >
                 <X size={20} />
@@ -932,43 +932,43 @@ function Usuarios() {
             <form onSubmit={handleSubmit}>
               <div className="users-form-grid">
                 <label>
-                  <span>Nombre completo *</span>
+                  <span><SSLocalized text={"Nombre completo *"} /></span>
                   <input
                     type="text"
                     name="name"
                     value={formData.name}
                     onChange={handleChange}
-                    placeholder="Nombre y apellidos"
+                    placeholder={ssI18n.t("Nombre y apellidos")}
                     required
                   />
                 </label>
 
                 <label>
-                  <span>Documento *</span>
+                  <span><SSLocalized text={"Documento *"} /></span>
                   <input
                     type="text"
                     name="document"
                     value={formData.document}
                     onChange={handleChange}
-                    placeholder="Número de documento"
+                    placeholder={ssI18n.t("Número de documento")}
                     required
                   />
                 </label>
 
                 <label>
-                  <span>Correo electrónico *</span>
+                  <span><SSLocalized text={"Correo electrónico *"} /></span>
                   <input
                     type="email"
                     name="email"
                     value={formData.email}
                     onChange={handleChange}
-                    placeholder="usuario@correo.com"
+                    placeholder={ssI18n.t("usuario@correo.com")}
                     required
                   />
                 </label>
 
                 <label>
-                  <span>Teléfono</span>
+                  <span><SSLocalized text={"Teléfono"} /></span>
                   <input
                     type="tel"
                     name="phone"
@@ -979,7 +979,7 @@ function Usuarios() {
                 </label>
 
                 <label>
-                  <span>Rol *</span>
+                  <span><SSLocalized text={"Rol *"} /></span>
                   <select
                     name="role"
                     value={formData.role}
@@ -987,27 +987,27 @@ function Usuarios() {
                     required
                   >
                     <option value="Administrador">
-                      Administrador
+                      <SSLocalized text={"Administrador"} />
                     </option>
                     <option value="Profesor">
-                      Profesor
+                      <SSLocalized text={"Profesor"} />
                     </option>
                     <option value="Estudiante">
-                      Estudiante
+                      <SSLocalized text={"Estudiante"} />
                     </option>
                   </select>
                 </label>
 
                 <label>
-                  <span>Estado *</span>
+                  <span><SSLocalized text={"Estado *"} /></span>
                   <select
                     name="status"
                     value={formData.status}
                     onChange={handleChange}
                     required
                   >
-                    <option value="Activo">Activo</option>
-                    <option value="Inactivo">Inactivo</option>
+                    <option value="Activo"><SSLocalized text={"Activo"} /></option>
+                    <option value="Inactivo"><SSLocalized text={"Inactivo"} /></option>
                   </select>
                 </label>
 
@@ -1044,7 +1044,7 @@ function Usuarios() {
                     name="confirmPassword"
                     value={formData.confirmPassword}
                     onChange={handleChange}
-                    placeholder="Repite la contraseña"
+                    placeholder={ssI18n.t("Repite la contraseña")}
                     required={!isEditing}
                   />
                 </label>
@@ -1062,7 +1062,7 @@ function Usuarios() {
                   className="users-secondary-button"
                   onClick={closeUserModal}
                 >
-                  Cancelar
+                  <SSLocalized text={"Cancelar"} />
                 </button>
 
                 <button
@@ -1087,12 +1087,11 @@ function Usuarios() {
               <Trash2 size={24} />
             </div>
 
-            <h2>Eliminar usuario</h2>
+            <h2><SSLocalized text={"Eliminar usuario"} /></h2>
 
             <p>
-              Vas a eliminar a{" "}
-              <strong>{selectedUser.name}</strong>. Esta acción no
-              se puede deshacer.
+              <SSLocalized text={"Vas a eliminar a"} />{" "}
+              <strong>{selectedUser.name}</strong><SSLocalized text={". Esta acción no se puede deshacer."} />
             </p>
 
             <div>
@@ -1103,7 +1102,7 @@ function Usuarios() {
                   setIsDeleteModalOpen(false)
                 }
               >
-                Cancelar
+                <SSLocalized text={"Cancelar"} />
               </button>
 
               <button
@@ -1112,7 +1111,7 @@ function Usuarios() {
                 onClick={handleDelete}
               >
                 <Trash2 size={17} />
-                Eliminar
+                <SSLocalized text={"Eliminar"} />
               </button>
             </div>
           </section>
@@ -1128,14 +1127,14 @@ function Usuarios() {
               </div>
 
               <div>
-                <span>Perfil institucional</span>
+                <span><SSLocalized text={"Perfil institucional"} /></span>
                 <h2>{selectedUser.name}</h2>
                 <p>{selectedUser.role}</p>
               </div>
 
               <button
                 type="button"
-                aria-label="Cerrar detalles"
+                aria-label={ssI18n.t("Cerrar detalles")}
                 onClick={() =>
                   setIsDetailsModalOpen(false)
                 }
@@ -1146,32 +1145,32 @@ function Usuarios() {
 
             <div className="users-details-grid">
               <article>
-                <span>Documento</span>
+                <span><SSLocalized text={"Documento"} /></span>
                 <strong>{selectedUser.document}</strong>
               </article>
 
               <article>
-                <span>Correo electrónico</span>
+                <span><SSLocalized text={"Correo electrónico"} /></span>
                 <strong>{selectedUser.email}</strong>
               </article>
 
               <article>
-                <span>Teléfono</span>
+                <span><SSLocalized text={"Teléfono"} /></span>
                 <strong>{selectedUser.phone}</strong>
               </article>
 
               <article>
-                <span>Estado</span>
+                <span><SSLocalized text={"Estado"} /></span>
                 <strong>{selectedUser.status}</strong>
               </article>
 
               <article>
-                <span>Último acceso</span>
+                <span><SSLocalized text={"Último acceso"} /></span>
                 <strong>{selectedUser.lastAccess}</strong>
               </article>
 
               <article>
-                <span>Fecha de creación</span>
+                <span><SSLocalized text={"Fecha de creación"} /></span>
                 <strong>{selectedUser.createdAt}</strong>
               </article>
             </div>
@@ -1187,7 +1186,7 @@ function Usuarios() {
                 }}
               >
                 <Edit3 size={17} />
-                Editar usuario
+                <SSLocalized text={"Editar usuario"} />
               </button>
             </footer>
           </section>

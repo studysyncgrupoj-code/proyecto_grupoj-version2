@@ -1,3 +1,5 @@
+import ssI18n from "i18next";
+import SSLocalized from "../../i18n/Localized.jsx";
 import { useEffect, useMemo, useState } from "react";
 import {
   Check,
@@ -510,14 +512,13 @@ function PomodoroTimer() {
         <div>
           <span className="pomodoro-eyebrow">
             <Focus size={14} />
-            Focus Mode
+            <SSLocalized text={"Focus Mode"} />
           </span>
 
-          <h2>Temporizador inteligente</h2>
+          <h2><SSLocalized text={"Temporizador inteligente"} /></h2>
 
           <p>
-            Configura la duración de tu clase, tus descansos y la cantidad de
-            ciclos.
+            <SSLocalized text={"Configura la duración de tu clase, tus descansos y la cantidad de ciclos."} />
           </p>
         </div>
 
@@ -539,7 +540,7 @@ function PomodoroTimer() {
             onClick={() => setShowSettings((currentValue) => !currentValue)}
           >
             <Settings2 size={17} />
-            Configurar
+            <SSLocalized text={"Configurar"} />
           </button>
         </div>
       </header>
@@ -561,7 +562,7 @@ function PomodoroTimer() {
         <div className="pomodoro-settings-panel">
           <div className="pomodoro-setting-field">
             <label htmlFor="pomodoro-focus-minutes">
-              Duración de la clase
+              <SSLocalized text={"Duración de la clase"} />
             </label>
 
             <div>
@@ -581,13 +582,13 @@ function PomodoroTimer() {
                 }
               />
 
-              <span>min</span>
+              <span><SSLocalized text={"min"} /></span>
             </div>
           </div>
 
           <div className="pomodoro-setting-field">
             <label htmlFor="pomodoro-short-break">
-              Descanso corto
+              <SSLocalized text={"Descanso corto"} />
             </label>
 
             <div>
@@ -607,13 +608,13 @@ function PomodoroTimer() {
                 }
               />
 
-              <span>min</span>
+              <span><SSLocalized text={"min"} /></span>
             </div>
           </div>
 
           <div className="pomodoro-setting-field">
             <label htmlFor="pomodoro-long-break">
-              Descanso largo
+              <SSLocalized text={"Descanso largo"} />
             </label>
 
             <div>
@@ -633,13 +634,13 @@ function PomodoroTimer() {
                 }
               />
 
-              <span>min</span>
+              <span><SSLocalized text={"min"} /></span>
             </div>
           </div>
 
           <div className="pomodoro-setting-field">
             <label htmlFor="pomodoro-cycles">
-              Ciclos
+              <SSLocalized text={"Ciclos"} />
             </label>
 
             <div>
@@ -659,7 +660,7 @@ function PomodoroTimer() {
                 }
               />
 
-              <span>ciclos</span>
+              <span><SSLocalized text={"ciclos"} /></span>
             </div>
           </div>
 
@@ -676,7 +677,7 @@ function PomodoroTimer() {
             />
 
             <span>
-              Iniciar automáticamente el siguiente bloque
+              <SSLocalized text={"Iniciar automáticamente el siguiente bloque"} />
             </span>
           </label>
         </div>
@@ -691,7 +692,7 @@ function PomodoroTimer() {
               onClick={() => changeMode("focus")}
             >
               <Focus size={15} />
-              Clase
+              <SSLocalized text={"Clase"} />
             </button>
 
             <button
@@ -700,7 +701,7 @@ function PomodoroTimer() {
               onClick={() => changeMode("shortBreak")}
             >
               <Coffee size={15} />
-              Descanso corto
+              <SSLocalized text={"Descanso corto"} />
             </button>
 
             <button
@@ -709,7 +710,7 @@ function PomodoroTimer() {
               onClick={() => changeMode("longBreak")}
             >
               <Coffee size={15} />
-              Descanso largo
+              <SSLocalized text={"Descanso largo"} />
             </button>
           </div>
 
@@ -737,7 +738,7 @@ function PomodoroTimer() {
 
           <div className="pomodoro-progress-info">
             <div>
-              <span>Progreso del bloque</span>
+              <span><SSLocalized text={"Progreso del bloque"} /></span>
               <strong>{Math.round(progress)}%</strong>
             </div>
 
@@ -762,7 +763,7 @@ function PomodoroTimer() {
               onClick={handleReset}
             >
               <RotateCcw size={18} />
-              Reiniciar
+              <SSLocalized text={"Reiniciar"} />
             </button>
           </div>
         </div>
@@ -770,8 +771,8 @@ function PomodoroTimer() {
         <aside className="pomodoro-session-panel">
           <div className="pomodoro-session-heading">
             <div>
-              <span>SESIÓN ACTUAL</span>
-              <h3>Plan de estudio</h3>
+              <span><SSLocalized text={"SESIÓN ACTUAL"} /></span>
+              <h3><SSLocalized text={"Plan de estudio"} /></h3>
             </div>
 
             <ListTodo size={20} />
@@ -779,20 +780,20 @@ function PomodoroTimer() {
 
           <div className="pomodoro-session-stats">
             <article>
-              <span>Ciclo actual</span>
+              <span><SSLocalized text={"Ciclo actual"} /></span>
               <strong>
                 {currentCycle}/{settings.cycles}
               </strong>
             </article>
 
             <article>
-              <span>Sesiones completadas</span>
+              <span><SSLocalized text={"Sesiones completadas"} /></span>
               <strong>{completedSessions}</strong>
             </article>
 
             <article>
-              <span>Tiempo configurado</span>
-              <strong>{settings.focusMinutes} min</strong>
+              <span><SSLocalized text={"Tiempo configurado"} /></span>
+              <strong>{settings.focusMinutes} <SSLocalized text={"min"} /></strong>
             </article>
           </div>
 
@@ -807,13 +808,13 @@ function PomodoroTimer() {
                   addTask();
                 }
               }}
-              placeholder="Añadir tarea para esta sesión..."
+              placeholder={ssI18n.t("Añadir tarea para esta sesión...")}
             />
 
             <button
               type="button"
               onClick={addTask}
-              aria-label="Agregar tarea"
+              aria-label={ssI18n.t("Agregar tarea")}
             >
               <Plus size={18} />
             </button>
@@ -823,7 +824,7 @@ function PomodoroTimer() {
             {tasks.length === 0 ? (
               <div className="pomodoro-task-empty">
                 <ListTodo size={22} />
-                <p>Añade las tareas que quieres completar en esta sesión.</p>
+                <p><SSLocalized text={"Añade las tareas que quieres completar en esta sesión."} /></p>
               </div>
             ) : (
               tasks.map((task) => (
@@ -852,7 +853,7 @@ function PomodoroTimer() {
                     type="button"
                     className="pomodoro-task-delete"
                     onClick={() => deleteTask(task.id)}
-                    aria-label="Eliminar tarea"
+                    aria-label={ssI18n.t("Eliminar tarea")}
                   >
                     <Trash2 size={15} />
                   </button>

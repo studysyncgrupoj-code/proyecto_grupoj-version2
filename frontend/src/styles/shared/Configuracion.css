@@ -3,7 +3,7 @@
   display: grid;
   grid-template-columns: 270px minmax(0, 1fr);
   color: #f8fafc;
-  background: #000;
+  background: var(--ss-surface-000000);
 }
 
 .settings-content {
@@ -15,7 +15,7 @@
       rgba(14, 165, 233, 0.07),
       transparent 24%
     ),
-    #000;
+    var(--ss-surface-000000);
 }
 
 .settings-eyebrow {
@@ -44,7 +44,7 @@
 
 .settings-page-header p {
   margin: 13px 0 0;
-  color: #8492a6;
+  color: var(--ss-adaptive-8492a6);
 }
 
 .settings-form {
@@ -65,8 +65,8 @@
   background:
     linear-gradient(
       145deg,
-      rgba(8, 8, 8, 0.98),
-      rgba(2, 2, 2, 0.98)
+      rgba(var(--ss-rgb-8-8-8), 0.98),
+      rgba(var(--ss-rgb-2-2-2), 0.98)
     );
   box-shadow:
     0 24px 55px rgba(0, 0, 0, 0.55),
@@ -120,7 +120,7 @@
 
 .settings-field > label,
 .settings-password-grid label > span {
-  color: #94a3b8;
+  color: var(--ss-adaptive-94a3b8);
   font-size: 0.7rem;
   font-weight: 700;
 }
@@ -139,8 +139,8 @@
   padding: 12px 14px;
   border: 1px solid rgba(148, 163, 184, 0.12);
   border-radius: 14px;
-  color: #64748b;
-  background: #050505;
+  color: var(--ss-adaptive-64748b);
+  background: var(--ss-surface-050505);
   cursor: pointer;
   transition:
     border-color 180ms ease,
@@ -155,8 +155,8 @@
   background:
     linear-gradient(
       135deg,
-      rgba(3, 30, 51, 0.98),
-      rgba(3, 8, 18, 0.98)
+      rgba(var(--ss-rgb-3-30-51), 0.98),
+      rgba(var(--ss-rgb-3-8-18), 0.98)
     );
   box-shadow: 0 0 22px rgba(14, 165, 233, 0.1);
 }
@@ -177,7 +177,7 @@
 
 .settings-theme-option span {
   margin-top: 4px;
-  color: #64748b;
+  color: var(--ss-adaptive-64748b);
   font-size: 0.64rem;
 }
 
@@ -189,8 +189,8 @@
   padding: 0 13px;
   border: 1px solid rgba(148, 163, 184, 0.15);
   border-radius: 13px;
-  color: #64748b;
-  background: #050505;
+  color: var(--ss-adaptive-64748b);
+  background: var(--ss-surface-050505);
 }
 
 .settings-input-wrapper:focus-within {
@@ -213,14 +213,14 @@
 
 .settings-input-wrapper select option {
   color: #fff;
-  background: #080808;
+  background: var(--ss-surface-080808);
 }
 
 .settings-input-wrapper button {
   display: grid;
   place-items: center;
   border: 0;
-  color: #64748b;
+  color: var(--ss-adaptive-64748b);
   background: transparent;
   cursor: pointer;
 }
@@ -293,7 +293,7 @@
   flex: 0 0 auto;
   border: 1px solid rgba(148, 163, 184, 0.18);
   border-radius: 999px;
-  background: #111827;
+  background: var(--ss-surface-111827);
   transition:
     background 180ms ease,
     border-color 180ms ease;
@@ -385,7 +385,7 @@
 
 .settings-privacy-note p {
   margin: 7px 0 0;
-  color: #64748b;
+  color: var(--ss-adaptive-64748b);
   font-size: 0.66rem;
   line-height: 1.55;
 }
@@ -399,7 +399,7 @@
   padding: 18px 20px;
   border: 1px solid rgba(148, 163, 184, 0.13);
   border-radius: 18px;
-  background: #050505;
+  background: var(--ss-surface-050505);
 }
 
 .settings-save-message {
@@ -465,4 +465,94 @@
   .settings-switch-information small {
     max-width: 190px;
   }
+}
+/* Tema claro */
+:root[data-theme="light"] .settings-layout,
+:root[data-theme="light"] .settings-content {
+  background: var(--ss-bg-primary);
+  color: var(--ss-text-primary);
+}
+
+:root[data-theme="light"] .settings-card,
+:root[data-theme="light"] .settings-form footer {
+  background: #fff;
+  border-color: var(--ss-border-soft);
+  box-shadow: var(--ss-shadow-sm);
+}
+
+:root[data-theme="light"] .settings-content h1,
+:root[data-theme="light"] .settings-content h2,
+:root[data-theme="light"] .settings-content h3,
+:root[data-theme="light"] .settings-content strong {
+  color: #0f172a;
+}
+
+:root[data-theme="light"] .settings-content p,
+:root[data-theme="light"] .settings-content label,
+:root[data-theme="light"] .settings-content span {
+  color: #475569;
+}
+
+:root[data-theme="light"] .settings-theme-option,
+:root[data-theme="light"] .settings-content input,
+:root[data-theme="light"] .settings-content select {
+  background: #f8fafc;
+  color: #0f172a;
+  border-color: #cbd5e1;
+}
+
+:root[data-theme="light"] .settings-theme-option.active,
+:root[data-theme="light"] .settings-theme-option:hover {
+  background: #dbeafe;
+  border-color: #2563eb;
+}
+
+/* Acabados del tema claro */
+:root[data-theme="light"] .settings-input-wrapper,
+:root[data-theme="light"] .settings-form-footer {
+  background: #ffffff;
+  border-color: #cbd5e1;
+}
+
+:root[data-theme="light"] .settings-input-wrapper input,
+:root[data-theme="light"] .settings-input-wrapper select {
+  background: transparent;
+  color: #0f172a;
+  color-scheme: light;
+}
+
+:root[data-theme="light"] .settings-input-wrapper select option {
+  background: #ffffff;
+  color: #0f172a;
+}
+
+:root[data-theme="light"] .settings-switch {
+  background: #e2e8f0;
+  border-color: #cbd5e1;
+}
+
+:root[data-theme="light"] .settings-switch-row > input:checked + .settings-switch {
+  background: #bae6fd;
+  border-color: #0284c7;
+}
+
+:root[data-theme="light"] .settings-switch-row {
+  border-bottom-color: #e2e8f0;
+}
+
+:root[data-theme="light"] .settings-privacy-note {
+  background: #eff6ff;
+  border-color: #bfdbfe;
+}
+
+:root[data-theme="light"] .settings-save-message {
+  color: #15803d;
+}
+
+:root[data-theme="light"] .settings-save-message.error {
+  color: #dc2626;
+}
+
+:root[data-theme="light"] .settings-save-button span {
+  color: #ffffff;
 }

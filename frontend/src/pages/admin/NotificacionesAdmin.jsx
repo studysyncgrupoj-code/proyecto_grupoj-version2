@@ -1,3 +1,5 @@
+import ssI18n from "i18next";
+import SSLocalized from "../../i18n/Localized.jsx";
 import { useMemo, useState } from "react";
 import {
   AlertTriangle,
@@ -313,15 +315,13 @@ function NotificacionesAdmin() {
           <div>
             <span className="notifications-admin-eyebrow">
               <ShieldCheck size={15} />
-              Centro de notificaciones
+              <SSLocalized text={"Centro de notificaciones"} />
             </span>
 
-            <h1>Notificaciones</h1>
+            <h1><SSLocalized text={"Notificaciones"} /></h1>
 
             <p>
-              Gestiona avisos académicos, alertas,
-              recordatorios y comunicaciones generales de
-              StudySync.
+              <SSLocalized text={"Gestiona avisos académicos, alertas, recordatorios y comunicaciones generales de StudySync."} />
             </p>
           </div>
 
@@ -331,7 +331,7 @@ function NotificacionesAdmin() {
             onClick={openForm}
           >
             <Plus size={18} />
-            Nueva notificación
+            <SSLocalized text={"Nueva notificación"} />
           </button>
         </header>
 
@@ -340,30 +340,30 @@ function NotificacionesAdmin() {
             <div>
               <Bell size={22} />
             </div>
-            <span>Total notificaciones</span>
+            <span><SSLocalized text={"Total notificaciones"} /></span>
             <strong>{statistics.total}</strong>
-            <small>Registros actuales</small>
+            <small><SSLocalized text={"Registros actuales"} /></small>
           </article>
 
           <article>
             <div>
               <CheckCircle2 size={22} />
             </div>
-            <span>Enviadas</span>
+            <span><SSLocalized text={"Enviadas"} /></span>
             <strong>{statistics.sent}</strong>
-            <small>Comunicaciones completadas</small>
+            <small><SSLocalized text={"Comunicaciones completadas"} /></small>
           </article>
 
           <article>
             <div>
               <Clock3 size={22} />
             </div>
-            <span>Pendientes</span>
+            <span><SSLocalized text={"Pendientes"} /></span>
             <strong>
               {statistics.pending + statistics.scheduled}
             </strong>
             <small>
-              {statistics.scheduled} programadas
+              {statistics.scheduled} <SSLocalized text={"programadas"} />
             </small>
           </article>
 
@@ -371,9 +371,9 @@ function NotificacionesAdmin() {
             <div>
               <AlertTriangle size={22} />
             </div>
-            <span>Prioridad alta</span>
+            <span><SSLocalized text={"Prioridad alta"} /></span>
             <strong>{statistics.highPriority}</strong>
-            <small>Requieren atención</small>
+            <small><SSLocalized text={"Requieren atención"} /></small>
           </article>
         </section>
 
@@ -388,7 +388,7 @@ function NotificacionesAdmin() {
                 onChange={(event) =>
                   setSearchTerm(event.target.value)
                 }
-                placeholder="Buscar título, mensaje o destinatario..."
+                placeholder={ssI18n.t("Buscar título, mensaje o destinatario...")}
               />
             </div>
 
@@ -415,16 +415,16 @@ function NotificacionesAdmin() {
                 }
               >
                 <option value="Todos">
-                  Todos los estados
+                  <SSLocalized text={"Todos los estados"} />
                 </option>
                 <option value="Enviada">
-                  Enviada
+                  <SSLocalized text={"Enviada"} />
                 </option>
                 <option value="Pendiente">
-                  Pendiente
+                  <SSLocalized text={"Pendiente"} />
                 </option>
                 <option value="Programada">
-                  Programada
+                  <SSLocalized text={"Programada"} />
                 </option>
               </select>
 
@@ -437,7 +437,7 @@ function NotificacionesAdmin() {
                   onClick={clearFilters}
                 >
                   <X size={16} />
-                  Limpiar
+                  <SSLocalized text={"Limpiar"} />
                 </button>
               )}
             </div>
@@ -445,12 +445,12 @@ function NotificacionesAdmin() {
 
           <div className="notifications-admin-table-heading">
             <div>
-              <span>Actividad del sistema</span>
-              <h2>Historial de notificaciones</h2>
+              <span><SSLocalized text={"Actividad del sistema"} /></span>
+              <h2><SSLocalized text={"Historial de notificaciones"} /></h2>
             </div>
 
             <small>
-              {filteredNotifications.length} resultado
+              {filteredNotifications.length} <SSLocalized text={"resultado"} />
               {filteredNotifications.length === 1
                 ? ""
                 : "s"}
@@ -537,7 +537,7 @@ function NotificacionesAdmin() {
                         }
                       >
                         <Eye size={16} />
-                        Ver detalles
+                        <SSLocalized text={"Ver detalles"} />
                       </button>
 
                       {notification.status !== "Enviada" && (
@@ -548,7 +548,7 @@ function NotificacionesAdmin() {
                           }
                         >
                           <Check size={16} />
-                          Marcar como enviada
+                          <SSLocalized text={"Marcar como enviada"} />
                         </button>
                       )}
 
@@ -560,7 +560,7 @@ function NotificacionesAdmin() {
                         }
                       >
                         <Trash2 size={16} />
-                        Eliminar
+                        <SSLocalized text={"Eliminar"} />
                       </button>
                     </div>
                   )}
@@ -572,18 +572,17 @@ function NotificacionesAdmin() {
               <div className="notifications-admin-empty-state">
                 <Bell size={36} />
 
-                <h3>No encontramos notificaciones</h3>
+                <h3><SSLocalized text={"No encontramos notificaciones"} /></h3>
 
                 <p>
-                  Cambia los filtros o utiliza otro término de
-                  búsqueda.
+                  <SSLocalized text={"Cambia los filtros o utiliza otro término de búsqueda."} />
                 </p>
 
                 <button
                   type="button"
                   onClick={clearFilters}
                 >
-                  Limpiar filtros
+                  <SSLocalized text={"Limpiar filtros"} />
                 </button>
               </div>
             )}
@@ -603,14 +602,14 @@ function NotificacionesAdmin() {
           <section className="notifications-admin-modal">
             <header>
               <div>
-                <span>Nueva comunicación</span>
-                <h2>Crear notificación</h2>
+                <span><SSLocalized text={"Nueva comunicación"} /></span>
+                <h2><SSLocalized text={"Crear notificación"} /></h2>
               </div>
 
               <button
                 type="button"
                 onClick={closeForm}
-                aria-label="Cerrar formulario"
+                aria-label={ssI18n.t("Cerrar formulario")}
               >
                 <X size={20} />
               </button>
@@ -619,41 +618,37 @@ function NotificacionesAdmin() {
             <form onSubmit={handleSubmit}>
               <div className="notifications-admin-form-grid">
                 <label className="notifications-admin-full-field">
-                  <span>Título *</span>
+                  <span><SSLocalized text={"Título *"} /></span>
 
                   <input
                     type="text"
                     name="title"
                     value={formData.title}
                     onChange={handleChange}
-                    placeholder="Título de la notificación"
+                    placeholder={ssI18n.t("Título de la notificación")}
                     required
                   />
                 </label>
 
                 <label>
-                  <span>Destinatarios</span>
+                  <span><SSLocalized text={"Destinatarios"} /></span>
 
                   <select
                     name="audience"
                     value={formData.audience}
                     onChange={handleChange}
                   >
-                    <option value="Todos">Todos</option>
-                    <option value="Estudiantes">
-                      Estudiantes
-                    </option>
-                    <option value="Profesores">
-                      Profesores
-                    </option>
+                    <option value="Todos"><SSLocalized text={"Todos"} /></option>
+                    <option value="Estudiantes"><SSLocalized text={"Estudiantes"} /></option>
+                    <option value="Profesores"><SSLocalized text={"Profesores"} /></option>
                     <option value="Administradores">
-                      Administradores
+                      <SSLocalized text={"Administradores"} />
                     </option>
                   </select>
                 </label>
 
                 <label>
-                  <span>Tipo</span>
+                  <span><SSLocalized text={"Tipo"} /></span>
 
                   <select
                     name="type"
@@ -661,22 +656,20 @@ function NotificacionesAdmin() {
                     onChange={handleChange}
                   >
                     <option value="Académica">
-                      Académica
+                      <SSLocalized text={"Académica"} />
                     </option>
                     <option value="Recordatorio">
-                      Recordatorio
+                      <SSLocalized text={"Recordatorio"} />
                     </option>
                     <option value="Alerta">
-                      Alerta
+                      <SSLocalized text={"Alerta"} />
                     </option>
-                    <option value="Sistema">
-                      Sistema
-                    </option>
+                    <option value="Sistema"><SSLocalized text={"Sistema"} /></option>
                   </select>
                 </label>
 
                 <label>
-                  <span>Prioridad</span>
+                  <span><SSLocalized text={"Prioridad"} /></span>
 
                   <select
                     name="priority"
@@ -684,16 +677,16 @@ function NotificacionesAdmin() {
                     onChange={handleChange}
                   >
                     <option value="Normal">
-                      Normal
+                      <SSLocalized text={"Normal"} />
                     </option>
                     <option value="Alta">
-                      Alta
+                      <SSLocalized text={"Alta"} />
                     </option>
                   </select>
                 </label>
 
                 <label>
-                  <span>Estado</span>
+                  <span><SSLocalized text={"Estado"} /></span>
 
                   <select
                     name="status"
@@ -701,25 +694,25 @@ function NotificacionesAdmin() {
                     onChange={handleChange}
                   >
                     <option value="Enviada">
-                      Enviar ahora
+                      <SSLocalized text={"Enviar ahora"} />
                     </option>
                     <option value="Programada">
-                      Programar
+                      <SSLocalized text={"Programar"} />
                     </option>
                     <option value="Pendiente">
-                      Guardar pendiente
+                      <SSLocalized text={"Guardar pendiente"} />
                     </option>
                   </select>
                 </label>
 
                 <label className="notifications-admin-full-field">
-                  <span>Mensaje *</span>
+                  <span><SSLocalized text={"Mensaje *"} /></span>
 
                   <textarea
                     name="message"
                     value={formData.message}
                     onChange={handleChange}
-                    placeholder="Escribe el contenido de la notificación..."
+                    placeholder={ssI18n.t("Escribe el contenido de la notificación...")}
                     required
                   />
                 </label>
@@ -737,7 +730,7 @@ function NotificacionesAdmin() {
                   className="notifications-admin-secondary-button"
                   onClick={closeForm}
                 >
-                  Cancelar
+                  <SSLocalized text={"Cancelar"} />
                 </button>
 
                 <button
@@ -745,7 +738,7 @@ function NotificacionesAdmin() {
                   className="notifications-admin-primary-button"
                 >
                   <Bell size={17} />
-                  Procesar notificación
+                  <SSLocalized text={"Procesar notificación"} />
                 </button>
               </footer>
             </form>
@@ -762,12 +755,12 @@ function NotificacionesAdmin() {
               </div>
 
               <div>
-                <span>Detalle de notificación</span>
+                <span><SSLocalized text={"Detalle de notificación"} /></span>
                 <h2>
                   {selectedNotification.title}
                 </h2>
                 <p>
-                  Dirigida a{" "}
+                  <SSLocalized text={"Dirigida a"} />{" "}
                   {selectedNotification.audience}
                 </p>
               </div>
@@ -775,7 +768,7 @@ function NotificacionesAdmin() {
               <button
                 type="button"
                 onClick={() => setIsDetailsOpen(false)}
-                aria-label="Cerrar detalles"
+                aria-label={ssI18n.t("Cerrar detalles")}
               >
                 <X size={20} />
               </button>
@@ -783,42 +776,42 @@ function NotificacionesAdmin() {
 
             <div className="notifications-admin-details-grid">
               <article>
-                <span>Destinatarios</span>
+                <span><SSLocalized text={"Destinatarios"} /></span>
                 <strong>
                   {selectedNotification.audience}
                 </strong>
               </article>
 
               <article>
-                <span>Tipo</span>
+                <span><SSLocalized text={"Tipo"} /></span>
                 <strong>
                   {selectedNotification.type}
                 </strong>
               </article>
 
               <article>
-                <span>Prioridad</span>
+                <span><SSLocalized text={"Prioridad"} /></span>
                 <strong>
                   {selectedNotification.priority}
                 </strong>
               </article>
 
               <article>
-                <span>Estado</span>
+                <span><SSLocalized text={"Estado"} /></span>
                 <strong>
                   {selectedNotification.status}
                 </strong>
               </article>
 
               <article>
-                <span>Fecha</span>
+                <span><SSLocalized text={"Fecha"} /></span>
                 <strong>
                   {selectedNotification.date}
                 </strong>
               </article>
 
               <article>
-                <span>Hora</span>
+                <span><SSLocalized text={"Hora"} /></span>
                 <strong>
                   {selectedNotification.time}
                 </strong>
@@ -826,7 +819,7 @@ function NotificacionesAdmin() {
             </div>
 
             <div className="notifications-admin-message-body">
-              <span>Mensaje</span>
+              <span><SSLocalized text={"Mensaje"} /></span>
               <p>{selectedNotification.message}</p>
             </div>
           </section>
@@ -840,14 +833,14 @@ function NotificacionesAdmin() {
               <Trash2 size={25} />
             </div>
 
-            <h2>Eliminar notificación</h2>
+            <h2><SSLocalized text={"Eliminar notificación"} /></h2>
 
             <p>
-              Vas a eliminar{" "}
+              <SSLocalized text={"Vas a eliminar"} />{" "}
               <strong>
                 {selectedNotification.title}
               </strong>
-              . Esta acción no se puede deshacer.
+              <SSLocalized text={". Esta acción no se puede deshacer."} />
             </p>
 
             <footer>
@@ -856,7 +849,7 @@ function NotificacionesAdmin() {
                 className="notifications-admin-secondary-button"
                 onClick={() => setIsDeleteOpen(false)}
               >
-                Cancelar
+                <SSLocalized text={"Cancelar"} />
               </button>
 
               <button
@@ -865,7 +858,7 @@ function NotificacionesAdmin() {
                 onClick={handleDelete}
               >
                 <Trash2 size={17} />
-                Eliminar
+                <SSLocalized text={"Eliminar"} />
               </button>
             </footer>
           </section>

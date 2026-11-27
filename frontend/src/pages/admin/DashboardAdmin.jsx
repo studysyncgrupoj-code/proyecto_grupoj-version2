@@ -1,3 +1,4 @@
+import SSLocalized from "../../i18n/Localized.jsx";
 import {
   Activity,
   AlertTriangle,
@@ -58,18 +59,17 @@ function DashboardAdmin() {
           <div>
             <span className="admin-dashboard-eyebrow">
               <ShieldCheck size={15} />
-              Centro de administración
+              <SSLocalized text={"Centro de administración"} />
             </span>
-            <h1>Dashboard administrador</h1>
+            <h1><SSLocalized text={"Dashboard administrador"} /></h1>
             <p>
-              Supervisa usuarios, actividad académica, cursos, informes y
-              servicios generales de StudySync.
+              <SSLocalized text={"Supervisa usuarios, actividad académica, cursos, informes y servicios generales de StudySync."} />
             </p>
           </div>
 
           <button type="button" className="admin-dashboard-action">
             <Sparkles size={18} />
-            Crear usuario
+            <SSLocalized text={"Crear usuario"} />
           </button>
         </header>
 
@@ -93,12 +93,12 @@ function DashboardAdmin() {
           <article className="admin-panel admin-activity-panel">
             <div className="admin-panel-header">
               <div>
-                <span>ACTIVIDAD DEL SISTEMA</span>
-                <h2>Usuarios activos por día</h2>
+                <span><SSLocalized text={"ACTIVIDAD DEL SISTEMA"} /></span>
+                <h2><SSLocalized text={"Usuarios activos por día"} /></h2>
               </div>
               <div className="admin-panel-highlight">
                 <TrendingUp size={16} />
-                +14% esta semana
+                <SSLocalized text={"+14% esta semana"} />
               </div>
             </div>
 
@@ -118,22 +118,22 @@ function DashboardAdmin() {
           <aside className="admin-panel admin-system-panel">
             <div className="admin-panel-header">
               <div>
-                <span>ESTADO GENERAL</span>
-                <h2>Plataforma</h2>
+                <span><SSLocalized text={"ESTADO GENERAL"} /></span>
+                <h2><SSLocalized text={"Plataforma"} /></h2>
               </div>
               <Activity size={22} />
             </div>
 
             <div className="admin-health-score">
               <strong>98%</strong>
-              <span>Disponibilidad</span>
+              <span><SSLocalized text={"Disponibilidad"} /></span>
             </div>
 
             <div className="admin-system-list">
-              <article><span>Salas activas</span><strong>23</strong></article>
-              <article><span>Informes enviados</span><strong>148</strong></article>
-              <article><span>Correos procesados</span><strong>392</strong></article>
-              <article><span>Uso IA Coach</span><strong>76%</strong></article>
+              <article><span><SSLocalized text={"Salas activas"} /></span><strong>23</strong></article>
+              <article><span><SSLocalized text={"Informes enviados"} /></span><strong>148</strong></article>
+              <article><span><SSLocalized text={"Correos procesados"} /></span><strong>392</strong></article>
+              <article><span><SSLocalized text={"Uso IA Coach"} /></span><strong>76%</strong></article>
             </div>
           </aside>
         </section>
@@ -142,8 +142,8 @@ function DashboardAdmin() {
           <article className="admin-panel">
             <div className="admin-panel-header">
               <div>
-                <span>ACTIVIDAD RECIENTE</span>
-                <h2>Últimos movimientos</h2>
+                <span><SSLocalized text={"ACTIVIDAD RECIENTE"} /></span>
+                <h2><SSLocalized text={"Últimos movimientos"} /></h2>
               </div>
               <BarChart3 size={22} />
             </div>
@@ -168,8 +168,8 @@ function DashboardAdmin() {
           <aside className="admin-panel">
             <div className="admin-panel-header">
               <div>
-                <span>CENTRO DE ALERTAS</span>
-                <h2>Atención requerida</h2>
+                <span><SSLocalized text={"CENTRO DE ALERTAS"} /></span>
+                <h2><SSLocalized text={"Atención requerida"} /></h2>
               </div>
               <AlertTriangle size={22} />
             </div>

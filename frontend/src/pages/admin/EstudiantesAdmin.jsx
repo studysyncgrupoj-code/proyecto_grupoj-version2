@@ -1,3 +1,5 @@
+import ssI18n from "i18next";
+import SSLocalized from "../../i18n/Localized.jsx";
 import { useEffect, useMemo, useState } from "react";
 import {
   AlertTriangle,
@@ -671,14 +673,13 @@ function EstudiantesAdmin() {
           <div>
             <span className="students-admin-eyebrow">
               <ShieldCheck size={15} />
-              Gestión institucional
+              <SSLocalized text={"Gestión institucional"} />
             </span>
 
-            <h1>Estudiantes</h1>
+            <h1><SSLocalized text={"Estudiantes"} /></h1>
 
             <p>
-              Supervisa expedientes, rendimiento, asistencia,
-              alertas y estado general de los estudiantes.
+              <SSLocalized text={"Supervisa expedientes, rendimiento, asistencia, alertas y estado general de los estudiantes."} />
             </p>
           </div>
 
@@ -688,7 +689,7 @@ function EstudiantesAdmin() {
             onClick={openCreateModal}
           >
             <Plus size={18} />
-            Nuevo estudiante
+            <SSLocalized text={"Nuevo estudiante"} />
           </button>
         </header>
 
@@ -698,9 +699,9 @@ function EstudiantesAdmin() {
               <Users size={22} />
             </div>
 
-            <span>Total estudiantes</span>
+            <span><SSLocalized text={"Total estudiantes"} /></span>
             <strong>{statistics.total}</strong>
-            <small>Registrados en StudySync</small>
+            <small><SSLocalized text={"Registrados en StudySync"} /></small>
           </article>
 
           <article>
@@ -708,9 +709,9 @@ function EstudiantesAdmin() {
               <UserCheck size={22} />
             </div>
 
-            <span>Estudiantes activos</span>
+            <span><SSLocalized text={"Estudiantes activos"} /></span>
             <strong>{statistics.active}</strong>
-            <small>Con acceso habilitado</small>
+            <small><SSLocalized text={"Con acceso habilitado"} /></small>
           </article>
 
           <article>
@@ -718,9 +719,9 @@ function EstudiantesAdmin() {
               <UserX size={22} />
             </div>
 
-            <span>Suspendidos</span>
+            <span><SSLocalized text={"Suspendidos"} /></span>
             <strong>{statistics.suspended}</strong>
-            <small>Requieren revisión</small>
+            <small><SSLocalized text={"Requieren revisión"} /></small>
           </article>
 
           <article>
@@ -728,9 +729,9 @@ function EstudiantesAdmin() {
               <TrendingUp size={22} />
             </div>
 
-            <span>Promedio general</span>
+            <span><SSLocalized text={"Promedio general"} /></span>
             <strong>{statistics.average}%</strong>
-            <small>Rendimiento académico</small>
+            <small><SSLocalized text={"Rendimiento académico"} /></small>
           </article>
         </section>
 
@@ -747,7 +748,7 @@ function EstudiantesAdmin() {
                     event.target.value,
                   )
                 }
-                placeholder="Buscar estudiante, correo o curso..."
+                placeholder={ssI18n.t("Buscar estudiante, correo o curso...")}
               />
             </div>
 
@@ -781,15 +782,15 @@ function EstudiantesAdmin() {
                 }
               >
                 <option value="Todos">
-                  Todos los estados
+                  <SSLocalized text={"Todos los estados"} />
                 </option>
 
                 <option value="Activo">
-                  Activo
+                  <SSLocalized text={"Activo"} />
                 </option>
 
                 <option value="Suspendido">
-                  Suspendido
+                  <SSLocalized text={"Suspendido"} />
                 </option>
               </select>
 
@@ -803,7 +804,7 @@ function EstudiantesAdmin() {
                   onClick={clearFilters}
                 >
                   <X size={16} />
-                  Limpiar
+                  <SSLocalized text={"Limpiar"} />
                 </button>
               )}
             </div>
@@ -812,11 +813,11 @@ function EstudiantesAdmin() {
           <div className="students-admin-table-heading">
             <div>
               <span>
-                Directorio académico
+                <SSLocalized text={"Directorio académico"} />
               </span>
 
               <h2>
-                Estudiantes registrados
+                <SSLocalized text={"Estudiantes registrados"} />
               </h2>
             </div>
 
@@ -836,15 +837,15 @@ function EstudiantesAdmin() {
             <table className="students-admin-table">
               <thead>
                 <tr>
-                  <th>Estudiante</th>
-                  <th>Curso</th>
-                  <th>Promedio</th>
-                  <th>Asistencia</th>
-                  <th>Informes</th>
+                  <th><SSLocalized text={"Estudiante"} /></th>
+                  <th><SSLocalized text={"Curso"} /></th>
+                  <th><SSLocalized text={"Promedio"} /></th>
+                  <th><SSLocalized text={"Asistencia"} /></th>
+                  <th><SSLocalized text={"Informes"} /></th>
                   <th>
-                    Estado académico
+                    <SSLocalized text={"Estado académico"} />
                   </th>
-                  <th>Acceso</th>
+                  <th><SSLocalized text={"Acceso"} /></th>
                   <th />
                 </tr>
               </thead>
@@ -962,7 +963,7 @@ function EstudiantesAdmin() {
                               }
                             >
                               <Eye size={16} />
-                              Ver expediente
+                              <SSLocalized text={"Ver expediente"} />
                             </button>
 
                             <button
@@ -976,7 +977,7 @@ function EstudiantesAdmin() {
                               <Edit3
                                 size={16}
                               />
-                              Editar estudiante
+                              <SSLocalized text={"Editar estudiante"} />
                             </button>
 
                             <button
@@ -1016,7 +1017,7 @@ function EstudiantesAdmin() {
                               <Trash2
                                 size={16}
                               />
-                              Eliminar estudiante
+                              <SSLocalized text={"Eliminar estudiante"} />
                             </button>
                           </div>
                         )}
@@ -1036,21 +1037,18 @@ function EstudiantesAdmin() {
                   />
 
                   <h3>
-                    No encontramos
-                    estudiantes
+                    <SSLocalized text={"No encontramos estudiantes"} />
                   </h3>
 
                   <p>
-                    Cambia los filtros o
-                    utiliza otro término de
-                    búsqueda.
+                    <SSLocalized text={"Cambia los filtros o utiliza otro término de búsqueda."} />
                   </p>
 
                   <button
                     type="button"
                     onClick={clearFilters}
                   >
-                    Limpiar filtros
+                    <SSLocalized text={"Limpiar filtros"} />
                   </button>
                 </div>
               )}
@@ -1095,7 +1093,7 @@ function EstudiantesAdmin() {
               <div className="students-admin-form-grid">
                 <label>
                   <span>
-                    Nombre completo *
+                    <SSLocalized text={"Nombre completo *"} />
                   </span>
 
                   <input
@@ -1103,14 +1101,14 @@ function EstudiantesAdmin() {
                     name="name"
                     value={formData.name}
                     onChange={handleChange}
-                    placeholder="Nombre y apellidos"
+                    placeholder={ssI18n.t("Nombre y apellidos")}
                     required
                   />
                 </label>
 
                 <label>
                   <span>
-                    Correo electrónico *
+                    <SSLocalized text={"Correo electrónico *"} />
                   </span>
 
                   <input
@@ -1118,13 +1116,13 @@ function EstudiantesAdmin() {
                     name="email"
                     value={formData.email}
                     onChange={handleChange}
-                    placeholder="estudiante@correo.com"
+                    placeholder={ssI18n.t("estudiante@correo.com")}
                     required
                   />
                 </label>
 
                 <label>
-                  <span>Teléfono</span>
+                  <span><SSLocalized text={"Teléfono"} /></span>
 
                   <input
                     type="tel"
@@ -1136,20 +1134,20 @@ function EstudiantesAdmin() {
                 </label>
 
                 <label>
-                  <span>Curso *</span>
+                  <span><SSLocalized text={"Curso *"} /></span>
 
                   <input
                     type="text"
                     name="course"
                     value={formData.course}
                     onChange={handleChange}
-                    placeholder="Ej. Matemáticas avanzadas"
+                    placeholder={ssI18n.t("Ej. Matemáticas avanzadas")}
                     required
                   />
                 </label>
 
                 <label>
-                  <span>Promedio</span>
+                  <span><SSLocalized text={"Promedio"} /></span>
 
                   <input
                     type="number"
@@ -1165,7 +1163,7 @@ function EstudiantesAdmin() {
                 </label>
 
                 <label>
-                  <span>Asistencia</span>
+                  <span><SSLocalized text={"Asistencia"} /></span>
 
                   <input
                     type="number"
@@ -1182,7 +1180,7 @@ function EstudiantesAdmin() {
 
                 <label>
                   <span>
-                    Estado de acceso
+                    <SSLocalized text={"Estado de acceso"} />
                   </span>
 
                   <select
@@ -1191,18 +1189,18 @@ function EstudiantesAdmin() {
                     onChange={handleChange}
                   >
                     <option value="Activo">
-                      Activo
+                      <SSLocalized text={"Activo"} />
                     </option>
 
                     <option value="Suspendido">
-                      Suspendido
+                      <SSLocalized text={"Suspendido"} />
                     </option>
                   </select>
                 </label>
 
                 <label>
                   <span>
-                    Estado académico
+                    <SSLocalized text={"Estado académico"} />
                   </span>
 
                   <select
@@ -1213,19 +1211,19 @@ function EstudiantesAdmin() {
                     onChange={handleChange}
                   >
                     <option value="Excelente">
-                      Excelente
+                      <SSLocalized text={"Excelente"} />
                     </option>
 
                     <option value="Estable">
-                      Estable
+                      <SSLocalized text={"Estable"} />
                     </option>
 
                     <option value="Seguimiento">
-                      Seguimiento
+                      <SSLocalized text={"Seguimiento"} />
                     </option>
 
                     <option value="Alerta">
-                      Alerta
+                      <SSLocalized text={"Alerta"} />
                     </option>
                   </select>
                 </label>
@@ -1243,7 +1241,7 @@ function EstudiantesAdmin() {
                   className="students-admin-secondary-button"
                   onClick={closeModal}
                 >
-                  Cancelar
+                  <SSLocalized text={"Cancelar"} />
                 </button>
 
                 <button
@@ -1275,7 +1273,7 @@ function EstudiantesAdmin() {
 
                 <div>
                   <span>
-                    Expediente académico
+                    <SSLocalized text={"Expediente académico"} />
                   </span>
 
                   <h2>
@@ -1303,7 +1301,7 @@ function EstudiantesAdmin() {
 
               <div className="students-admin-details-grid">
                 <article>
-                  <span>Correo</span>
+                  <span><SSLocalized text={"Correo"} /></span>
 
                   <strong>
                     {
@@ -1313,7 +1311,7 @@ function EstudiantesAdmin() {
                 </article>
 
                 <article>
-                  <span>Teléfono</span>
+                  <span><SSLocalized text={"Teléfono"} /></span>
 
                   <strong>
                     {selectedStudent.phone ||
@@ -1322,7 +1320,7 @@ function EstudiantesAdmin() {
                 </article>
 
                 <article>
-                  <span>Promedio</span>
+                  <span><SSLocalized text={"Promedio"} /></span>
 
                   <strong>
                     {
@@ -1333,7 +1331,7 @@ function EstudiantesAdmin() {
                 </article>
 
                 <article>
-                  <span>Asistencia</span>
+                  <span><SSLocalized text={"Asistencia"} /></span>
 
                   <strong>
                     {
@@ -1344,7 +1342,7 @@ function EstudiantesAdmin() {
                 </article>
 
                 <article>
-                  <span>Informes</span>
+                  <span><SSLocalized text={"Informes"} /></span>
 
                   <strong>
                     {
@@ -1355,7 +1353,7 @@ function EstudiantesAdmin() {
 
                 <article>
                   <span>
-                    Estado académico
+                    <SSLocalized text={"Estado académico"} />
                   </span>
 
                   <strong>
@@ -1366,7 +1364,7 @@ function EstudiantesAdmin() {
                 </article>
 
                 <article>
-                  <span>Acceso</span>
+                  <span><SSLocalized text={"Acceso"} /></span>
 
                   <strong>
                     {
@@ -1377,7 +1375,7 @@ function EstudiantesAdmin() {
 
                 <article>
                   <span>
-                    Último acceso
+                    <SSLocalized text={"Último acceso"} />
                   </span>
 
                   <strong>
@@ -1394,10 +1392,7 @@ function EstudiantesAdmin() {
                 />
 
                 <p>
-                  Aquí se mostrarán
-                  observaciones, alertas,
-                  evidencias e informes
-                  asociados al estudiante.
+                  <SSLocalized text={"Aquí se mostrarán observaciones, alertas, evidencias e informes asociados al estudiante."} />
                 </p>
               </div>
 
@@ -1417,7 +1412,7 @@ function EstudiantesAdmin() {
                   }}
                 >
                   <Edit3 size={17} />
-                  Editar estudiante
+                  <SSLocalized text={"Editar estudiante"} />
                 </button>
               </footer>
             </section>
@@ -1433,18 +1428,17 @@ function EstudiantesAdmin() {
               </div>
 
               <h2>
-                Eliminar estudiante
+                <SSLocalized text={"Eliminar estudiante"} />
               </h2>
 
               <p>
-                Vas a eliminar a{" "}
+                <SSLocalized text={"Vas a eliminar a"} />{" "}
                 <strong>
                   {
                     selectedStudent.name
                   }
                 </strong>
-                . Esta acción no se puede
-                deshacer.
+                <SSLocalized text={". Esta acción no se puede deshacer."} />
               </p>
 
               <footer>
@@ -1457,7 +1451,7 @@ function EstudiantesAdmin() {
                     )
                   }
                 >
-                  Cancelar
+                  <SSLocalized text={"Cancelar"} />
                 </button>
 
                 <button
@@ -1466,7 +1460,7 @@ function EstudiantesAdmin() {
                   onClick={handleDelete}
                 >
                   <Trash2 size={17} />
-                  Eliminar
+                  <SSLocalized text={"Eliminar"} />
                 </button>
               </footer>
             </section>

@@ -1,3 +1,5 @@
+import ssI18n from "i18next";
+import SSLocalized from "../../i18n/Localized.jsx";
 function authenticatedFetch(url, options = {}) {
   return fetch(url, {
     ...options,
@@ -435,15 +437,13 @@ function Mensajes() {
           <div>
             <span className="messages-eyebrow">
               <Users size={15} />
-              Centro de comunicación
+              <SSLocalized text={"Centro de comunicación"} />
             </span>
 
-            <h1>
-              Mensajes
-            </h1>
+            <h1><SSLocalized text={"Mensajes"} /></h1>
 
             <p>
-              Conversa con estudiantes y profesores de StudySync.
+              <SSLocalized text={"Conversa con estudiantes y profesores de StudySync."} />
             </p>
           </div>
 
@@ -452,7 +452,7 @@ function Mensajes() {
             className="messages-new-button"
           >
             <Send size={18} />
-            Nuevo mensaje
+            <SSLocalized text={"Nuevo mensaje"} />
           </button>
         </header>
 
@@ -471,7 +471,7 @@ function Mensajes() {
             <div className="messages-conversations-header">
               <div>
                 <span>
-                  Conversaciones
+                  <SSLocalized text={"Conversaciones"} />
                 </span>
 
                 <strong>
@@ -483,7 +483,7 @@ function Mensajes() {
 
               <button
                 type="button"
-                aria-label="Opciones"
+                aria-label={ssI18n.t("Opciones")}
               >
                 <MoreHorizontal
                   size={19}
@@ -496,7 +496,7 @@ function Mensajes() {
 
               <input
                 type="search"
-                placeholder="Buscar conversación..."
+                placeholder={ssI18n.t("Buscar conversación...")}
                 value={
                   searchTerm
                 }
@@ -587,7 +587,7 @@ function Mensajes() {
                         "20px",
                     }}
                   >
-                    No hay usuarios disponibles.
+                    <SSLocalized text={"No hay usuarios disponibles."} />
                   </div>
                 )}
             </div>
@@ -622,7 +622,7 @@ function Mensajes() {
                   <div className="messages-chat-actions">
                     <button
                       type="button"
-                      aria-label="Llamar"
+                      aria-label={ssI18n.t("Llamar")}
                     >
                       <Phone
                         size={18}
@@ -631,7 +631,7 @@ function Mensajes() {
 
                     <button
                       type="button"
-                      aria-label="Videollamada"
+                      aria-label={ssI18n.t("Videollamada")}
                     >
                       <Video
                         size={18}
@@ -640,7 +640,7 @@ function Mensajes() {
 
                     <button
                       type="button"
-                      aria-label="Más opciones"
+                      aria-label={ssI18n.t("Más opciones")}
                     >
                       <MoreHorizontal
                         size={19}
@@ -652,7 +652,7 @@ function Mensajes() {
                 <div className="messages-chat-body">
                   <div className="messages-date-divider">
                     <span>
-                      Conversación
+                      <SSLocalized text={"Conversación"} />
                     </span>
                   </div>
 
@@ -663,7 +663,7 @@ function Mensajes() {
                           "20px",
                       }}
                     >
-                      Cargando mensajes...
+                      <SSLocalized text={"Cargando mensajes..."} />
                     </div>
                   ) : messages.length ===
                     0 ? (
@@ -673,7 +673,7 @@ function Mensajes() {
                           "20px",
                       }}
                     >
-                      Aún no hay mensajes con este usuario.
+                      <SSLocalized text={"Aún no hay mensajes con este usuario."} />
                     </div>
                   ) : (
                     messages.map(
@@ -747,7 +747,7 @@ function Mensajes() {
                 >
                   <button
                     type="button"
-                    aria-label="Adjuntar archivo"
+                    aria-label={ssI18n.t("Adjuntar archivo")}
                   >
                     <Paperclip
                       size={19}
@@ -771,7 +771,7 @@ function Mensajes() {
 
                   <button
                     type="button"
-                    aria-label="Agregar emoji"
+                    aria-label={ssI18n.t("Agregar emoji")}
                   >
                     <Smile
                       size={19}
@@ -781,7 +781,7 @@ function Mensajes() {
                   <button
                     type="submit"
                     className="messages-send-button"
-                    aria-label="Enviar mensaje"
+                    aria-label={ssI18n.t("Enviar mensaje")}
                   >
                     <Send
                       size={18}
@@ -795,7 +795,7 @@ function Mensajes() {
                   padding: "30px",
                 }}
               >
-                Selecciona un usuario para comenzar una conversación.
+                <SSLocalized text={"Selecciona un usuario para comenzar una conversación."} />
               </div>
             )}
           </section>
@@ -823,7 +823,7 @@ function Mensajes() {
 
                 <div className="messages-profile-status">
                   <span />
-                  Usuario StudySync
+                  <SSLocalized text={"Usuario StudySync"} />
                 </div>
 
                 <div className="messages-profile-stats">
@@ -834,9 +834,7 @@ function Mensajes() {
                       }
                     </strong>
 
-                    <span>
-                      Mensajes
-                    </span>
+                    <span><SSLocalized text={"Mensajes"} /></span>
                   </article>
 
                   <article>
@@ -844,15 +842,13 @@ function Mensajes() {
                       —
                     </strong>
 
-                    <span>
-                      Salas
-                    </span>
+                    <span><SSLocalized text={"Salas"} /></span>
                   </article>
                 </div>
 
                 <div className="messages-profile-info">
                   <span>
-                    Correo
+                    <SSLocalized text={"Correo"} />
                   </span>
 
                   <strong>
@@ -862,7 +858,7 @@ function Mensajes() {
                   </strong>
 
                   <span>
-                    Rol
+                    <SSLocalized text={"Rol"} />
                   </span>
 
                   <strong>
@@ -872,11 +868,11 @@ function Mensajes() {
                   </strong>
 
                   <span>
-                    Estado
+                    <SSLocalized text={"Estado"} />
                   </span>
 
                   <strong>
-                    Activo
+                    <SSLocalized text={"Activo"} />
                   </strong>
                 </div>
 
@@ -884,12 +880,12 @@ function Mensajes() {
                   type="button"
                   className="messages-profile-button"
                 >
-                  Ver perfil
+                  <SSLocalized text={"Ver perfil"} />
                 </button>
               </>
             ) : (
               <p>
-                Sin conversación seleccionada.
+                <SSLocalized text={"Sin conversación seleccionada."} />
               </p>
             )}
           </aside>

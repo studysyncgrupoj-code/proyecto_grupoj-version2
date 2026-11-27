@@ -1,3 +1,5 @@
+import ssI18n from "i18next";
+import SSLocalized from "../../i18n/Localized.jsx";
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import {
@@ -164,38 +166,38 @@ function Home() {
   return (
     <div className="landing-page">
       <header className="landing-navbar">
-        <Link to="/" className="landing-brand" aria-label="StudySync inicio">
+        <Link to="/" className="landing-brand" aria-label={ssI18n.t("StudySync inicio")}>
           <span className="landing-brand-icon">
             <GraduationCap size={25} strokeWidth={2.2} />
           </span>
 
           <span className="landing-brand-copy">
-            <strong>StudySync</strong>
-            <small>Aprende. Conecta. Avanza.</small>
+            <strong><SSLocalized text={"StudySync"} /></strong>
+            <small><SSLocalized text={"Aprende. Conecta. Avanza."} /></small>
           </span>
         </Link>
 
         <nav
           className={`landing-menu ${mobileMenuOpen ? "open" : ""}`}
-          aria-label="Navegación principal"
+          aria-label={ssI18n.t("Navegación principal")}
         >
           {menuItems}
         </nav>
 
         <div className="landing-navbar-actions">
           <Link to="/login" className="landing-login-link">
-            Iniciar sesión
+            <SSLocalized text={"Iniciar sesión"} />
           </Link>
 
           <Link to="/registro" className="landing-navbar-button">
-            Crear cuenta
+            <SSLocalized text={"Crear cuenta"} />
             <ArrowRight size={17} />
           </Link>
 
           <button
             type="button"
             className="landing-mobile-button"
-            aria-label="Abrir o cerrar menú"
+            aria-label={ssI18n.t("Abrir o cerrar menú")}
             onClick={() => setMobileMenuOpen((current) => !current)}
           >
             {mobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
@@ -212,46 +214,44 @@ function Home() {
             <div className="landing-hero-copy">
               <span className="landing-eyebrow">
                 <Sparkles size={15} />
-                Tu ecosistema inteligente de estudio
+                <SSLocalized text={"Tu ecosistema inteligente de estudio"} />
               </span>
 
               <h1>
-                Estudia mejor.
-                <span> Avanza con propósito.</span>
+                <SSLocalized text={"Estudia mejor."} />
+                <span> <SSLocalized text={"Avanza con propósito."} /></span>
               </h1>
 
               <p>
-                Organiza tus cursos, participa en salas colaborativas, mejora tu
-                concentración y recibe acompañamiento personalizado desde una
-                sola plataforma.
+                <SSLocalized text={"Organiza tus cursos, participa en salas colaborativas, mejora tu concentración y recibe acompañamiento personalizado desde una sola plataforma."} />
               </p>
 
               <div className="landing-hero-actions">
                 <Link to="/registro" className="landing-primary-button">
-                  Comenzar gratis
+                  <SSLocalized text={"Comenzar gratis"} />
                   <ArrowRight size={18} />
                 </Link>
 
                 <Link to="/login" className="landing-secondary-button">
                   <Play size={17} fill="currentColor" />
-                  Explorar plataforma
+                  <SSLocalized text={"Explorar plataforma"} />
                 </Link>
               </div>
 
               <div className="landing-hero-benefits">
                 <span>
                   <CheckCircle2 size={16} />
-                  Sin tarjeta de crédito
+                  <SSLocalized text={"Sin tarjeta de crédito"} />
                 </span>
 
                 <span>
                   <CheckCircle2 size={16} />
-                  Acceso inmediato
+                  <SSLocalized text={"Acceso inmediato"} />
                 </span>
 
                 <span>
                   <CheckCircle2 size={16} />
-                  Para estudiantes y profesores
+                  <SSLocalized text={"Para estudiantes y profesores"} />
                 </span>
               </div>
             </div>
@@ -266,7 +266,7 @@ function Home() {
 
                 <span className="landing-preview-status">
                   <span />
-                  Plataforma activa
+                  <SSLocalized text={"Plataforma activa"} />
                 </span>
               </div>
 
@@ -287,11 +287,11 @@ function Home() {
                 <div className="landing-preview-content">
                   <div className="landing-preview-heading">
                     <div>
-                      <small>Bienvenido de nuevo</small>
-                      <strong>Tu progreso académico</strong>
+                      <small><SSLocalized text={"Bienvenido de nuevo"} /></small>
+                      <strong><SSLocalized text={"Tu progreso académico"} /></strong>
                     </div>
 
-                    <span className="landing-preview-avatar">RV</span>
+                    <span className="landing-preview-avatar"><SSLocalized text={"RV"} /></span>
                   </div>
 
                   <div className="landing-preview-statistics">
@@ -301,8 +301,8 @@ function Home() {
                       </span>
 
                       <div>
-                        <small>Tiempo estudiado</small>
-                        <strong>24.5 h</strong>
+                        <small><SSLocalized text={"Tiempo estudiado"} /></small>
+                        <strong><SSLocalized text={"24.5 h"} /></strong>
                       </div>
                     </article>
 
@@ -312,7 +312,7 @@ function Home() {
                       </span>
 
                       <div>
-                        <small>Meta semanal</small>
+                        <small><SSLocalized text={"Meta semanal"} /></small>
                         <strong>82%</strong>
                       </div>
                     </article>
@@ -323,7 +323,7 @@ function Home() {
                       </span>
 
                       <div>
-                        <small>Salas activas</small>
+                        <small><SSLocalized text={"Salas activas"} /></small>
                         <strong>12</strong>
                       </div>
                     </article>
@@ -332,8 +332,8 @@ function Home() {
                   <div className="landing-preview-lower">
                     <article className="landing-preview-progress-card">
                       <div>
-                        <span>Progreso semanal</span>
-                        <strong>18 horas de 22</strong>
+                        <span><SSLocalized text={"Progreso semanal"} /></span>
+                        <strong><SSLocalized text={"18 horas de 22"} /></strong>
                       </div>
 
                       <div className="landing-preview-chart">
@@ -352,12 +352,12 @@ function Home() {
                       </span>
 
                       <div>
-                        <small>Próxima sesión</small>
-                        <strong>React avanzado</strong>
-                        <span>Hoy · 4:30 p. m.</span>
+                        <small><SSLocalized text={"Próxima sesión"} /></small>
+                        <strong><SSLocalized text={"React avanzado"} /></strong>
+                        <span><SSLocalized text={"Hoy · 4:30 p. m."} /></span>
                       </div>
 
-                      <button type="button" aria-label="Entrar a sesión">
+                      <button type="button" aria-label={ssI18n.t("Entrar a sesión")}>
                         <ArrowRight size={17} />
                       </button>
                     </article>
@@ -371,8 +371,8 @@ function Home() {
                 </span>
 
                 <div>
-                  <small>Racha actual</small>
-                  <strong>12 días</strong>
+                  <small><SSLocalized text={"Racha actual"} /></small>
+                  <strong><SSLocalized text={"12 días"} /></strong>
                 </div>
               </div>
 
@@ -382,21 +382,21 @@ function Home() {
                 </span>
 
                 <div>
-                  <small>IA Coach</small>
-                  <strong>Plan actualizado</strong>
+                  <small><SSLocalized text={"IA Coach"} /></small>
+                  <strong><SSLocalized text={"Plan actualizado"} /></strong>
                 </div>
               </div>
             </div>
           </div>
 
           <div className="landing-trusted">
-            <span>Una plataforma diseñada para potenciar</span>
+            <span><SSLocalized text={"Una plataforma diseñada para potenciar"} /></span>
 
             <div>
-              <strong>Concentración</strong>
-              <strong>Colaboración</strong>
-              <strong>Organización</strong>
-              <strong>Progreso</strong>
+              <strong><SSLocalized text={"Concentración"} /></strong>
+              <strong><SSLocalized text={"Colaboración"} /></strong>
+              <strong><SSLocalized text={"Organización"} /></strong>
+              <strong><SSLocalized text={"Progreso"} /></strong>
             </div>
           </div>
         </section>
@@ -405,14 +405,13 @@ function Home() {
           <div className="landing-section-heading centered">
             <span>
               <BrainCircuit size={15} />
-              Aprendizaje con propósito
+              <SSLocalized text={"Aprendizaje con propósito"} />
             </span>
 
-            <h2>Todo lo que necesitas para estudiar mejor</h2>
+            <h2><SSLocalized text={"Todo lo que necesitas para estudiar mejor"} /></h2>
 
             <p>
-              StudySync combina organización, colaboración y tecnología para
-              convertir cada sesión de estudio en progreso real.
+              <SSLocalized text={"StudySync combina organización, colaboración y tecnología para convertir cada sesión de estudio en progreso real."} />
             </p>
           </div>
 
@@ -443,15 +442,12 @@ function Home() {
         <section id="salas" className="landing-rooms-section">
           <div className="landing-section-heading">
             <span>
-              <Video size={15} />
-              Salas de estudio
-            </span>
+              <Video size={15} /><SSLocalized text={"Salas de estudio"} /></span>
 
-            <h2>Aprender acompañado cambia los resultados</h2>
+            <h2><SSLocalized text={"Aprender acompañado cambia los resultados"} /></h2>
 
             <p>
-              Únete a sesiones colaborativas, comparte recursos y mantén el
-              ritmo junto a personas con tus mismos objetivos.
+              <SSLocalized text={"Únete a sesiones colaborativas, comparte recursos y mantén el ritmo junto a personas con tus mismos objetivos."} />
             </p>
           </div>
 
@@ -478,7 +474,7 @@ function Home() {
                   <h3>{room.title}</h3>
 
                   <div className="landing-room-progress-copy">
-                    <span>Progreso de la sesión</span>
+                    <span><SSLocalized text={"Progreso de la sesión"} /></span>
                     <strong>{room.progress}%</strong>
                   </div>
 
@@ -489,7 +485,7 @@ function Home() {
                   <footer>
                     <span>
                       <Users size={16} />
-                      {room.members} participantes
+                      {room.members} <SSLocalized text={"participantes"} />
                     </span>
 
                     <button type="button" aria-label={`Abrir ${room.title}`}>
@@ -503,36 +499,34 @@ function Home() {
             <aside className="landing-rooms-highlight">
               <span className="landing-highlight-badge">
                 <Sparkles size={15} />
-                Sesiones en tiempo real
+                <SSLocalized text={"Sesiones en tiempo real"} />
               </span>
 
-              <h3>Convierte el estudio en una experiencia compartida</h3>
+              <h3><SSLocalized text={"Convierte el estudio en una experiencia compartida"} /></h3>
 
               <p>
-                Crea salas públicas o privadas, activa sesiones de Pomodoro,
-                conversa con tu equipo y consulta materiales sin abandonar la
-                sesión.
+                <SSLocalized text={"Crea salas públicas o privadas, activa sesiones de Pomodoro, conversa con tu equipo y consulta materiales sin abandonar la sesión."} />
               </p>
 
               <div className="landing-highlight-list">
                 <span>
                   <CheckCircle2 size={18} />
-                  Chat y colaboración en vivo
+                  <SSLocalized text={"Chat y colaboración en vivo"} />
                 </span>
 
                 <span>
                   <CheckCircle2 size={18} />
-                  Temporizador Pomodoro compartido
+                  <SSLocalized text={"Temporizador Pomodoro compartido"} />
                 </span>
 
                 <span>
                   <CheckCircle2 size={18} />
-                  Gestión de recursos y participantes
+                  <SSLocalized text={"Gestión de recursos y participantes"} />
                 </span>
               </div>
 
               <Link to="/salas" className="landing-highlight-button">
-                Explorar salas
+                <SSLocalized text={"Explorar salas"} />
                 <ArrowRight size={18} />
               </Link>
             </aside>
@@ -544,14 +538,13 @@ function Home() {
             <div className="landing-section-heading">
               <span>
                 <Zap size={15} />
-                Una experiencia completa
+                <SSLocalized text={"Una experiencia completa"} />
               </span>
 
-              <h2>Menos herramientas. Más concentración.</h2>
+              <h2><SSLocalized text={"Menos herramientas. Más concentración."} /></h2>
 
               <p>
-                StudySync reúne las funciones esenciales para que puedas
-                organizar, estudiar, colaborar y medir tu evolución.
+                <SSLocalized text={"StudySync reúne las funciones esenciales para que puedas organizar, estudiar, colaborar y medir tu evolución."} />
               </p>
             </div>
 
@@ -562,10 +555,9 @@ function Home() {
                 </span>
 
                 <div>
-                  <h3>Organización académica</h3>
+                  <h3><SSLocalized text={"Organización académica"} /></h3>
                   <p>
-                    Planifica cursos, sesiones, tareas y eventos desde un
-                    calendario centralizado.
+                    <SSLocalized text={"Planifica cursos, sesiones, tareas y eventos desde un calendario centralizado."} />
                   </p>
                 </div>
               </article>
@@ -576,10 +568,9 @@ function Home() {
                 </span>
 
                 <div>
-                  <h3>Pomodoro integrado</h3>
+                  <h3><SSLocalized text={"Pomodoro integrado"} /></h3>
                   <p>
-                    Gestiona periodos de concentración y descanso con métricas
-                    claras.
+                    <SSLocalized text={"Gestiona periodos de concentración y descanso con métricas claras."} />
                   </p>
                 </div>
               </article>
@@ -590,10 +581,9 @@ function Home() {
                 </span>
 
                 <div>
-                  <h3>Coach académico con IA</h3>
+                  <h3><SSLocalized text={"Coach académico con IA"} /></h3>
                   <p>
-                    Recibe recomendaciones basadas en tus metas, actividad y
-                    progreso.
+                    <SSLocalized text={"Recibe recomendaciones basadas en tus metas, actividad y progreso."} />
                   </p>
                 </div>
               </article>
@@ -604,10 +594,9 @@ function Home() {
                 </span>
 
                 <div>
-                  <h3>Comunicación directa</h3>
+                  <h3><SSLocalized text={"Comunicación directa"} /></h3>
                   <p>
-                    Mantén conversaciones con profesores, compañeros y grupos
-                    de estudio.
+                    <SSLocalized text={"Mantén conversaciones con profesores, compañeros y grupos de estudio."} />
                   </p>
                 </div>
               </article>
@@ -620,25 +609,24 @@ function Home() {
             </span>
 
             <span className="landing-security-label">
-              Plataforma confiable
+              <SSLocalized text={"Plataforma confiable"} />
             </span>
 
-            <h3>Tu información y tu progreso siempre protegidos</h3>
+            <h3><SSLocalized text={"Tu información y tu progreso siempre protegidos"} /></h3>
 
             <p>
-              StudySync integra controles de privacidad, seguridad de cuenta y
-              configuraciones personalizadas para cada usuario.
+              <SSLocalized text={"StudySync integra controles de privacidad, seguridad de cuenta y configuraciones personalizadas para cada usuario."} />
             </p>
 
             <div className="landing-security-statistics">
               <article>
                 <strong>24/7</strong>
-                <span>Disponibilidad</span>
+                <span><SSLocalized text={"Disponibilidad"} /></span>
               </article>
 
               <article>
                 <strong>100%</strong>
-                <span>Control de privacidad</span>
+                <span><SSLocalized text={"Control de privacidad"} /></span>
               </article>
             </div>
           </div>
@@ -648,14 +636,13 @@ function Home() {
           <div className="landing-section-heading centered">
             <span>
               <Star size={15} />
-              Historias de progreso
+              <SSLocalized text={"Historias de progreso"} />
             </span>
 
-            <h2>Personas que ya estudian de otra manera</h2>
+            <h2><SSLocalized text={"Personas que ya estudian de otra manera"} /></h2>
 
             <p>
-              Experiencias de estudiantes y profesores que encontraron una
-              forma más organizada de avanzar.
+              <SSLocalized text={"Experiencias de estudiantes y profesores que encontraron una forma más organizada de avanzar."} />
             </p>
           </div>
 
@@ -689,24 +676,23 @@ function Home() {
           <div>
             <span>
               <Sparkles size={15} />
-              Tu siguiente sesión comienza aquí
+              <SSLocalized text={"Tu siguiente sesión comienza aquí"} />
             </span>
 
-            <h2>Construye hoy una mejor forma de aprender</h2>
+            <h2><SSLocalized text={"Construye hoy una mejor forma de aprender"} /></h2>
 
             <p>
-              Crea tu cuenta y empieza a organizar tus cursos, salas, sesiones
-              de concentración y objetivos académicos.
+              <SSLocalized text={"Crea tu cuenta y empieza a organizar tus cursos, salas, sesiones de concentración y objetivos académicos."} />
             </p>
 
             <div className="landing-cta-actions">
               <Link to="/registro" className="landing-primary-button">
-                Crear cuenta gratis
+                <SSLocalized text={"Crear cuenta gratis"} />
                 <ArrowRight size={18} />
               </Link>
 
               <Link to="/login" className="landing-secondary-button">
-                Ya tengo una cuenta
+                <SSLocalized text={"Ya tengo una cuenta"} />
               </Link>
             </div>
           </div>
@@ -721,27 +707,26 @@ function Home() {
             </span>
 
             <span className="landing-brand-copy">
-              <strong>StudySync</strong>
-              <small>Aprende. Conecta. Avanza.</small>
+              <strong><SSLocalized text={"StudySync"} /></strong>
+              <small><SSLocalized text={"Aprende. Conecta. Avanza."} /></small>
             </span>
           </Link>
 
           <p>
-            Una plataforma para organizar tu aprendizaje, colaborar y avanzar
-            con propósito.
+            <SSLocalized text={"Una plataforma para organizar tu aprendizaje, colaborar y avanzar con propósito."} />
           </p>
 
           <nav>
-            <a href="#home">Inicio</a>
-            <a href="#salas">Salas</a>
-            <a href="#beneficios">Beneficios</a>
-            <Link to="/login">Acceder</Link>
+            <a href="#home"><SSLocalized text={"Inicio"} /></a>
+            <a href="#salas"><SSLocalized text={"Salas"} /></a>
+            <a href="#beneficios"><SSLocalized text={"Beneficios"} /></a>
+            <Link to="/login"><SSLocalized text={"Acceder"} /></Link>
           </nav>
         </div>
 
         <div className="landing-footer-bottom">
-          <span>© 2026 StudySync. Todos los derechos reservados.</span>
-          <span>Diseñado para aprender mejor.</span>
+          <span><SSLocalized text={"© 2026 StudySync. Todos los derechos reservados."} /></span>
+          <span><SSLocalized text={"Diseñado para aprender mejor."} /></span>
         </div>
       </footer>
     </div>

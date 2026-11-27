@@ -1,3 +1,5 @@
+import SSLocalized from "../../i18n/Localized.jsx";
+import { useTranslation } from "react-i18next";
 import { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
 
@@ -286,6 +288,7 @@ function getRoleInformation(role) {
    ========================================================= */
 
 function Sidebar() {
+  const { t } = useTranslation();
   const [collapsed, setCollapsed] = useState(() => {
     return (
       localStorage.getItem(
@@ -382,8 +385,8 @@ function Sidebar() {
         </div>
 
         <div className="sidebar-brand-text">
-          <h2>StudySync</h2>
-          <span>{panelTitle}</span>
+          <h2><SSLocalized text={"StudySync"} /></h2>
+          <span><SSLocalized text={panelTitle} /></span>
         </div>
 
         <button
@@ -432,7 +435,7 @@ function Sidebar() {
               to={item.path}
               title={
                 collapsed
-                  ? item.label
+                  ? t(item.label)
                   : undefined
               }
               className={({ isActive }) =>
@@ -449,7 +452,7 @@ function Sidebar() {
                 strokeWidth={2}
               />
 
-              <span>{item.label}</span>
+              <span>{t(item.label)}</span>
             </NavLink>
           );
         })}
@@ -476,12 +479,12 @@ function Sidebar() {
 
         <h3>{premiumTitle}</h3>
 
-        <p>{premiumDescription}</p>
+        <p><SSLocalized text={premiumDescription} /></p>
 
         <button type="button">
           {type === "admin"
-            ? "Ver estado"
-            : "Ver beneficios"}
+            ? <SSLocalized text="Ver estado" />
+            : <SSLocalized text="Ver beneficios" />}
         </button>
       </div>
 
@@ -494,7 +497,7 @@ function Sidebar() {
           to="/configuracion"
           title={
             collapsed
-              ? "Configuración"
+              ? t("Configuración")
               : undefined
           }
           className={({ isActive }) =>
@@ -511,7 +514,7 @@ function Sidebar() {
             strokeWidth={2}
           />
 
-          <span>Configuración</span>
+          <span>{t("Configuración")}</span>
         </NavLink>
 
         <button
@@ -519,7 +522,7 @@ function Sidebar() {
           className="sidebar-logout"
           title={
             collapsed
-              ? "Cerrar sesión"
+              ? t("Cerrar sesión")
               : undefined
           }
           onClick={handleLogout}
@@ -530,7 +533,7 @@ function Sidebar() {
             strokeWidth={2}
           />
 
-          <span>Cerrar sesión</span>
+          <span>{t("Cerrar sesión")}</span>
         </button>
 
         <div
@@ -547,7 +550,7 @@ function Sidebar() {
 
           <div className="sidebar-user-info">
             <strong>{displayName}</strong>
-            <span>{roleLabel}</span>
+            <span><SSLocalized text={roleLabel} /></span>
           </div>
         </div>
       </div>

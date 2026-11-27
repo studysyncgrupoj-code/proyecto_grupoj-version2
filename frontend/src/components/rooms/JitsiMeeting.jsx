@@ -1,3 +1,4 @@
+import SSLocalized from "../../i18n/Localized.jsx";
 
 import { useEffect, useRef, useState } from "react";
 
@@ -127,7 +128,7 @@ api.addListener("participantLeft", ({ id }) => {
 
   return (
     <article className="room-jitsi-card">
-      <h2>Videoconferencia StudySync</h2>
+      <h2><SSLocalized text={"Videoconferencia StudySync"} /></h2>
 
       {error && <p role="alert">{error}</p>}
 

@@ -1,3 +1,5 @@
+import ssI18n from "i18next";
+import SSLocalized from "../../i18n/Localized.jsx";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   ArrowLeft,
@@ -733,17 +735,17 @@ function Cursos() {
               alignItems: "center",
               marginBottom: "16px"
             }}>
-              <h2>Videoconferencia en vivo</h2>
+              <h2><SSLocalized text={"Videoconferencia en vivo"} /></h2>
               <button
                 type="button"
                 className="course-back-button"
                 onClick={() => setActiveMeeting(null)}
               >
-                Salir de videoconferencia
+                <SSLocalized text={"Salir de videoconferencia"} />
               </button>
             </div>
             <iframe
-              title="Videoconferencia StudySync"
+              title={ssI18n.t("Videoconferencia StudySync")}
               src={activeMeeting.url}
               allow="camera; microphone; fullscreen; display-capture; autoplay"
               allowFullScreen
@@ -765,14 +767,14 @@ function Cursos() {
                 onClick={leaveCourse}
               >
                 <ArrowLeft size={18} />
-                Volver a cursos
+                <SSLocalized text={"Volver a cursos"} />
               </button>
 
               <div className="course-detail-heading">
                 <div>
                   <span className="courses-eyebrow">
                     <Sparkles size={14} />
-                    Curso activo
+                    <SSLocalized text={"Curso activo"} />
                   </span>
 
                   <h1>{activeCourse.title}</h1>
@@ -788,7 +790,7 @@ function Cursos() {
                   {activeCourse.premium && (
                     <span className="course-premium-badge">
                       <Crown size={15} />
-                      Premium
+                      <SSLocalized text={"Premium"} />
                     </span>
                   )}
                 </div>
@@ -800,8 +802,8 @@ function Cursos() {
                 <article className="course-objective-card">
                   <div className="course-section-heading">
                     <div>
-                      <span>OBJETIVO DEL CURSO</span>
-                      <h2>Ruta de aprendizaje</h2>
+                      <span><SSLocalized text={"OBJETIVO DEL CURSO"} /></span>
+                      <h2><SSLocalized text={"Ruta de aprendizaje"} /></h2>
                     </div>
 
                     <BookOpen size={22} />
@@ -813,8 +815,8 @@ function Cursos() {
                 <section className="course-task-card">
                   <div className="course-section-heading">
                     <div>
-                      <span>CLASES DEL CURSO</span>
-                      <h2>{courseLessons.length} clases registradas</h2>
+                      <span><SSLocalized text={"CLASES DEL CURSO"} /></span>
+                      <h2>{courseLessons.length} <SSLocalized text={"clases registradas"} /></h2>
                     </div>
 
                     {isProfessor &&
@@ -825,7 +827,7 @@ function Cursos() {
                         onClick={() => setShowLessonForm(!showLessonForm)}
                       >
                         <Plus size={17} />
-                        Crear clase
+                        <SSLocalized text={"Crear clase"} />
                       </button>
                     )}
                   </div>
@@ -840,16 +842,16 @@ function Cursos() {
                     <form onSubmit={createLesson}
                       style={{ display: "grid", gap: 12, marginBottom: 20 }}>
 
-                      <label>Título de la clase</label>
-                      <input name="title" required placeholder="Nombre de la clase" />
+                      <label><SSLocalized text={"Título de la clase"} /></label>
+                      <input name="title" required placeholder={ssI18n.t("Nombre de la clase")} />
 
-                      <label>Descripción</label>
+                      <label><SSLocalized text={"Descripción"} /></label>
                       <textarea name="description" rows="3" />
 
-                      <label>Fecha y hora</label>
+                      <label><SSLocalized text={"Fecha y hora"} /></label>
                       <input name="scheduledAt" type="datetime-local" required />
 
-                      <label>Duración en minutos</label>
+                      <label><SSLocalized text={"Duración en minutos"} /></label>
                       <input name="durationMinutes" type="number"
                         min="1" defaultValue="60" required />
 
@@ -862,7 +864,7 @@ function Cursos() {
                   )}
 
                   {courseLessons.length === 0 && (
-                    <p>Todavía no hay clases registradas.</p>
+                    <p><SSLocalized text={"Todavía no hay clases registradas."} /></p>
                   )}
 
                   <div className="course-task-list">
@@ -890,7 +892,7 @@ function Cursos() {
                           <p>{lesson.description}</p>
                           <small>
                             {lesson.scheduledAt?.replace("T", " ")}
-                            {" · "}{lesson.durationMinutes} minutos
+                            {" · "}{lesson.durationMinutes} <SSLocalized text={"minutos"} />
                           </small>
                         </div>
                         <div style={{
@@ -909,17 +911,17 @@ function Cursos() {
                               : "#eab308",
                             border: "1px solid currentColor"
                           }}>
-                            {estado === "ACTIVA" ? "En vivo"
-                              : estado === "FINALIZADA" ? "Clase finalizada"
-                              : estado === "PROGRAMADA" ? "Programada"
-                              : estado === "DESCONOCIDA" ? "Estado no disponible"
-                              : "Consultando estado..."}
+                            {estado === "ACTIVA" ? ssI18n.t("En vivo")
+                              : estado === "FINALIZADA" ? ssI18n.t("Clase finalizada")
+                              : estado === "PROGRAMADA" ? ssI18n.t("Programada")
+                              : estado === "DESCONOCIDA" ? ssI18n.t("Estado no disponible")
+                              : ssI18n.t("Consultando estado...")}
                           </span>
 
                           {esPropietario && estado === "PROGRAMADA" && (
                             <button type="button" disabled={meetingBusy}
                               onClick={() => manageMeeting(lesson, "start")}>
-                              Iniciar videoconferencia
+                              <SSLocalized text={"Iniciar videoconferencia"} />
                             </button>
                           )}
 
@@ -927,12 +929,12 @@ function Cursos() {
                             <>
                               <button type="button" disabled={meetingBusy}
                                 onClick={() => manageMeeting(lesson, "finish")}>
-                                Finalizar clase
+                                <SSLocalized text={"Finalizar clase"} />
                               </button>
 
                               <button type="button" disabled={meetingBusy}
                                 onClick={() => loadLessonRequests(lesson.roomId)}>
-                                Ver solicitudes
+                                <SSLocalized text={"Ver solicitudes"} />
                               </button>
                             </>
                           )}
@@ -940,12 +942,12 @@ function Cursos() {
                           {estado === "ACTIVA" && (
                             <button type="button" disabled={meetingBusy}
                               onClick={() => manageMeeting(lesson, "join")}>
-                              Entrar a videoconferencia
+                              <SSLocalized text={"Entrar a videoconferencia"} />
                             </button>
                           )}
 
                           {!esPropietario && estado === "PROGRAMADA" && (
-                            <small>Esperando el inicio de la clase.</small>
+                            <small><SSLocalized text={"Esperando el inicio de la clase."} /></small>
                           )}
                         </div>
                         {isProfessor &&
@@ -953,10 +955,10 @@ function Cursos() {
                           estado === "ACTIVA" &&
                           lessonRequests[lesson.roomId] !== undefined && (
                             <div style={{ width: "100%", marginTop: 12 }}>
-                              <h3>Solicitudes de acceso</h3>
+                              <h3><SSLocalized text={"Solicitudes de acceso"} /></h3>
 
                               {lessonRequests[lesson.roomId].length === 0 && (
-                                <p>No hay solicitudes pendientes.</p>
+                                <p><SSLocalized text={"No hay solicitudes pendientes."} /></p>
                               )}
 
                               {lessonRequests[lesson.roomId].map((request) => (
@@ -967,7 +969,7 @@ function Cursos() {
                                   alignItems: "center",
                                   gap: "10px"
                                 }}>
-                                  <span>Estudiante ID: {request.userId}</span>
+                                  <span><SSLocalized text={"Estudiante ID:"} /> {request.userId}</span>
 
                                   <button
                                     type="button"
@@ -976,7 +978,7 @@ function Cursos() {
                                       lesson.roomId, request.id, "aprobar"
                                     )}
                                   >
-                                    Aprobar
+                                    <SSLocalized text={"Aprobar"} />
                                   </button>
 
                                   <button
@@ -986,7 +988,7 @@ function Cursos() {
                                       lesson.roomId, request.id, "rechazar"
                                     )}
                                   >
-                                    Rechazar
+                                    <SSLocalized text={"Rechazar"} />
                                   </button>
                                 </div>
                               ))}
@@ -1014,8 +1016,8 @@ function Cursos() {
                 <section className="course-chat-panel">
                   <div className="course-section-heading">
                     <div>
-                      <span>COMUNIDAD</span>
-                      <h2>Chat del curso</h2>
+                      <span><SSLocalized text={"COMUNIDAD"} /></span>
+                      <h2><SSLocalized text={"Chat del curso"} /></h2>
                     </div>
 
                     <MessageCircle size={22} />
@@ -1043,11 +1045,11 @@ function Cursos() {
                           sendMessage();
                         }
                       }}
-                      placeholder="Escribe un mensaje..."
+                      placeholder={ssI18n.t("Escribe un mensaje...")}
                     />
 
                     <button type="button" onClick={sendMessage}>
-                      Enviar
+                      <SSLocalized text={"Enviar"} />
                     </button>
                   </div>
                 </section>
@@ -1057,8 +1059,8 @@ function Cursos() {
                 <article className="course-progress-card">
                   <div className="course-section-heading">
                     <div>
-                      <span>PROGRESO</span>
-                      <h2>{activeCourse.progress}% completado</h2>
+                      <span><SSLocalized text={"PROGRESO"} /></span>
+                      <h2>{activeCourse.progress}<SSLocalized text={"% completado"} /></h2>
                     </div>
 
                     <TrendingUp size={22} />
@@ -1069,18 +1071,18 @@ function Cursos() {
                   </div>
 
                   <div className="course-progress-data">
-                    <span>{courseLessons.length} lecciones</span>
+                    <span>{courseLessons.length} <SSLocalized text={"lecciones"} /></span>
                     <span>{activeCourse.averageTime}</span>
                   </div>
                 </article>
 
                 <article className="course-instructor-card">
-                  <span>INSTRUCTOR</span>
+                  <span><SSLocalized text={"INSTRUCTOR"} /></span>
                   <div>
                     <div>{activeCourse.instructor.charAt(0)}</div>
                     <section>
                       <h3>{activeCourse.instructor}</h3>
-                      <p>Docente principal</p>
+                      <p><SSLocalized text={"Docente principal"} /></p>
                     </section>
                   </div>
                 </article>
@@ -1088,19 +1090,19 @@ function Cursos() {
                 <article className="course-metrics-card">
                   <div>
                     <Users size={18} />
-                    <span>Estudiantes</span>
+                    <span><SSLocalized text={"Estudiantes"} /></span>
                     <strong>{activeCourse.users}</strong>
                   </div>
 
                   <div>
                     <Flame size={18} />
-                    <span>Participación</span>
+                    <span><SSLocalized text={"Participación"} /></span>
                     <strong>{activeCourse.participation}%</strong>
                   </div>
 
                   <div>
                     <Star size={18} />
-                    <span>Valoración</span>
+                    <span><SSLocalized text={"Valoración"} /></span>
                     <strong>{activeCourse.rating}</strong>
                   </div>
                 </article>
@@ -1113,14 +1115,13 @@ function Cursos() {
               <div>
                 <span className="courses-eyebrow">
                   <Sparkles size={14} />
-                  Catálogo StudySync
+                  <SSLocalized text={"Catálogo StudySync"} />
                 </span>
 
-                <h1>Cursos</h1>
+                <h1><SSLocalized text={"Cursos"} /></h1>
 
                 <p>
-                  Encuentra rutas de aprendizaje prácticas, mide tu progreso y
-                  estudia con una comunidad activa.
+                  <SSLocalized text={"Encuentra rutas de aprendizaje prácticas, mide tu progreso y estudia con una comunidad activa."} />
                 </p>
               </div>
 
@@ -1134,7 +1135,7 @@ function Cursos() {
                   }}
                 >
                   <Plus size={18} />
-                  Crear curso
+                  <SSLocalized text={"Crear curso"} />
                 </button>
               )}
             </header>
@@ -1147,26 +1148,26 @@ function Cursos() {
 
             {showCreate && (
               <section className="course-objective-card" style={{ marginBottom: 24 }}>
-                <h2>Crear nuevo curso</h2>
+                <h2><SSLocalized text={"Crear nuevo curso"} /></h2>
 
                 <form onSubmit={createCourse} style={{ display: "grid", gap: 14, marginTop: 16 }}>
-                  <label>Nombre del curso *</label>
-                  <input name="name" required placeholder="Nombre del curso" />
+                  <label><SSLocalized text={"Nombre del curso *"} /></label>
+                  <input name="name" required placeholder={ssI18n.t("Nombre del curso")} />
 
-                  <label>Categoría *</label>
-                  <input name="category" required placeholder="Ej. Programación" />
+                  <label><SSLocalized text={"Categoría *"} /></label>
+                  <input name="category" required placeholder={ssI18n.t("Ej. Programación")} />
 
-                  <label>Profesor responsable</label>
+                  <label><SSLocalized text={"Profesor responsable"} /></label>
                   <input value={currentUser.name || ""} readOnly />
 
-                  <label>Duración</label>
-                  <input name="duration" placeholder="Ej. 8 semanas" />
+                  <label><SSLocalized text={"Duración"} /></label>
+                  <input name="duration" placeholder={ssI18n.t("Ej. 8 semanas")} />
 
-                  <label>Cupos disponibles</label>
+                  <label><SSLocalized text={"Cupos disponibles"} /></label>
                   <input name="capacity" type="number" min="1" defaultValue="30" required />
 
-                  <label>Descripción</label>
-                  <textarea name="description" rows="4" placeholder="Objetivo del curso" />
+                  <label><SSLocalized text={"Descripción"} /></label>
+                  <textarea name="description" rows="4" placeholder={ssI18n.t("Objetivo del curso")} />
 
                   {createError && (
                     <p role="alert" style={{ color: "#ff8080" }}>{createError}</p>
@@ -1180,7 +1181,7 @@ function Cursos() {
                     <button type="button" className="courses-create-button"
                       disabled={savingCourse}
                       onClick={() => setShowCreate(false)}>
-                      Cancelar
+                      <SSLocalized text={"Cancelar"} />
                     </button>
                   </div>
                 </form>
@@ -1191,36 +1192,36 @@ function Cursos() {
               <article>
                 <BookOpen size={21} />
                 <div>
-                  <span>Cursos disponibles</span>
+                  <span><SSLocalized text={"Cursos disponibles"} /></span>
                   <strong>{displayedCourses.length}</strong>
-                  <small>Catálogo activo</small>
+                  <small><SSLocalized text={"Catálogo activo"} /></small>
                 </div>
               </article>
 
               <article>
                 <Users size={21} />
                 <div>
-                  <span>Estudiantes activos</span>
+                  <span><SSLocalized text={"Estudiantes activos"} /></span>
                   <strong>{totalStudents}</strong>
-                  <small>Comunidad conectada</small>
+                  <small><SSLocalized text={"Comunidad conectada"} /></small>
                 </div>
               </article>
 
               <article>
                 <Crown size={21} />
                 <div>
-                  <span>Cursos Premium</span>
+                  <span><SSLocalized text={"Cursos Premium"} /></span>
                   <strong>{premiumCourses}</strong>
-                  <small>Contenido exclusivo</small>
+                  <small><SSLocalized text={"Contenido exclusivo"} /></small>
                 </div>
               </article>
 
               <article>
                 <TrendingUp size={21} />
                 <div>
-                  <span>Participación media</span>
+                  <span><SSLocalized text={"Participación media"} /></span>
                   <strong>{averageParticipation}%</strong>
-                  <small>Rendimiento global</small>
+                  <small><SSLocalized text={"Rendimiento global"} /></small>
                 </div>
               </article>
             </section>
@@ -1231,7 +1232,7 @@ function Cursos() {
 
                 <input
                   type="search"
-                  placeholder="Buscar por curso, categoría o instructor..."
+                  placeholder={ssI18n.t("Buscar por curso, categoría o instructor...")}
                   value={search}
                   onChange={(event) => setSearch(event.target.value)}
                 />
@@ -1245,7 +1246,7 @@ function Cursos() {
                     className={filter === option ? "active" : ""}
                     onClick={() => setFilter(option)}
                   >
-                    {option}
+                    <SSLocalized text={option} />
                   </button>
                 ))}
               </div>
@@ -1253,19 +1254,19 @@ function Cursos() {
 
             <section className="courses-section-heading">
               <div>
-                <span>EXPLORAR</span>
-                <h2>Rutas de aprendizaje</h2>
+                <span><SSLocalized text={"EXPLORAR"} /></span>
+                <h2><SSLocalized text={"Rutas de aprendizaje"} /></h2>
               </div>
 
-              <p>{filteredCourses.length} resultados</p>
+              <p>{filteredCourses.length} <SSLocalized text={"resultados"} /></p>
             </section>
 
             {filteredCourses.length === 0 ? (
               <section className="courses-empty-state">
                 <Search size={28} />
-                <h3>No encontramos cursos</h3>
+                <h3><SSLocalized text={"No encontramos cursos"} /></h3>
                 <p>
-                  Prueba con otro término o cambia los filtros seleccionados.
+                  <SSLocalized text={"Prueba con otro término o cambia los filtros seleccionados."} />
                 </p>
               </section>
             ) : (
@@ -1281,14 +1282,14 @@ function Cursos() {
                         {course.featured && (
                           <span className="course-featured-badge">
                             <Sparkles size={13} />
-                            Destacado
+                            <SSLocalized text={"Destacado"} />
                           </span>
                         )}
 
                         {course.premium && (
                           <span className="course-premium-badge">
                             <Crown size={13} />
-                            Premium
+                            <SSLocalized text={"Premium"} />
                           </span>
                         )}
                       </div>
@@ -1297,7 +1298,7 @@ function Cursos() {
                     <div className="course-card-body">
                       <div className="course-card-title-row">
                         <div>
-                          <span>{course.level}</span>
+                          <span><SSLocalized text={course.level} /></span>
                           <h3>{course.title}</h3>
                         </div>
 
@@ -1311,7 +1312,7 @@ function Cursos() {
 
                       <div className="course-card-progress">
                         <div>
-                          <span>Progreso</span>
+                          <span><SSLocalized text={"Progreso"} /></span>
                           <strong>{course.progress}%</strong>
                         </div>
 
@@ -1339,7 +1340,7 @@ function Cursos() {
 
                       <footer className="course-card-footer">
                         <div>
-                          <span>Instructor</span>
+                          <span><SSLocalized text={"Instructor"} /></span>
                           <strong>{course.instructor}</strong>
                         </div>
 
@@ -1347,7 +1348,7 @@ function Cursos() {
                           type="button"
                           onClick={() => openCourse(course)}
                         >
-                          Ver curso
+                          <SSLocalized text={"Ver curso"} />
                         </button>
                       </footer>
                     </div>

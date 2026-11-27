@@ -1,3 +1,5 @@
+import ssI18n from "i18next";
+import SSLocalized from "../../i18n/Localized.jsx";
 import { useEffect, useMemo, useState } from "react";
 import {
   CalendarDays,
@@ -618,15 +620,13 @@ function Calendario() {
               <CalendarDays
                 size={15}
               />
-              Agenda académica
+              <SSLocalized text={"Agenda académica"} />
             </span>
 
-            <h1>
-              Calendario
-            </h1>
+            <h1><SSLocalized text={"Calendario"} /></h1>
 
             <p>
-              Organiza tus clases, salas de estudio, tareas y sesiones Focus.
+              <SSLocalized text={"Organiza tus clases, salas de estudio, tareas y sesiones Focus."} />
             </p>
           </div>
 
@@ -638,7 +638,7 @@ function Calendario() {
             }
           >
             <Plus size={18} />
-            Crear evento
+            <SSLocalized text={"Crear evento"} />
           </button>
         </header>
 
@@ -657,7 +657,7 @@ function Calendario() {
         <section className="calendar-stats-grid">
           <article className="calendar-stat-card">
             <span>
-              Eventos este mes
+              <SSLocalized text={"Eventos este mes"} />
             </span>
 
             <strong>
@@ -667,13 +667,13 @@ function Calendario() {
             </strong>
 
             <small>
-              Eventos registrados en tu agenda
+              <SSLocalized text={"Eventos registrados en tu agenda"} />
             </small>
           </article>
 
           <article className="calendar-stat-card">
             <span>
-              Sesiones Focus
+              <SSLocalized text={"Sesiones Focus"} />
             </span>
 
             <strong>
@@ -683,13 +683,13 @@ function Calendario() {
             </strong>
 
             <small>
-              Sesiones programadas este mes
+              <SSLocalized text={"Sesiones programadas este mes"} />
             </small>
           </article>
 
           <article className="calendar-stat-card">
             <span>
-              Salas programadas
+              <SSLocalized text={"Salas programadas"} />
             </span>
 
             <strong>
@@ -699,7 +699,7 @@ function Calendario() {
             </strong>
 
             <small>
-              Salas registradas en el calendario
+              <SSLocalized text={"Salas registradas en el calendario"} />
             </small>
           </article>
         </section>
@@ -709,7 +709,7 @@ function Calendario() {
             <div className="calendar-panel-header">
               <div>
                 <span className="calendar-section-label">
-                  Vista mensual
+                  <SSLocalized text={"Vista mensual"} />
                 </span>
 
                 <h2>
@@ -727,7 +727,7 @@ function Calendario() {
               <div className="calendar-navigation">
                 <button
                   type="button"
-                  aria-label="Mes anterior"
+                  aria-label={ssI18n.t("Mes anterior")}
                   onClick={
                     handlePreviousMonth
                   }
@@ -744,12 +744,12 @@ function Calendario() {
                     handleToday
                   }
                 >
-                  Hoy
+                  <SSLocalized text={"Hoy"} />
                 </button>
 
                 <button
                   type="button"
-                  aria-label="Mes siguiente"
+                  aria-label={ssI18n.t("Mes siguiente")}
                   onClick={
                     handleNextMonth
                   }
@@ -833,7 +833,7 @@ function Calendario() {
                           {
                             date.events
                           }{" "}
-                          evento
+                          <SSLocalized text={"evento"} />
                           {date.events >
                           1
                             ? "s"
@@ -852,11 +852,11 @@ function Calendario() {
               <div className="calendar-panel-header">
                 <div>
                   <span className="calendar-section-label">
-                    Agenda
+                    <SSLocalized text={"Agenda"} />
                   </span>
 
                   <h2>
-                    Eventos del día
+                    <SSLocalized text={"Eventos del día"} />
                   </h2>
                 </div>
 
@@ -871,7 +871,7 @@ function Calendario() {
                 {selectedDayEvents.length ===
                 0 ? (
                   <p>
-                    No hay eventos programados para este día.
+                    <SSLocalized text={"No hay eventos programados para este día."} />
                   </p>
                 ) : (
                   selectedDayEvents.map(
@@ -942,7 +942,7 @@ function Calendario() {
 
             <article className="calendar-panel calendar-focus-panel">
               <span className="calendar-section-label">
-                Focus de hoy
+                <SSLocalized text={"Focus de hoy"} />
               </span>
 
               <h2>
@@ -971,7 +971,7 @@ function Calendario() {
                           )),
                   ).length
                 }{" "}
-                sesiones programadas
+                <SSLocalized text={"sesiones programadas"} />
               </h2>
 
               <div className="calendar-progress-track">
@@ -979,7 +979,7 @@ function Calendario() {
               </div>
 
               <p>
-                Consulta tus sesiones Focus programadas y mantén organizada tu jornada de estudio.
+                <SSLocalized text={"Consulta tus sesiones Focus programadas y mantén organizada tu jornada de estudio."} />
               </p>
 
               <button
@@ -988,7 +988,7 @@ function Calendario() {
                 <Focus
                   size={17}
                 />
-                Iniciar Pomodoro
+                <SSLocalized text={"Iniciar Pomodoro"} />
               </button>
             </article>
           </aside>
@@ -1001,17 +1001,17 @@ function Calendario() {
             <header>
               <div>
                 <span className="calendar-section-label">
-                  Nueva actividad
+                  <SSLocalized text={"Nueva actividad"} />
                 </span>
 
                 <h2>
-                  Crear evento
+                  <SSLocalized text={"Crear evento"} />
                 </h2>
               </div>
 
               <button
                 type="button"
-                aria-label="Cerrar"
+                aria-label={ssI18n.t("Cerrar")}
                 onClick={() =>
                   setShowCreateModal(
                     false,
@@ -1029,7 +1029,7 @@ function Calendario() {
             >
               <label>
                 <span>
-                  Título
+                  <SSLocalized text={"Título"} />
                 </span>
 
                 <input
@@ -1041,14 +1041,14 @@ function Calendario() {
                   onChange={
                     handleFormChange
                   }
-                  placeholder="Nombre del evento"
+                  placeholder={ssI18n.t("Nombre del evento")}
                   required
                 />
               </label>
 
               <label>
                 <span>
-                  Tipo
+                  <SSLocalized text={"Tipo"} />
                 </span>
 
                 <select
@@ -1061,30 +1061,30 @@ function Calendario() {
                   }
                 >
                   <option value="Curso">
-                    Curso
+                    <SSLocalized text={"Curso"} />
                   </option>
 
                   <option value="Sala de estudio">
-                    Sala de estudio
+                    <SSLocalized text={"Sala de estudio"} />
                   </option>
 
                   <option value="Focus">
-                    Focus
+                    <SSLocalized text={"Focus"} />
                   </option>
 
                   <option value="Tarea">
-                    Tarea
+                    <SSLocalized text={"Tarea"} />
                   </option>
 
                   <option value="Otro">
-                    Otro
+                    <SSLocalized text={"Otro"} />
                   </option>
                 </select>
               </label>
 
               <label>
                 <span>
-                  Fecha
+                  <SSLocalized text={"Fecha"} />
                 </span>
 
                 <input
@@ -1102,7 +1102,7 @@ function Calendario() {
 
               <label>
                 <span>
-                  Hora de inicio
+                  <SSLocalized text={"Hora de inicio"} />
                 </span>
 
                 <input
@@ -1120,7 +1120,7 @@ function Calendario() {
 
               <label>
                 <span>
-                  Hora de finalización
+                  <SSLocalized text={"Hora de finalización"} />
                 </span>
 
                 <input
@@ -1137,7 +1137,7 @@ function Calendario() {
 
               <label>
                 <span>
-                  Participantes
+                  <SSLocalized text={"Participantes"} />
                 </span>
 
                 <input
@@ -1155,7 +1155,7 @@ function Calendario() {
 
               <label>
                 <span>
-                  Descripción
+                  <SSLocalized text={"Descripción"} />
                 </span>
 
                 <textarea
@@ -1167,7 +1167,7 @@ function Calendario() {
                     handleFormChange
                   }
                   rows="4"
-                  placeholder="Descripción opcional"
+                  placeholder={ssI18n.t("Descripción opcional")}
                 />
               </label>
 
@@ -1189,7 +1189,7 @@ function Calendario() {
                     isSaving
                   }
                 >
-                  Cancelar
+                  <SSLocalized text={"Cancelar"} />
                 </button>
 
                 <button

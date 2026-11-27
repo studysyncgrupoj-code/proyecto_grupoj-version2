@@ -1,3 +1,4 @@
+import SSLocalized from "../../i18n/Localized.jsx";
 import { GraduationCap } from "lucide-react";
 
 
@@ -14,8 +15,8 @@ function PageLoader() {
         </div>
 
         <div className="page-loader-brand">
-          <strong>StudySync</strong>
-          <span>Preparando tu espacio de estudio</span>
+          <strong><SSLocalized text={"StudySync"} /></strong>
+          <span><SSLocalized text={"Preparando tu espacio de estudio"} /></span>
         </div>
 
         <div className="page-loader-progress">
@@ -28,7 +29,7 @@ function PageLoader() {
           <span />
         </div>
 
-        <p>Cargando...</p>
+        <p><SSLocalized text={"Cargando..."} /></p>
       </div>
     </div>
   );
